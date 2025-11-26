@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SpongeSpin - Pump $COCKPANTS or Rip Your Portfolio</title>
+  <meta name="description" content="Spin SpongeBob eternally and join the $COCKPANTS revolution. CA: 516h3AJBX72YZvEGDJWsUaGePuub53kLVKH2NWeHpump">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+      height: 100vh; 
+      display: flex; 
+      justify-content: center; 
+      align-items: center; 
+      background: linear-gradient(45deg, #000000, #1a1a2e, #000000);
+      background-size: 400% 400%;
+      animation: gradient 15s ease infinite;
+      overflow: hidden; 
+      font-family: 'Comic Sans MS', cursive, sans-serif; 
+      color: lime; 
+      position: relative;
+      cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32"><text y="24" font-size="24">🩲</text></svg>'), auto;
+    }
+    @keyframes gradient {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    .spinner-container {
+      position: relative;
+      z-index: 5;
+    }
+    img { 
+      width: min(500px, 80vw); 
+      height: auto;
+      animation: spin 4s linear infinite; 
+      filter: drop-shadow(0 0 30px #ffff00);
+    }
+    @keyframes spin { 
+      100% { transform: rotate(360deg); } 
+    }
+    .warning { 
+      position: absolute; 
+      top: 20px; 
+      left: 50%;
+      transform: translateX(-50%);
+      color: yellow; 
+      font-size: clamp(14px, 4vw, 20px); 
+      text-align: center; 
+      text-shadow: 2px 2px 4px black;
+      animation: blink 1s infinite;
+      z-index: 100;
+      max-width: 90vw;
+    }
+    @keyframes blink {
+      0%, 50%, 100% { opacity: 1; }
+      25%, 75% { opacity: 0.5; }
+    }
+    .counter { 
+      position: absolute; 
+      bottom: 20px; 
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: clamp(20px, 6vw, 40px); 
+      text-align: center; 
+      color: #00ff00;
+      text-shadow: 2px 2px 8px black;
+      z-index: 100;
+      max-width: 90vw;
+    }
+    .shill { 
+      position: absolute; 
+      right: 10px; 
+      top: 60px; 
+      background: linear-gradient(135deg, #ffd700, #ffed4e);
+      color: black; 
+      padding: 15px; 
+      border-radius: 15px; 
+      text-align: center; 
+      font-size: clamp(10px, 2.5vw, 14px); 
+      box-shadow: 0 4px 15px rgba(255, 215, 0, 0.5);
+      max-width: min(250px, 40vw);
+      z-index: 100;
+    }
+    .shill strong { 
+      font-size: clamp(14px, 3.5vw, 18px); 
+      display: block; 
+      margin-bottom: 8px;
+      color: #ff0000;
+    }
+    .shill a { 
+      color: #0066cc; 
+      text-decoration: none; 
+      display: block;
+      margin: 5px 0;
+      word-break: break-all;
+    }
+    .shill a:hover { text-decoration: underline; }
+    .shill button { 
+      background: linear-gradient(135deg, #ff0000, #cc0000);
+      color: white; 
+      border: none; 
+      padding: 10px 15px; 
+      cursor: pointer; 
+      border-radius: 8px;
+      font-weight: bold;
+      margin-top: 10px;
+      font-size: clamp(10px, 2.5vw, 14px);
+      box-shadow: 0 2px 10px rgba(255, 0, 0, 0.5);
+      transition: transform 0.2s;
+    }
+    .shill button:hover { transform: scale(1.05); }
+    .market-cap { 
+      position: absolute; 
+      left: 10px; 
+      top: 60px; 
+      font-size: clamp(12px, 3vw, 18px); 
+      color: gold; 
+      text-shadow: 2px 2px 4px black;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 10px;
+      border-radius: 10px;
+      z-index: 100;
+      max-width: min(250px, 40vw);
+    }
+    .flash { 
+      position: fixed; 
+      top: 50%; 
+      left: 50%; 
+      transform: translate(-50%, -50%); 
+      font-size: clamp(40px, 12vw, 80px); 
+      color: red; 
+      opacity: 0; 
+      transition: opacity 0.5s; 
+      z-index: 200;
+      text-shadow: 4px 4px 8px black, 0 0 20px red;
+      pointer-events: none;
+    }
+    @media (max-width: 768px) {
+      .shill, .market-cap {
+        position: relative;
+        display: inline-block;
+        margin: 10px;
+        max-width: 90vw;
+      }
+      .mobile-info {
+        position: absolute;
+        top: 80px;
+        left: 0;
+        right: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="warning">⚠️ YOU ARE THE 9,999,999th VISITOR TO BIKINI BOTTOM!!! CLICK TO PUMP $COCKPANTS ⚠️</div>
+  
+  <div class="spinner-container">
+    <img src="https://i.imgur.com/SyXhuFa.gif" alt="Spinning SpongeBob – R.I.P. Pants" id="spinner">
+  </div>
+  
+  <div class="mobile-info">
+    <div class="market-cap">
+      💰 Market Cap: <br><span id="mcap">Loading...</span>
+    </div>
+    
+    <div class="shill">
+      <strong>$COCKPANTS</strong>
+      CA: <span style="font-size: 10px;">516h3A...Hpump</span><br>
+      <a href="https://dexscreener.com/solana/5Eh94i7aEtA8t21f1HbZoDgrtTTZcQq9nbEpFMAFShsg" target="_blank">📊 DexScreener</a>
+      <a href="https://x.com/CockPants_sol" target="_blank">🐦 @CockPants_sol</a>
+      <button onclick="buyNow()">🚀 BUY NOW</button>
+    </div>
+  </div>
+  
+  <div class="counter">You pumped $COCKPANTS <br><span id="count">0</span> times! 🩲</div>
+  <div class="flash" id="flash">MY PANTS! 🩲💥</div>
+
+  <script>
+    const CA = '516h3AJBX72YZvEGDJWsUaGePuub53kLVKH2NWeHpump';
+    const API_URL = `https://api.dexscreener.com/latest/dex/tokens/${CA}`;
+    
+    let count = parseInt(localStorage.getItem('cockpantsCount') || '0');
+    document.getElementById('count').innerText = count;
+    
+    let mcapInterval;
+    
+    function updateMarketCap() {
+      fetch(API_URL)
+        .then(res => res.json())
+        .then(data => {
+          if (data.pairs && data.pairs.length > 0) {
+            const pair = data.pairs[0];
+            const mcap = pair.marketCap;
+            const price = pair.priceUsd;
+            if (mcap) {
+              document.getElementById('mcap').innerHTML = `$${Number(mcap).toLocaleString()}<br><span style="font-size: 12px;">Price: $${price || 'N/A'}</span>`;
+            } else {
+              document.getElementById('mcap').innerText = 'Loading...';
+            }
+          } else {
+            document.getElementById('mcap').innerText = 'Check DexScreener';
+          }
+        })
+        .catch(() => {
+          document.getElementById('mcap').innerText = 'Loading...';
+        });
+    }
+    
+    updateMarketCap();
+    mcapInterval = setInterval(updateMarketCap, 10000);
+    
+    document.body.onclick = (e) => {
+      if (e.target.tagName !== 'A' && e.target.tagName !== 'BUTTON') {
+        count++;
+        document.getElementById("count").innerText = count;
+        localStorage.setItem('cockpantsCount', count);
+        
+        if (count % 10 === 0) {
+          document.getElementById('flash').style.opacity = 1;
+          setTimeout(() => { document.getElementById('flash').style.opacity = 0; }, 500);
+        }
+        
+        if (count === 69) {
+          alert("Nice pump, anon! 😏 $COCKPANTS to the moon 🚀");
+        }
+        if (count === 420) {
+          alert("🔥 Blaze it with SpongeBob – follow @CockPants_sol NOW! 🔥");
+        }
+        if (count === 1000) {
+          alert("🎉 1000 PUMPS! You're a certified $COCKPANTS degen! 🩲");
+        }
+      }
+    };
+    
+    function buyNow() {
+      window.open(`https://dexscreener.com/solana/5Eh94i7aEtA8t21f1HbZoDgrtTTZcQq9nbEpFMAFShsg`, '_blank');
+    }
+    
+    window.onbeforeunload = () => clearInterval(mcapInterval);
+  </script>
+</body>
+</html>
