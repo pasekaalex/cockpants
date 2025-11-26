@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>$COCKPANTS SpongeSpin - PUMP IT</title>
-  <meta name="description" content="Spin SpongeBob eternally and join the $COCKPANTS revolution. CA: 516h3AJBX72YZvEGDJWsUaGePuub53kLVKH2NWeHpump">
+  <title>$COCKPANTS | Bikini Bottom's #1 Memecoin 🍍</title>
+  <meta name="description" content="Are you ready kids?! Spin SpongeBob eternally and join the $COCKPANTS revolution! CA: 516h3AJBX72YZvEGDJWsUaGePuub53kLVKH2NWeHpump">
   <style>
     @font-face {
       font-family: 'Krabby Patty';
@@ -25,15 +25,46 @@
       align-items: center;
       overflow-x: hidden;
       position: relative;
-      background-color: #1a0a2e;
-      background-image: url('https://i.imgur.com/q8Qd5PK.jpeg');
-      background-size: cover;
-      background-position: center;
+      /* Bikini Bottom underwater gradient */
+      background: linear-gradient(180deg, 
+        #1a5a8a 0%,      /* Surface light blue */
+        #0d4a6e 20%,     /* Mid water */
+        #0a3a5c 40%,     /* Deeper */
+        #083050 60%,     /* Ocean floor approaching */
+        #f4d03f22 80%,   /* Sandy bottom glow */
+        #c9a227 100%     /* Sandy ocean floor */
+      );
       background-attachment: fixed;
       cursor: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><text y="24" font-size="24">🩲</text></svg>') 16 16, auto;
     }
     
-    /* Dark overlay for readability */
+    /* Animated color overlay for underwater shimmer */
+    body::after {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(-45deg, 
+        rgba(26, 90, 138, 0.3),
+        rgba(255, 230, 100, 0.1),
+        rgba(13, 74, 110, 0.3),
+        rgba(255, 150, 200, 0.1)
+      );
+      background-size: 400% 400%;
+      animation: shimmer 20s ease infinite;
+      z-index: 0;
+      pointer-events: none;
+    }
+    
+    @keyframes shimmer {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    
+    /* Underwater light rays effect */
     body::before {
       content: '';
       position: fixed;
@@ -41,8 +72,12 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0, 0, 0, 0.5);
+      background: 
+        radial-gradient(ellipse at 20% 0%, rgba(100, 200, 255, 0.2) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 0%, rgba(100, 255, 200, 0.15) 0%, transparent 40%),
+        radial-gradient(ellipse at 50% 100%, rgba(0, 50, 100, 0.5) 0%, transparent 60%);
       z-index: 0;
+      pointer-events: none;
     }
     
     /* Pulsing light effects */
@@ -62,6 +97,484 @@
     @keyframes pulseBg {
       0% { opacity: 0.5; }
       100% { opacity: 1; }
+    }
+    
+    /* Floating bubbles */
+    .bubble {
+      position: fixed;
+      background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.8), rgba(100, 200, 255, 0.3));
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 1;
+      animation: bubbleFloat linear infinite;
+    }
+    
+    @keyframes bubbleFloat {
+      0% { 
+        transform: translateY(100vh) scale(0);
+        opacity: 0;
+      }
+      10% {
+        opacity: 0.7;
+        transform: translateY(90vh) scale(1);
+      }
+      90% {
+        opacity: 0.7;
+      }
+      100% { 
+        transform: translateY(-10vh) scale(0.5);
+        opacity: 0;
+      }
+    }
+    
+    /* JELLYFISH */
+    .jellyfish {
+      position: fixed;
+      font-size: 40px;
+      pointer-events: none;
+      z-index: 1;
+      animation: jellyfishFloat 12s ease-in-out infinite;
+      filter: drop-shadow(0 0 10px rgba(255, 100, 200, 0.8));
+    }
+    
+    @keyframes jellyfishFloat {
+      0%, 100% { 
+        transform: translateY(0) translateX(0) rotate(-5deg);
+      }
+      25% {
+        transform: translateY(-30px) translateX(20px) rotate(5deg);
+      }
+      50% {
+        transform: translateY(-10px) translateX(-15px) rotate(-3deg);
+      }
+      75% {
+        transform: translateY(-40px) translateX(10px) rotate(8deg);
+      }
+    }
+    
+    /* SEAWEED */
+    .seaweed {
+      position: fixed;
+      bottom: 0;
+      font-size: 60px;
+      z-index: 1;
+      animation: seaweedSway 4s ease-in-out infinite;
+      transform-origin: bottom center;
+      pointer-events: none;
+    }
+    
+    @keyframes seaweedSway {
+      0%, 100% { transform: rotate(-5deg) scaleY(1); }
+      50% { transform: rotate(5deg) scaleY(1.05); }
+    }
+    
+    /* FLOWERS (like the ones from Jellyfish Fields) */
+    .flower {
+      position: fixed;
+      bottom: 0;
+      font-size: 35px;
+      z-index: 1;
+      pointer-events: none;
+      animation: flowerBob 3s ease-in-out infinite;
+    }
+    
+    @keyframes flowerBob {
+      0%, 100% { transform: translateY(0) rotate(-3deg); }
+      50% { transform: translateY(-5px) rotate(3deg); }
+    }
+    
+    /* KRABBY PATTY floating */
+    .krabby-patty {
+      position: fixed;
+      font-size: 30px;
+      pointer-events: none;
+      z-index: 1;
+      animation: pattyFloat 8s ease-in-out infinite;
+      filter: drop-shadow(0 0 15px rgba(255, 200, 50, 0.6));
+    }
+    
+    @keyframes pattyFloat {
+      0%, 100% { 
+        transform: translateY(0) rotate(0deg);
+        opacity: 0.8;
+      }
+      50% { 
+        transform: translateY(-20px) rotate(10deg);
+        opacity: 1;
+      }
+    }
+    
+    /* CORAL decorations */
+    .coral {
+      position: fixed;
+      bottom: 0;
+      font-size: 50px;
+      z-index: 1;
+      pointer-events: none;
+      filter: drop-shadow(0 5px 15px rgba(0,0,0,0.3));
+    }
+    
+    /* SANDY OCEAN FLOOR */
+    .ocean-floor {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 120px;
+      background: linear-gradient(0deg, 
+        #c9a227 0%,
+        #d4b341 30%,
+        #e8c84a 60%,
+        transparent 100%
+      );
+      z-index: 0;
+      pointer-events: none;
+    }
+    
+    .ocean-floor::before {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 60px;
+      background: 
+        radial-gradient(ellipse 80px 30px at 10% 100%, #b8922080 0%, transparent 100%),
+        radial-gradient(ellipse 60px 25px at 30% 95%, #c9a22780 0%, transparent 100%),
+        radial-gradient(ellipse 100px 35px at 50% 100%, #d4b34180 0%, transparent 100%),
+        radial-gradient(ellipse 70px 28px at 70% 98%, #b8922080 0%, transparent 100%),
+        radial-gradient(ellipse 90px 32px at 90% 100%, #c9a22780 0%, transparent 100%);
+    }
+    
+    /* ANCHOR decoration */
+    .anchor {
+      position: fixed;
+      font-size: 60px;
+      z-index: 1;
+      pointer-events: none;
+      filter: drop-shadow(0 5px 20px rgba(0,0,0,0.4));
+      animation: anchorSway 6s ease-in-out infinite;
+    }
+    
+    @keyframes anchorSway {
+      0%, 100% { transform: rotate(-3deg); }
+      50% { transform: rotate(3deg); }
+    }
+    
+    /* INTRO ANIMATION */
+    .intro-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #000;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      transition: opacity 0.5s, visibility 0.5s;
+    }
+    
+    .intro-overlay.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+    
+    .intro-text {
+      font-size: 48px;
+      color: #ffeb3b;
+      text-shadow: 3px 3px 0 #ff5722, 0 0 30px #ffeb3b;
+      text-align: center;
+      animation: introTextPop 0.5s ease-out;
+    }
+    
+    @keyframes introTextPop {
+      0% { transform: scale(0); opacity: 0; }
+      50% { transform: scale(1.3); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    
+    .intro-captain {
+      font-size: 60px;
+      margin-bottom: 20px;
+      animation: captainBounce 0.5s ease-out infinite alternate;
+    }
+    
+    @keyframes captainBounce {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(-10px); }
+    }
+    
+    /* TREASURE CHEST */
+    .treasure {
+      position: fixed;
+      font-size: 50px;
+      z-index: 1;
+      pointer-events: none;
+      filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.5));
+      animation: treasureGlow 2s ease-in-out infinite alternate;
+    }
+    
+    @keyframes treasureGlow {
+      0% { filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.3)); transform: scale(1); }
+      100% { filter: drop-shadow(0 0 40px rgba(255, 215, 0, 0.8)); transform: scale(1.05); }
+    }
+    
+    /* GARY THE SNAIL */
+    .gary {
+      position: fixed;
+      font-size: 35px;
+      z-index: 2;
+      pointer-events: none;
+      animation: garyMove 20s linear infinite;
+    }
+    
+    @keyframes garyMove {
+      0% { transform: translateX(-50px) scaleX(1); }
+      49% { transform: translateX(calc(100vw + 50px)) scaleX(1); }
+      50% { transform: translateX(calc(100vw + 50px)) scaleX(-1); }
+      99% { transform: translateX(-50px) scaleX(-1); }
+      100% { transform: translateX(-50px) scaleX(1); }
+    }
+    
+    /* MR KRABS MONEY */
+    .money-float {
+      position: fixed;
+      font-size: 30px;
+      pointer-events: none;
+      z-index: 1;
+      animation: moneyFloat 6s ease-in-out infinite;
+      filter: drop-shadow(0 0 10px rgba(0, 255, 0, 0.5));
+    }
+    
+    @keyframes moneyFloat {
+      0%, 100% { transform: translateY(0) rotate(-5deg); }
+      50% { transform: translateY(-30px) rotate(5deg); }
+    }
+    
+    /* MR KRABS "FEELING IT" MODE */
+    .krabs-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 200;
+      overflow: hidden;
+    }
+    
+    .krabs-image {
+      position: absolute;
+      width: 150px;
+      height: auto;
+      animation: krabsChaos 0.3s ease-in-out infinite;
+      filter: drop-shadow(0 0 20px rgba(255, 0, 0, 0.8));
+    }
+    
+    @keyframes krabsChaos {
+      0% { transform: scale(1) rotate(-15deg); filter: hue-rotate(0deg) brightness(1.5); }
+      25% { transform: scale(1.3) rotate(15deg); filter: hue-rotate(90deg) brightness(2); }
+      50% { transform: scale(0.8) rotate(-10deg); filter: hue-rotate(180deg) brightness(1.5); }
+      75% { transform: scale(1.2) rotate(10deg); filter: hue-rotate(270deg) brightness(2); }
+      100% { transform: scale(1) rotate(-15deg); filter: hue-rotate(360deg) brightness(1.5); }
+    }
+    
+    .feeling-it-text {
+      position: fixed;
+      top: 15%;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 42px;
+      color: #ff0000;
+      text-shadow: 3px 3px 0 #000, 0 0 30px #ff0000, 0 0 60px #ffff00;
+      z-index: 250;
+      opacity: 0;
+      white-space: nowrap;
+      letter-spacing: 3px;
+      pointer-events: none;
+    }
+    
+    .feeling-it-text.visible {
+      opacity: 1;
+      animation: feelingItPulse 0.2s ease-in-out infinite;
+    }
+    
+    @keyframes feelingItPulse {
+      0% { transform: translateX(-50%) scale(1) rotate(-2deg); color: #ff0000; }
+      50% { transform: translateX(-50%) scale(1.1) rotate(2deg); color: #ffff00; }
+      100% { transform: translateX(-50%) scale(1) rotate(-2deg); color: #ff0000; }
+    }
+    
+    /* SHOP PANEL (Cookie Clicker style) */
+    .shop-toggle {
+      position: fixed;
+      right: 0;
+      top: 20%;
+      background: linear-gradient(135deg, #4CAF50, #2E7D32);
+      color: #fff;
+      border: none;
+      padding: 15px 10px;
+      font-family: 'Krabby Patty', Arial, sans-serif;
+      font-size: 18px;
+      cursor: pointer;
+      z-index: 1000;
+      border-radius: 10px 0 0 10px;
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      letter-spacing: 2px;
+      box-shadow: 0 0 20px rgba(76, 175, 80, 0.5);
+      transition: all 0.3s;
+    }
+    
+    .shop-toggle:hover {
+      padding-right: 20px;
+      box-shadow: 0 0 40px rgba(76, 175, 80, 0.8);
+    }
+    
+    .shop-panel {
+      position: fixed;
+      right: -380px;
+      top: 0;
+      width: 350px;
+      height: 100%;
+      background: linear-gradient(180deg, rgba(20, 40, 20, 0.98), rgba(10, 30, 10, 0.98));
+      border-left: 4px solid #4CAF50;
+      z-index: 1001;
+      transition: right 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      overflow-y: auto;
+      padding: 20px;
+      box-shadow: -10px 0 50px rgba(76, 175, 80, 0.3);
+    }
+    
+    .shop-panel.open {
+      right: 0;
+    }
+    
+    .shop-close {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: #ff0000;
+      color: #fff;
+      border: none;
+      width: 40px;
+      height: 40px;
+      font-size: 24px;
+      cursor: pointer;
+      border-radius: 50%;
+      font-family: Arial, sans-serif;
+      z-index: 10;
+    }
+    
+    .shop-panel h2 {
+      color: #4CAF50;
+      text-shadow: 0 0 20px #4CAF50;
+      margin-bottom: 15px;
+      font-size: 28px;
+      letter-spacing: 2px;
+    }
+    
+    .shop-stats {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 15px;
+      border: 2px solid rgba(76, 175, 80, 0.3);
+      color: #fff;
+      font-size: 16px;
+    }
+    
+    .shop-stats div {
+      margin: 5px 0;
+    }
+    
+    .upgrade-item {
+      background: rgba(255, 255, 255, 0.05);
+      border: 2px solid rgba(76, 175, 80, 0.3);
+      border-radius: 10px;
+      padding: 15px;
+      margin: 10px 0;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .upgrade-item:hover:not(.locked) {
+      background: rgba(76, 175, 80, 0.2);
+      border-color: #4CAF50;
+      transform: translateX(-5px);
+      box-shadow: 0 0 20px rgba(76, 175, 80, 0.3);
+    }
+    
+    .upgrade-item.locked {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    .upgrade-item.purchased {
+      background: rgba(76, 175, 80, 0.3);
+      border-color: #4CAF50;
+    }
+    
+    .upgrade-item .icon {
+      font-size: 32px;
+      float: left;
+      margin-right: 10px;
+    }
+    
+    .upgrade-item .name {
+      color: #4CAF50;
+      font-size: 18px;
+      margin-bottom: 5px;
+    }
+    
+    .upgrade-item .desc {
+      color: #aaa;
+      font-size: 12px;
+      margin-bottom: 5px;
+    }
+    
+    .upgrade-item .cost {
+      color: #ffd700;
+      font-size: 14px;
+    }
+    
+    .upgrade-item .owned {
+      color: #4CAF50;
+      font-size: 12px;
+      float: right;
+    }
+    
+    /* STARFISH */
+    .starfish {
+      position: fixed;
+      font-size: 40px;
+      z-index: 1;
+      pointer-events: none;
+      animation: starfishWiggle 5s ease-in-out infinite;
+    }
+    
+    @keyframes starfishWiggle {
+      0%, 100% { transform: rotate(-10deg); }
+      50% { transform: rotate(10deg); }
+    }
+    
+    /* Pineapple house decorations */
+    .pineapple {
+      position: fixed;
+      font-size: 80px;
+      z-index: 1;
+      pointer-events: none;
+      filter: drop-shadow(0 10px 30px rgba(0,0,0,0.5));
+      animation: pineapplePulse 4s ease-in-out infinite;
+    }
+    
+    @keyframes pineapplePulse {
+      0%, 100% { transform: scale(1); filter: drop-shadow(0 10px 30px rgba(0,0,0,0.5)) brightness(1); }
+      50% { transform: scale(1.02); filter: drop-shadow(0 10px 40px rgba(255,200,50,0.3)) brightness(1.1); }
     }
     
     /* COLOR FLASH EFFECT FOR STROKE MODE */
@@ -111,11 +624,14 @@
       font-size: 22px;
       text-align: center;
       padding: 15px;
-      text-shadow: 2px 2px 4px #000, 0 0 20px #ff00ff, 0 0 40px #00ffff;
+      text-shadow: 2px 2px 4px #000, 0 0 20px #ffcc00, 0 0 40px #ff6b9d;
       z-index: 2;
       position: relative;
       letter-spacing: 2px;
       animation: warningPulse 1s ease-in-out infinite alternate;
+      background: linear-gradient(90deg, transparent, rgba(255, 200, 50, 0.1), transparent);
+      border-radius: 20px;
+      margin: 10px;
     }
     
     @keyframes warningPulse {
@@ -252,13 +768,21 @@
     
     .counter {
       font-size: 32px;
-      color: #00ff00;
-      text-shadow: 3px 3px 0 #000, 0 0 30px #00ff00;
+      color: #ffcc00;
+      text-shadow: 3px 3px 0 #000, 0 0 30px #ffcc00, 0 0 60px #ff6b35;
       text-align: center;
       padding: 20px;
       z-index: 2;
       position: relative;
       letter-spacing: 2px;
+    }
+    
+    .pumps-per-second {
+      font-size: 16px;
+      color: #4CAF50;
+      margin-top: 8px;
+      text-shadow: 2px 2px 0 #000, 0 0 15px #4CAF50;
+      letter-spacing: 1px;
     }
     
     .flash {
@@ -293,8 +817,8 @@
       left: 50%;
       transform: translateX(-50%);
       font-size: 48px;
-      color: #ff00ff;
-      text-shadow: 3px 3px 0 #000, 0 0 30px #ff00ff, 0 0 60px #00ffff;
+      color: #ffcc00;
+      text-shadow: 3px 3px 0 #000, 0 0 30px #ffcc00, 0 0 60px #ff6b35;
       opacity: 0;
       z-index: 15;
       pointer-events: none;
@@ -387,7 +911,7 @@
     .streak-bar {
       height: 100%;
       width: 0%;
-      background: linear-gradient(90deg, #00ff00, #ffff00, #ff0000);
+      background: linear-gradient(90deg, #ffeb3b, #ffc107, #ff9800, #ff5722);
       transition: width 0.2s;
       box-shadow: 0 0 20px currentColor;
     }
@@ -406,14 +930,14 @@
       100% { opacity: 0; transform: translate(var(--tx), var(--ty)) scale(0) rotate(720deg); }
     }
     
-    /* INFO SIDEBAR (Right) */
+    /* INFO SIDEBAR (Right) - Krusty Krab Menu Style */
     .sidebar-toggle {
       position: fixed;
       right: 0;
       top: 50%;
       transform: translateY(-50%);
-      background: linear-gradient(135deg, #ff00ff, #00ffff);
-      color: #000;
+      background: linear-gradient(135deg, #ffcc00, #ff6b35);
+      color: #8b0000;
       border: none;
       padding: 15px 10px;
       font-family: 'Krabby Patty', Arial, sans-serif;
@@ -424,13 +948,14 @@
       writing-mode: vertical-rl;
       text-orientation: mixed;
       letter-spacing: 2px;
-      box-shadow: 0 0 20px rgba(255, 0, 255, 0.5);
+      box-shadow: 0 0 20px rgba(255, 200, 50, 0.5);
       transition: all 0.3s;
+      font-weight: bold;
     }
     
     .sidebar-toggle:hover {
       padding-right: 20px;
-      box-shadow: 0 0 40px rgba(255, 0, 255, 0.8);
+      box-shadow: 0 0 40px rgba(255, 200, 50, 0.8);
     }
     
     .sidebar {
@@ -439,13 +964,13 @@
       top: 0;
       width: 320px;
       height: 100%;
-      background: linear-gradient(180deg, rgba(20, 0, 40, 0.98), rgba(0, 20, 40, 0.98));
-      border-left: 4px solid #ff00ff;
+      background: linear-gradient(180deg, rgba(139, 69, 19, 0.98), rgba(101, 67, 33, 0.98));
+      border-left: 4px solid #ffcc00;
       z-index: 1001;
       transition: right 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
       overflow-y: auto;
       padding: 20px;
-      box-shadow: -10px 0 50px rgba(255, 0, 255, 0.3);
+      box-shadow: -10px 0 50px rgba(255, 200, 50, 0.3);
     }
     
     .sidebar.open {
@@ -498,20 +1023,21 @@
     
     .sidebar-section a {
       display: block;
-      color: #00ff00;
+      color: #ffcc00;
       text-decoration: none;
       padding: 10px;
       margin: 5px 0;
-      background: rgba(0, 255, 0, 0.1);
+      background: rgba(255, 200, 50, 0.15);
       border-radius: 5px;
       transition: all 0.3s;
       font-size: 16px;
+      border: 1px solid rgba(255, 200, 50, 0.3);
     }
     
     .sidebar-section a:hover {
-      background: rgba(0, 255, 0, 0.3);
+      background: rgba(255, 200, 50, 0.4);
       transform: translateX(5px);
-      box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+      box-shadow: 0 0 20px rgba(255, 200, 50, 0.5);
     }
     
     #mcap {
@@ -683,35 +1209,79 @@
     
     /* Mobile styles */
     @media (max-width: 768px) {
-      .warning { font-size: 16px; padding: 10px; }
-      .spinner { width: 250px; }
-      .counter { font-size: 24px; }
-      .flash { font-size: 50px; }
-      .combo-display { font-size: 32px; }
-      .stroke-banner { font-size: 40px; }
-      .multiplier { font-size: 24px; }
-      .streak-container { width: 200px; }
-      .sponge-text { font-size: 20px; top: -40px; }
+      .warning { font-size: 14px; padding: 8px; }
+      .spinner { width: 220px; }
+      .counter { font-size: 20px; }
+      .flash { font-size: 40px; }
+      .combo-display { font-size: 28px; }
+      .stroke-banner { font-size: 32px; }
+      .multiplier { font-size: 20px; }
+      .streak-container { width: 180px; }
+      .sponge-text { font-size: 18px; top: -35px; }
       
       .reaction-image {
-        width: 200px;
-        max-width: 40vw;
+        width: 150px;
+        max-width: 35vw;
       }
       
       .sidebar {
-        width: 90%;
-        right: -95%;
+        width: 85%;
+        right: -90%;
       }
       
       .achievements-sidebar {
-        width: 90%;
-        left: -95%;
+        width: 85%;
+        left: -90%;
+      }
+      
+      .shop-panel {
+        width: 85%;
+        right: -90%;
       }
       
       .sidebar-toggle,
-      .achievements-toggle {
+      .achievements-toggle,
+      .shop-toggle {
+        font-size: 12px;
+        padding: 8px 6px;
+      }
+      
+      .feeling-it-text {
+        font-size: 24px;
+        top: 12%;
+      }
+      
+      .krabs-image {
+        width: 80px;
+      }
+      
+      .intro-text {
+        font-size: 28px;
+        padding: 0 10px;
+      }
+      
+      .banner img {
+        max-width: 95%;
+      }
+      
+      /* Hide some decorations on mobile for performance */
+      .jellyfish:nth-child(n+3),
+      .seaweed:nth-child(n+4),
+      .flower:nth-child(n+4),
+      .money-float {
+        display: none;
+      }
+      
+      .upgrade-item {
+        padding: 10px;
+      }
+      
+      .upgrade-item .icon {
+        font-size: 24px;
+      }
+      
+      .upgrade-item .name {
         font-size: 14px;
-        padding: 10px 8px;
       }
     }
   </style>
@@ -720,13 +1290,19 @@
   <!-- Color flash overlay for STROKE MODE -->
   <div class="color-flash" id="colorFlash"></div>
   
+  <!-- INTRO ANIMATION -->
+  <div class="intro-overlay" id="introOverlay">
+    <div class="intro-captain">🧽</div>
+    <div class="intro-text" id="introText">ARE YOU READY KIDS?!</div>
+  </div>
+  
   <!-- Banner -->
   <div class="banner">
     <img src="https://i.imgur.com/CzRu9jK.gif" alt="$COCKPANTS Banner">
   </div>
   
   <!-- Warning text -->
-  <div class="warning">🚨 YOU ARE THE 9,999,999th VISITOR TO BIKINI BOTTOM!!! CLICK TO PUMP $COCKPANTS 🚨</div>
+  <div class="warning">🍍 AHOY THERE! YOU'RE THE 9,999,999th VISITOR TO BIKINI BOTTOM!!! CLICK TO PUMP $COCKPANTS 🦀</div>
   
   <!-- Multiplier -->
   <div class="multiplier" id="multiplier">1x MULTIPLIER</div>
@@ -743,16 +1319,22 @@
   </div>
   
   <!-- Counter -->
-  <div class="counter">You have pumped $COCKPANTS <span id="count">0</span> times</div>
+  <div class="counter">
+    You have pumped $COCKPANTS <span id="count">0</span> times
+    <div class="pumps-per-second" id="ppsDisplay"></div>
+  </div>
   
   <!-- Flash text -->
-  <div class="flash" id="flash">MY PANTS!</div>
+  <div class="flash" id="flash">MY LEG! 🦵</div>
   
   <!-- Combo display -->
   <div class="combo-display" id="comboDisplay"></div>
   
   <!-- STROKE MODE banner -->
-  <div class="stroke-banner" id="strokeBanner">🔥 STROKE MODE ACTIVATED! 🔥</div>
+  <div class="stroke-banner" id="strokeBanner">🔥 I'M READY! STROKE MODE! 🔥</div>
+  
+  <!-- FEELING IT text -->
+  <div class="feeling-it-text" id="feelingItText">🦀 ARE YOU FEELING IT NOW MR. KRABS?! 🦀</div>
   
   <!-- Reaction image (side popup) -->
   <img src="" alt="Reaction" class="reaction-image" id="reactionImage">
@@ -791,13 +1373,29 @@
   </div>
   
   <!-- ACHIEVEMENTS Sidebar Toggle (Left Bottom) -->
-  <button class="achievements-toggle" onclick="toggleAchievements()">🏆 ACHIEVEMENTS</button>
+  <button class="achievements-toggle" id="achievementsToggleBtn">🏆 ACHIEVEMENTS</button>
   
   <!-- ACHIEVEMENTS Sidebar -->
   <div class="achievements-sidebar" id="achievementsSidebar">
-    <button class="achievements-close" onclick="toggleAchievements()">✕</button>
+    <button class="achievements-close" id="achievementsCloseBtn">✕</button>
     <h2>🏆 ACHIEVEMENTS</h2>
     <div id="achievementsList"></div>
+  </div>
+  
+  <!-- MR KRABS FEELING IT container -->
+  <div class="krabs-container" id="krabsContainer"></div>
+  
+  <!-- UPGRADES SHOP (Cookie Clicker style) -->
+  <div class="shop-toggle" id="shopToggle">🛒 SHOP</div>
+  <div class="shop-panel" id="shopPanel">
+    <button class="shop-close" id="shopCloseBtn">✕</button>
+    <h2>🦀 KRUSTY SHOP 🦀</h2>
+    <div class="shop-stats">
+      <div>💰 Pumps: <span id="shopPumps">0</span></div>
+      <div>⚡ Per Click: <span id="perClick">1</span></div>
+      <div>🤖 Auto Pumps/s: <span id="autoPumps">0</span></div>
+    </div>
+    <div id="upgradesList"></div>
   </div>
 
   <script>
@@ -812,26 +1410,43 @@
       'https://i.imgur.com/vaKsAXk.jpeg'
     ];
     
-    // SPONGEBOB QUOTES
+    // SPONGEBOB QUOTES - The classics!
     const quotes = [
-      "I'm ready!", "Aye aye captain!", "F is for fire!", "FIRMLY GRASP IT!",
-      "I NEED IT!", "MY LEG!", "IMAGINATION! ✨", "Is mayonnaise an instrument?",
-      "CHOCOLATE!", "I'M A GOOFY GOOBER!", "SWEET VICTORY!", "THE BEST DAY EVER!",
-      "Bring it around town!", "TECHNIQUE!", "LEEDLE LEEDLE LEE!"
+      "I'm ready!", "I'M READY! I'M READY! I'M READY!", "Aye aye captain!", 
+      "F is for FIRE that burns down the whole town!", "FIRMLY GRASP IT!",
+      "I NEED IT!", "MY LEG! 🦵", "IMAGINATION! ✨", "Is mayonnaise an instrument?",
+      "CHOCOLATE! CHOCOLATE!! 🍫", "I'M A GOOFY GOOBER! ROCK! 🎸", 
+      "SWEET VICTORY! 🏆", "THE BEST DAY EVER!", "Bring it around town!",
+      "TECHNIQUE! TECHNIQUE!", "LEEDLE LEEDLE LEEDLE LEE!", "FUTURE! FUTURE! 🔮",
+      "The inner machinations of my mind are an enigma... 🥛",
+      "SOILED IT! SOILED IT! SOILED IT!", "VICTORY SCREECH! OLOLOLOLO!",
+      "I don't need it... I DEFINITELY don't need it... I NEEEED IIIT!",
+      "Ravioli ravioli give me the formuoli! 📜", "Rev up those fryers! 🍟",
+      "Too bad that didn't kill me 💀", "CORRECT! ✅", "25! 📦",
+      "ARE YOU FEELING IT NOW MR. KRABS?! 🦀", "I SMELL MONEY! 💰💰💰",
+      "TARTAR SAUCE!", "Holy shrimp! 🦐", "Oh barnacles!",
+      "The Krusty Krab pizza is the pizza for you and me! 🍕",
+      "NO! THIS IS PATRICK! 📞⭐", "WEENIE HUT JR'S?! 🌭",
+      "Welcome to the Salty Spitoon 💪", "The hash-slinging slasher! 👻",
+      "MY EYES! 👀", "INDOORS~! Take it away Penny! 🎵",
+      "It's not just a boulder... IT'S A ROCK! 🪨", "Wumbo.",
+      "One eternity later... ⏰", "DABBING?! 🧽",
+      "BUSINESS BUSINESS BUSINESS! Numbers! 📊", "Is this the Krusty Krab? 🦀",
+      "WHO PUT YOU ON THE PLANET?! 😤", "THE LID! 🥤"
     ];
     
-    // ACHIEVEMENTS
+    // ACHIEVEMENTS - SpongeBob themed!
     const achievements = [
-      { id: 'pump1', name: 'First Pump', desc: 'Pump 1 time', icon: '🩲', requirement: 1, type: 'pumps' },
-      { id: 'pump10', name: 'Getting Started', desc: 'Pump 10 times', icon: '💪', requirement: 10, type: 'pumps' },
-      { id: 'pump50', name: 'Dedicated Pumper', desc: 'Pump 50 times', icon: '🔥', requirement: 50, type: 'pumps' },
-      { id: 'pump100', name: 'Century Club', desc: 'Pump 100 times', icon: '💯', requirement: 100, type: 'pumps' },
-      { id: 'pump500', name: 'Pump Master', desc: 'Pump 500 times', icon: '👑', requirement: 500, type: 'pumps' },
-      { id: 'pump1000', name: 'LEGEND', desc: 'Pump 1000 times', icon: '🏆', requirement: 1000, type: 'pumps' },
-      { id: 'combo5', name: 'Combo Starter', desc: '5x Combo', icon: '⚡', requirement: 5, type: 'combo' },
-      { id: 'combo10', name: 'Stroke Artist', desc: '10x Combo', icon: '💥', requirement: 10, type: 'combo' },
-      { id: 'combo30', name: 'Combo King', desc: '30x Combo', icon: '🌟', requirement: 30, type: 'combo' },
-      { id: 'combo50', name: 'STROKE GOD', desc: '50x Combo (Enter STROKE MODE)', icon: '😈', requirement: 50, type: 'combo' },
+      { id: 'pump1', name: 'Aye Aye Captain!', desc: 'First pump', icon: '🧽', requirement: 1, type: 'pumps' },
+      { id: 'pump10', name: 'Fry Cook Trainee', desc: 'Pump 10 times', icon: '🍔', requirement: 10, type: 'pumps' },
+      { id: 'pump50', name: 'Employee of the Month', desc: 'Pump 50 times', icon: '⭐', requirement: 50, type: 'pumps' },
+      { id: 'pump100', name: 'Krusty Krab VIP', desc: 'Pump 100 times', icon: '🦀', requirement: 100, type: 'pumps' },
+      { id: 'pump500', name: 'Bikini Bottom Legend', desc: 'Pump 500 times', icon: '🍍', requirement: 500, type: 'pumps' },
+      { id: 'pump1000', name: 'GOOFY GOOBER', desc: 'Pump 1000 times', icon: '👑', requirement: 1000, type: 'pumps' },
+      { id: 'combo5', name: 'Jellyfish Catcher', desc: '5x Combo', icon: '🪼', requirement: 5, type: 'combo' },
+      { id: 'combo10', name: 'Karate Master', desc: '10x Combo', icon: '🥋', requirement: 10, type: 'combo' },
+      { id: 'combo30', name: 'Hall Monitor', desc: '30x Combo', icon: '🚨', requirement: 30, type: 'combo' },
+      { id: 'combo50', name: 'SWEET VICTORY!', desc: '50x Combo (STROKE MODE)', icon: '🏆', requirement: 50, type: 'combo' },
     ];
     
     // STATE - Resets on refresh
@@ -922,7 +1537,14 @@
     function createParticle(x, y) {
       const particle = document.createElement('div');
       particle.className = 'particle';
-      particle.textContent = ['🩲', '💰', '⭐', '🔥', '💥', '✨', '🚀', '💎'][Math.floor(Math.random() * 8)];
+      // Ultimate SpongeBob themed particles!
+      const spongeParticles = [
+        '🩲', '💰', '⭐', '🔥', '💥', '✨', '🚀', '💎', 
+        '🍔', '🪼', '🐚', '🦀', '🧽', '🥒', '🍍', '💵',
+        '🦑', '🐿️', '🥜', '🎸', '🏆', '🦐', '🐌', '🪨',
+        '🍕', '🌭', '🥤', '📦', '🎺', '🪣', '⚓', '🧈'
+      ];
+      particle.textContent = spongeParticles[Math.floor(Math.random() * spongeParticles.length)];
       particle.style.left = x + 'px';
       particle.style.top = y + 'px';
       const angle = Math.random() * Math.PI * 2;
@@ -961,13 +1583,15 @@
     function updateCombo() {
       let text = '';
       if (combo >= 50) {
-        text = `COCK GODLIKE! 👑 ${combo}x`;
+        text = `🎸 GOOFY GOOBER! 👑 ${combo}x`;
       } else if (combo >= 30) {
-        text = `MEGA STROKE! ⚡ ${combo}x`;
+        text = `🦀 FEELING IT NOW! ⚡ ${combo}x`;
+      } else if (combo >= 20) {
+        text = `🍔 KRABBY COMBO! 💥 ${combo}x`;
       } else if (combo >= 10) {
-        text = `STROKE COMBO! 💥 ${combo}x`;
+        text = `🪼 STROKE COMBO! 🔥 ${combo}x`;
       } else if (combo >= 5) {
-        text = `PUMP COMBO! 🔥 ${combo}x`;
+        text = `🩲 PUMP COMBO! ✨ ${combo}x`;
       }
       
       if (text) {
@@ -1028,15 +1652,25 @@
     
     // Main click handler
     document.body.addEventListener('click', (e) => {
-      // Don't count clicks on buttons/sidebar
+      // Don't count clicks on buttons/sidebar/shop
       if (e.target.closest('.sidebar') || 
           e.target.closest('.achievements-sidebar') || 
           e.target.closest('.sidebar-toggle') || 
-          e.target.closest('.achievements-toggle')) return;
+          e.target.closest('.achievements-toggle') ||
+          e.target.closest('.shop-panel') ||
+          e.target.closest('.shop-toggle') ||
+          e.target.closest('#achievementsToggleBtn') ||
+          e.target.closest('#achievementsCloseBtn') ||
+          e.target.closest('#shopToggle') ||
+          e.target.closest('#shopCloseBtn')) return;
       
-      count++;
+      // Add perClick amount (Cookie Clicker style!)
+      count += perClick;
       combo++;
-      countEl.textContent = count;
+      countEl.textContent = count.toLocaleString();
+      
+      // Update shop stats
+      renderUpgrades();
       
       // Scale up
       pumpScale = Math.min(pumpScale + 0.05, 2.5);
@@ -1048,14 +1682,31 @@
       // Check achievements
       checkAchievements();
       
-      // Create particles
-      const numParticles = strokeMode ? 10 : 3;
+      // Create particles (more with higher perClick!)
+      const numParticles = strokeMode ? 10 : Math.min(3 + Math.floor(perClick / 5), 10);
       for (let i = 0; i < numParticles; i++) {
         createParticle(e.clientX, e.clientY);
       }
       
-      // Show flash every 10 clicks
+      // MR KRABS "FEELING IT" MODE - triggers at combo 15-25
+      if (combo >= 15 && combo <= 25 && !feelingItActive && Math.random() < 0.3) {
+        triggerFeelingIt();
+      }
+      
+      // Also trigger feeling it randomly on fast clicking
+      if (combo >= 20 && Math.random() < 0.1) {
+        triggerFeelingIt();
+      }
+      
+      // Show flash every 10 clicks with rotating SpongeBob phrases
       if (count % 10 === 0) {
+        const flashPhrases = [
+          "MY LEG! 🦵", "I'M READY! 🧽", "CHOCOLATE! 🍫", 
+          "MY PANTS! 🩲", "IMAGINATION! ✨", "TECHNIQUE! 🥋",
+          "LEEDLE LEE! 👅", "VICTORY! 🏆", "TARTAR SAUCE! 🐟",
+          "25! 📦", "FUTURE! 🔮", "WUMBO! 🔄"
+        ];
+        flashEl.textContent = flashPhrases[Math.floor(Math.random() * flashPhrases.length)];
         flashEl.classList.add('visible');
         setTimeout(() => flashEl.classList.remove('visible'), 500);
       }
@@ -1104,6 +1755,391 @@
     function toggleAchievements() {
       document.getElementById('achievementsSidebar').classList.toggle('open');
     }
+    
+    // Set up button event listeners properly
+    document.getElementById('achievementsToggleBtn').addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleAchievements();
+    });
+    
+    document.getElementById('achievementsCloseBtn').addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleAchievements();
+    });
+    
+    // Shop toggle
+    document.getElementById('shopToggle').addEventListener('click', (e) => {
+      e.stopPropagation();
+      document.getElementById('shopPanel').classList.toggle('open');
+    });
+    
+    document.getElementById('shopCloseBtn').addEventListener('click', (e) => {
+      e.stopPropagation();
+      document.getElementById('shopPanel').classList.remove('open');
+    });
+    
+    // COOKIE CLICKER STYLE UPGRADES
+    const upgrades = [
+      { id: 'spatula', name: 'Golden Spatula', desc: '+1 pump per click', icon: '🥄', baseCost: 15, costMultiplier: 1.5, effect: 'perClick', effectValue: 1, owned: 0 },
+      { id: 'patty', name: 'Krabby Patty', desc: '+1 auto pump per second', icon: '🍔', baseCost: 100, costMultiplier: 1.4, effect: 'autoClick', effectValue: 1, owned: 0 },
+      { id: 'gary', name: 'Gary Helper', desc: '+5 auto pumps per second', icon: '🐌', baseCost: 500, costMultiplier: 1.5, effect: 'autoClick', effectValue: 5, owned: 0 },
+      { id: 'jellyfish', name: 'Jellyfish Net', desc: '+2 pumps per click', icon: '🪼', baseCost: 250, costMultiplier: 1.6, effect: 'perClick', effectValue: 2, owned: 0 },
+      { id: 'bubble', name: 'Bubble Blower', desc: '+10 auto pumps per second', icon: '🫧', baseCost: 2000, costMultiplier: 1.5, effect: 'autoClick', effectValue: 10, owned: 0 },
+      { id: 'anchor', name: 'Anchor Arms', desc: '+5 pumps per click', icon: '⚓', baseCost: 1000, costMultiplier: 1.7, effect: 'perClick', effectValue: 5, owned: 0 },
+      { id: 'money', name: 'Mr. Krabs\' Vault', desc: '+50 auto pumps per second', icon: '💰', baseCost: 10000, costMultiplier: 1.5, effect: 'autoClick', effectValue: 50, owned: 0 },
+      { id: 'pineapple', name: 'Pineapple House', desc: '+20 pumps per click', icon: '🍍', baseCost: 5000, costMultiplier: 1.8, effect: 'perClick', effectValue: 20, owned: 0 },
+      { id: 'formula', name: 'Secret Formula', desc: '+200 auto pumps per second', icon: '📜', baseCost: 50000, costMultiplier: 1.6, effect: 'autoClick', effectValue: 200, owned: 0 },
+      { id: 'neptune', name: 'Neptune\'s Crown', desc: '+100 pumps per click', icon: '👑', baseCost: 100000, costMultiplier: 2.0, effect: 'perClick', effectValue: 100, owned: 0 },
+    ];
+    
+    let perClick = 1;
+    let autoPerSecond = 0;
+    let autoInterval = null;
+    let feelingItActive = false;
+    let feelingItTimeout = null;
+    
+    // Calculate upgrade cost
+    function getUpgradeCost(upgrade) {
+      return Math.floor(upgrade.baseCost * Math.pow(upgrade.costMultiplier, upgrade.owned));
+    }
+    
+    // Render upgrades
+    function renderUpgrades() {
+      const list = document.getElementById('upgradesList');
+      list.innerHTML = upgrades.map(u => {
+        const cost = getUpgradeCost(u);
+        const canAfford = count >= cost;
+        return `
+          <div class="upgrade-item ${canAfford ? '' : 'locked'} ${u.owned > 0 ? 'purchased' : ''}" 
+               data-id="${u.id}" onclick="buyUpgrade('${u.id}')">
+            <span class="icon">${u.icon}</span>
+            <span class="owned">${u.owned > 0 ? 'x' + u.owned : ''}</span>
+            <div class="name">${u.name}</div>
+            <div class="desc">${u.desc}</div>
+            <div class="cost">💰 ${cost.toLocaleString()} pumps</div>
+          </div>
+        `;
+      }).join('');
+      
+      // Update stats
+      document.getElementById('shopPumps').textContent = count.toLocaleString();
+      document.getElementById('perClick').textContent = perClick;
+      document.getElementById('autoPumps').textContent = autoPerSecond;
+    }
+    
+    // Buy upgrade
+    function buyUpgrade(id) {
+      const upgrade = upgrades.find(u => u.id === id);
+      if (!upgrade) return;
+      
+      const cost = getUpgradeCost(upgrade);
+      if (count < cost) return;
+      
+      count -= cost;
+      upgrade.owned++;
+      
+      if (upgrade.effect === 'perClick') {
+        perClick += upgrade.effectValue;
+      } else if (upgrade.effect === 'autoClick') {
+        autoPerSecond += upgrade.effectValue;
+        startAutoClicker();
+      }
+      
+      countEl.textContent = count;
+      renderUpgrades();
+      
+      // Play purchase effect
+      createParticle(window.innerWidth / 2, window.innerHeight / 2);
+      showQuote();
+    }
+    
+    // Auto clicker
+    function startAutoClicker() {
+      if (autoInterval) clearInterval(autoInterval);
+      if (autoPerSecond <= 0) return;
+      
+      // Update PPS display
+      document.getElementById('ppsDisplay').textContent = `⚡ ${autoPerSecond.toLocaleString()} pumps/second`;
+      
+      autoInterval = setInterval(() => {
+        count += autoPerSecond;
+        countEl.textContent = count.toLocaleString();
+        renderUpgrades();
+        checkAchievements();
+        
+        // Visual feedback for auto clicks
+        if (Math.random() < 0.1) {
+          createParticle(
+            spinner.getBoundingClientRect().left + spinner.offsetWidth / 2,
+            spinner.getBoundingClientRect().top + spinner.offsetHeight / 2
+          );
+        }
+      }, 1000);
+    }
+    
+    // MR KRABS "FEELING IT" MODE
+    function triggerFeelingIt() {
+      if (feelingItActive) return;
+      feelingItActive = true;
+      
+      const krabsContainer = document.getElementById('krabsContainer');
+      const feelingItText = document.getElementById('feelingItText');
+      
+      feelingItText.classList.add('visible');
+      
+      // Spawn many Mr. Krabs images
+      for (let i = 0; i < 12; i++) {
+        setTimeout(() => {
+          const krabs = document.createElement('img');
+          krabs.src = 'https://i.imgur.com/VXvtS0N.jpeg';
+          krabs.className = 'krabs-image';
+          krabs.style.left = Math.random() * 80 + 10 + '%';
+          krabs.style.top = Math.random() * 80 + 10 + '%';
+          krabs.style.animationDelay = (Math.random() * 0.2) + 's';
+          krabsContainer.appendChild(krabs);
+        }, i * 100);
+      }
+      
+      // Clear after 3 seconds
+      clearTimeout(feelingItTimeout);
+      feelingItTimeout = setTimeout(() => {
+        krabsContainer.innerHTML = '';
+        feelingItText.classList.remove('visible');
+        feelingItActive = false;
+      }, 3000);
+    }
+    
+    // Initialize upgrades
+    renderUpgrades();
+    
+    // Create floating bubbles
+    function createBubbles() {
+      for (let i = 0; i < 15; i++) {
+        const bubble = document.createElement('div');
+        bubble.className = 'bubble';
+        const size = Math.random() * 30 + 10;
+        bubble.style.width = size + 'px';
+        bubble.style.height = size + 'px';
+        bubble.style.left = Math.random() * 100 + 'vw';
+        bubble.style.animationDuration = (Math.random() * 10 + 8) + 's';
+        bubble.style.animationDelay = (Math.random() * 10) + 's';
+        document.body.appendChild(bubble);
+      }
+    }
+    createBubbles();
+    
+    // Create jellyfish
+    function createJellyfish() {
+      const jellyfishEmojis = ['🪼'];
+      const positions = [
+        { left: '5%', top: '20%' },
+        { left: '85%', top: '35%' },
+        { left: '15%', top: '60%' },
+        { left: '75%', top: '15%' },
+        { left: '90%', top: '70%' },
+      ];
+      positions.forEach((pos, i) => {
+        const jelly = document.createElement('div');
+        jelly.className = 'jellyfish';
+        jelly.textContent = '🪼';
+        jelly.style.left = pos.left;
+        jelly.style.top = pos.top;
+        jelly.style.animationDelay = (i * 2) + 's';
+        jelly.style.fontSize = (30 + Math.random() * 30) + 'px';
+        document.body.appendChild(jelly);
+      });
+    }
+    createJellyfish();
+    
+    // Create seaweed
+    function createSeaweed() {
+      const seaweedPositions = ['5%', '15%', '25%', '70%', '80%', '92%'];
+      seaweedPositions.forEach((pos, i) => {
+        const seaweed = document.createElement('div');
+        seaweed.className = 'seaweed';
+        seaweed.textContent = '🌿';
+        seaweed.style.left = pos;
+        seaweed.style.animationDelay = (i * 0.5) + 's';
+        seaweed.style.fontSize = (40 + Math.random() * 40) + 'px';
+        seaweed.style.opacity = 0.7;
+        document.body.appendChild(seaweed);
+      });
+    }
+    createSeaweed();
+    
+    // Create flowers (Jellyfish Fields style)
+    function createFlowers() {
+      const flowerEmojis = ['🌸', '🌺', '🌼', '💮'];
+      const positions = ['8%', '20%', '35%', '65%', '78%', '88%'];
+      positions.forEach((pos, i) => {
+        const flower = document.createElement('div');
+        flower.className = 'flower';
+        flower.textContent = flowerEmojis[i % flowerEmojis.length];
+        flower.style.left = pos;
+        flower.style.animationDelay = (i * 0.3) + 's';
+        document.body.appendChild(flower);
+      });
+    }
+    createFlowers();
+    
+    // Create coral
+    function createCoral() {
+      const coralEmojis = ['🪸', '🐚'];
+      const positions = ['10%', '30%', '50%', '60%', '85%'];
+      positions.forEach((pos, i) => {
+        const coral = document.createElement('div');
+        coral.className = 'coral';
+        coral.textContent = coralEmojis[i % coralEmojis.length];
+        coral.style.left = pos;
+        coral.style.fontSize = (35 + Math.random() * 30) + 'px';
+        document.body.appendChild(coral);
+      });
+    }
+    createCoral();
+    
+    // Create starfish (Patrick!)
+    function createStarfish() {
+      const positions = [
+        { left: '3%', bottom: '5%' },
+        { left: '95%', bottom: '8%' },
+        { left: '45%', bottom: '3%' },
+      ];
+      positions.forEach((pos, i) => {
+        const star = document.createElement('div');
+        star.className = 'starfish';
+        star.textContent = '⭐';
+        star.style.left = pos.left;
+        star.style.bottom = pos.bottom;
+        star.style.animationDelay = (i * 1.5) + 's';
+        star.style.color = '#ff69b4'; // Pink like Patrick
+        star.style.filter = 'drop-shadow(0 0 10px #ff69b4)';
+        document.body.appendChild(star);
+      });
+    }
+    createStarfish();
+    
+    // Create pineapple (SpongeBob's house!)
+    function createPineapple() {
+      const pineapple = document.createElement('div');
+      pineapple.className = 'pineapple';
+      pineapple.textContent = '🍍';
+      pineapple.style.left = '2%';
+      pineapple.style.bottom = '10%';
+      document.body.appendChild(pineapple);
+    }
+    createPineapple();
+    
+    // Create floating Krabby Patties
+    function createKrabbyPatties() {
+      const positions = [
+        { left: '10%', top: '40%' },
+        { left: '88%', top: '55%' },
+      ];
+      positions.forEach((pos, i) => {
+        const patty = document.createElement('div');
+        patty.className = 'krabby-patty';
+        patty.textContent = '🍔';
+        patty.style.left = pos.left;
+        patty.style.top = pos.top;
+        patty.style.animationDelay = (i * 3) + 's';
+        document.body.appendChild(patty);
+      });
+    }
+    createKrabbyPatties();
+    
+    // Create anchor
+    function createAnchor() {
+      const anchor = document.createElement('div');
+      anchor.className = 'anchor';
+      anchor.textContent = '⚓';
+      anchor.style.right = '5%';
+      anchor.style.bottom = '15%';
+      document.body.appendChild(anchor);
+    }
+    createAnchor();
+    
+    // Create treasure chest (Mr. Krabs would be proud)
+    function createTreasure() {
+      const treasure = document.createElement('div');
+      treasure.className = 'treasure';
+      treasure.textContent = '💰';
+      treasure.style.right = '8%';
+      treasure.style.bottom = '5%';
+      document.body.appendChild(treasure);
+    }
+    createTreasure();
+    
+    // Create Gary the Snail (meow!)
+    function createGary() {
+      const gary = document.createElement('div');
+      gary.className = 'gary';
+      gary.textContent = '🐌';
+      gary.style.bottom = '2%';
+      gary.style.left = '0';
+      document.body.appendChild(gary);
+    }
+    createGary();
+    
+    // Create floating money (for Mr. Krabs)
+    function createMoney() {
+      const positions = [
+        { left: '5%', top: '30%' },
+        { left: '92%', top: '45%' },
+        { left: '8%', top: '65%' },
+      ];
+      const moneyEmojis = ['💵', '💰', '💎'];
+      positions.forEach((pos, i) => {
+        const money = document.createElement('div');
+        money.className = 'money-float';
+        money.textContent = moneyEmojis[i];
+        money.style.left = pos.left;
+        money.style.top = pos.top;
+        money.style.animationDelay = (i * 2) + 's';
+        document.body.appendChild(money);
+      });
+    }
+    createMoney();
+    
+    // Create ocean floor
+    function createOceanFloor() {
+      const floor = document.createElement('div');
+      floor.className = 'ocean-floor';
+      document.body.appendChild(floor);
+    }
+    createOceanFloor();
+    
+    // INTRO ANIMATION - "Are you ready kids?!"
+    function runIntro() {
+      const introOverlay = document.getElementById('introOverlay');
+      const introText = document.getElementById('introText');
+      
+      const introSequence = [
+        { text: "ARE YOU READY KIDS?!", delay: 0 },
+        { text: "AYE AYE CAPTAIN! 🏴‍☠️", delay: 1200 },
+        { text: "I CAN'T HEAR YOU! 📢", delay: 2400 },
+        { text: "AYE AYE CAPTAIN!! 🔊", delay: 3600 },
+        { text: "OHHHHHHH... 🎵", delay: 4800 },
+        { text: "WHO LIVES IN A PINEAPPLE UNDER THE SEA?! 🍍", delay: 5800 },
+        { text: "$COCKPANTS! 🩲", delay: 7200 },
+      ];
+      
+      introSequence.forEach(item => {
+        setTimeout(() => {
+          introText.style.animation = 'none';
+          introText.offsetHeight; // Trigger reflow
+          introText.style.animation = 'introTextPop 0.5s ease-out';
+          introText.textContent = item.text;
+        }, item.delay);
+      });
+      
+      // Hide intro after sequence
+      setTimeout(() => {
+        introOverlay.classList.add('hidden');
+      }, 8500);
+    }
+    
+    // Run intro on page load
+    runIntro();
   </script>
 </body>
 </html>
