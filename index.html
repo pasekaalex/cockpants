@@ -3,32 +3,37 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SpongeSpin - Pump $COCKPANTS or Rip Your Portfolio</title>
+  <title>$COCKPANTS SpongeSpin - PUMP IT</title>
   <meta name="description" content="Spin SpongeBob eternally and join the $COCKPANTS revolution. CA: 516h3AJBX72YZvEGDJWsUaGePuub53kLVKH2NWeHpump">
   <style>
     @font-face {
       font-family: 'Krabby Patty';
       src: url('Krabby Patty.ttf') format('truetype');
-      font-weight: normal;
-      font-style: normal;
     }
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { 
-      min-height: 100vh; 
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Krabby Patty', Arial, sans-serif;
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
-      justify-content: flex-start; 
       align-items: center;
-      padding-top: 20px; 
-      background: linear-gradient(45deg, #000000, #1a1a2e, #000000);
-      background-size: 400% 400%;
-      animation: gradient 15s ease infinite;
-      overflow: hidden; 
-      font-family: 'Comic Sans MS', cursive, sans-serif; 
-      color: lime; 
+      overflow-x: hidden;
       position: relative;
-      cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32"><text y="24" font-size="24">🩲</text></svg>'), auto;
+      background-color: #1a0a2e;
+      background-image: url('https://i.imgur.com/q8Qd5PK.jpeg');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      cursor: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><text y="24" font-size="24">🩲</text></svg>') 16 16, auto;
     }
+    
+    /* Dark overlay for readability */
     body::before {
       content: '';
       position: fixed;
@@ -37,1047 +42,1068 @@
       width: 100%;
       height: 100%;
       background: rgba(0, 0, 0, 0.5);
+      z-index: 0;
+    }
+    
+    /* Pulsing light effects */
+    body::after {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(ellipse at 30% 20%, rgba(255, 100, 255, 0.15) 0%, transparent 50%),
+                  radial-gradient(ellipse at 70% 80%, rgba(100, 200, 255, 0.15) 0%, transparent 50%);
+      z-index: 0;
+      animation: pulseBg 4s ease-in-out infinite alternate;
+    }
+    
+    @keyframes pulseBg {
+      0% { opacity: 0.5; }
+      100% { opacity: 1; }
+    }
+    
+    /* COLOR FLASH EFFECT FOR STROKE MODE */
+    .color-flash {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
       z-index: 1;
+      opacity: 0;
+      transition: opacity 0.1s;
     }
-    body > * {
-      position: relative;
-      z-index: 2;
+    
+    .color-flash.active {
+      opacity: 1;
+      animation: colorCycle 0.15s linear infinite;
     }
-    @keyframes gradientShift {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
+    
+    @keyframes colorCycle {
+      0% { background: rgba(255, 0, 0, 0.3); }
+      16% { background: rgba(255, 255, 0, 0.3); }
+      33% { background: rgba(0, 255, 0, 0.3); }
+      50% { background: rgba(0, 255, 255, 0.3); }
+      66% { background: rgba(0, 0, 255, 0.3); }
+      83% { background: rgba(255, 0, 255, 0.3); }
+      100% { background: rgba(255, 0, 0, 0.3); }
     }
-    @keyframes pulse {
-      0%, 100% { opacity: 0.5; }
-      50% { opacity: 0.8; }
-    }
-    body > * {
-      position: relative;
-      z-index: 2;
-    }
-    @keyframes gradient {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
+    
     .banner {
       width: 100%;
-      max-width: 800px;
-      margin-bottom: 20px;
-      z-index: 10;
+      max-width: 600px;
+      margin-top: 10px;
+      z-index: 2;
+      position: relative;
     }
+    
     .banner img {
       width: 100%;
       height: auto;
-      animation: none;
-      filter: drop-shadow(0 0 20px #00ffff);
+      filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.8));
     }
+    
+    .warning {
+      color: #fff;
+      font-size: 22px;
+      text-align: center;
+      padding: 15px;
+      text-shadow: 2px 2px 4px #000, 0 0 20px #ff00ff, 0 0 40px #00ffff;
+      z-index: 2;
+      position: relative;
+      letter-spacing: 2px;
+      animation: warningPulse 1s ease-in-out infinite alternate;
+    }
+    
+    @keyframes warningPulse {
+      0% { transform: scale(1); }
+      100% { transform: scale(1.02); text-shadow: 2px 2px 4px #000, 0 0 30px #ff00ff, 0 0 60px #00ffff; }
+    }
+    
     .spinner-container {
       position: relative;
-      z-index: 5;
-      margin: 40px 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex: 1;
+      z-index: 2;
     }
-    img { 
-      width: min(500px, 80vw); 
-      height: auto;
-      animation: spin 4s linear infinite; 
-      filter: drop-shadow(0 0 30px #ffff00);
-      transition: transform 0.1s ease-out, filter 0.2s ease;
-      transform-origin: center;
+    
+    .spinner {
+      width: 350px;
+      max-width: 80vw;
+      animation: spin 3s linear infinite;
+      filter: drop-shadow(0 0 30px rgba(255, 255, 0, 0.8));
+      transition: transform 0.1s ease-out, filter 0.3s;
+      cursor: pointer;
     }
-    img.pumping {
-      filter: drop-shadow(0 0 50px #ffff00) drop-shadow(0 0 80px #ff0000);
+    
+    .spinner:hover {
+      filter: drop-shadow(0 0 50px rgba(255, 255, 0, 1)) drop-shadow(0 0 80px rgba(255, 0, 255, 0.8));
     }
-    @keyframes spin { 
-      100% { transform: rotate(360deg); } 
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg) scale(var(--pump-scale, 1)); }
+      100% { transform: rotate(360deg) scale(var(--pump-scale, 1)); }
     }
-    @keyframes shake {
-      0%, 100% { transform: translateX(0); }
-      25% { transform: translateX(-10px); }
-      75% { transform: translateX(10px); }
+    
+    /* STROKE MODE SPINNER */
+    .spinner.stroke-mode {
+      animation: spinCrazy 0.3s linear infinite;
+      filter: drop-shadow(0 0 50px rgba(255, 0, 0, 1)) 
+              drop-shadow(0 0 80px rgba(255, 255, 0, 1)) 
+              drop-shadow(0 0 120px rgba(255, 0, 255, 1)) !important;
     }
-    body.shake {
-      animation: shake 0.3s ease;
+    
+    @keyframes spinCrazy {
+      0% { transform: rotate(0deg) scale(var(--pump-scale, 1.5)); }
+      25% { transform: rotate(90deg) scale(calc(var(--pump-scale, 1.5) * 1.1)); }
+      50% { transform: rotate(180deg) scale(var(--pump-scale, 1.5)); }
+      75% { transform: rotate(270deg) scale(calc(var(--pump-scale, 1.5) * 0.9)); }
+      100% { transform: rotate(360deg) scale(var(--pump-scale, 1.5)); }
     }
-    .warning { 
-      position: relative;
-      margin: 20px 0;
-      color: yellow; 
-      font-size: clamp(16px, 4vw, 24px); 
-      text-align: center; 
-      text-shadow: 3px 3px 6px black, 0 0 10px #ffff00;
-      animation: blink 1s infinite;
-      z-index: 100;
-      max-width: 90vw;
-      font-family: 'Krabby Patty', 'Comic Sans MS', cursive;
-      letter-spacing: 2px;
-    }
-    @keyframes blink {
-      0%, 50%, 100% { opacity: 1; }
-      25%, 75% { opacity: 0.5; }
-    }
-    .counter { 
-      position: absolute; 
-      bottom: 20px; 
+    
+    /* SpongeBob reaction text */
+    .sponge-text {
+      position: absolute;
+      top: -60px;
       left: 50%;
       transform: translateX(-50%);
-      font-size: clamp(24px, 6vw, 48px); 
-      text-align: center; 
-      color: #00ff00;
-      text-shadow: 3px 3px 10px black, 0 0 20px #00ff00;
-      z-index: 100;
-      max-width: 90vw;
-      font-family: 'Krabby Patty', 'Comic Sans MS', cursive;
+      font-size: 28px;
+      color: #ffff00;
+      text-shadow: 3px 3px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 0 0 20px #ff00ff;
+      white-space: nowrap;
+      opacity: 0;
+      transition: opacity 0.3s;
+      z-index: 10;
       letter-spacing: 1px;
     }
-    .combo {
+    
+    .sponge-text.visible {
+      opacity: 1;
+      animation: textBounce 0.5s ease-out;
+    }
+    
+    @keyframes textBounce {
+      0% { transform: translateX(-50%) translateY(20px) scale(0.5); }
+      50% { transform: translateX(-50%) translateY(-10px) scale(1.2); }
+      100% { transform: translateX(-50%) translateY(0) scale(1); }
+    }
+    
+    /* REACTION IMAGE - Side popup */
+    .reaction-image {
+      position: fixed;
+      right: -500px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 400px;
+      max-width: 45vw;
+      z-index: 100;
+      transition: right 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      filter: drop-shadow(0 0 30px rgba(255, 255, 0, 1)) 
+              drop-shadow(0 0 50px rgba(255, 0, 255, 0.8))
+              drop-shadow(0 0 80px rgba(0, 255, 255, 0.6));
+      border: 8px solid #ffff00;
+      border-radius: 20px;
+      animation: reactionGlow 0.2s ease-in-out infinite alternate;
+    }
+    
+    @keyframes reactionGlow {
+      0% { 
+        filter: drop-shadow(0 0 30px rgba(255, 255, 0, 1)) 
+                drop-shadow(0 0 50px rgba(255, 0, 255, 0.8))
+                drop-shadow(0 0 80px rgba(0, 255, 255, 0.6));
+        transform: translateY(-50%) scale(1) rotate(-2deg);
+      }
+      100% { 
+        filter: drop-shadow(0 0 50px rgba(255, 0, 0, 1)) 
+                drop-shadow(0 0 80px rgba(0, 255, 0, 0.8))
+                drop-shadow(0 0 120px rgba(255, 255, 0, 0.6));
+        transform: translateY(-50%) scale(1.05) rotate(2deg);
+      }
+    }
+    
+    .reaction-image.visible {
+      right: 20px;
+      animation: reactionEntrance 0.5s ease-out, reactionGlow 0.15s ease-in-out infinite alternate 0.5s;
+    }
+    
+    @keyframes reactionEntrance {
+      0% { right: -500px; transform: translateY(-50%) scale(0.3) rotate(-30deg); }
+      50% { transform: translateY(-50%) scale(1.3) rotate(10deg); }
+      100% { right: 20px; transform: translateY(-50%) scale(1) rotate(0deg); }
+    }
+    
+    /* STROKE MODE REACTION */
+    .reaction-image.stroke-mode {
+      animation: reactionCrazy 0.1s ease-in-out infinite !important;
+    }
+    
+    @keyframes reactionCrazy {
+      0% { transform: translateY(-50%) scale(1) rotate(-15deg); filter: hue-rotate(0deg) brightness(1.5); }
+      25% { transform: translateY(-50%) scale(1.2) rotate(15deg); filter: hue-rotate(90deg) brightness(2); }
+      50% { transform: translateY(-50%) scale(0.9) rotate(-10deg); filter: hue-rotate(180deg) brightness(1.5); }
+      75% { transform: translateY(-50%) scale(1.15) rotate(10deg); filter: hue-rotate(270deg) brightness(2); }
+      100% { transform: translateY(-50%) scale(1) rotate(-15deg); filter: hue-rotate(360deg) brightness(1.5); }
+    }
+    
+    .counter {
+      font-size: 32px;
+      color: #00ff00;
+      text-shadow: 3px 3px 0 #000, 0 0 30px #00ff00;
+      text-align: center;
+      padding: 20px;
+      z-index: 2;
+      position: relative;
+      letter-spacing: 2px;
+    }
+    
+    .flash {
       position: fixed;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      font-size: clamp(50px, 10vw, 80px);
-      color: #ff00ff;
-      text-shadow: 0 0 30px #ff00ff, 0 0 60px #ff00ff, 4px 4px 10px black;
+      font-size: 80px;
+      color: #ff0000;
+      text-shadow: 4px 4px 0 #000, 0 0 40px #ff0000;
       opacity: 0;
+      transition: opacity 0.3s;
+      z-index: 20;
       pointer-events: none;
-      z-index: 150;
-      font-weight: bold;
-      transition: opacity 0.3s ease, transform 0.3s ease;
-      font-family: 'Krabby Patty', 'Comic Sans MS', cursive;
-      letter-spacing: 3px;
     }
-    .combo.show {
+    
+    .flash.visible {
       opacity: 1;
-      transform: translate(-50%, -50%) scale(1.5);
+      animation: flashPop 0.5s ease-out;
     }
     
-    /* Particle effects */
-    .particle {
-      position: fixed;
-      width: 20px;
-      height: 20px;
-      background: #ffff00;
-      border-radius: 50%;
-      pointer-events: none;
-      z-index: 500;
-      animation: particleFly 1s ease-out forwards;
-    }
-    @keyframes particleFly {
-      0% {
-        transform: translate(0, 0) scale(1);
-        opacity: 1;
-      }
-      100% {
-        transform: translate(var(--tx), var(--ty)) scale(0);
-        opacity: 0;
-      }
+    @keyframes flashPop {
+      0% { transform: translate(-50%, -50%) scale(0.5); }
+      50% { transform: translate(-50%, -50%) scale(1.3); }
+      100% { transform: translate(-50%, -50%) scale(1); }
     }
     
-    /* Score multiplier display */
-    .multiplier {
+    /* COMBO DISPLAY */
+    .combo-display {
       position: fixed;
-      top: 120px;
+      top: 20%;
       left: 50%;
       transform: translateX(-50%);
-      font-size: 40px;
+      font-size: 48px;
       color: #ff00ff;
-      text-shadow: 0 0 20px #ff00ff;
-      z-index: 150;
-      font-family: 'Krabby Patty', 'Comic Sans MS', cursive;
+      text-shadow: 3px 3px 0 #000, 0 0 30px #ff00ff, 0 0 60px #00ffff;
       opacity: 0;
-      transition: opacity 0.3s ease;
-    }
-    .multiplier.active {
-      opacity: 1;
+      z-index: 15;
+      pointer-events: none;
+      letter-spacing: 3px;
     }
     
-    /* Click streak indicator */
-    .streak-bar {
+    .combo-display.visible {
+      opacity: 1;
+      animation: comboPop 0.4s ease-out;
+    }
+    
+    @keyframes comboPop {
+      0% { transform: translateX(-50%) scale(0.5) rotate(-10deg); }
+      50% { transform: translateX(-50%) scale(1.4) rotate(5deg); }
+      100% { transform: translateX(-50%) scale(1) rotate(0deg); }
+    }
+    
+    /* STROKE MODE BANNER */
+    .stroke-banner {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 72px;
+      color: #ff0000;
+      text-shadow: 4px 4px 0 #000, 0 0 50px #ff0000, 0 0 100px #ffff00;
+      opacity: 0;
+      z-index: 50;
+      pointer-events: none;
+      white-space: nowrap;
+      letter-spacing: 5px;
+    }
+    
+    .stroke-banner.visible {
+      opacity: 1;
+      animation: strokeBannerPulse 0.1s ease-in-out infinite;
+    }
+    
+    @keyframes strokeBannerPulse {
+      0% { 
+        transform: translate(-50%, -50%) scale(1) rotate(-3deg); 
+        color: #ff0000;
+        text-shadow: 4px 4px 0 #000, 0 0 50px #ff0000, 0 0 100px #ffff00;
+      }
+      33% { 
+        transform: translate(-50%, -50%) scale(1.1) rotate(3deg); 
+        color: #ffff00;
+        text-shadow: 4px 4px 0 #000, 0 0 50px #ffff00, 0 0 100px #ff00ff;
+      }
+      66% { 
+        transform: translate(-50%, -50%) scale(0.95) rotate(-2deg); 
+        color: #00ffff;
+        text-shadow: 4px 4px 0 #000, 0 0 50px #00ffff, 0 0 100px #ff0000;
+      }
+      100% { 
+        transform: translate(-50%, -50%) scale(1.05) rotate(2deg); 
+        color: #ff00ff;
+        text-shadow: 4px 4px 0 #000, 0 0 50px #ff00ff, 0 0 100px #00ff00;
+      }
+    }
+    
+    /* MULTIPLIER */
+    .multiplier {
       position: fixed;
       top: 10px;
       left: 50%;
       transform: translateX(-50%);
-      width: 300px;
-      height: 20px;
-      background: rgba(0, 0, 0, 0.5);
-      border-radius: 10px;
-      border: 2px solid #ffd700;
-      z-index: 150;
-      overflow: hidden;
-    }
-    .streak-fill {
-      height: 100%;
-      background: linear-gradient(90deg, #ff0000, #ff00ff, #00ffff);
-      width: 0%;
-      transition: width 0.2s ease;
-      box-shadow: 0 0 10px rgba(255, 0, 255, 0.8);
-    }
-    
-    /* Achievement notification */
-    .achievement {
-      position: fixed;
-      top: -150px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: linear-gradient(135deg, #ffd700, #ffed4e);
-      color: black;
-      padding: 20px 30px;
-      border-radius: 15px;
-      box-shadow: 0 8px 25px rgba(255, 215, 0, 0.8);
-      z-index: 9999;
-      font-family: 'Krabby Patty', 'Comic Sans MS', cursive;
-      text-align: center;
-      transition: top 0.5s ease;
-      border: 3px solid #ff0000;
-    }
-    .achievement.show {
-      top: 80px;
-    }
-    .achievement-title {
-      font-size: 24px;
-      color: #ff0000;
-      margin-bottom: 5px;
-      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-    }
-    .achievement-desc {
-      font-size: 16px;
-      color: #000;
-    }
-    
-    /* Achievement list in sidebar */
-    .achievement-list {
-      max-height: 200px;
-      overflow-y: auto;
-    }
-    .achievement-item {
-      padding: 8px;
-      margin: 5px 0;
-      background: rgba(255, 215, 0, 0.1);
-      border-radius: 5px;
-      border-left: 3px solid #00ff00;
-      font-size: 13px;
-    }
-    .achievement-item.locked {
-      opacity: 0.5;
-      border-left-color: #666;
-    }
-    
-    /* SpongeBob reaction text */
-    .spongebob-text {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -120px);
-      font-size: 28px;
-      color: #ffff00;
-      text-shadow: 3px 3px 6px black, 0 0 20px #ffff00;
-      z-index: 140;
-      font-family: 'Krabby Patty', 'Comic Sans MS', cursive;
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-      text-align: center;
-      max-width: 80%;
-    }
-    .spongebob-text.show {
-      opacity: 1;
-    }
-    
-    /* Reaction image on side - BIGGER AND FLASHIER */
-    .reaction-image {
-      position: fixed;
-      right: -450px;
-      top: 50%;
-      transform: translateY(-50%) rotate(-10deg);
-      width: 400px;
-      height: auto;
-      z-index: 300;
-      transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-      filter: drop-shadow(0 0 40px #ffff00) drop-shadow(0 0 80px #ff00ff) brightness(1.2);
-      border-radius: 20px;
-      border: 5px solid #ffd700;
-      animation: reactionPulse 0.5s ease infinite;
-    }
-    .reaction-image.show {
-      right: 30px;
-      transform: translateY(-50%) rotate(0deg) scale(1.1);
-    }
-    @keyframes reactionPulse {
-      0%, 100% { 
-        filter: drop-shadow(0 0 40px #ffff00) drop-shadow(0 0 80px #ff00ff) brightness(1.2);
-      }
-      50% { 
-        filter: drop-shadow(0 0 60px #ff0000) drop-shadow(0 0 120px #00ffff) brightness(1.4) saturate(1.5);
-      }
-    }
-    
-    /* STROKE MODE effects - ULTRA INTENSE */
-    body.stroke-mode {
-      animation: shake 0.05s infinite, colorFlash 0.1s infinite;
-    }
-    @keyframes colorFlash {
-      0% { filter: hue-rotate(0deg) brightness(1); }
-      25% { filter: hue-rotate(90deg) brightness(1.3); }
-      50% { filter: hue-rotate(180deg) brightness(1.5); }
-      75% { filter: hue-rotate(270deg) brightness(1.3); }
-      100% { filter: hue-rotate(360deg) brightness(1); }
-    }
-    body.stroke-mode::before {
-      animation: strokeOverlay 0.1s ease infinite;
-      background: 
-        radial-gradient(circle at 20% 50%, rgba(255, 0, 0, 0.6) 0%, transparent 50%),
-        radial-gradient(circle at 80% 80%, rgba(255, 0, 255, 0.6) 0%, transparent 50%),
-        radial-gradient(circle at 40% 20%, rgba(255, 255, 0, 0.6) 0%, transparent 50%);
-    }
-    @keyframes strokeOverlay {
-      0%, 100% { opacity: 0.8; }
-      50% { opacity: 1; }
-    }
-    .stroke-mode-banner {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: clamp(70px, 18vw, 150px);
-      color: #ff0000;
-      text-shadow: 
-        0 0 50px #ff0000, 
-        0 0 100px #ff0000, 
-        0 0 150px #ff00ff,
-        8px 8px 15px black;
-      z-index: 9998;
-      font-family: 'Krabby Patty', 'Comic Sans MS', cursive;
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-      letter-spacing: 8px;
-      animation: strokePulse 0.2s ease infinite, strokeRotate 1s ease infinite;
-    }
-    .stroke-mode-banner.active {
-      opacity: 1;
-    }
-    @keyframes strokePulse {
-      0%, 100% { 
-        transform: translate(-50%, -50%) scale(1);
-        color: #ff0000;
-      }
-      50% { 
-        transform: translate(-50%, -50%) scale(1.2);
-        color: #ffff00;
-      }
-    }
-    @keyframes strokeRotate {
-      0% { text-shadow: 0 0 50px #ff0000, 0 0 100px #ff0000, 0 0 150px #ff00ff, 8px 8px 15px black; }
-      33% { text-shadow: 0 0 50px #ffff00, 0 0 100px #ffff00, 0 0 150px #00ffff, 8px 8px 15px black; }
-      66% { text-shadow: 0 0 50px #ff00ff, 0 0 100px #ff00ff, 0 0 150px #ff0000, 8px 8px 15px black; }
-      100% { text-shadow: 0 0 50px #ff0000, 0 0 100px #ff0000, 0 0 150px #ff00ff, 8px 8px 15px black; }
-    }
-    body.stroke-mode .particle {
-      animation: particleFly 0.3s ease-out forwards;
-      width: 30px;
-      height: 30px;
-    }
-    body.stroke-mode .spinner-container img {
-      animation: spin 0.3s linear infinite, strokeSpinMega 0.2s ease infinite;
-      filter: 
-        drop-shadow(0 0 80px #ff0000) 
-        drop-shadow(0 0 150px #ff00ff) 
-        drop-shadow(0 0 200px #ffff00)
-        brightness(1.8) 
-        contrast(1.5) 
-        saturate(2);
-    }
-    @keyframes strokeSpinMega {
-      0% { transform: scale(1.5) rotate(0deg); }
-      25% { transform: scale(2) rotate(90deg); }
-      50% { transform: scale(1.8) rotate(180deg); }
-      75% { transform: scale(2.2) rotate(270deg); }
-      100% { transform: scale(1.5) rotate(360deg); }
-    }
-    body.stroke-mode .reaction-image {
-      animation: reactionStrokeCrazy 0.1s ease infinite;
-    }
-    @keyframes reactionStrokeCrazy {
-      0% { transform: translateY(-50%) rotate(-15deg) scale(1.3); }
-      50% { transform: translateY(-50%) rotate(15deg) scale(1.5); }
-      100% { transform: translateY(-50%) rotate(-15deg) scale(1.3); }
-    }
-    .shill { 
-      position: absolute; 
-      right: 10px; 
-      top: 60px; 
-      background: linear-gradient(135deg, #ffd700, #ffed4e);
-      color: black; 
-      padding: 15px; 
-      border-radius: 15px; 
-      text-align: center; 
-      font-size: clamp(11px, 2.5vw, 15px); 
-      box-shadow: 0 4px 15px rgba(255, 215, 0, 0.5);
-      max-width: min(250px, 40vw);
-      z-index: 100;
-      font-family: 'Krabby Patty', 'Comic Sans MS', cursive;
-    }
-    .shill strong { 
-      font-size: clamp(16px, 3.5vw, 20px); 
-      display: block; 
-      margin-bottom: 8px;
-      color: #ff0000;
+      font-size: 36px;
+      color: gold;
+      text-shadow: 2px 2px 0 #000, 0 0 20px gold;
+      z-index: 10;
       letter-spacing: 2px;
     }
-    .shill a { 
-      color: #0066cc; 
-      text-decoration: none; 
-      display: block;
-      margin: 5px 0;
-      word-break: break-all;
-    }
-    .shill a:hover { text-decoration: underline; }
-    .shill button { 
-      background: linear-gradient(135deg, #ff0000, #cc0000);
-      color: white; 
-      border: none; 
-      padding: 10px 15px; 
-      cursor: pointer; 
-      border-radius: 8px;
-      font-weight: bold;
-      margin-top: 10px;
-      font-size: clamp(10px, 2.5vw, 14px);
-      box-shadow: 0 2px 10px rgba(255, 0, 0, 0.5);
-      transition: transform 0.2s;
-    }
-    .shill button:hover { transform: scale(1.05); }
-    .market-cap { 
-      position: absolute; 
-      left: 10px; 
-      top: 60px; 
-      font-size: clamp(13px, 3vw, 19px); 
-      color: gold; 
-      text-shadow: 3px 3px 6px black, 0 0 15px gold;
+    
+    /* STREAK BAR */
+    .streak-container {
+      position: fixed;
+      top: 60px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 300px;
+      height: 20px;
       background: rgba(0, 0, 0, 0.7);
-      padding: 10px;
+      border: 3px solid #fff;
       border-radius: 10px;
-      z-index: 100;
-      max-width: min(250px, 40vw);
-      font-family: 'Krabby Patty', 'Comic Sans MS', cursive;
-    }
-    .flash { 
-      position: fixed; 
-      top: 50%; 
-      left: 50%; 
-      transform: translate(-50%, -50%); 
-      font-size: clamp(50px, 12vw, 100px); 
-      color: red; 
-      opacity: 0; 
-      transition: opacity 0.5s; 
-      z-index: 200;
-      text-shadow: 5px 5px 10px black, 0 0 30px red;
-      pointer-events: none;
-      font-family: 'Krabby Patty', 'Comic Sans MS', cursive;
-      letter-spacing: 3px;
+      overflow: hidden;
+      z-index: 10;
     }
     
-    /* Sidebar styles */
+    .streak-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #00ff00, #ffff00, #ff0000);
+      transition: width 0.2s;
+      box-shadow: 0 0 20px currentColor;
+    }
+    
+    /* PARTICLES */
+    .particle {
+      position: fixed;
+      pointer-events: none;
+      z-index: 100;
+      font-size: 30px;
+      animation: particleFly 1s ease-out forwards;
+    }
+    
+    @keyframes particleFly {
+      0% { opacity: 1; transform: translate(0, 0) scale(1) rotate(0deg); }
+      100% { opacity: 0; transform: translate(var(--tx), var(--ty)) scale(0) rotate(720deg); }
+    }
+    
+    /* INFO SIDEBAR (Right) */
     .sidebar-toggle {
       position: fixed;
       right: 0;
       top: 50%;
       transform: translateY(-50%);
-      background: linear-gradient(135deg, #ffd700, #ffed4e);
-      color: black;
+      background: linear-gradient(135deg, #ff00ff, #00ffff);
+      color: #000;
+      border: none;
       padding: 15px 10px;
-      border-radius: 10px 0 0 10px;
+      font-family: 'Krabby Patty', Arial, sans-serif;
+      font-size: 18px;
       cursor: pointer;
       z-index: 1000;
-      font-family: 'Krabby Patty', 'Comic Sans MS', cursive;
-      font-size: 20px;
-      box-shadow: -3px 0 15px rgba(255, 215, 0, 0.5);
-      transition: all 0.3s ease;
+      border-radius: 10px 0 0 10px;
       writing-mode: vertical-rl;
       text-orientation: mixed;
+      letter-spacing: 2px;
+      box-shadow: 0 0 20px rgba(255, 0, 255, 0.5);
+      transition: all 0.3s;
     }
+    
     .sidebar-toggle:hover {
-      background: linear-gradient(135deg, #ffed4e, #ffd700);
-      transform: translateY(-50%) translateX(-5px);
+      padding-right: 20px;
+      box-shadow: 0 0 40px rgba(255, 0, 255, 0.8);
     }
+    
     .sidebar {
       position: fixed;
       right: -350px;
       top: 0;
-      width: 350px;
-      height: 100vh;
-      background: linear-gradient(180deg, #1a1a2e 0%, #0f0f1e 100%);
-      box-shadow: -5px 0 20px rgba(0, 0, 0, 0.8);
-      z-index: 999;
-      transition: right 0.4s ease;
+      width: 320px;
+      height: 100%;
+      background: linear-gradient(180deg, rgba(20, 0, 40, 0.98), rgba(0, 20, 40, 0.98));
+      border-left: 4px solid #ff00ff;
+      z-index: 1001;
+      transition: right 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
       overflow-y: auto;
-      padding: 30px 20px;
-      font-family: Arial, Helvetica, sans-serif;
+      padding: 20px;
+      box-shadow: -10px 0 50px rgba(255, 0, 255, 0.3);
     }
+    
     .sidebar.open {
       right: 0;
     }
-    .sidebar-header {
-      color: #ffd700;
-      font-size: 28px;
-      margin-bottom: 20px;
-      text-align: center;
-      text-shadow: 0 0 10px #ffd700;
-      letter-spacing: 2px;
-    }
-    .sidebar-section {
-      margin-bottom: 25px;
-      padding: 15px;
-      background: rgba(255, 215, 0, 0.1);
-      border-radius: 10px;
-      border: 2px solid rgba(255, 215, 0, 0.3);
-    }
-    .sidebar-section h3 {
-      color: #00ff00;
-      font-size: 18px;
-      margin-bottom: 12px;
-      text-shadow: 0 0 10px #00ff00;
-    }
-    .sidebar-section p {
-      color: #ffffff;
-      font-size: 14px;
-      line-height: 1.6;
-      word-break: break-all;
-      margin: 8px 0;
-    }
-    .sidebar-links {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-    .sidebar-links a {
-      display: block;
-      padding: 12px 15px;
-      background: linear-gradient(135deg, #ff0000, #cc0000);
-      color: white;
-      text-decoration: none;
-      border-radius: 8px;
-      text-align: center;
-      font-size: 16px;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 10px rgba(255, 0, 0, 0.3);
-    }
-    .sidebar-links a:hover {
-      background: linear-gradient(135deg, #ff3333, #ff0000);
-      transform: translateY(-2px);
-      box-shadow: 0 6px 15px rgba(255, 0, 0, 0.5);
-    }
-    .sidebar-links a.twitter {
-      background: linear-gradient(135deg, #1da1f2, #0d8bd9);
-    }
-    .sidebar-links a.twitter:hover {
-      background: linear-gradient(135deg, #33aef5, #1da1f2);
-    }
-    .sidebar-links a.dex {
-      background: linear-gradient(135deg, #9945ff, #7a2ecc);
-    }
-    .sidebar-links a.dex:hover {
-      background: linear-gradient(135deg, #b366ff, #9945ff);
-    }
-    .sidebar-links a.jupiter {
-      background: linear-gradient(135deg, #00d4ff, #0099cc);
-    }
-    .sidebar-links a.jupiter:hover {
-      background: linear-gradient(135deg, #33ddff, #00d4ff);
+    
+    .sidebar-close {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: #ff0000;
+      color: #fff;
+      border: none;
+      width: 40px;
+      height: 40px;
+      font-size: 24px;
+      cursor: pointer;
+      border-radius: 50%;
+      font-family: Arial, sans-serif;
     }
     
-    /* Achievement sidebar on LEFT BOTTOM */
-    .achievement-sidebar-toggle {
-      position: fixed;
-      left: 10px;
-      bottom: 10px;
-      background: linear-gradient(135deg, #ffd700, #ffed4e);
-      color: black;
-      padding: 12px 20px;
+    .sidebar h2 {
+      color: #ffff00;
+      text-shadow: 0 0 20px #ffff00;
+      margin-bottom: 20px;
+      font-size: 28px;
+      letter-spacing: 2px;
+    }
+    
+    .sidebar-section {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 15px;
       border-radius: 10px;
+      margin-bottom: 15px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .sidebar-section h3 {
+      color: #00ffff;
+      margin-bottom: 10px;
+      font-size: 18px;
+    }
+    
+    .sidebar-section p {
+      color: #fff;
+      font-size: 14px;
+      word-break: break-all;
+      margin-bottom: 10px;
+    }
+    
+    .sidebar-section a {
+      display: block;
+      color: #00ff00;
+      text-decoration: none;
+      padding: 10px;
+      margin: 5px 0;
+      background: rgba(0, 255, 0, 0.1);
+      border-radius: 5px;
+      transition: all 0.3s;
+      font-size: 16px;
+    }
+    
+    .sidebar-section a:hover {
+      background: rgba(0, 255, 0, 0.3);
+      transform: translateX(5px);
+      box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+    }
+    
+    #mcap {
+      color: #ffd700;
+      font-size: 24px;
+      text-shadow: 0 0 15px #ffd700;
+    }
+    
+    /* ACHIEVEMENTS SIDEBAR (Left) */
+    .achievements-toggle {
+      position: fixed;
+      left: 0;
+      bottom: 20px;
+      background: linear-gradient(135deg, #ffd700, #ff8c00);
+      color: #000;
+      border: none;
+      padding: 15px 20px;
+      font-family: 'Krabby Patty', Arial, sans-serif;
+      font-size: 18px;
       cursor: pointer;
       z-index: 1000;
-      font-family: 'Krabby Patty', 'Comic Sans MS', cursive;
-      font-size: 18px;
-      box-shadow: 3px 3px 15px rgba(255, 215, 0, 0.5);
-      transition: all 0.3s ease;
+      border-radius: 0 10px 10px 0;
+      letter-spacing: 2px;
+      box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+      transition: all 0.3s;
     }
-    .achievement-sidebar-toggle:hover {
-      background: linear-gradient(135deg, #ffed4e, #ffd700);
-      transform: translateY(-2px);
+    
+    .achievements-toggle:hover {
+      padding-left: 30px;
+      box-shadow: 0 0 40px rgba(255, 215, 0, 0.8);
     }
-    .achievement-sidebar {
+    
+    .achievements-sidebar {
       position: fixed;
-      left: -400px;
-      bottom: 0;
-      width: 380px;
-      max-height: 70vh;
-      background: linear-gradient(180deg, #1a1a2e 0%, #0f0f1e 100%);
-      box-shadow: 5px 0 20px rgba(0, 0, 0, 0.8);
-      z-index: 999;
-      transition: left 0.4s ease;
+      left: -380px;
+      top: 0;
+      width: 350px;
+      height: 100%;
+      background: linear-gradient(180deg, rgba(40, 30, 0, 0.98), rgba(20, 10, 0, 0.98));
+      border-right: 4px solid #ffd700;
+      z-index: 1001;
+      transition: left 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
       overflow-y: auto;
-      padding: 30px 20px;
-      font-family: Arial, Helvetica, sans-serif;
-      border-top-right-radius: 15px;
+      padding: 20px;
+      box-shadow: 10px 0 50px rgba(255, 215, 0, 0.3);
     }
-    .achievement-sidebar.open {
+    
+    .achievements-sidebar.open {
       left: 0;
     }
-    .achievement-sidebar-header {
-      color: #ffd700;
-      font-size: 28px;
-      margin-bottom: 20px;
-      text-align: center;
-      text-shadow: 0 0 10px #ffd700;
-      letter-spacing: 2px;
-      font-family: 'Krabby Patty', 'Comic Sans MS', cursive;
-    }
-    .close-sidebar {
+    
+    .achievements-close {
       position: absolute;
-      top: 15px;
-      right: 15px;
-      background: rgba(255, 0, 0, 0.8);
-      color: white;
+      top: 10px;
+      right: 10px;
+      background: #ff0000;
+      color: #fff;
       border: none;
-      width: 35px;
-      height: 35px;
-      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      font-size: 24px;
       cursor: pointer;
-      font-size: 20px;
-      font-weight: bold;
-      transition: all 0.3s ease;
+      border-radius: 50%;
+      font-family: Arial, sans-serif;
     }
-    .close-sidebar:hover {
-      background: rgba(255, 0, 0, 1);
-      transform: rotate(90deg);
+    
+    .achievements-sidebar h2 {
+      color: #ffd700;
+      text-shadow: 0 0 20px #ffd700;
+      margin-bottom: 20px;
+      font-size: 28px;
+      letter-spacing: 2px;
     }
+    
+    .achievement {
+      display: flex;
+      align-items: center;
+      padding: 12px;
+      margin: 8px 0;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+      border: 2px solid rgba(255, 215, 0, 0.2);
+      transition: all 0.3s;
+    }
+    
+    .achievement.unlocked {
+      background: rgba(255, 215, 0, 0.2);
+      border-color: #ffd700;
+      box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+    }
+    
+    .achievement-icon {
+      font-size: 32px;
+      margin-right: 15px;
+      filter: grayscale(1);
+      transition: filter 0.3s;
+    }
+    
+    .achievement.unlocked .achievement-icon {
+      filter: grayscale(0);
+      animation: iconBounce 0.5s ease-out;
+    }
+    
+    @keyframes iconBounce {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.3); }
+    }
+    
+    .achievement-info h4 {
+      color: #888;
+      font-size: 16px;
+      margin-bottom: 3px;
+    }
+    
+    .achievement.unlocked .achievement-info h4 {
+      color: #ffd700;
+    }
+    
+    .achievement-info p {
+      color: #666;
+      font-size: 12px;
+    }
+    
+    .achievement.unlocked .achievement-info p {
+      color: #ccc;
+    }
+    
+    /* Achievement Notification */
+    .achievement-notification {
+      position: fixed;
+      top: 100px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-100px);
+      background: linear-gradient(135deg, #ffd700, #ff8c00);
+      color: #000;
+      padding: 20px 40px;
+      border-radius: 15px;
+      font-size: 24px;
+      z-index: 2000;
+      opacity: 0;
+      transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      box-shadow: 0 0 50px rgba(255, 215, 0, 0.8);
+      text-align: center;
+    }
+    
+    .achievement-notification.visible {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    
+    .achievement-notification .icon {
+      font-size: 48px;
+      display: block;
+      margin-bottom: 10px;
+    }
+    
+    /* SCREEN SHAKE */
+    .shake {
+      animation: shake 0.05s infinite;
+    }
+    
+    @keyframes shake {
+      0% { transform: translate(0, 0); }
+      25% { transform: translate(-10px, 10px); }
+      50% { transform: translate(10px, -10px); }
+      75% { transform: translate(-10px, -10px); }
+      100% { transform: translate(10px, 10px); }
+    }
+    
+    /* Mobile styles */
     @media (max-width: 768px) {
-      body {
-        font-family: 'Krabby Patty', Arial, Helvetica, sans-serif;
+      .warning { font-size: 16px; padding: 10px; }
+      .spinner { width: 250px; }
+      .counter { font-size: 24px; }
+      .flash { font-size: 50px; }
+      .combo-display { font-size: 32px; }
+      .stroke-banner { font-size: 40px; }
+      .multiplier { font-size: 24px; }
+      .streak-container { width: 200px; }
+      .sponge-text { font-size: 20px; top: -40px; }
+      
+      .reaction-image {
+        width: 200px;
+        max-width: 40vw;
       }
-      .banner img {
-        font-family: 'Krabby Patty', Arial, Helvetica, sans-serif;
-      }
-      .warning {
-        font-family: 'Krabby Patty', Arial, Helvetica, sans-serif;
-      }
-      .counter {
-        font-family: 'Krabby Patty', Arial, Helvetica, sans-serif;
-        bottom: 20px;
-      }
-      .combo {
-        font-family: 'Krabby Patty', Arial, Helvetica, sans-serif;
-      }
-      .flash {
-        font-family: 'Krabby Patty', Arial, Helvetica, sans-serif;
-      }
+      
       .sidebar {
         width: 90%;
-        right: -90%;
-        font-family: 'Krabby Patty', Arial, Helvetica, sans-serif;
+        right: -95%;
       }
-      .sidebar-toggle {
-        display: block;
-        font-size: 16px;
-        padding: 12px 8px;
-        font-family: 'Krabby Patty', Arial, Helvetica, sans-serif;
-      }
-      .streak-bar {
+      
+      .achievements-sidebar {
         width: 90%;
-        top: 15px;
+        left: -95%;
       }
-      .reaction-image {
-        width: 150px;
-        right: -200px;
-      }
-      .reaction-image.show {
-        right: 10px;
-      }
-      .achievement-sidebar-toggle {
+      
+      .sidebar-toggle,
+      .achievements-toggle {
         font-size: 14px;
-        padding: 10px 15px;
-      }
-      .achievement-sidebar {
-        width: 90%;
-        left: -100%;
-      }
-    }
-    @media (min-width: 769px) {
-      .mobile-info {
-        display: none;
+        padding: 10px 8px;
       }
     }
   </style>
 </head>
 <body>
+  <!-- Color flash overlay for STROKE MODE -->
+  <div class="color-flash" id="colorFlash"></div>
+  
+  <!-- Banner -->
   <div class="banner">
     <img src="https://i.imgur.com/CzRu9jK.gif" alt="$COCKPANTS Banner">
   </div>
-
-  <!-- Sidebar Toggle Button (Desktop only) -->
-  <div class="sidebar-toggle" onclick="toggleSidebar()">INFO 📊</div>
-
-  <!-- Sidebar (Desktop only) -->
+  
+  <!-- Warning text -->
+  <div class="warning">🚨 YOU ARE THE 9,999,999th VISITOR TO BIKINI BOTTOM!!! CLICK TO PUMP $COCKPANTS 🚨</div>
+  
+  <!-- Multiplier -->
+  <div class="multiplier" id="multiplier">1x MULTIPLIER</div>
+  
+  <!-- Streak bar -->
+  <div class="streak-container">
+    <div class="streak-bar" id="streakBar"></div>
+  </div>
+  
+  <!-- Main spinner -->
+  <div class="spinner-container">
+    <div class="sponge-text" id="spongeText"></div>
+    <img src="https://i.imgur.com/T1W4AZd.jpeg" alt="Spinning SpongeBob" class="spinner" id="spinner">
+  </div>
+  
+  <!-- Counter -->
+  <div class="counter">You have pumped $COCKPANTS <span id="count">0</span> times</div>
+  
+  <!-- Flash text -->
+  <div class="flash" id="flash">MY PANTS!</div>
+  
+  <!-- Combo display -->
+  <div class="combo-display" id="comboDisplay"></div>
+  
+  <!-- STROKE MODE banner -->
+  <div class="stroke-banner" id="strokeBanner">🔥 STROKE MODE ACTIVATED! 🔥</div>
+  
+  <!-- Reaction image (side popup) -->
+  <img src="" alt="Reaction" class="reaction-image" id="reactionImage">
+  
+  <!-- Achievement notification -->
+  <div class="achievement-notification" id="achievementNotification">
+    <span class="icon">🏆</span>
+    <span class="text">Achievement Unlocked!</span>
+  </div>
+  
+  <!-- INFO Sidebar Toggle (Right) -->
+  <button class="sidebar-toggle" onclick="toggleSidebar()">📊 INFO</button>
+  
+  <!-- INFO Sidebar -->
   <div class="sidebar" id="sidebar">
-    <button class="close-sidebar" onclick="toggleSidebar()">✕</button>
-    
-    <div class="sidebar-header">$COCKPANTS</div>
+    <button class="sidebar-close" onclick="toggleSidebar()">✕</button>
+    <h2>📊 $COCKPANTS INFO</h2>
     
     <div class="sidebar-section">
       <h3>💰 Market Cap</h3>
-      <p id="mcap-sidebar">Loading...</p>
+      <p id="mcap">Loading...</p>
     </div>
     
     <div class="sidebar-section">
-      <h3>📝 Contract Address</h3>
-      <p style="font-size: 12px;">516h3AJBX72YZvEGDJWsUaGePuub53kLVKH2NWeHpump</p>
+      <h3>📋 Contract Address</h3>
+      <p style="font-size: 11px;">516h3AJBX72YZvEGDJWsUaGePuub53kLVKH2NWeHpump</p>
     </div>
     
     <div class="sidebar-section">
-      <h3>🔗 Quick Links</h3>
-      <div class="sidebar-links">
-        <a href="https://x.com/CockPants_sol" target="_blank" class="twitter">🐦 Follow @CockPants_sol</a>
-        <a href="https://dexscreener.com/solana/5Eh94i7aEtA8t21f1HbZoDgrtTTZcQq9nbEpFMAFShsg" target="_blank" class="dex">📊 View on DexScreener</a>
-        <a href="https://jup.ag/swap?sell=So11111111111111111111111111111111111111112&buy=516h3AJBX72YZvEGDJWsUaGePuub53kLVKH2NWeHpump" target="_blank" class="jupiter">🚀 Trade on Jupiter</a>
-        <a href="https://x.com/i/communities/1991679244938682496" target="_blank" class="twitter">🏰 Weenie Hut Jr.'s Community</a>
-      </div>
+      <h3>🔗 Links</h3>
+      <a href="https://x.com/CockPants_sol" target="_blank">🐦 Twitter @CockPants_sol</a>
+      <a href="https://dexscreener.com/solana/5Eh94i7aEtA8t21f1HbZoDgrtTTZcQq9nbEpFMAFShsg" target="_blank">📈 DexScreener</a>
+      <a href="https://jup.ag/swap?sell=So11111111111111111111111111111111111111112&buy=516h3AJBX72YZvEGDJWsUaGePuub53kLVKH2NWeHpump" target="_blank">🪐 Trade on Jupiter</a>
+      <a href="https://x.com/i/communities/1991679244938682496" target="_blank">🏠 Weenie Hut Jr.'s Community</a>
     </div>
   </div>
-
-  <!-- Achievement Sidebar (Left Bottom) -->
-  <div class="achievement-sidebar-toggle" onclick="toggleAchievements()">🏆 ACHIEVEMENTS</div>
-  <div class="achievement-sidebar" id="achievementSidebar">
-    <button class="close-sidebar" onclick="toggleAchievements()">✕</button>
-    <div class="achievement-sidebar-header">🏆 ACHIEVEMENTS</div>
-    <div class="achievement-list" id="achievementList"></div>
-  </div>
-
-  <!-- Achievement Notification -->
-  <div class="achievement" id="achievementNotif">
-    <div class="achievement-title" id="achievementTitle">🏆 ACHIEVEMENT UNLOCKED!</div>
-    <div class="achievement-desc" id="achievementDesc">Description</div>
-  </div>
-
-  <!-- Game UI Elements -->
-  <div class="streak-bar">
-    <div class="streak-fill" id="streakFill"></div>
-  </div>
-  <div class="multiplier" id="multiplier">1x</div>
-  <div class="spongebob-text" id="spongebobText">I'M READY!</div>
-  <div class="stroke-mode-banner" id="strokeBanner">🔥 STROKE MODE 🔥</div>
-  <img class="reaction-image" id="reactionImage" src="" alt="SpongeBob Reaction">
-
-  <div class="warning">⚠️ YOU ARE THE 9,999,999th VISITOR TO BIKINI BOTTOM!!! CLICK TO PUMP $COCKPANTS ⚠️</div>
   
-  <div class="spinner-container">
-    <img src="https://i.imgur.com/T1W4AZd.jpeg" alt="Spinning SpongeBob – R.I.P. Pants" id="spinner">
-  </div>
+  <!-- ACHIEVEMENTS Sidebar Toggle (Left Bottom) -->
+  <button class="achievements-toggle" onclick="toggleAchievements()">🏆 ACHIEVEMENTS</button>
   
-  <div class="counter">You pumped $COCKPANTS <br><span id="count">0</span> times! 🩲</div>
-  <div class="combo" id="combo">COMBO!</div>
-  <div class="flash" id="flash">MY PANTS! 🩲💥</div>
+  <!-- ACHIEVEMENTS Sidebar -->
+  <div class="achievements-sidebar" id="achievementsSidebar">
+    <button class="achievements-close" onclick="toggleAchievements()">✕</button>
+    <h2>🏆 ACHIEVEMENTS</h2>
+    <div id="achievementsList"></div>
+  </div>
 
   <script>
+    // CONFIG
     const CA = '516h3AJBX72YZvEGDJWsUaGePuub53kLVKH2NWeHpump';
     const API_URL = `https://api.dexscreener.com/latest/dex/tokens/${CA}`;
     
-    let count = 0; // Reset counter on refresh
-    document.getElementById('count').innerText = count;
+    // REACTION IMAGES
+    const reactionImages = [
+      'https://i.imgur.com/wVgBk6t.jpeg',
+      'https://i.imgur.com/9KJ3jAQ.jpeg',
+      'https://i.imgur.com/vaKsAXk.jpeg'
+    ];
     
-    let mcapInterval;
-    let clickCombo = 0;
-    let comboTimer = null;
-    let scaleLevel = 1;
-    let scaleTimer = null;
-    let multiplier = 1;
-    const spinner = document.getElementById('spinner');
-    const comboDisplay = document.getElementById('combo');
-    const multiplierDisplay = document.getElementById('multiplier');
-    const streakFill = document.getElementById('streakFill');
-    const spongebobText = document.getElementById('spongebobText');
-    const reactionImage = document.getElementById('reactionImage');
+    // SPONGEBOB QUOTES
+    const quotes = [
+      "I'm ready!", "Aye aye captain!", "F is for fire!", "FIRMLY GRASP IT!",
+      "I NEED IT!", "MY LEG!", "IMAGINATION! ✨", "Is mayonnaise an instrument?",
+      "CHOCOLATE!", "I'M A GOOFY GOOBER!", "SWEET VICTORY!", "THE BEST DAY EVER!",
+      "Bring it around town!", "TECHNIQUE!", "LEEDLE LEEDLE LEE!"
+    ];
     
-    // Achievement system
+    // ACHIEVEMENTS
     const achievements = [
-      { id: 'first_pump', name: 'First Pump', desc: 'Click once', threshold: 1, unlocked: false },
-      { id: 'getting_started', name: 'Getting Started', desc: 'Reach 10 pumps', threshold: 10, unlocked: false },
-      { id: 'pump_rookie', name: 'Pump Rookie', desc: 'Reach 50 pumps', threshold: 50, unlocked: false },
-      { id: 'century_club', name: 'Century Club', desc: 'Reach 100 pumps', threshold: 100, unlocked: false },
-      { id: 'pump_veteran', name: 'Pump Veteran', desc: 'Reach 500 pumps', threshold: 500, unlocked: false },
-      { id: 'pump_master', name: 'Pump Master', desc: 'Reach 1000 pumps', threshold: 1000, unlocked: false },
-      { id: 'combo_starter', name: 'Combo Starter', desc: 'Reach 5x combo', threshold: 5, type: 'combo', unlocked: false },
-      { id: 'combo_king', name: 'Combo King', desc: 'Reach 10x combo', threshold: 10, type: 'combo', unlocked: false },
-      { id: 'combo_god', name: 'Combo God', desc: 'Reach 30x combo', threshold: 30, type: 'combo', unlocked: false },
-      { id: 'speed_demon', name: 'Speed Demon', desc: 'Reach 50x combo', threshold: 50, type: 'combo', unlocked: false }
+      { id: 'pump1', name: 'First Pump', desc: 'Pump 1 time', icon: '🩲', requirement: 1, type: 'pumps' },
+      { id: 'pump10', name: 'Getting Started', desc: 'Pump 10 times', icon: '💪', requirement: 10, type: 'pumps' },
+      { id: 'pump50', name: 'Dedicated Pumper', desc: 'Pump 50 times', icon: '🔥', requirement: 50, type: 'pumps' },
+      { id: 'pump100', name: 'Century Club', desc: 'Pump 100 times', icon: '💯', requirement: 100, type: 'pumps' },
+      { id: 'pump500', name: 'Pump Master', desc: 'Pump 500 times', icon: '👑', requirement: 500, type: 'pumps' },
+      { id: 'pump1000', name: 'LEGEND', desc: 'Pump 1000 times', icon: '🏆', requirement: 1000, type: 'pumps' },
+      { id: 'combo5', name: 'Combo Starter', desc: '5x Combo', icon: '⚡', requirement: 5, type: 'combo' },
+      { id: 'combo10', name: 'Stroke Artist', desc: '10x Combo', icon: '💥', requirement: 10, type: 'combo' },
+      { id: 'combo30', name: 'Combo King', desc: '30x Combo', icon: '🌟', requirement: 30, type: 'combo' },
+      { id: 'combo50', name: 'STROKE GOD', desc: '50x Combo (Enter STROKE MODE)', icon: '😈', requirement: 50, type: 'combo' },
     ];
     
-    let highestCombo = 0;
+    // STATE - Resets on refresh
+    let count = 0;
+    let combo = 0;
+    let multiplier = 1;
+    let pumpScale = 1;
+    let comboTimeout;
+    let shrinkTimeout;
+    let strokeMode = false;
+    let strokeParticleInterval;
+    let unlockedAchievements = new Set();
+    let lastReactionTime = 0;
     
-    // SpongeBob reactions based on state - more frequent triggers
-    const reactions = [
-      { min: 0, max: 19, texts: ["I'm ready!", "Aye aye captain!", "🩲"], image: "https://i.imgur.com/wVgBk6t.jpeg" },
-      { min: 20, max: 49, texts: ["F is for fire!", "The inner machinations...", "FIRMLY GRASP IT!"], image: "https://i.imgur.com/9KJ3jAQ.jpeg" },
-      { min: 50, max: 99, texts: ["I NEED IT!", "MY LEG!", "Technique! Technique!"], image: "https://i.imgur.com/vaKsAXk.jpeg" },
-      { min: 100, max: 199, texts: ["IMAGINATION! ✨", "Soaking up the sun! ☀️", "I'm ugly and I'm proud!"], image: "https://i.imgur.com/wVgBk6t.jpeg" },
-      { min: 200, max: 499, texts: ["Is mayonnaise an instrument?", "The Krusty Krab pizza!", "CHOCOLATE!"], image: "https://i.imgur.com/9KJ3jAQ.jpeg" },
-      { min: 500, max: 9999, texts: ["I'M A GOOFY GOOBER!", "SWEET VICTORY! 🎸", "KRAKATOA! 🌋"], image: "https://i.imgur.com/vaKsAXk.jpeg" }
-    ];
+    // DOM Elements
+    const spinner = document.getElementById('spinner');
+    const countEl = document.getElementById('count');
+    const flashEl = document.getElementById('flash');
+    const comboDisplay = document.getElementById('comboDisplay');
+    const multiplierEl = document.getElementById('multiplier');
+    const streakBar = document.getElementById('streakBar');
+    const spongeText = document.getElementById('spongeText');
+    const strokeBanner = document.getElementById('strokeBanner');
+    const colorFlash = document.getElementById('colorFlash');
+    const reactionImage = document.getElementById('reactionImage');
+    const achievementNotification = document.getElementById('achievementNotification');
     
-    let reactionTimer = null;
-    let strokeModeActive = false;
-    let strokeModeTimer = null;
+    // Initialize achievements list
+    function renderAchievements() {
+      const list = document.getElementById('achievementsList');
+      list.innerHTML = achievements.map(a => `
+        <div class="achievement ${unlockedAchievements.has(a.id) ? 'unlocked' : ''}" id="ach-${a.id}">
+          <span class="achievement-icon">${a.icon}</span>
+          <div class="achievement-info">
+            <h4>${a.name}</h4>
+            <p>${a.desc}</p>
+          </div>
+        </div>
+      `).join('');
+    }
+    renderAchievements();
     
+    // Check achievements
+    function checkAchievements() {
+      achievements.forEach(a => {
+        if (unlockedAchievements.has(a.id)) return;
+        
+        let unlocked = false;
+        if (a.type === 'pumps' && count >= a.requirement) unlocked = true;
+        if (a.type === 'combo' && combo >= a.requirement) unlocked = true;
+        
+        if (unlocked) {
+          unlockedAchievements.add(a.id);
+          showAchievementNotification(a);
+          document.getElementById(`ach-${a.id}`).classList.add('unlocked');
+        }
+      });
+    }
+    
+    // Show achievement notification
+    function showAchievementNotification(achievement) {
+      achievementNotification.querySelector('.icon').textContent = achievement.icon;
+      achievementNotification.querySelector('.text').innerHTML = `<strong>${achievement.name}</strong><br>${achievement.desc}`;
+      achievementNotification.classList.add('visible');
+      setTimeout(() => achievementNotification.classList.remove('visible'), 3000);
+    }
+    
+    // Market cap fetch
     function updateMarketCap() {
       fetch(API_URL)
         .then(res => res.json())
         .then(data => {
           if (data.pairs && data.pairs.length > 0) {
-            const pair = data.pairs[0];
-            const mcap = pair.marketCap;
-            const price = pair.priceUsd;
-            if (mcap) {
-              const mcapText = `${Number(mcap).toLocaleString()}`;
-              const priceText = `Price: ${price || 'N/A'}`;
-              document.getElementById('mcap-sidebar').innerHTML = `<strong>${mcapText}</strong><br><span style="font-size: 12px; color: #aaa;">${priceText}</span>`;
-            } else {
-              document.getElementById('mcap-sidebar').innerText = 'Loading...';
-            }
+            const mcap = data.pairs[0].marketCap || data.pairs[0].fdv;
+            document.getElementById('mcap').innerText = mcap ? `$${Number(mcap).toLocaleString()}` : 'N/A';
           } else {
-            document.getElementById('mcap-sidebar').innerText = 'Check DexScreener';
+            document.getElementById('mcap').innerText = 'N/A';
           }
         })
         .catch(() => {
-          document.getElementById('mcap-sidebar').innerText = 'Loading...';
+          document.getElementById('mcap').innerText = 'Error - Check DexScreener';
         });
     }
-    
     updateMarketCap();
-    mcapInterval = setInterval(updateMarketCap, 10000);
+    setInterval(updateMarketCap, 10000);
     
-    function toggleSidebar() {
-      document.getElementById('sidebar').classList.toggle('open');
-    }
-    
-    function updateAchievementDisplay() {
-      const list = document.getElementById('achievementList');
-      list.innerHTML = achievements.map(ach => 
-        `<div class="achievement-item ${ach.unlocked ? '' : 'locked'}">
-          ${ach.unlocked ? '✅' : '🔒'} ${ach.name}<br>
-          <span style="font-size: 11px; opacity: 0.8;">${ach.desc}</span>
-        </div>`
-      ).join('');
-    }
-    
-    function checkAchievements() {
-      achievements.forEach(ach => {
-        if (!ach.unlocked) {
-          const value = ach.type === 'combo' ? clickCombo : count;
-          if (value >= ach.threshold) {
-            ach.unlocked = true;
-            showAchievement(ach.name, ach.desc);
-            updateAchievementDisplay();
-          }
-        }
-      });
-      
-      if (clickCombo > highestCombo) {
-        highestCombo = clickCombo;
-      }
-    }
-    
-    function showAchievement(title, desc) {
-      const notif = document.getElementById('achievementNotif');
-      document.getElementById('achievementTitle').textContent = '🏆 ' + title.toUpperCase() + '!';
-      document.getElementById('achievementDesc').textContent = desc;
-      notif.classList.add('show');
-      setTimeout(() => notif.classList.remove('show'), 3000);
-    }
-    
-    function showSpongebobReaction() {
-      const reaction = reactions.find(r => count >= r.min && count <= r.max);
-      if (reaction) {
-        const randomText = reaction.texts[Math.floor(Math.random() * reaction.texts.length)];
-        spongebobText.textContent = randomText;
-        spongebobText.classList.add('show');
-        
-        // Show reaction image on side - BIGGER, stays longer
-        if (reaction.image) {
-          reactionImage.src = reaction.image;
-          reactionImage.classList.add('show');
-          
-          // Hide after 2 seconds
-          setTimeout(() => {
-            reactionImage.classList.remove('show');
-          }, 2000);
-        }
-        
-        setTimeout(() => spongebobText.classList.remove('show'), 2000);
-      }
-    }
-    
-    function activateStrokeMode() {
-      strokeModeActive = true;
-      document.body.classList.add('stroke-mode');
-      document.getElementById('strokeBanner').classList.add('active');
-      
-      // ULTRA INTENSE particles everywhere
-      const interval = setInterval(() => {
-        if (!strokeModeActive) {
-          clearInterval(interval);
-          return;
-        }
-        for (let i = 0; i < 15; i++) {
-          const x = Math.random() * window.innerWidth;
-          const y = Math.random() * window.innerHeight;
-          createParticle(x, y);
-        }
-      }, 50);
-      
-      // Auto-deactivate after combo ends
-      clearTimeout(strokeModeTimer);
-      strokeModeTimer = setTimeout(() => {
-        deactivateStrokeMode();
-      }, 3000);
-    }
-    
-    function deactivateStrokeMode() {
-      strokeModeActive = false;
-      document.body.classList.remove('stroke-mode');
-      document.getElementById('strokeBanner').classList.remove('active');
-    }
-    
-    // Initialize achievements display
-    updateAchievementDisplay();
-    
+    // Create particle
     function createParticle(x, y) {
       const particle = document.createElement('div');
       particle.className = 'particle';
+      particle.textContent = ['🩲', '💰', '⭐', '🔥', '💥', '✨', '🚀', '💎'][Math.floor(Math.random() * 8)];
       particle.style.left = x + 'px';
       particle.style.top = y + 'px';
-      
-      const tx = (Math.random() - 0.5) * 200;
-      const ty = (Math.random() - 0.5) * 200 - 100;
-      particle.style.setProperty('--tx', tx + 'px');
-      particle.style.setProperty('--ty', ty + 'px');
-      
-      const colors = ['#ffff00', '#ff00ff', '#00ffff', '#ff0000'];
-      particle.style.background = colors[Math.floor(Math.random() * colors.length)];
-      
+      const angle = Math.random() * Math.PI * 2;
+      const distance = 100 + Math.random() * 200;
+      particle.style.setProperty('--tx', Math.cos(angle) * distance + 'px');
+      particle.style.setProperty('--ty', Math.sin(angle) * distance + 'px');
       document.body.appendChild(particle);
       setTimeout(() => particle.remove(), 1000);
     }
     
-    function updateMultiplier() {
-      if (clickCombo >= 30) {
-        multiplier = 5;
-      } else if (clickCombo >= 20) {
-        multiplier = 4;
-      } else if (clickCombo >= 10) {
-        multiplier = 3;
-      } else if (clickCombo >= 5) {
-        multiplier = 2;
-      } else {
-        multiplier = 1;
+    // Show reaction image
+    function showReaction() {
+      const now = Date.now();
+      if (now - lastReactionTime < 1500) return; // Cooldown
+      lastReactionTime = now;
+      
+      // Pick image based on pump count (cycle through all 3)
+      const imageIndex = Math.floor((count / 5) % 3);
+      reactionImage.src = reactionImages[imageIndex];
+      reactionImage.classList.add('visible');
+      if (strokeMode) reactionImage.classList.add('stroke-mode');
+      
+      setTimeout(() => {
+        reactionImage.classList.remove('visible', 'stroke-mode');
+      }, 2000);
+    }
+    
+    // Show quote
+    function showQuote() {
+      spongeText.textContent = quotes[Math.floor(Math.random() * quotes.length)];
+      spongeText.classList.add('visible');
+      setTimeout(() => spongeText.classList.remove('visible'), 1500);
+    }
+    
+    // Update combo display
+    function updateCombo() {
+      let text = '';
+      if (combo >= 50) {
+        text = `COCK GODLIKE! 👑 ${combo}x`;
+      } else if (combo >= 30) {
+        text = `MEGA STROKE! ⚡ ${combo}x`;
+      } else if (combo >= 10) {
+        text = `STROKE COMBO! 💥 ${combo}x`;
+      } else if (combo >= 5) {
+        text = `PUMP COMBO! 🔥 ${combo}x`;
       }
       
-      multiplierDisplay.textContent = `${multiplier}x`;
-      multiplierDisplay.className = 'multiplier' + (multiplier > 1 ? ' active' : '');
+      if (text) {
+        comboDisplay.textContent = text;
+        comboDisplay.classList.add('visible');
+      } else {
+        comboDisplay.classList.remove('visible');
+      }
+      
+      // Update multiplier
+      if (combo >= 40) multiplier = 5;
+      else if (combo >= 30) multiplier = 4;
+      else if (combo >= 20) multiplier = 3;
+      else if (combo >= 10) multiplier = 2;
+      else multiplier = 1;
+      
+      multiplierEl.textContent = `${multiplier}x MULTIPLIER`;
       
       // Update streak bar
-      const streakPercent = Math.min((clickCombo / 30) * 100, 100);
-      streakFill.style.width = streakPercent + '%';
-    }
-    
-    document.body.onclick = (e) => {
-      if (e.target.tagName !== 'A' && e.target.tagName !== 'BUTTON') {
-        count += multiplier;
-        clickCombo++;
-        document.getElementById("count").innerText = count;
-        
-        // Check achievements
-        checkAchievements();
-        
-        // Show SpongeBob reaction every 5 pumps (more frequent)
-        if (count % 5 === 0) {
-          showSpongebobReaction();
-        }
-        
-        // Create particles at click location
-        for (let i = 0; i < 3; i++) {
-          setTimeout(() => createParticle(e.clientX, e.clientY), i * 50);
-        }
-        
-        // Scale up effect
-        scaleLevel = Math.min(scaleLevel + 0.15, 2.5);
-        spinner.style.transform = `scale(${scaleLevel})`;
-        spinner.classList.add('pumping');
-        
-        // Update multiplier and streak
-        updateMultiplier();
-        
-        // Reset scale timer
-        clearTimeout(scaleTimer);
-        scaleTimer = setTimeout(() => {
-          scaleLevel = 1;
-          spinner.style.transform = 'scale(1)';
-          spinner.classList.remove('pumping');
-        }, 500);
-        
-        // Combo system
-        clearTimeout(comboTimer);
-        comboTimer = setTimeout(() => {
-          clickCombo = 0;
-          updateMultiplier();
-          deactivateStrokeMode();
-        }, 1000);
-        
-        // Activate STROKE MODE at 50+ combo
-        if (clickCombo >= 50 && !strokeModeActive) {
-          activateStrokeMode();
-        } else if (clickCombo >= 50 && strokeModeActive) {
-          // Keep extending STROKE MODE
-          clearTimeout(strokeModeTimer);
-          strokeModeTimer = setTimeout(() => {
-            deactivateStrokeMode();
-          }, 3000);
-        }
-        
-        // Show combo at milestones
-        if (clickCombo === 5) {
-          showCombo('PUMP COMBO! 🔥');
-        } else if (clickCombo === 10) {
-          showCombo('STROKE COMBO! 💥');
-          document.body.classList.add('shake');
-          setTimeout(() => document.body.classList.remove('shake'), 300);
-        } else if (clickCombo === 20) {
-          showCombo('MEGA STROKE! ⚡');
-          document.body.classList.add('shake');
-          setTimeout(() => document.body.classList.remove('shake'), 300);
-        } else if (clickCombo === 30) {
-          showCombo('COCK GODLIKE! 👑');
-          document.body.classList.add('shake');
-          setTimeout(() => document.body.classList.remove('shake'), 300);
-        } else if (clickCombo === 50) {
-          showCombo('🔥 STROKE MODE ACTIVATED! 🔥');
-        }
-        
-        if (count % 10 === 0) {
-          document.getElementById('flash').style.opacity = 1;
-          setTimeout(() => { document.getElementById('flash').style.opacity = 0; }, 500);
-        }
+      streakBar.style.width = Math.min(combo * 2, 100) + '%';
+      
+      // STROKE MODE CHECK
+      if (combo >= 50 && !strokeMode) {
+        activateStrokeMode();
       }
-    };
-    
-    function showCombo(text) {
-      comboDisplay.textContent = text;
-      comboDisplay.classList.add('show');
-      setTimeout(() => {
-        comboDisplay.classList.remove('show');
-      }, 800);
     }
     
-    window.onbeforeunload = () => clearInterval(mcapInterval);
+    // STROKE MODE
+    function activateStrokeMode() {
+      strokeMode = true;
+      strokeBanner.classList.add('visible');
+      spinner.classList.add('stroke-mode');
+      colorFlash.classList.add('active');
+      document.body.classList.add('shake');
+      
+      // Spam particles
+      strokeParticleInterval = setInterval(() => {
+        for (let i = 0; i < 15; i++) {
+          createParticle(
+            Math.random() * window.innerWidth,
+            Math.random() * window.innerHeight
+          );
+        }
+      }, 50);
+    }
+    
+    function deactivateStrokeMode() {
+      strokeMode = false;
+      strokeBanner.classList.remove('visible');
+      spinner.classList.remove('stroke-mode');
+      colorFlash.classList.remove('active');
+      document.body.classList.remove('shake');
+      if (strokeParticleInterval) {
+        clearInterval(strokeParticleInterval);
+        strokeParticleInterval = null;
+      }
+    }
+    
+    // Main click handler
+    document.body.addEventListener('click', (e) => {
+      // Don't count clicks on buttons/sidebar
+      if (e.target.closest('.sidebar') || 
+          e.target.closest('.achievements-sidebar') || 
+          e.target.closest('.sidebar-toggle') || 
+          e.target.closest('.achievements-toggle')) return;
+      
+      count++;
+      combo++;
+      countEl.textContent = count;
+      
+      // Scale up
+      pumpScale = Math.min(pumpScale + 0.05, 2.5);
+      spinner.style.setProperty('--pump-scale', pumpScale);
+      
+      // Update combo
+      updateCombo();
+      
+      // Check achievements
+      checkAchievements();
+      
+      // Create particles
+      const numParticles = strokeMode ? 10 : 3;
+      for (let i = 0; i < numParticles; i++) {
+        createParticle(e.clientX, e.clientY);
+      }
+      
+      // Show flash every 10 clicks
+      if (count % 10 === 0) {
+        flashEl.classList.add('visible');
+        setTimeout(() => flashEl.classList.remove('visible'), 500);
+      }
+      
+      // Show reaction every 5 clicks
+      if (count % 5 === 0) {
+        showReaction();
+      }
+      
+      // Show quote every 10 clicks
+      if (count % 10 === 0) {
+        showQuote();
+      }
+      
+      // Screen shake on big combos
+      if (combo >= 10 && combo < 50) {
+        document.body.classList.add('shake');
+        setTimeout(() => {
+          if (!strokeMode) document.body.classList.remove('shake');
+        }, 100);
+      }
+      
+      // Reset combo timeout
+      clearTimeout(comboTimeout);
+      comboTimeout = setTimeout(() => {
+        combo = 0;
+        updateCombo();
+        if (strokeMode) {
+          setTimeout(deactivateStrokeMode, 3000);
+        }
+      }, 1000);
+      
+      // Reset shrink timeout
+      clearTimeout(shrinkTimeout);
+      shrinkTimeout = setTimeout(() => {
+        pumpScale = 1;
+        spinner.style.setProperty('--pump-scale', pumpScale);
+      }, 500);
+    });
+    
+    // Sidebar toggles
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('open');
+    }
+    
+    function toggleAchievements() {
+      document.getElementById('achievementsSidebar').classList.toggle('open');
+    }
   </script>
 </body>
 </html>
