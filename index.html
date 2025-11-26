@@ -283,12 +283,38 @@
       pointer-events: none;
     }
     
+    .intro-video {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: none;
+    }
+    
+    .intro-video.playing {
+      display: block;
+    }
+    
+    .intro-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      z-index: 1;
+    }
+    
+    .intro-content.hidden {
+      display: none;
+    }
+    
     .intro-text {
       font-size: 48px;
       color: #ffeb3b;
       text-shadow: 3px 3px 0 #ff5722, 0 0 30px #ffeb3b;
       text-align: center;
       animation: introTextPop 0.5s ease-out;
+      padding: 0 20px;
     }
     
     @keyframes introTextPop {
@@ -306,6 +332,44 @@
     @keyframes captainBounce {
       0% { transform: translateY(0); }
       100% { transform: translateY(-10px); }
+    }
+    
+    .skip-intro {
+      position: absolute;
+      bottom: 30px;
+      right: 30px;
+      background: rgba(255, 255, 255, 0.2);
+      color: #fff;
+      border: 2px solid #fff;
+      padding: 12px 24px;
+      font-family: 'Krabby Patty', Arial, sans-serif;
+      font-size: 18px;
+      cursor: pointer;
+      border-radius: 25px;
+      transition: all 0.3s;
+      z-index: 10;
+    }
+    
+    .skip-intro:hover {
+      background: rgba(255, 255, 255, 0.4);
+      transform: scale(1.1);
+    }
+    
+    .tap-to-skip {
+      position: absolute;
+      bottom: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 14px;
+      font-family: Arial, sans-serif;
+      z-index: 10;
+      animation: tapPulse 2s ease-in-out infinite;
+    }
+    
+    @keyframes tapPulse {
+      0%, 100% { opacity: 0.5; }
+      50% { opacity: 1; }
     }
     
     /* TREASURE CHEST */
@@ -409,131 +473,6 @@
       100% { transform: translateX(-50%) scale(1) rotate(-2deg); color: #ff0000; }
     }
     
-    /* SHOP PANEL (Cookie Clicker style) */
-    .shop-toggle {
-      position: fixed;
-      right: 0;
-      top: 20%;
-      background: linear-gradient(135deg, #4CAF50, #2E7D32);
-      color: #fff;
-      border: none;
-      padding: 15px 10px;
-      font-family: 'Krabby Patty', Arial, sans-serif;
-      font-size: 18px;
-      cursor: pointer;
-      z-index: 1000;
-      border-radius: 10px 0 0 10px;
-      writing-mode: vertical-rl;
-      text-orientation: mixed;
-      letter-spacing: 2px;
-      box-shadow: 0 0 20px rgba(76, 175, 80, 0.5);
-      transition: all 0.3s;
-    }
-    
-    .shop-toggle:hover {
-      padding-right: 20px;
-      box-shadow: 0 0 40px rgba(76, 175, 80, 0.8);
-    }
-    
-    .shop-panel {
-      position: fixed;
-      right: -380px;
-      top: 0;
-      width: 350px;
-      height: 100%;
-      background: linear-gradient(180deg, rgba(20, 40, 20, 0.98), rgba(10, 30, 10, 0.98));
-      border-left: 4px solid #4CAF50;
-      z-index: 1001;
-      transition: right 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-      overflow-y: auto;
-      padding: 20px;
-      box-shadow: -10px 0 50px rgba(76, 175, 80, 0.3);
-    }
-    
-    .shop-panel.open {
-      right: 0;
-    }
-    
-    .shop-close {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background: #ff0000;
-      color: #fff;
-      border: none;
-      width: 40px;
-      height: 40px;
-      font-size: 24px;
-      cursor: pointer;
-      border-radius: 50%;
-      font-family: Arial, sans-serif;
-      z-index: 10;
-    }
-    
-    .shop-panel h2 {
-      color: #4CAF50;
-      text-shadow: 0 0 20px #4CAF50;
-      margin-bottom: 15px;
-      font-size: 28px;
-      letter-spacing: 2px;
-    }
-    
-    .shop-stats {
-      background: rgba(255, 255, 255, 0.1);
-      padding: 15px;
-      border-radius: 10px;
-      margin-bottom: 15px;
-      border: 2px solid rgba(76, 175, 80, 0.3);
-      color: #fff;
-      font-size: 16px;
-    }
-    
-    .shop-stats div {
-      margin: 5px 0;
-    }
-    
-    .upgrade-item {
-      background: rgba(255, 255, 255, 0.05);
-      border: 2px solid rgba(76, 175, 80, 0.3);
-      border-radius: 10px;
-      padding: 15px;
-      margin: 10px 0;
-      cursor: pointer;
-      transition: all 0.3s;
-    }
-    
-    .upgrade-item:hover:not(.locked) {
-      background: rgba(76, 175, 80, 0.2);
-      border-color: #4CAF50;
-      transform: translateX(-5px);
-      box-shadow: 0 0 20px rgba(76, 175, 80, 0.3);
-    }
-    
-    .upgrade-item.locked {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-    
-    .upgrade-item.purchased {
-      background: rgba(76, 175, 80, 0.3);
-      border-color: #4CAF50;
-    }
-    
-    .upgrade-item .icon {
-      font-size: 32px;
-      float: left;
-      margin-right: 10px;
-    }
-    
-    .upgrade-item .name {
-      color: #4CAF50;
-      font-size: 18px;
-      margin-bottom: 5px;
-    }
-    
-    .upgrade-item .desc {
-      color: #aaa;
-      font-size: 12px;
       margin-bottom: 5px;
     }
     
@@ -882,30 +821,63 @@
     
     /* MULTIPLIER */
     .multiplier {
-      position: fixed;
-      top: 10px;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 36px;
+      position: relative;
+      margin-top: 10px;
+      font-size: 32px;
       color: gold;
       text-shadow: 2px 2px 0 #000, 0 0 20px gold;
       z-index: 10;
       letter-spacing: 2px;
+      text-align: center;
     }
     
     /* STREAK BAR */
     .streak-container {
-      position: fixed;
-      top: 60px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 300px;
-      height: 20px;
+      position: relative;
+      margin: 10px auto;
+      width: 280px;
+      max-width: 80%;
+      height: 18px;
       background: rgba(0, 0, 0, 0.7);
       border: 3px solid #fff;
       border-radius: 10px;
       overflow: hidden;
       z-index: 10;
+    }
+    
+    /* LEVEL DISPLAY */
+    .level-display {
+      position: relative;
+      margin: 5px auto;
+      font-size: 20px;
+      color: #00ffff;
+      text-shadow: 2px 2px 0 #000, 0 0 15px #00ffff;
+      text-align: center;
+      z-index: 10;
+    }
+    
+    .level-display .level-num {
+      color: #ffeb3b;
+      font-size: 28px;
+    }
+    
+    .xp-bar-container {
+      position: relative;
+      margin: 5px auto 15px;
+      width: 200px;
+      max-width: 60%;
+      height: 12px;
+      background: rgba(0, 0, 0, 0.7);
+      border: 2px solid #00ffff;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    
+    .xp-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #00ffff, #00ff88);
+      transition: width 0.3s;
     }
     
     .streak-bar {
@@ -930,95 +902,131 @@
       100% { opacity: 0; transform: translate(var(--tx), var(--ty)) scale(0) rotate(720deg); }
     }
     
-    /* INFO SIDEBAR (Right) - Krusty Krab Menu Style */
-    .sidebar-toggle {
+    /* UNIFIED MEGA SIDEBAR - Krusty Krab Menu Board Style */
+    .mega-sidebar-tabs {
       position: fixed;
       right: 0;
       top: 50%;
       transform: translateY(-50%);
-      background: linear-gradient(135deg, #ffcc00, #ff6b35);
-      color: #8b0000;
-      border: none;
-      padding: 15px 10px;
-      font-family: 'Krabby Patty', Arial, sans-serif;
-      font-size: 18px;
-      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
       z-index: 1000;
+    }
+    
+    .mega-tab {
+      background: linear-gradient(135deg, rgba(139, 69, 19, 0.95), rgba(101, 67, 33, 0.95));
+      color: #ffcc00;
+      border: 2px solid #ffcc00;
+      border-right: none;
+      padding: 12px 10px;
+      font-family: 'Krabby Patty', Arial, sans-serif;
+      font-size: 13px;
+      cursor: pointer;
       border-radius: 10px 0 0 10px;
       writing-mode: vertical-rl;
       text-orientation: mixed;
-      letter-spacing: 2px;
-      box-shadow: 0 0 20px rgba(255, 200, 50, 0.5);
+      letter-spacing: 1px;
       transition: all 0.3s;
+      box-shadow: -3px 0 10px rgba(0, 0, 0, 0.3);
+    }
+    
+    .mega-tab:hover {
+      padding-right: 15px;
+      background: linear-gradient(135deg, rgba(180, 100, 30, 0.95), rgba(139, 69, 19, 0.95));
+    }
+    
+    .mega-tab.active {
+      background: linear-gradient(135deg, #ffcc00, #ff8c00);
+      color: #000;
       font-weight: bold;
     }
     
-    .sidebar-toggle:hover {
-      padding-right: 20px;
-      box-shadow: 0 0 40px rgba(255, 200, 50, 0.8);
-    }
-    
-    .sidebar {
+    .mega-sidebar {
       position: fixed;
-      right: -350px;
+      right: -380px;
       top: 0;
-      width: 320px;
+      width: 350px;
       height: 100%;
-      background: linear-gradient(180deg, rgba(139, 69, 19, 0.98), rgba(101, 67, 33, 0.98));
+      background: linear-gradient(180deg, rgba(139, 69, 19, 0.98), rgba(80, 50, 20, 0.98));
       border-left: 4px solid #ffcc00;
       z-index: 1001;
       transition: right 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
       overflow-y: auto;
-      padding: 20px;
-      box-shadow: -10px 0 50px rgba(255, 200, 50, 0.3);
+      box-shadow: -10px 0 50px rgba(0, 0, 0, 0.5);
     }
     
-    .sidebar.open {
+    .mega-sidebar.open {
       right: 0;
     }
     
-    .sidebar-close {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background: #ff0000;
-      color: #fff;
-      border: none;
-      width: 40px;
-      height: 40px;
-      font-size: 24px;
-      cursor: pointer;
-      border-radius: 50%;
-      font-family: Arial, sans-serif;
+    .mega-sidebar-header {
+      background: linear-gradient(135deg, #ffcc00, #ff8c00);
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 10;
     }
     
-    .sidebar h2 {
-      color: #ffff00;
-      text-shadow: 0 0 20px #ffff00;
-      margin-bottom: 20px;
-      font-size: 28px;
+    .mega-sidebar-header h2 {
+      color: #000;
+      margin: 0;
+      font-size: 22px;
       letter-spacing: 2px;
     }
     
-    .sidebar-section {
-      background: rgba(255, 255, 255, 0.1);
+    .mega-close {
+      background: #ff0000;
+      color: #fff;
+      border: none;
+      width: 35px;
+      height: 35px;
+      font-size: 20px;
+      cursor: pointer;
+      border-radius: 50%;
+      font-family: Arial, sans-serif;
+      transition: transform 0.2s;
+    }
+    
+    .mega-close:hover {
+      transform: scale(1.1);
+    }
+    
+    .mega-content {
       padding: 15px;
+    }
+    
+    .mega-panel {
+      display: none;
+    }
+    
+    .mega-panel.active {
+      display: block;
+    }
+    
+    /* Sidebar sections */
+    .sidebar-section {
+      background: rgba(255, 255, 255, 0.08);
+      padding: 12px;
       border-radius: 10px;
-      margin-bottom: 15px;
-      border: 2px solid rgba(255, 255, 255, 0.2);
+      margin-bottom: 12px;
+      border: 2px solid rgba(255, 200, 50, 0.3);
     }
     
     .sidebar-section h3 {
-      color: #00ffff;
-      margin-bottom: 10px;
-      font-size: 18px;
+      color: #ffcc00;
+      margin-bottom: 8px;
+      font-size: 16px;
     }
     
     .sidebar-section p {
       color: #fff;
-      font-size: 14px;
+      font-size: 13px;
       word-break: break-all;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
     }
     
     .sidebar-section a {
@@ -1026,134 +1034,134 @@
       color: #ffcc00;
       text-decoration: none;
       padding: 10px;
-      margin: 5px 0;
-      background: rgba(255, 200, 50, 0.15);
+      margin: 4px 0;
+      background: rgba(255, 200, 50, 0.12);
       border-radius: 5px;
       transition: all 0.3s;
-      font-size: 16px;
-      border: 1px solid rgba(255, 200, 50, 0.3);
+      font-size: 14px;
+      border: 1px solid rgba(255, 200, 50, 0.25);
     }
     
     .sidebar-section a:hover {
-      background: rgba(255, 200, 50, 0.4);
+      background: rgba(255, 200, 50, 0.35);
       transform: translateX(5px);
-      box-shadow: 0 0 20px rgba(255, 200, 50, 0.5);
     }
     
     #mcap {
-      color: #ffd700;
-      font-size: 24px;
-      text-shadow: 0 0 15px #ffd700;
+      color: #4CAF50;
+      font-size: 20px;
+      text-shadow: 0 0 10px #4CAF50;
     }
     
-    /* ACHIEVEMENTS SIDEBAR (Left) */
-    .achievements-toggle {
-      position: fixed;
-      left: 0;
-      bottom: 20px;
-      background: linear-gradient(135deg, #ffd700, #ff8c00);
-      color: #000;
-      border: none;
-      padding: 15px 20px;
-      font-family: 'Krabby Patty', Arial, sans-serif;
-      font-size: 18px;
+    /* SHOP STYLES */
+    .shop-stats {
+      background: rgba(76, 175, 80, 0.15);
+      padding: 12px;
+      border-radius: 10px;
+      margin-bottom: 12px;
+      border: 2px solid rgba(76, 175, 80, 0.3);
+      color: #fff;
+      font-size: 14px;
+    }
+    
+    .shop-stats div {
+      margin: 4px 0;
+    }
+    
+    .upgrade-item {
+      background: rgba(255, 255, 255, 0.05);
+      border: 2px solid rgba(255, 200, 50, 0.2);
+      border-radius: 8px;
+      padding: 12px;
+      margin: 8px 0;
       cursor: pointer;
-      z-index: 1000;
-      border-radius: 0 10px 10px 0;
-      letter-spacing: 2px;
-      box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
       transition: all 0.3s;
     }
     
-    .achievements-toggle:hover {
-      padding-left: 30px;
-      box-shadow: 0 0 40px rgba(255, 215, 0, 0.8);
+    .upgrade-item:hover:not(.locked) {
+      background: rgba(255, 200, 50, 0.15);
+      border-color: #ffcc00;
+      transform: translateX(-3px);
     }
     
-    .achievements-sidebar {
-      position: fixed;
-      left: -380px;
-      top: 0;
-      width: 350px;
-      height: 100%;
-      background: linear-gradient(180deg, rgba(40, 30, 0, 0.98), rgba(20, 10, 0, 0.98));
-      border-right: 4px solid #ffd700;
-      z-index: 1001;
-      transition: left 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-      overflow-y: auto;
-      padding: 20px;
-      box-shadow: 10px 0 50px rgba(255, 215, 0, 0.3);
+    .upgrade-item.locked {
+      opacity: 0.5;
+      cursor: not-allowed;
     }
     
-    .achievements-sidebar.open {
-      left: 0;
-    }
-    
-    .achievements-close {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background: #ff0000;
-      color: #fff;
-      border: none;
-      width: 40px;
-      height: 40px;
-      font-size: 24px;
-      cursor: pointer;
-      border-radius: 50%;
-      font-family: Arial, sans-serif;
-    }
-    
-    .achievements-sidebar h2 {
-      color: #ffd700;
-      text-shadow: 0 0 20px #ffd700;
-      margin-bottom: 20px;
+    .upgrade-item .icon {
       font-size: 28px;
-      letter-spacing: 2px;
+      float: left;
+      margin-right: 10px;
     }
     
+    .upgrade-item .name {
+      color: #ffcc00;
+      font-size: 15px;
+      margin-bottom: 3px;
+    }
+    
+    .upgrade-item .desc {
+      color: #aaa;
+      font-size: 11px;
+      margin-bottom: 3px;
+    }
+    
+    .upgrade-item .cost {
+      color: #4CAF50;
+      font-size: 13px;
+    }
+    
+    .upgrade-item .owned {
+      color: #ffcc00;
+      font-size: 11px;
+      float: right;
+    }
+    
+    /* ACHIEVEMENTS */
     .achievement {
       display: flex;
       align-items: center;
-      padding: 12px;
-      margin: 8px 0;
+      padding: 10px;
+      margin: 6px 0;
       background: rgba(255, 255, 255, 0.05);
-      border-radius: 10px;
-      border: 2px solid rgba(255, 215, 0, 0.2);
+      border-radius: 8px;
+      border: 2px solid rgba(255, 200, 50, 0.15);
       transition: all 0.3s;
     }
     
     .achievement.unlocked {
-      background: rgba(255, 215, 0, 0.2);
-      border-color: #ffd700;
-      box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+      background: rgba(255, 200, 50, 0.15);
+      border-color: #ffcc00;
     }
     
     .achievement-icon {
-      font-size: 32px;
-      margin-right: 15px;
+      font-size: 28px;
+      margin-right: 12px;
       filter: grayscale(1);
-      transition: filter 0.3s;
     }
     
     .achievement.unlocked .achievement-icon {
       filter: grayscale(0);
-      animation: iconBounce 0.5s ease-out;
-    }
-    
-    @keyframes iconBounce {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.3); }
     }
     
     .achievement-info h4 {
       color: #888;
-      font-size: 16px;
-      margin-bottom: 3px;
+      font-size: 14px;
+      margin-bottom: 2px;
     }
     
     .achievement.unlocked .achievement-info h4 {
-      color: #ffd700;
+      color: #ffcc00;
+    }
+    
+    .achievement-info p {
+      color: #666;
+      font-size: 11px;
+    }
+    
+    .achievement.unlocked .achievement-info p {
+      color: #ccc;
     }
     
     .achievement-info p {
@@ -1215,48 +1223,49 @@
       .flash { font-size: 40px; }
       .combo-display { font-size: 28px; }
       .stroke-banner { font-size: 32px; }
-      .multiplier { font-size: 20px; }
-      .streak-container { width: 180px; }
-      .sponge-text { font-size: 18px; top: -35px; }
+      .multiplier { font-size: 18px; }
+      .streak-container { width: 160px; height: 14px; }
+      .sponge-text { font-size: 16px; top: -30px; }
+      
+      .level-display { font-size: 16px; }
+      .level-display .level-num { font-size: 22px; }
+      .xp-bar-container { width: 150px; height: 10px; }
       
       .reaction-image {
-        width: 150px;
-        max-width: 35vw;
+        width: 120px;
+        max-width: 30vw;
       }
       
-      .sidebar {
-        width: 85%;
-        right: -90%;
+      /* Mega sidebar mobile */
+      .mega-sidebar {
+        width: 90%;
+        right: -95%;
       }
       
-      .achievements-sidebar {
-        width: 85%;
-        left: -90%;
+      .mega-sidebar-tabs {
+        gap: 3px;
       }
       
-      .shop-panel {
-        width: 85%;
-        right: -90%;
+      .mega-tab {
+        font-size: 11px;
+        padding: 10px 8px;
       }
       
-      .sidebar-toggle,
-      .achievements-toggle,
-      .shop-toggle {
-        font-size: 12px;
-        padding: 8px 6px;
+      .mega-sidebar-header h2 {
+        font-size: 18px;
       }
       
       .feeling-it-text {
-        font-size: 24px;
-        top: 12%;
+        font-size: 20px;
+        top: 10%;
       }
       
       .krabs-image {
-        width: 80px;
+        width: 70px;
       }
       
       .intro-text {
-        font-size: 28px;
+        font-size: 24px;
         padding: 0 10px;
       }
       
@@ -1273,15 +1282,24 @@
       }
       
       .upgrade-item {
-        padding: 10px;
+        padding: 8px;
       }
       
       .upgrade-item .icon {
-        font-size: 24px;
+        font-size: 22px;
       }
       
       .upgrade-item .name {
-        font-size: 14px;
+        font-size: 13px;
+      }
+      
+      .achievement {
+        padding: 8px;
+      }
+      
+      .achievement-icon {
+        font-size: 24px;
+        margin-right: 10px;
       }
     }
   </style>
@@ -1290,10 +1308,19 @@
   <!-- Color flash overlay for STROKE MODE -->
   <div class="color-flash" id="colorFlash"></div>
   
-  <!-- INTRO ANIMATION -->
+  <!-- INTRO ANIMATION with VIDEO support -->
   <div class="intro-overlay" id="introOverlay">
-    <div class="intro-captain">🧽</div>
-    <div class="intro-text" id="introText">ARE YOU READY KIDS?!</div>
+    <video class="intro-video" id="introVideo" playsinline preload="auto">
+      <!-- Video source will be set by JavaScript if INTRO_VIDEO_URL is configured -->
+      <source src="" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+    <div class="intro-content" id="introContent">
+      <div class="intro-captain">🧽</div>
+      <div class="intro-text" id="introText">ARE YOU READY KIDS?!</div>
+    </div>
+    <div class="tap-to-skip">Tap anywhere to skip</div>
+    <button class="skip-intro" id="skipIntro">SKIP ⏭️</button>
   </div>
   
   <!-- Banner -->
@@ -1310,6 +1337,14 @@
   <!-- Streak bar -->
   <div class="streak-container">
     <div class="streak-bar" id="streakBar"></div>
+  </div>
+  
+  <!-- Level Display -->
+  <div class="level-display">
+    🎮 Level <span class="level-num" id="levelNum">1</span>
+  </div>
+  <div class="xp-bar-container">
+    <div class="xp-bar" id="xpBar"></div>
   </div>
   
   <!-- Main spinner -->
@@ -1345,58 +1380,68 @@
     <span class="text">Achievement Unlocked!</span>
   </div>
   
-  <!-- INFO Sidebar Toggle (Right) -->
-  <button class="sidebar-toggle" onclick="toggleSidebar()">📊 INFO</button>
-  
-  <!-- INFO Sidebar -->
-  <div class="sidebar" id="sidebar">
-    <button class="sidebar-close" onclick="toggleSidebar()">✕</button>
-    <h2>📊 $COCKPANTS INFO</h2>
-    
-    <div class="sidebar-section">
-      <h3>💰 Market Cap</h3>
-      <p id="mcap">Loading...</p>
-    </div>
-    
-    <div class="sidebar-section">
-      <h3>📋 Contract Address</h3>
-      <p style="font-size: 11px;">516h3AJBX72YZvEGDJWsUaGePuub53kLVKH2NWeHpump</p>
-    </div>
-    
-    <div class="sidebar-section">
-      <h3>🔗 Links</h3>
-      <a href="https://x.com/CockPants_sol" target="_blank">🐦 Twitter @CockPants_sol</a>
-      <a href="https://dexscreener.com/solana/5Eh94i7aEtA8t21f1HbZoDgrtTTZcQq9nbEpFMAFShsg" target="_blank">📈 DexScreener</a>
-      <a href="https://jup.ag/swap?sell=So11111111111111111111111111111111111111112&buy=516h3AJBX72YZvEGDJWsUaGePuub53kLVKH2NWeHpump" target="_blank">🪐 Trade on Jupiter</a>
-      <a href="https://x.com/i/communities/1991679244938682496" target="_blank">🏠 Weenie Hut Jr.'s Community</a>
-    </div>
+  <!-- UNIFIED MEGA SIDEBAR TABS -->
+  <div class="mega-sidebar-tabs">
+    <button class="mega-tab" id="tabInfo" data-panel="info">📊 INFO</button>
+    <button class="mega-tab" id="tabShop" data-panel="shop">🛒 SHOP</button>
+    <button class="mega-tab" id="tabAchievements" data-panel="achievements">🏆 BADGES</button>
   </div>
   
-  <!-- ACHIEVEMENTS Sidebar Toggle (Left Bottom) -->
-  <button class="achievements-toggle" id="achievementsToggleBtn">🏆 ACHIEVEMENTS</button>
-  
-  <!-- ACHIEVEMENTS Sidebar -->
-  <div class="achievements-sidebar" id="achievementsSidebar">
-    <button class="achievements-close" id="achievementsCloseBtn">✕</button>
-    <h2>🏆 ACHIEVEMENTS</h2>
-    <div id="achievementsList"></div>
+  <!-- UNIFIED MEGA SIDEBAR -->
+  <div class="mega-sidebar" id="megaSidebar">
+    <div class="mega-sidebar-header">
+      <h2 id="megaSidebarTitle">📊 INFO</h2>
+      <button class="mega-close" id="megaCloseBtn">✕</button>
+    </div>
+    <div class="mega-content">
+      <!-- INFO PANEL -->
+      <div class="mega-panel" id="panelInfo">
+        <div class="sidebar-section">
+          <h3>💰 Market Cap</h3>
+          <p id="mcap">Loading...</p>
+        </div>
+        
+        <div class="sidebar-section">
+          <h3>📋 Contract Address</h3>
+          <p style="font-size: 10px;">516h3AJBX72YZvEGDJWsUaGePuub53kLVKH2NWeHpump</p>
+        </div>
+        
+        <div class="sidebar-section">
+          <h3>🔗 Links</h3>
+          <a href="https://x.com/CockPants_sol" target="_blank">🐦 Twitter @CockPants_sol</a>
+          <a href="https://dexscreener.com/solana/5Eh94i7aEtA8t21f1HbZoDgrtTTZcQq9nbEpFMAFShsg" target="_blank">📈 DexScreener</a>
+          <a href="https://jup.ag/swap?sell=So11111111111111111111111111111111111111112&buy=516h3AJBX72YZvEGDJWsUaGePuub53kLVKH2NWeHpump" target="_blank">🪐 Trade on Jupiter</a>
+          <a href="https://x.com/i/communities/1991679244938682496" target="_blank">🏠 Weenie Hut Jr.'s</a>
+        </div>
+        
+        <div class="sidebar-section">
+          <h3>📊 Your Stats</h3>
+          <p>🎮 Level: <span id="infoLevel">1</span></p>
+          <p>🩲 Total Pumps: <span id="infoTotalPumps">0</span></p>
+          <p>⚡ Per Click: <span id="infoPerClick">1</span></p>
+          <p>🤖 Auto/sec: <span id="infoAutoPerSec">0</span></p>
+        </div>
+      </div>
+      
+      <!-- SHOP PANEL -->
+      <div class="mega-panel" id="panelShop">
+        <div class="shop-stats">
+          <div>💰 Pumps: <span id="shopPumps">0</span></div>
+          <div>⚡ Per Click: <span id="perClick">1</span></div>
+          <div>🤖 Auto/s: <span id="autoPumps">0</span></div>
+        </div>
+        <div id="upgradesList"></div>
+      </div>
+      
+      <!-- ACHIEVEMENTS PANEL -->
+      <div class="mega-panel" id="panelAchievements">
+        <div id="achievementsList"></div>
+      </div>
+    </div>
   </div>
   
   <!-- MR KRABS FEELING IT container -->
   <div class="krabs-container" id="krabsContainer"></div>
-  
-  <!-- UPGRADES SHOP (Cookie Clicker style) -->
-  <div class="shop-toggle" id="shopToggle">🛒 SHOP</div>
-  <div class="shop-panel" id="shopPanel">
-    <button class="shop-close" id="shopCloseBtn">✕</button>
-    <h2>🦀 KRUSTY SHOP 🦀</h2>
-    <div class="shop-stats">
-      <div>💰 Pumps: <span id="shopPumps">0</span></div>
-      <div>⚡ Per Click: <span id="perClick">1</span></div>
-      <div>🤖 Auto Pumps/s: <span id="autoPumps">0</span></div>
-    </div>
-    <div id="upgradesList"></div>
-  </div>
 
   <script>
     // CONFIG
@@ -1627,6 +1672,19 @@
       colorFlash.classList.add('active');
       document.body.classList.add('shake');
       
+      // TRIGGER MR. KRABS "FEELING IT" MODE during STROKE MODE!
+      triggerFeelingIt();
+      
+      // Keep triggering feeling it periodically during stroke mode
+      const feelingItInterval = setInterval(() => {
+        if (strokeMode && !feelingItActive) {
+          triggerFeelingIt();
+        }
+      }, 4000); // Every 4 seconds while in stroke mode
+      
+      // Store interval to clear later
+      window.feelingItStrokeInterval = feelingItInterval;
+      
       // Spam particles
       strokeParticleInterval = setInterval(() => {
         for (let i = 0; i < 15; i++) {
@@ -1648,26 +1706,28 @@
         clearInterval(strokeParticleInterval);
         strokeParticleInterval = null;
       }
+      // Clear feeling it interval
+      if (window.feelingItStrokeInterval) {
+        clearInterval(window.feelingItStrokeInterval);
+        window.feelingItStrokeInterval = null;
+      }
     }
     
     // Main click handler
     document.body.addEventListener('click', (e) => {
-      // Don't count clicks on buttons/sidebar/shop
-      if (e.target.closest('.sidebar') || 
-          e.target.closest('.achievements-sidebar') || 
-          e.target.closest('.sidebar-toggle') || 
-          e.target.closest('.achievements-toggle') ||
-          e.target.closest('.shop-panel') ||
-          e.target.closest('.shop-toggle') ||
-          e.target.closest('#achievementsToggleBtn') ||
-          e.target.closest('#achievementsCloseBtn') ||
-          e.target.closest('#shopToggle') ||
-          e.target.closest('#shopCloseBtn')) return;
+      // Don't count clicks on mega-sidebar or intro
+      if (e.target.closest('.mega-sidebar') || 
+          e.target.closest('.mega-sidebar-tabs') ||
+          e.target.closest('.mega-tab') ||
+          e.target.closest('.intro-overlay')) return;
       
       // Add perClick amount (Cookie Clicker style!)
       count += perClick;
       combo++;
       countEl.textContent = count.toLocaleString();
+      
+      // Add XP for leveling
+      addXp(perClick);
       
       // Update shop stats
       renderUpgrades();
@@ -1686,16 +1746,6 @@
       const numParticles = strokeMode ? 10 : Math.min(3 + Math.floor(perClick / 5), 10);
       for (let i = 0; i < numParticles; i++) {
         createParticle(e.clientX, e.clientY);
-      }
-      
-      // MR KRABS "FEELING IT" MODE - triggers at combo 15-25
-      if (combo >= 15 && combo <= 25 && !feelingItActive && Math.random() < 0.3) {
-        triggerFeelingIt();
-      }
-      
-      // Also trigger feeling it randomly on fast clicking
-      if (combo >= 20 && Math.random() < 0.1) {
-        triggerFeelingIt();
       }
       
       // Show flash every 10 clicks with rotating SpongeBob phrases
@@ -1747,36 +1797,116 @@
       }, 500);
     });
     
-    // Sidebar toggles
-    function toggleSidebar() {
-      document.getElementById('sidebar').classList.toggle('open');
+    // MEGA SIDEBAR SYSTEM
+    const megaSidebar = document.getElementById('megaSidebar');
+    const megaTabs = document.querySelectorAll('.mega-tab');
+    const megaPanels = document.querySelectorAll('.mega-panel');
+    const megaTitle = document.getElementById('megaSidebarTitle');
+    const megaCloseBtn = document.getElementById('megaCloseBtn');
+    
+    const panelTitles = {
+      info: '📊 INFO',
+      shop: '🛒 KRUSTY SHOP',
+      achievements: '🏆 ACHIEVEMENTS'
+    };
+    
+    function openMegaPanel(panelName) {
+      // Update tabs
+      megaTabs.forEach(tab => {
+        tab.classList.toggle('active', tab.dataset.panel === panelName);
+      });
+      
+      // Update panels
+      megaPanels.forEach(panel => {
+        panel.classList.toggle('active', panel.id === 'panel' + panelName.charAt(0).toUpperCase() + panelName.slice(1));
+      });
+      
+      // Update title
+      megaTitle.textContent = panelTitles[panelName];
+      
+      // Open sidebar
+      megaSidebar.classList.add('open');
+      
+      // Update info panel stats
+      if (panelName === 'info') {
+        document.getElementById('infoLevel').textContent = level;
+        document.getElementById('infoTotalPumps').textContent = totalPumpsEver.toLocaleString();
+        document.getElementById('infoPerClick').textContent = perClick;
+        document.getElementById('infoAutoPerSec').textContent = autoPerSecond;
+      }
     }
     
-    function toggleAchievements() {
-      document.getElementById('achievementsSidebar').classList.toggle('open');
+    function closeMegaSidebar() {
+      megaSidebar.classList.remove('open');
+      megaTabs.forEach(tab => tab.classList.remove('active'));
     }
     
-    // Set up button event listeners properly
-    document.getElementById('achievementsToggleBtn').addEventListener('click', (e) => {
-      e.stopPropagation();
-      toggleAchievements();
+    // Tab click handlers
+    megaTabs.forEach(tab => {
+      tab.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const panelName = tab.dataset.panel;
+        if (megaSidebar.classList.contains('open') && tab.classList.contains('active')) {
+          closeMegaSidebar();
+        } else {
+          openMegaPanel(panelName);
+        }
+      });
     });
     
-    document.getElementById('achievementsCloseBtn').addEventListener('click', (e) => {
+    // Close button
+    megaCloseBtn.addEventListener('click', (e) => {
       e.stopPropagation();
-      toggleAchievements();
+      closeMegaSidebar();
     });
     
-    // Shop toggle
-    document.getElementById('shopToggle').addEventListener('click', (e) => {
-      e.stopPropagation();
-      document.getElementById('shopPanel').classList.toggle('open');
-    });
+    // LEVELING SYSTEM
+    let level = 1;
+    let xp = 0;
+    let totalPumpsEver = 0;
     
-    document.getElementById('shopCloseBtn').addEventListener('click', (e) => {
-      e.stopPropagation();
-      document.getElementById('shopPanel').classList.remove('open');
-    });
+    function getXpForLevel(lvl) {
+      return Math.floor(100 * Math.pow(1.5, lvl - 1));
+    }
+    
+    function addXp(amount) {
+      xp += amount;
+      totalPumpsEver += amount;
+      const xpNeeded = getXpForLevel(level);
+      
+      while (xp >= xpNeeded) {
+        xp -= xpNeeded;
+        level++;
+        onLevelUp();
+      }
+      
+      updateLevelDisplay();
+    }
+    
+    function onLevelUp() {
+      // Show level up notification
+      const notification = document.getElementById('achievementNotification');
+      notification.querySelector('.icon').textContent = '🎉';
+      notification.querySelector('.text').innerHTML = `<strong>LEVEL UP!</strong><br>Level ${level}`;
+      notification.classList.add('visible');
+      setTimeout(() => notification.classList.remove('visible'), 3000);
+      
+      // Bonus effects
+      for (let i = 0; i < 20; i++) {
+        setTimeout(() => {
+          createParticle(Math.random() * window.innerWidth, Math.random() * window.innerHeight);
+        }, i * 50);
+      }
+      
+      showQuote();
+    }
+    
+    function updateLevelDisplay() {
+      document.getElementById('levelNum').textContent = level;
+      const xpNeeded = getXpForLevel(level);
+      const xpPercent = (xp / xpNeeded) * 100;
+      document.getElementById('xpBar').style.width = xpPercent + '%';
+    }
     
     // COOKIE CLICKER STYLE UPGRADES
     const upgrades = [
@@ -1887,26 +2017,38 @@
       
       feelingItText.classList.add('visible');
       
+      // More Mr. Krabs during stroke mode!
+      const krabsCount = strokeMode ? 20 : 12;
+      const spawnDelay = strokeMode ? 50 : 100;
+      
       // Spawn many Mr. Krabs images
-      for (let i = 0; i < 12; i++) {
+      for (let i = 0; i < krabsCount; i++) {
         setTimeout(() => {
           const krabs = document.createElement('img');
           krabs.src = 'https://i.imgur.com/VXvtS0N.jpeg';
           krabs.className = 'krabs-image';
-          krabs.style.left = Math.random() * 80 + 10 + '%';
-          krabs.style.top = Math.random() * 80 + 10 + '%';
-          krabs.style.animationDelay = (Math.random() * 0.2) + 's';
+          // During stroke mode, they can appear anywhere on screen
+          if (strokeMode) {
+            krabs.style.left = Math.random() * 90 + 5 + '%';
+            krabs.style.top = Math.random() * 90 + 5 + '%';
+            krabs.style.width = (100 + Math.random() * 100) + 'px'; // Bigger!
+          } else {
+            krabs.style.left = Math.random() * 80 + 10 + '%';
+            krabs.style.top = Math.random() * 80 + 10 + '%';
+          }
+          krabs.style.animationDelay = (Math.random() * 0.1) + 's';
           krabsContainer.appendChild(krabs);
-        }, i * 100);
+        }, i * spawnDelay);
       }
       
-      // Clear after 3 seconds
+      // Clear after 3 seconds (shorter during stroke mode for re-triggering)
+      const clearDelay = strokeMode ? 3500 : 3000;
       clearTimeout(feelingItTimeout);
       feelingItTimeout = setTimeout(() => {
         krabsContainer.innerHTML = '';
         feelingItText.classList.remove('visible');
         feelingItActive = false;
-      }, 3000);
+      }, clearDelay);
     }
     
     // Initialize upgrades
@@ -2108,34 +2250,97 @@
     }
     createOceanFloor();
     
-    // INTRO ANIMATION - "Are you ready kids?!"
+    // INTRO ANIMATION - "Are you ready kids?!" with VIDEO support
+    // ============================================================
+    // TO USE A VIDEO INTRO:
+    // 1. Upload your SpongeBob intro video to your GitHub repo (same folder as index.html)
+    // 2. Set the filename below, e.g., 'spongebob-intro.mp4'
+    // OR use a direct URL like from a CDN or video host
+    // ============================================================
+    const INTRO_VIDEO_URL = ''; // Examples: 'intro.mp4' or 'https://example.com/spongebob-intro.mp4'
+    
     function runIntro() {
       const introOverlay = document.getElementById('introOverlay');
+      const introVideo = document.getElementById('introVideo');
+      const introContent = document.getElementById('introContent');
       const introText = document.getElementById('introText');
+      const skipBtn = document.getElementById('skipIntro');
       
-      const introSequence = [
-        { text: "ARE YOU READY KIDS?!", delay: 0 },
-        { text: "AYE AYE CAPTAIN! 🏴‍☠️", delay: 1200 },
-        { text: "I CAN'T HEAR YOU! 📢", delay: 2400 },
-        { text: "AYE AYE CAPTAIN!! 🔊", delay: 3600 },
-        { text: "OHHHHHHH... 🎵", delay: 4800 },
-        { text: "WHO LIVES IN A PINEAPPLE UNDER THE SEA?! 🍍", delay: 5800 },
-        { text: "$COCKPANTS! 🩲", delay: 7200 },
-      ];
-      
-      introSequence.forEach(item => {
-        setTimeout(() => {
-          introText.style.animation = 'none';
-          introText.offsetHeight; // Trigger reflow
-          introText.style.animation = 'introTextPop 0.5s ease-out';
-          introText.textContent = item.text;
-        }, item.delay);
+      // Skip button functionality
+      skipBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        endIntro();
       });
       
-      // Hide intro after sequence
-      setTimeout(() => {
+      // Click anywhere to skip (except video controls)
+      introOverlay.addEventListener('click', (e) => {
+        if (e.target === introOverlay || e.target === introContent) {
+          endIntro();
+        }
+      });
+      
+      function endIntro() {
+        if (introVideo) {
+          introVideo.pause();
+          introVideo.currentTime = 0;
+        }
         introOverlay.classList.add('hidden');
-      }, 8500);
+      }
+      
+      // Check if video URL is set
+      if (INTRO_VIDEO_URL && INTRO_VIDEO_URL.length > 0) {
+        // VIDEO MODE
+        introContent.classList.add('hidden');
+        introVideo.querySelector('source').src = INTRO_VIDEO_URL;
+        introVideo.load();
+        introVideo.classList.add('playing');
+        introVideo.muted = false; // Unmute for video with sound
+        
+        introVideo.play().catch(err => {
+          console.log('Video autoplay blocked, trying muted...');
+          introVideo.muted = true;
+          introVideo.play().catch(err2 => {
+            console.log('Muted autoplay also blocked, falling back to text intro');
+            introVideo.classList.remove('playing');
+            introContent.classList.remove('hidden');
+            runTextIntro();
+          });
+        });
+        
+        // End intro when video finishes
+        introVideo.addEventListener('ended', endIntro);
+        
+        // Fallback timeout in case video is long
+        setTimeout(endIntro, 60000); // Max 60 seconds for longer intros
+      } else {
+        // TEXT MODE (default)
+        runTextIntro();
+      }
+      
+      function runTextIntro() {
+        const introSequence = [
+          { text: "ARE YOU READY KIDS?!", delay: 0 },
+          { text: "AYE AYE CAPTAIN! 🏴‍☠️", delay: 1200 },
+          { text: "I CAN'T HEAR YOU! 📢", delay: 2400 },
+          { text: "AYE AYE CAPTAIN!! 🔊", delay: 3600 },
+          { text: "OHHHHHHH... 🎵", delay: 4800 },
+          { text: "WHO LIVES IN A PINEAPPLE UNDER THE SEA?! 🍍", delay: 5800 },
+          { text: "$COCKPANTS! 🩲", delay: 7200 },
+        ];
+        
+        introSequence.forEach(item => {
+          setTimeout(() => {
+            if (introOverlay.classList.contains('hidden')) return;
+            introText.style.animation = 'none';
+            introText.offsetHeight; // Trigger reflow
+            introText.style.animation = 'introTextPop 0.5s ease-out';
+            introText.textContent = item.text;
+          }, item.delay);
+        });
+        
+        // Hide intro after sequence
+        setTimeout(endIntro, 8500);
+      }
     }
     
     // Run intro on page load
