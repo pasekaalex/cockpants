@@ -17,6 +17,17 @@
       box-sizing: border-box;
     }
     
+    /* Better mobile touch handling */
+    html {
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+    
+    button, .mega-tab, .upgrade-item, .sidebar-section a {
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: rgba(255, 200, 50, 0.3);
+    }
+    
     body {
       font-family: 'Krabby Patty', Arial, sans-serif;
       min-height: 100vh;
@@ -25,20 +36,29 @@
       align-items: center;
       overflow-x: hidden;
       position: relative;
-      /* Bikini Bottom underwater gradient */
-      background: linear-gradient(180deg, 
-        #1a5a8a 0%,      /* Surface light blue */
-        #0d4a6e 20%,     /* Mid water */
-        #0a3a5c 40%,     /* Deeper */
-        #083050 60%,     /* Ocean floor approaching */
-        #f4d03f22 80%,   /* Sandy bottom glow */
-        #c9a227 100%     /* Sandy ocean floor */
-      );
+      /* Bikini Bottom background image */
+      background-color: #0a3a5c;
+      background-image: url('https://i.imgur.com/q8Qd5PK.jpeg');
+      background-size: cover;
+      background-position: center;
       background-attachment: fixed;
-      cursor: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><text y="24" font-size="24">🩲</text></svg>') 16 16, auto;
+      background-repeat: no-repeat;
     }
     
-    /* Animated color overlay for underwater shimmer */
+    /* Dark overlay for readability */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 20, 40, 0.4);
+      z-index: 0;
+      pointer-events: none;
+    }
+    
+    /* Animated underwater shimmer overlay */
     body::after {
       content: '';
       position: fixed;
@@ -47,10 +67,10 @@
       width: 100%;
       height: 100%;
       background: linear-gradient(-45deg, 
-        rgba(26, 90, 138, 0.3),
-        rgba(255, 230, 100, 0.1),
-        rgba(13, 74, 110, 0.3),
-        rgba(255, 150, 200, 0.1)
+        rgba(26, 90, 138, 0.2),
+        rgba(255, 230, 100, 0.05),
+        rgba(13, 74, 110, 0.2),
+        rgba(100, 200, 255, 0.1)
       );
       background-size: 400% 400%;
       animation: shimmer 20s ease infinite;
@@ -63,21 +83,6 @@
       50% { background-position: 100% 50%; }
       100% { background-position: 0% 50%; }
     }
-    
-    /* Underwater light rays effect */
-    body::before {
-      content: '';
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: 
-        radial-gradient(ellipse at 20% 0%, rgba(100, 200, 255, 0.2) 0%, transparent 50%),
-        radial-gradient(ellipse at 80% 0%, rgba(100, 255, 200, 0.15) 0%, transparent 40%),
-        radial-gradient(ellipse at 50% 100%, rgba(0, 50, 100, 0.5) 0%, transparent 60%);
-      z-index: 0;
-      pointer-events: none;
     }
     
     /* Pulsing light effects */
@@ -585,15 +590,22 @@
       align-items: center;
       flex: 1;
       z-index: 2;
+      min-height: 300px;
+      width: 100%;
+      cursor: pointer;
     }
     
     .spinner {
-      width: 350px;
-      max-width: 80vw;
+      width: 320px;
+      max-width: 75vw;
       animation: spin 3s linear infinite;
       filter: drop-shadow(0 0 30px rgba(255, 255, 0, 0.8));
       transition: transform 0.1s ease-out, filter 0.3s;
       cursor: pointer;
+      /* Prevent image dragging on mobile */
+      -webkit-user-drag: none;
+      user-select: none;
+      pointer-events: auto;
     }
     
     .spinner:hover {
@@ -1217,90 +1229,180 @@
     
     /* Mobile styles */
     @media (max-width: 768px) {
-      .warning { font-size: 14px; padding: 8px; }
-      .spinner { width: 220px; }
-      .counter { font-size: 20px; }
-      .flash { font-size: 40px; }
-      .combo-display { font-size: 28px; }
-      .stroke-banner { font-size: 32px; }
-      .multiplier { font-size: 18px; }
-      .streak-container { width: 160px; height: 14px; }
-      .sponge-text { font-size: 16px; top: -30px; }
-      
-      .level-display { font-size: 16px; }
-      .level-display .level-num { font-size: 22px; }
-      .xp-bar-container { width: 150px; height: 10px; }
-      
-      .reaction-image {
-        width: 120px;
-        max-width: 30vw;
+      /* Remove custom cursor on mobile - causes issues */
+      body {
+        cursor: auto;
       }
       
-      /* Mega sidebar mobile */
+      .warning { font-size: 13px; padding: 8px 5px; }
+      .spinner { 
+        width: 200px; 
+        /* Make spinner easier to tap */
+        min-height: 200px;
+      }
+      .counter { font-size: 18px; padding: 15px; }
+      .flash { font-size: 36px; }
+      .combo-display { font-size: 24px; }
+      .stroke-banner { font-size: 28px; }
+      .multiplier { font-size: 16px; }
+      .streak-container { width: 140px; height: 12px; }
+      .sponge-text { font-size: 14px; top: -25px; }
+      
+      .level-display { font-size: 14px; }
+      .level-display .level-num { font-size: 20px; }
+      .xp-bar-container { width: 120px; height: 8px; }
+      
+      .reaction-image {
+        width: 100px;
+        max-width: 25vw;
+      }
+      
+      /* Mega sidebar mobile - BIGGER TAP TARGETS */
       .mega-sidebar {
-        width: 90%;
-        right: -95%;
+        width: 92%;
+        right: -96%;
       }
       
       .mega-sidebar-tabs {
-        gap: 3px;
+        gap: 8px;
       }
       
       .mega-tab {
-        font-size: 11px;
-        padding: 10px 8px;
+        font-size: 12px;
+        padding: 18px 14px; /* Much bigger tap area */
+        min-width: 44px; /* iOS minimum tap target */
+      }
+      
+      .mega-sidebar-header {
+        padding: 12px 15px;
       }
       
       .mega-sidebar-header h2 {
         font-size: 18px;
       }
       
+      .mega-close {
+        width: 44px; /* Bigger tap target */
+        height: 44px;
+        font-size: 24px;
+      }
+      
+      .mega-content {
+        padding: 12px;
+      }
+      
       .feeling-it-text {
-        font-size: 20px;
-        top: 10%;
+        font-size: 18px;
+        top: 8%;
       }
       
       .krabs-image {
-        width: 70px;
+        width: 60px;
       }
       
       .intro-text {
-        font-size: 24px;
-        padding: 0 10px;
+        font-size: 22px;
+        padding: 0 15px;
+      }
+      
+      .skip-intro {
+        padding: 15px 25px; /* Bigger skip button */
+        font-size: 16px;
+        bottom: 20px;
+        right: 20px;
+      }
+      
+      .tap-to-skip {
+        font-size: 16px;
+        bottom: 70px;
       }
       
       .banner img {
-        max-width: 95%;
+        max-width: 90%;
+        margin-top: 5px;
       }
       
-      /* Hide some decorations on mobile for performance */
-      .jellyfish:nth-child(n+3),
-      .seaweed:nth-child(n+4),
+      /* Hide decorations on mobile for performance & less clutter */
+      .jellyfish,
+      .seaweed:nth-child(n+3),
       .flower:nth-child(n+4),
-      .money-float {
+      .money-float,
+      .coral:nth-child(n+3),
+      .starfish,
+      .anchor,
+      .treasure {
         display: none;
       }
       
+      /* Keep some fun elements */
+      .bubble {
+        opacity: 0.5;
+      }
+      
+      .pineapple {
+        font-size: 50px;
+        bottom: 5%;
+      }
+      
+      /* Shop/Achievement items - bigger tap targets */
       .upgrade-item {
-        padding: 8px;
+        padding: 14px 12px;
+        margin: 10px 0;
+        min-height: 60px;
       }
       
       .upgrade-item .icon {
-        font-size: 22px;
+        font-size: 26px;
       }
       
       .upgrade-item .name {
+        font-size: 14px;
+      }
+      
+      .upgrade-item .desc {
+        font-size: 11px;
+      }
+      
+      .upgrade-item .cost {
         font-size: 13px;
       }
       
       .achievement {
-        padding: 8px;
+        padding: 12px 10px;
+        min-height: 50px;
       }
       
       .achievement-icon {
-        font-size: 24px;
-        margin-right: 10px;
+        font-size: 28px;
+        margin-right: 12px;
       }
+      
+      .achievement-info h4 {
+        font-size: 13px;
+      }
+      
+      .sidebar-section {
+        padding: 12px;
+        margin-bottom: 10px;
+      }
+      
+      .sidebar-section a {
+        padding: 14px 12px; /* Bigger link tap targets */
+        font-size: 14px;
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+      }
+    }
+    
+    /* Extra small screens */
+    @media (max-width: 400px) {
+      .spinner { width: 160px; }
+      .warning { font-size: 11px; }
+      .counter { font-size: 16px; }
+      .banner img { max-width: 95%; }
+      .mega-tab { font-size: 10px; padding: 14px 10px; }
+      .intro-text { font-size: 18px; }
     }
   </style>
 </head>
@@ -2257,7 +2359,7 @@
     // 2. Set the filename below, e.g., 'spongebob-intro.mp4'
     // OR use a direct URL like from a CDN or video host
     // ============================================================
-    const INTRO_VIDEO_URL = ''; // Examples: 'intro.mp4' or 'https://example.com/spongebob-intro.mp4'
+    const INTRO_VIDEO_URL = 'BobOpen.mp4'; // Your SpongeBob intro video!
     
     function runIntro() {
       const introOverlay = document.getElementById('introOverlay');
@@ -2294,11 +2396,30 @@
         introVideo.querySelector('source').src = INTRO_VIDEO_URL;
         introVideo.load();
         introVideo.classList.add('playing');
-        introVideo.muted = false; // Unmute for video with sound
         
-        introVideo.play().catch(err => {
-          console.log('Video autoplay blocked, trying muted...');
+        // Try to play with sound first
+        introVideo.muted = false;
+        introVideo.volume = 1.0;
+        
+        introVideo.play().then(() => {
+          console.log('Video playing with sound!');
+        }).catch(err => {
+          console.log('Autoplay with sound blocked, trying muted...');
           introVideo.muted = true;
+          
+          // Show tap to unmute hint
+          const tapHint = document.querySelector('.tap-to-skip');
+          if (tapHint) tapHint.textContent = '🔊 Tap to unmute | Tap to skip';
+          
+          // Add click handler to unmute
+          const unmuteHandler = () => {
+            introVideo.muted = false;
+            introVideo.volume = 1.0;
+            if (tapHint) tapHint.textContent = 'Tap anywhere to skip';
+            introOverlay.removeEventListener('click', unmuteHandler);
+          };
+          introOverlay.addEventListener('click', unmuteHandler, { once: true });
+          
           introVideo.play().catch(err2 => {
             console.log('Muted autoplay also blocked, falling back to text intro');
             introVideo.classList.remove('playing');
@@ -2310,8 +2431,8 @@
         // End intro when video finishes
         introVideo.addEventListener('ended', endIntro);
         
-        // Fallback timeout in case video is long
-        setTimeout(endIntro, 60000); // Max 60 seconds for longer intros
+        // Timeout matching your 15 second video (plus buffer)
+        setTimeout(endIntro, 18000);
       } else {
         // TEXT MODE (default)
         runTextIntro();
