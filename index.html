@@ -284,6 +284,24 @@
       opacity: 1;
     }
     
+    /* Reaction image on side */
+    .reaction-image {
+      position: fixed;
+      right: -300px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 250px;
+      height: auto;
+      z-index: 300;
+      transition: right 0.4s ease;
+      filter: drop-shadow(0 0 20px #ffff00);
+      border-radius: 15px;
+      border: 3px solid #ffd700;
+    }
+    .reaction-image.show {
+      right: 20px;
+    }
+    
     /* STROKE MODE effects */
     body.stroke-mode {
       animation: shake 0.1s infinite, gradientShift 2s ease infinite;
@@ -565,6 +583,13 @@
         width: 90%;
         top: 15px;
       }
+      .reaction-image {
+        width: 150px;
+        right: -200px;
+      }
+      .reaction-image.show {
+        right: 10px;
+      }
     }
     @media (min-width: 769px) {
       .mobile-info {
@@ -626,6 +651,7 @@
   <div class="multiplier" id="multiplier">1x</div>
   <div class="spongebob-text" id="spongebobText">I'M READY!</div>
   <div class="stroke-mode-banner" id="strokeBanner">🔥 STROKE MODE 🔥</div>
+  <img class="reaction-image" id="reactionImage" src="" alt="SpongeBob Reaction">
 
   <div class="warning">⚠️ YOU ARE THE 9,999,999th VISITOR TO BIKINI BOTTOM!!! CLICK TO PUMP $COCKPANTS ⚠️</div>
   
@@ -655,6 +681,7 @@
     const multiplierDisplay = document.getElementById('multiplier');
     const streakFill = document.getElementById('streakFill');
     const spongebobText = document.getElementById('spongebobText');
+    const reactionImage = document.getElementById('reactionImage');
     
     // Achievement system
     const achievements = [
@@ -672,12 +699,14 @@
     
     let highestCombo = 0;
     
-    // SpongeBob reactions based on state
+    // SpongeBob reactions based on state - more frequent triggers
     const reactions = [
-      { min: 0, max: 49, texts: ["I'm ready!", "Aye aye captain!", "🩲"], image: "https://i.imgur.com/T1W4AZd.jpeg" },
-      { min: 50, max: 199, texts: ["F is for fire!", "The inner machinations...", "FIRMLY GRASP IT!", "I NEED IT!", "MY LEG!"], image: "https://i.imgur.com/wVgBk6t.jpeg" },
-      { min: 200, max: 499, texts: ["IMAGINATION! ✨", "Soaking up the sun! ☀️", "Technique! Technique!", "I'm ugly and I'm proud!"], image: "https://i.imgur.com/9KJ3jAQ.jpeg" },
-      { min: 500, max: 9999, texts: ["Is mayonnaise an instrument?", "The Krusty Krab pizza!", "CHOCOLATE!", "I'M A GOOFY GOOBER!", "SWEET VICTORY! 🎸"], image: "https://i.imgur.com/vaKsAXk.jpeg" }
+      { min: 0, max: 19, texts: ["I'm ready!", "Aye aye captain!", "🩲"], image: "https://i.imgur.com/wVgBk6t.jpeg" },
+      { min: 20, max: 49, texts: ["F is for fire!", "The inner machinations...", "FIRMLY GRASP IT!"], image: "https://i.imgur.com/9KJ3jAQ.jpeg" },
+      { min: 50, max: 99, texts: ["I NEED IT!", "MY LEG!", "Technique! Technique!"], image: "https://i.imgur.com/vaKsAXk.jpeg" },
+      { min: 100, max: 199, texts: ["IMAGINATION! ✨", "Soaking up the sun! ☀️", "I'm ugly and I'm proud!"], image: "https://i.imgur.com/wVgBk6t.jpeg" },
+      { min: 200, max: 499, texts: ["Is mayonnaise an instrument?", "The Krusty Krab pizza!", "CHOCOLATE!"], image: "https://i.imgur.com/9KJ3jAQ.jpeg" },
+      { min: 500, max: 9999, texts: ["I'M A GOOFY GOOBER!", "SWEET VICTORY! 🎸", "KRAKATOA! 🌋"], image: "https://i.imgur.com/vaKsAXk.jpeg" }
     ];
     
     let reactionTimer = null;
@@ -757,9 +786,15 @@
         spongebobText.textContent = randomText;
         spongebobText.classList.add('show');
         
-        // Change SpongeBob image
-        if (reaction.image && !strokeModeActive) {
-          spinner.src = reaction.image;
+        // Show reaction image on side
+        if (reaction.image) {
+          reactionImage.src = reaction.image;
+          reactionImage.classList.add('show');
+          
+          // Hide after 1.5 seconds
+          setTimeout(() => {
+            reactionImage.classList.remove('show');
+          }, 1500);
         }
         
         setTimeout(() => spongebobText.classList.remove('show'), 2000);
@@ -795,19 +830,10 @@
       strokeModeActive = false;
       document.body.classList.remove('stroke-mode');
       document.getElementById('strokeBanner').classList.remove('active');
-      
-      // Reset SpongeBob image to current level
-      const reaction = reactions.find(r => count >= r.min && count <= r.max);
-      if (reaction && reaction.image) {
-        spinner.src = reaction.image;
-      }
     }
     
     // Initialize achievements display
     updateAchievementDisplay();
-    
-    // Set initial SpongeBob image
-    spinner.src = reactions[0].image;
     
     function createParticle(x, y) {
       const particle = document.createElement('div');
@@ -857,8 +883,8 @@
         // Check achievements
         checkAchievements();
         
-        // Show SpongeBob reaction every 10 pumps
-        if (count % 10 === 0) {
+        // Show SpongeBob reaction every 5 pumps (more frequent)
+        if (count % 5 === 0) {
           showSpongebobReaction();
         }
         
