@@ -213,6 +213,122 @@
       transition: width 0.2s ease;
       box-shadow: 0 0 10px rgba(255, 0, 255, 0.8);
     }
+    
+    /* Achievement notification */
+    .achievement {
+      position: fixed;
+      top: -150px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(135deg, #ffd700, #ffed4e);
+      color: black;
+      padding: 20px 30px;
+      border-radius: 15px;
+      box-shadow: 0 8px 25px rgba(255, 215, 0, 0.8);
+      z-index: 9999;
+      font-family: 'Krabby Patty', 'Comic Sans MS', cursive;
+      text-align: center;
+      transition: top 0.5s ease;
+      border: 3px solid #ff0000;
+    }
+    .achievement.show {
+      top: 80px;
+    }
+    .achievement-title {
+      font-size: 24px;
+      color: #ff0000;
+      margin-bottom: 5px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    }
+    .achievement-desc {
+      font-size: 16px;
+      color: #000;
+    }
+    
+    /* Achievement list in sidebar */
+    .achievement-list {
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    .achievement-item {
+      padding: 8px;
+      margin: 5px 0;
+      background: rgba(255, 215, 0, 0.1);
+      border-radius: 5px;
+      border-left: 3px solid #00ff00;
+      font-size: 13px;
+    }
+    .achievement-item.locked {
+      opacity: 0.5;
+      border-left-color: #666;
+    }
+    
+    /* SpongeBob reaction text */
+    .spongebob-text {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -120px);
+      font-size: 28px;
+      color: #ffff00;
+      text-shadow: 3px 3px 6px black, 0 0 20px #ffff00;
+      z-index: 140;
+      font-family: 'Krabby Patty', 'Comic Sans MS', cursive;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      text-align: center;
+      max-width: 80%;
+    }
+    .spongebob-text.show {
+      opacity: 1;
+    }
+    
+    /* STROKE MODE effects */
+    body.stroke-mode {
+      animation: shake 0.1s infinite, gradientShift 2s ease infinite;
+    }
+    body.stroke-mode::before {
+      animation: pulse 0.5s ease infinite;
+      background: 
+        radial-gradient(circle at 20% 50%, rgba(255, 0, 0, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(255, 0, 255, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 40% 20%, rgba(255, 255, 0, 0.3) 0%, transparent 50%);
+    }
+    .stroke-mode-banner {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: clamp(60px, 15vw, 120px);
+      color: #ff0000;
+      text-shadow: 0 0 40px #ff0000, 0 0 80px #ff0000, 5px 5px 10px black;
+      z-index: 9998;
+      font-family: 'Krabby Patty', 'Comic Sans MS', cursive;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      letter-spacing: 5px;
+      animation: strokePulse 0.5s ease infinite;
+    }
+    .stroke-mode-banner.active {
+      opacity: 1;
+    }
+    @keyframes strokePulse {
+      0%, 100% { transform: translate(-50%, -50%) scale(1); }
+      50% { transform: translate(-50%, -50%) scale(1.1); }
+    }
+    body.stroke-mode .particle {
+      animation: particleFly 0.5s ease-out forwards;
+    }
+    body.stroke-mode .spinner-container img {
+      animation: spin 1s linear infinite, strokeSpin 0.5s ease infinite;
+      filter: drop-shadow(0 0 50px #ff0000) drop-shadow(0 0 100px #ff00ff) brightness(1.3) contrast(1.2);
+    }
+    @keyframes strokeSpin {
+      0%, 100% { transform: scale(1.2) rotate(0deg); }
+      50% { transform: scale(1.5) rotate(180deg); }
+    }
     .shill { 
       position: absolute; 
       right: 10px; 
@@ -490,6 +606,17 @@
         <a href="https://x.com/i/communities/1991679244938682496" target="_blank" class="twitter">🏰 Weenie Hut Jr.'s Community</a>
       </div>
     </div>
+    
+    <div class="sidebar-section">
+      <h3>🏆 Achievements</h3>
+      <div class="achievement-list" id="achievementList"></div>
+    </div>
+  </div>
+
+  <!-- Achievement Notification -->
+  <div class="achievement" id="achievementNotif">
+    <div class="achievement-title" id="achievementTitle">🏆 ACHIEVEMENT UNLOCKED!</div>
+    <div class="achievement-desc" id="achievementDesc">Description</div>
   </div>
 
   <!-- Game UI Elements -->
@@ -497,6 +624,8 @@
     <div class="streak-fill" id="streakFill"></div>
   </div>
   <div class="multiplier" id="multiplier">1x</div>
+  <div class="spongebob-text" id="spongebobText">I'M READY!</div>
+  <div class="stroke-mode-banner" id="strokeBanner">🔥 STROKE MODE 🔥</div>
 
   <div class="warning">⚠️ YOU ARE THE 9,999,999th VISITOR TO BIKINI BOTTOM!!! CLICK TO PUMP $COCKPANTS ⚠️</div>
   
@@ -525,6 +654,35 @@
     const comboDisplay = document.getElementById('combo');
     const multiplierDisplay = document.getElementById('multiplier');
     const streakFill = document.getElementById('streakFill');
+    const spongebobText = document.getElementById('spongebobText');
+    
+    // Achievement system
+    const achievements = [
+      { id: 'first_pump', name: 'First Pump', desc: 'Click once', threshold: 1, unlocked: false },
+      { id: 'getting_started', name: 'Getting Started', desc: 'Reach 10 pumps', threshold: 10, unlocked: false },
+      { id: 'pump_rookie', name: 'Pump Rookie', desc: 'Reach 50 pumps', threshold: 50, unlocked: false },
+      { id: 'century_club', name: 'Century Club', desc: 'Reach 100 pumps', threshold: 100, unlocked: false },
+      { id: 'pump_veteran', name: 'Pump Veteran', desc: 'Reach 500 pumps', threshold: 500, unlocked: false },
+      { id: 'pump_master', name: 'Pump Master', desc: 'Reach 1000 pumps', threshold: 1000, unlocked: false },
+      { id: 'combo_starter', name: 'Combo Starter', desc: 'Reach 5x combo', threshold: 5, type: 'combo', unlocked: false },
+      { id: 'combo_king', name: 'Combo King', desc: 'Reach 10x combo', threshold: 10, type: 'combo', unlocked: false },
+      { id: 'combo_god', name: 'Combo God', desc: 'Reach 30x combo', threshold: 30, type: 'combo', unlocked: false },
+      { id: 'speed_demon', name: 'Speed Demon', desc: 'Reach 50x combo', threshold: 50, type: 'combo', unlocked: false }
+    ];
+    
+    let highestCombo = 0;
+    
+    // SpongeBob reactions based on state
+    const reactions = [
+      { min: 0, max: 49, texts: ["I'm ready!", "Aye aye captain!", "🩲"], image: "https://i.imgur.com/T1W4AZd.jpeg" },
+      { min: 50, max: 199, texts: ["F is for fire!", "The inner machinations...", "FIRMLY GRASP IT!", "I NEED IT!", "MY LEG!"], image: "https://i.imgur.com/wVgBk6t.jpeg" },
+      { min: 200, max: 499, texts: ["IMAGINATION! ✨", "Soaking up the sun! ☀️", "Technique! Technique!", "I'm ugly and I'm proud!"], image: "https://i.imgur.com/9KJ3jAQ.jpeg" },
+      { min: 500, max: 9999, texts: ["Is mayonnaise an instrument?", "The Krusty Krab pizza!", "CHOCOLATE!", "I'M A GOOFY GOOBER!", "SWEET VICTORY! 🎸"], image: "https://i.imgur.com/vaKsAXk.jpeg" }
+    ];
+    
+    let reactionTimer = null;
+    let strokeModeActive = false;
+    let strokeModeTimer = null;
     
     function updateMarketCap() {
       fetch(API_URL)
@@ -556,6 +714,100 @@
     function toggleSidebar() {
       document.getElementById('sidebar').classList.toggle('open');
     }
+    
+    function updateAchievementDisplay() {
+      const list = document.getElementById('achievementList');
+      list.innerHTML = achievements.map(ach => 
+        `<div class="achievement-item ${ach.unlocked ? '' : 'locked'}">
+          ${ach.unlocked ? '✅' : '🔒'} ${ach.name}<br>
+          <span style="font-size: 11px; opacity: 0.8;">${ach.desc}</span>
+        </div>`
+      ).join('');
+    }
+    
+    function checkAchievements() {
+      achievements.forEach(ach => {
+        if (!ach.unlocked) {
+          const value = ach.type === 'combo' ? clickCombo : count;
+          if (value >= ach.threshold) {
+            ach.unlocked = true;
+            showAchievement(ach.name, ach.desc);
+            updateAchievementDisplay();
+          }
+        }
+      });
+      
+      if (clickCombo > highestCombo) {
+        highestCombo = clickCombo;
+      }
+    }
+    
+    function showAchievement(title, desc) {
+      const notif = document.getElementById('achievementNotif');
+      document.getElementById('achievementTitle').textContent = '🏆 ' + title.toUpperCase() + '!';
+      document.getElementById('achievementDesc').textContent = desc;
+      notif.classList.add('show');
+      setTimeout(() => notif.classList.remove('show'), 3000);
+    }
+    
+    function showSpongebobReaction() {
+      const reaction = reactions.find(r => count >= r.min && count <= r.max);
+      if (reaction) {
+        const randomText = reaction.texts[Math.floor(Math.random() * reaction.texts.length)];
+        spongebobText.textContent = randomText;
+        spongebobText.classList.add('show');
+        
+        // Change SpongeBob image
+        if (reaction.image && !strokeModeActive) {
+          spinner.src = reaction.image;
+        }
+        
+        setTimeout(() => spongebobText.classList.remove('show'), 2000);
+      }
+    }
+    
+    function activateStrokeMode() {
+      strokeModeActive = true;
+      document.body.classList.add('stroke-mode');
+      document.getElementById('strokeBanner').classList.add('active');
+      
+      // More intense particles
+      const interval = setInterval(() => {
+        if (!strokeModeActive) {
+          clearInterval(interval);
+          return;
+        }
+        for (let i = 0; i < 5; i++) {
+          const x = Math.random() * window.innerWidth;
+          const y = Math.random() * window.innerHeight;
+          createParticle(x, y);
+        }
+      }, 100);
+      
+      // Auto-deactivate after combo ends
+      clearTimeout(strokeModeTimer);
+      strokeModeTimer = setTimeout(() => {
+        deactivateStrokeMode();
+      }, 3000);
+    }
+    
+    function deactivateStrokeMode() {
+      strokeModeActive = false;
+      document.body.classList.remove('stroke-mode');
+      document.getElementById('strokeBanner').classList.remove('active');
+      
+      // Reset SpongeBob image to current level
+      const reaction = reactions.find(r => count >= r.min && count <= r.max);
+      if (reaction && reaction.image) {
+        spinner.src = reaction.image;
+      }
+    }
+    
+    // Initialize achievements display
+    updateAchievementDisplay();
+    
+    // Set initial SpongeBob image
+    spinner.src = reactions[0].image;
     
     function createParticle(x, y) {
       const particle = document.createElement('div');
@@ -602,6 +854,14 @@
         clickCombo++;
         document.getElementById("count").innerText = count;
         
+        // Check achievements
+        checkAchievements();
+        
+        // Show SpongeBob reaction every 10 pumps
+        if (count % 10 === 0) {
+          showSpongebobReaction();
+        }
+        
         // Create particles at click location
         for (let i = 0; i < 3; i++) {
           setTimeout(() => createParticle(e.clientX, e.clientY), i * 50);
@@ -628,7 +888,19 @@
         comboTimer = setTimeout(() => {
           clickCombo = 0;
           updateMultiplier();
+          deactivateStrokeMode();
         }, 1000);
+        
+        // Activate STROKE MODE at 50+ combo
+        if (clickCombo >= 50 && !strokeModeActive) {
+          activateStrokeMode();
+        } else if (clickCombo >= 50 && strokeModeActive) {
+          // Keep extending STROKE MODE
+          clearTimeout(strokeModeTimer);
+          strokeModeTimer = setTimeout(() => {
+            deactivateStrokeMode();
+          }, 3000);
+        }
         
         // Show combo at milestones
         if (clickCombo === 5) {
@@ -641,10 +913,12 @@
           showCombo('MEGA STROKE! ⚡');
           document.body.classList.add('shake');
           setTimeout(() => document.body.classList.remove('shake'), 300);
-        } else if (clickCombo >= 30) {
+        } else if (clickCombo === 30) {
           showCombo('COCK GODLIKE! 👑');
           document.body.classList.add('shake');
           setTimeout(() => document.body.classList.remove('shake'), 300);
+        } else if (clickCombo === 50) {
+          showCombo('🔥 STROKE MODE ACTIVATED! 🔥');
         }
         
         if (count % 10 === 0) {
