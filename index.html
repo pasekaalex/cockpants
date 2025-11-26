@@ -36,12 +36,12 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: 
-        radial-gradient(circle at 20% 50%, rgba(255, 255, 0, 0.1) 0%, transparent 50%),
-        radial-gradient(circle at 80% 80%, rgba(0, 255, 255, 0.1) 0%, transparent 50%),
-        radial-gradient(circle at 40% 20%, rgba(255, 0, 255, 0.1) 0%, transparent 50%);
+      background: rgba(0, 0, 0, 0.5);
       z-index: 1;
-      animation: pulse 10s ease infinite;
+    }
+    body > * {
+      position: relative;
+      z-index: 2;
     }
     @keyframes gradientShift {
       0% { background-position: 0% 50%; }
@@ -284,68 +284,124 @@
       opacity: 1;
     }
     
-    /* Reaction image on side */
+    /* Reaction image on side - BIGGER AND FLASHIER */
     .reaction-image {
       position: fixed;
-      right: -300px;
+      right: -450px;
       top: 50%;
-      transform: translateY(-50%);
-      width: 250px;
+      transform: translateY(-50%) rotate(-10deg);
+      width: 400px;
       height: auto;
       z-index: 300;
-      transition: right 0.4s ease;
-      filter: drop-shadow(0 0 20px #ffff00);
-      border-radius: 15px;
-      border: 3px solid #ffd700;
+      transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      filter: drop-shadow(0 0 40px #ffff00) drop-shadow(0 0 80px #ff00ff) brightness(1.2);
+      border-radius: 20px;
+      border: 5px solid #ffd700;
+      animation: reactionPulse 0.5s ease infinite;
     }
     .reaction-image.show {
-      right: 20px;
+      right: 30px;
+      transform: translateY(-50%) rotate(0deg) scale(1.1);
+    }
+    @keyframes reactionPulse {
+      0%, 100% { 
+        filter: drop-shadow(0 0 40px #ffff00) drop-shadow(0 0 80px #ff00ff) brightness(1.2);
+      }
+      50% { 
+        filter: drop-shadow(0 0 60px #ff0000) drop-shadow(0 0 120px #00ffff) brightness(1.4) saturate(1.5);
+      }
     }
     
-    /* STROKE MODE effects */
+    /* STROKE MODE effects - ULTRA INTENSE */
     body.stroke-mode {
-      animation: shake 0.1s infinite, gradientShift 2s ease infinite;
+      animation: shake 0.05s infinite, colorFlash 0.1s infinite;
+    }
+    @keyframes colorFlash {
+      0% { filter: hue-rotate(0deg) brightness(1); }
+      25% { filter: hue-rotate(90deg) brightness(1.3); }
+      50% { filter: hue-rotate(180deg) brightness(1.5); }
+      75% { filter: hue-rotate(270deg) brightness(1.3); }
+      100% { filter: hue-rotate(360deg) brightness(1); }
     }
     body.stroke-mode::before {
-      animation: pulse 0.5s ease infinite;
+      animation: strokeOverlay 0.1s ease infinite;
       background: 
-        radial-gradient(circle at 20% 50%, rgba(255, 0, 0, 0.3) 0%, transparent 50%),
-        radial-gradient(circle at 80% 80%, rgba(255, 0, 255, 0.3) 0%, transparent 50%),
-        radial-gradient(circle at 40% 20%, rgba(255, 255, 0, 0.3) 0%, transparent 50%);
+        radial-gradient(circle at 20% 50%, rgba(255, 0, 0, 0.6) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(255, 0, 255, 0.6) 0%, transparent 50%),
+        radial-gradient(circle at 40% 20%, rgba(255, 255, 0, 0.6) 0%, transparent 50%);
+    }
+    @keyframes strokeOverlay {
+      0%, 100% { opacity: 0.8; }
+      50% { opacity: 1; }
     }
     .stroke-mode-banner {
       position: fixed;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      font-size: clamp(60px, 15vw, 120px);
+      font-size: clamp(70px, 18vw, 150px);
       color: #ff0000;
-      text-shadow: 0 0 40px #ff0000, 0 0 80px #ff0000, 5px 5px 10px black;
+      text-shadow: 
+        0 0 50px #ff0000, 
+        0 0 100px #ff0000, 
+        0 0 150px #ff00ff,
+        8px 8px 15px black;
       z-index: 9998;
       font-family: 'Krabby Patty', 'Comic Sans MS', cursive;
       pointer-events: none;
       opacity: 0;
-      transition: opacity 0.5s ease;
-      letter-spacing: 5px;
-      animation: strokePulse 0.5s ease infinite;
+      transition: opacity 0.3s ease;
+      letter-spacing: 8px;
+      animation: strokePulse 0.2s ease infinite, strokeRotate 1s ease infinite;
     }
     .stroke-mode-banner.active {
       opacity: 1;
     }
     @keyframes strokePulse {
-      0%, 100% { transform: translate(-50%, -50%) scale(1); }
-      50% { transform: translate(-50%, -50%) scale(1.1); }
+      0%, 100% { 
+        transform: translate(-50%, -50%) scale(1);
+        color: #ff0000;
+      }
+      50% { 
+        transform: translate(-50%, -50%) scale(1.2);
+        color: #ffff00;
+      }
+    }
+    @keyframes strokeRotate {
+      0% { text-shadow: 0 0 50px #ff0000, 0 0 100px #ff0000, 0 0 150px #ff00ff, 8px 8px 15px black; }
+      33% { text-shadow: 0 0 50px #ffff00, 0 0 100px #ffff00, 0 0 150px #00ffff, 8px 8px 15px black; }
+      66% { text-shadow: 0 0 50px #ff00ff, 0 0 100px #ff00ff, 0 0 150px #ff0000, 8px 8px 15px black; }
+      100% { text-shadow: 0 0 50px #ff0000, 0 0 100px #ff0000, 0 0 150px #ff00ff, 8px 8px 15px black; }
     }
     body.stroke-mode .particle {
-      animation: particleFly 0.5s ease-out forwards;
+      animation: particleFly 0.3s ease-out forwards;
+      width: 30px;
+      height: 30px;
     }
     body.stroke-mode .spinner-container img {
-      animation: spin 1s linear infinite, strokeSpin 0.5s ease infinite;
-      filter: drop-shadow(0 0 50px #ff0000) drop-shadow(0 0 100px #ff00ff) brightness(1.3) contrast(1.2);
+      animation: spin 0.3s linear infinite, strokeSpinMega 0.2s ease infinite;
+      filter: 
+        drop-shadow(0 0 80px #ff0000) 
+        drop-shadow(0 0 150px #ff00ff) 
+        drop-shadow(0 0 200px #ffff00)
+        brightness(1.8) 
+        contrast(1.5) 
+        saturate(2);
     }
-    @keyframes strokeSpin {
-      0%, 100% { transform: scale(1.2) rotate(0deg); }
-      50% { transform: scale(1.5) rotate(180deg); }
+    @keyframes strokeSpinMega {
+      0% { transform: scale(1.5) rotate(0deg); }
+      25% { transform: scale(2) rotate(90deg); }
+      50% { transform: scale(1.8) rotate(180deg); }
+      75% { transform: scale(2.2) rotate(270deg); }
+      100% { transform: scale(1.5) rotate(360deg); }
+    }
+    body.stroke-mode .reaction-image {
+      animation: reactionStrokeCrazy 0.1s ease infinite;
+    }
+    @keyframes reactionStrokeCrazy {
+      0% { transform: translateY(-50%) rotate(-15deg) scale(1.3); }
+      50% { transform: translateY(-50%) rotate(15deg) scale(1.5); }
+      100% { transform: translateY(-50%) rotate(-15deg) scale(1.3); }
     }
     .shill { 
       position: absolute; 
@@ -529,6 +585,54 @@
     .sidebar-links a.jupiter:hover {
       background: linear-gradient(135deg, #33ddff, #00d4ff);
     }
+    
+    /* Achievement sidebar on LEFT BOTTOM */
+    .achievement-sidebar-toggle {
+      position: fixed;
+      left: 10px;
+      bottom: 10px;
+      background: linear-gradient(135deg, #ffd700, #ffed4e);
+      color: black;
+      padding: 12px 20px;
+      border-radius: 10px;
+      cursor: pointer;
+      z-index: 1000;
+      font-family: 'Krabby Patty', 'Comic Sans MS', cursive;
+      font-size: 18px;
+      box-shadow: 3px 3px 15px rgba(255, 215, 0, 0.5);
+      transition: all 0.3s ease;
+    }
+    .achievement-sidebar-toggle:hover {
+      background: linear-gradient(135deg, #ffed4e, #ffd700);
+      transform: translateY(-2px);
+    }
+    .achievement-sidebar {
+      position: fixed;
+      left: -400px;
+      bottom: 0;
+      width: 380px;
+      max-height: 70vh;
+      background: linear-gradient(180deg, #1a1a2e 0%, #0f0f1e 100%);
+      box-shadow: 5px 0 20px rgba(0, 0, 0, 0.8);
+      z-index: 999;
+      transition: left 0.4s ease;
+      overflow-y: auto;
+      padding: 30px 20px;
+      font-family: Arial, Helvetica, sans-serif;
+      border-top-right-radius: 15px;
+    }
+    .achievement-sidebar.open {
+      left: 0;
+    }
+    .achievement-sidebar-header {
+      color: #ffd700;
+      font-size: 28px;
+      margin-bottom: 20px;
+      text-align: center;
+      text-shadow: 0 0 10px #ffd700;
+      letter-spacing: 2px;
+      font-family: 'Krabby Patty', 'Comic Sans MS', cursive;
+    }
     .close-sidebar {
       position: absolute;
       top: 15px;
@@ -590,6 +694,14 @@
       .reaction-image.show {
         right: 10px;
       }
+      .achievement-sidebar-toggle {
+        font-size: 14px;
+        padding: 10px 15px;
+      }
+      .achievement-sidebar {
+        width: 90%;
+        left: -100%;
+      }
     }
     @media (min-width: 769px) {
       .mobile-info {
@@ -631,11 +743,14 @@
         <a href="https://x.com/i/communities/1991679244938682496" target="_blank" class="twitter">🏰 Weenie Hut Jr.'s Community</a>
       </div>
     </div>
-    
-    <div class="sidebar-section">
-      <h3>🏆 Achievements</h3>
-      <div class="achievement-list" id="achievementList"></div>
-    </div>
+  </div>
+
+  <!-- Achievement Sidebar (Left Bottom) -->
+  <div class="achievement-sidebar-toggle" onclick="toggleAchievements()">🏆 ACHIEVEMENTS</div>
+  <div class="achievement-sidebar" id="achievementSidebar">
+    <button class="close-sidebar" onclick="toggleAchievements()">✕</button>
+    <div class="achievement-sidebar-header">🏆 ACHIEVEMENTS</div>
+    <div class="achievement-list" id="achievementList"></div>
   </div>
 
   <!-- Achievement Notification -->
@@ -786,15 +901,15 @@
         spongebobText.textContent = randomText;
         spongebobText.classList.add('show');
         
-        // Show reaction image on side
+        // Show reaction image on side - BIGGER, stays longer
         if (reaction.image) {
           reactionImage.src = reaction.image;
           reactionImage.classList.add('show');
           
-          // Hide after 1.5 seconds
+          // Hide after 2 seconds
           setTimeout(() => {
             reactionImage.classList.remove('show');
-          }, 1500);
+          }, 2000);
         }
         
         setTimeout(() => spongebobText.classList.remove('show'), 2000);
@@ -806,18 +921,18 @@
       document.body.classList.add('stroke-mode');
       document.getElementById('strokeBanner').classList.add('active');
       
-      // More intense particles
+      // ULTRA INTENSE particles everywhere
       const interval = setInterval(() => {
         if (!strokeModeActive) {
           clearInterval(interval);
           return;
         }
-        for (let i = 0; i < 5; i++) {
+        for (let i = 0; i < 15; i++) {
           const x = Math.random() * window.innerWidth;
           const y = Math.random() * window.innerHeight;
           createParticle(x, y);
         }
-      }, 100);
+      }, 50);
       
       // Auto-deactivate after combo ends
       clearTimeout(strokeModeTimer);
