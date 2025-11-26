@@ -8,10 +8,12 @@
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { 
-      height: 100vh; 
-      display: flex; 
-      justify-content: center; 
-      align-items: center; 
+      min-height: 100vh; 
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start; 
+      align-items: center;
+      padding-top: 20px; 
       background: linear-gradient(45deg, #000000, #1a1a2e, #000000);
       background-size: 400% 400%;
       animation: gradient 15s ease infinite;
@@ -26,9 +28,22 @@
       50% { background-position: 100% 50%; }
       100% { background-position: 0% 50%; }
     }
+    .banner {
+      width: 100%;
+      max-width: 800px;
+      margin-bottom: 20px;
+      z-index: 10;
+    }
+    .banner img {
+      width: 100%;
+      height: auto;
+      animation: none;
+      filter: drop-shadow(0 0 20px #00ffff);
+    }
     .spinner-container {
       position: relative;
       z-index: 5;
+      margin: 40px 0;
     }
     img { 
       width: min(500px, 80vw); 
@@ -40,10 +55,8 @@
       100% { transform: rotate(360deg); } 
     }
     .warning { 
-      position: absolute; 
-      top: 20px; 
-      left: 50%;
-      transform: translateX(-50%);
+      position: relative;
+      margin: 20px 0;
       color: yellow; 
       font-size: clamp(14px, 4vw, 20px); 
       text-align: center; 
@@ -157,10 +170,14 @@
   </style>
 </head>
 <body>
+  <div class="banner">
+    <img src="https://i.imgur.com/CzRu9jK.gif" alt="$COCKPANTS Banner">
+  </div>
+
   <div class="warning">⚠️ YOU ARE THE 9,999,999th VISITOR TO BIKINI BOTTOM!!! CLICK TO PUMP $COCKPANTS ⚠️</div>
   
   <div class="spinner-container">
-    <img src="https://i.imgur.com/SyXhuFa.gif" alt="Spinning SpongeBob – R.I.P. Pants" id="spinner">
+    <img src="https://i.imgur.com/T1W4AZd.jpeg" alt="Spinning SpongeBob – R.I.P. Pants" id="spinner">
   </div>
   
   <div class="mobile-info">
