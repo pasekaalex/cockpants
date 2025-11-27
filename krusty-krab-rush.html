@@ -179,8 +179,8 @@
     }
     
     .burger-build {
-      background: linear-gradient(135deg, #87CEEB, #4682B4);
-      border: 4px solid #1E90FF;
+      background: linear-gradient(135deg, #C0C0C0, #808080);
+      border: 4px solid #404040;
       border-radius: 15px;
       padding: 20px;
       min-height: 200px;
@@ -190,8 +190,75 @@
       align-items: center;
       justify-content: center;
       gap: 4px;
-      box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.2);
+      box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.5);
       overflow-y: auto;
+      position: relative;
+    }
+    
+    /* Grill marks background */
+    .burger-build::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 18px,
+        rgba(0, 0, 0, 0.3) 18px,
+        rgba(0, 0, 0, 0.3) 20px
+      );
+      pointer-events: none;
+      border-radius: 15px;
+    }
+    
+    .burger-build.cooking {
+      animation: grillHeat 2s ease-in-out infinite;
+    }
+    
+    @keyframes grillHeat {
+      0%, 100% { box-shadow: inset 0 0 30px rgba(255, 69, 0, 0.3), 0 0 20px rgba(255, 69, 0, 0.2); }
+      50% { box-shadow: inset 0 0 40px rgba(255, 69, 0, 0.5), 0 0 30px rgba(255, 69, 0, 0.3); }
+    }
+    
+    /* Steam effects */
+    .steam {
+      position: absolute;
+      bottom: 20px;
+      width: 4px;
+      height: 30px;
+      background: linear-gradient(to top, rgba(255, 255, 255, 0.6), transparent);
+      border-radius: 50%;
+      animation: steamRise 2s ease-in infinite;
+      pointer-events: none;
+    }
+    
+    @keyframes steamRise {
+      0% { transform: translateY(0) scale(1); opacity: 0.6; }
+      100% { transform: translateY(-50px) scale(1.5); opacity: 0; }
+    }
+    
+    .steam:nth-child(1) { left: 30%; animation-delay: 0s; }
+    .steam:nth-child(2) { left: 50%; animation-delay: 0.5s; }
+    .steam:nth-child(3) { left: 70%; animation-delay: 1s; }
+    
+    /* Sizzle particles */
+    .sizzle {
+      position: absolute;
+      width: 3px;
+      height: 3px;
+      background: #FFD700;
+      border-radius: 50%;
+      animation: sizzlePop 1s ease-out infinite;
+      pointer-events: none;
+      box-shadow: 0 0 5px #FFD700;
+    }
+    
+    @keyframes sizzlePop {
+      0% { transform: translateY(0) scale(1); opacity: 1; }
+      100% { transform: translateY(-20px) scale(0); opacity: 0; }
     }
     
     .burger-ingredient {
@@ -208,11 +275,33 @@
       animation: placeIngredient 0.3s ease;
       position: relative;
       flex-shrink: 0;
+      z-index: 1;
+    }
+    
+    /* Shine effect on ingredients */
+    .burger-ingredient::after {
+      content: '';
+      position: absolute;
+      top: 5px;
+      left: 20%;
+      right: 20%;
+      height: 40%;
+      background: linear-gradient(to bottom, rgba(255, 255, 255, 0.4), transparent);
+      border-radius: 50%;
     }
     
     @keyframes placeIngredient {
-      0% { transform: scale(0) rotate(180deg); opacity: 0; }
-      100% { transform: scale(1) rotate(0deg); opacity: 1; }
+      0% { 
+        transform: scale(0) rotate(180deg) translateY(-50px); 
+        opacity: 0; 
+      }
+      60% {
+        transform: scale(1.1) rotate(0deg) translateY(0);
+      }
+      100% { 
+        transform: scale(1) rotate(0deg) translateY(0); 
+        opacity: 1; 
+      }
     }
     
     .ingredient-bun-bottom { background: linear-gradient(135deg, #DEB887, #D2691E); }
@@ -239,6 +328,37 @@
       background: #FFE4B5;
       border-radius: 50%;
       border: 2px solid #000;
+    }
+    
+    /* Plate under complete burger */
+    .burger-plate {
+      width: 220px;
+      height: 15px;
+      background: linear-gradient(135deg, #FFFAFA, #F0F0F0);
+      border-radius: 50%;
+      border: 3px solid #000;
+      margin-top: 10px;
+      box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+      animation: plateAppear 0.3s ease;
+      flex-shrink: 0;
+      position: relative;
+      z-index: 0;
+    }
+    
+    .burger-plate::after {
+      content: '';
+      position: absolute;
+      top: -2px;
+      left: 10%;
+      right: 10%;
+      height: 50%;
+      background: linear-gradient(to bottom, rgba(255, 255, 255, 0.6), transparent);
+      border-radius: 50%;
+    }
+    
+    @keyframes plateAppear {
+      from { transform: scale(0); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
     }
     
     /* Ingredient Buttons */
@@ -1069,12 +1189,12 @@
       const customer = customerPool[Math.floor(Math.random() * customerPool.length)];
       const numIngredients = Math.floor(Math.random() * 3) + 4; // 4-6 ingredients
       
-      // Generate random order (always starts with bottom bun, ends with top bun)
-      const middleIngredients = ['patty', 'cheese', 'lettuce', 'tomato', 'pickles', 'onion'];
-      const order = ['bun-bottom'];
+      // Generate random order (always: bottom bun → patty → random ingredients → top bun)
+      const middleIngredients = ['cheese', 'lettuce', 'tomato', 'pickles', 'onion'];
+      const order = ['bun-bottom', 'patty']; // ALWAYS start with bun and patty
       
       // Add random middle ingredients
-      for (let i = 0; i < numIngredients - 2; i++) {
+      for (let i = 0; i < numIngredients - 3; i++) { // -3 because we have bun, patty, and top bun
         const ingredient = middleIngredients[Math.floor(Math.random() * middleIngredients.length)];
         order.push(ingredient);
       }
@@ -1170,11 +1290,34 @@
       build.innerHTML = '';
       
       if (currentBurger.length === 0) {
+        build.classList.remove('cooking');
         build.innerHTML = `
-          <div style="font-size: 48px; color: #666;">🍔</div>
-          <div style="font-size: 20px; color: #666;">Click ingredients below!</div>
+          <div style="font-size: 48px; color: #333;">🍳</div>
+          <div style="font-size: 20px; color: #333; text-shadow: 1px 1px 0 rgba(255,255,255,0.5);">Click ingredients below!</div>
         `;
         return;
+      }
+      
+      // Add cooking class for grill effect
+      build.classList.add('cooking');
+      
+      // Add steam effects
+      for (let i = 0; i < 3; i++) {
+        const steam = document.createElement('div');
+        steam.className = 'steam';
+        build.appendChild(steam);
+      }
+      
+      // Add sizzle effects if there's a patty
+      if (currentBurger.includes('patty')) {
+        for (let i = 0; i < 5; i++) {
+          const sizzle = document.createElement('div');
+          sizzle.className = 'sizzle';
+          sizzle.style.left = (20 + Math.random() * 60) + '%';
+          sizzle.style.bottom = (30 + Math.random() * 30) + 'px';
+          sizzle.style.animationDelay = (Math.random() * 1) + 's';
+          build.appendChild(sizzle);
+        }
       }
       
       // Show burger being built (reverse order so top bun is on top)
@@ -1184,6 +1327,13 @@
         div.textContent = ingredientMap[ingredient];
         build.appendChild(div);
       });
+      
+      // Add plate if burger has top bun
+      if (currentBurger[currentBurger.length - 1] === 'bun-top') {
+        const plate = document.createElement('div');
+        plate.className = 'burger-plate';
+        build.appendChild(plate);
+      }
     }
     
     function clearBurger() {
