@@ -532,7 +532,7 @@
 <body>
   <!-- BACKGROUND MUSIC -->
   <audio id="bgMusic" preload="auto" loop>
-    <source src="Bob.mp3" type="audio/mpeg">
+    <source src="bob.mp3" type="audio/mpeg">
     Your browser does not support audio.
   </audio>
   
@@ -655,10 +655,10 @@
         }
       }
       console.error('❌ Audio failed to load:', errorMsg);
-      console.log('Make sure Bob.mp3 is uploaded to GitHub in the same folder as index.html');
+      console.log('Make sure bob.mp3 is uploaded to GitHub in the same folder as index.html');
       // Update music button to show error
       document.getElementById('musicToggle').textContent = '❌';
-      document.getElementById('musicToggle').title = 'Audio file not found: Bob.mp3';
+      document.getElementById('musicToggle').title = 'Audio file not found: bob.mp3';
     });
     
     bgMusic.addEventListener('canplaythrough', () => {
