@@ -1,294 +1,829 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Plankton Pac-Chomp | $COCKPANTS</title>
 <style>
-@font-face{font-family:'Krabby Patty';src:url('Krabby Patty.ttf')format('truetype');font-display:swap}
-*{box-sizing:border-box;margin:0;padding:0}
-body{
-  font-family:'Krabby Patty',Arial,sans-serif;
-  min-height:100vh;background:#0a3a5c url('https://i.imgur.com/q8Qd5PK.jpeg') center/cover fixed;
-  color:#ffeb3b;display:flex;flex-direction:column;align-items:center;padding:18px;overflow-x:hidden;
-}
-body::before{content:'';position:fixed;inset:0;background:rgba(0,20,40,0.5);z-index:0}
-header{width:100%;max-width:980px;display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;z-index:5}
-.title{font-size:20px;display:flex;align-items:center;gap:12px;text-shadow:4px 4px 0 #8B4513,0 0 30px #ffeb3b}
-.btn{
-  background:linear-gradient(135deg,rgba(139,69,19,.95),rgba(101,67,33,.95));
-  border:4px solid #ffcc00;color:#ffcc00;padding:8px 14px;border-radius:10px;
-  font-family:inherit;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px;
-}
-.small{font-size:14px;padding:6px 10px}
-.big-btn{background:linear-gradient(135deg,#4CAF50,#2E7D32);color:#fff;border:3px solid #8BC34A;
-  padding:12px 20px;border-radius:12px;font-size:17px}
-main{width:100%;max-width:980px;display:flex;gap:20px;align-items:flex-start;z-index:5}
-#canvas-wrap{background:rgba(0,0,0,0.2);padding:12px;border-radius:14px;border:4px solid rgba(255,235,59,0.1);box-shadow:0 12px 40px rgba(0,0,0,0.6)}
-canvas{display:block;background:#000;border:8px solid #ffcc00;border-radius:15px;box-shadow:0 0 40px #ffeb3b;image-rendering:pixelated}
-.hud{width:260px;display:flex;flex-direction:column;gap:12px}
-.stat{background:#06283b;border:3px solid #ffcc00;border-radius:12px;padding:14px;color:#fff}
-.stat small{display:block;color:#cfe9ff;font-size:12px;margin-top:4px}
-.dpad{
-  position:fixed;right:12px;bottom:12px;width:150px;height:150px;display:grid;grid-template:repeat(3,1fr)/repeat(3,1fr);gap:8px;z-index:50
-}
-.dpad button{background:#ffef9c;border:none;border-radius:12px;font-size:22px;box-shadow:0 6px 18px rgba(0,0,0,0.4)}
-.dpad .blank{background:transparent;box-shadow:none;pointer-events:none}
-.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.75);display:flex;justify-content:center;align-items:center;z-index:999}
-.modal{background:linear-gradient(180deg,#8B4513,#552B12);border:4px solid #ffcc00;padding:30px;border-radius:16px;color:#fff;width:340px;text-align:center}
-@media(max-width:920px){
-  main{flex-direction:column;align-items:center}
-  .hud{width:92vw;max-width:420px}
-  canvas{width:92vw;height:auto}
-}
+  /* EXACT site font + visual rules from your index.html */
+  @font-face { font-family: 'Krabby Patty'; src: url('Krabby Patty.ttf') format('truetype'); font-display: swap; }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; touch-action: manipulation; }
+  html,body { height: 100%; }
+  body{
+    font-family: 'Krabby Patty', Arial, sans-serif;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:flex-start;
+    overflow-x:hidden;
+    position:relative;
+    background-color: #0a3a5c;
+    background-image: url('https://i.imgur.com/q8Qd5PK.jpeg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    color:#ffeb3b;
+    padding:18px;
+  }
+  /* dark overlay like index.html */
+  body::before{ content:''; position:fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,20,40,0.5); z-index:0; pointer-events:none; }
+
+  header{
+    width:100%;
+    max-width:980px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    margin-bottom:8px;
+    z-index:5;
+  }
+  .title{
+    display:flex;
+    gap:12px;
+    align-items:center;
+    color:#ffeb3b;
+    text-shadow: 4px 4px 0 #8B4513, 0 0 30px #ffeb3b;
+    font-size:20px;
+  }
+
+  /* index-style button */
+  .btn {
+    background: linear-gradient(135deg, rgba(139, 69, 19, 0.95), rgba(101, 67, 33, 0.95));
+    border: 4px solid #ffcc00;
+    color: #ffcc00;
+    padding: 8px 12px;
+    font-family: 'Krabby Patty', Arial, sans-serif;
+    cursor: pointer;
+    border-radius: 10px;
+    text-decoration:none;
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.45);
+  }
+  .small{ font-size:14px; padding:6px 10px; }
+
+  main{
+    width:100%;
+    max-width:980px;
+    display:flex;
+    gap:14px;
+    align-items:flex-start;
+    z-index:5;
+  }
+
+  #canvas-wrap{
+    background: linear-gradient(180deg, rgba(0,0,0,0.12), rgba(0,0,0,0.18));
+    padding:12px;
+    border-radius:14px;
+    border: 4px solid rgba(255,235,59,0.06);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+  }
+
+  /* canvas matches original size you used earlier */
+  canvas{
+    display:block;
+    width:560px;
+    height:620px;
+    background:#000;
+    border:8px solid #ffcc00;
+    border-radius:15px;
+    box-shadow:0 0 40px #ffeb3b;
+    image-rendering:crisp-edges;
+    image-rendering:pixelated;
+  }
+
+  .hud{
+    width:260px;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    align-self:flex-start;
+  }
+  .stat{
+    background: linear-gradient(#06283b,#04222f);
+    border-radius:12px;
+    padding:12px;
+    border: 3px solid #ffcc00;
+    color:#fff;
+  }
+  .stat small{display:block;color:#cfe9ff;font-size:12px}
+
+  /* controls area under header */
+  .controls { display:flex; gap:8px; align-items:center; }
+
+  /* Start / Pause big buttons */
+  .big-btn {
+    display:inline-block;
+    background: linear-gradient(135deg,#4CAF50,#2E7D32);
+    color:#fff;
+    border:3px solid #8BC34A;
+    padding:12px 18px;
+    border-radius:12px;
+    font-size:16px;
+    cursor:pointer;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+  }
+
+  /* D-pad */
+  .dpad{
+    position:fixed;
+    right:18px;
+    bottom:18px;
+    width:140px;
+    height:140px;
+    display:grid;
+    grid-template-columns: repeat(3,1fr);
+    grid-template-rows: repeat(3,1fr);
+    gap:8px;
+    z-index:50;
+    touch-action:none;
+  }
+  .dpad button{
+    background: linear-gradient(#ffef9c,#ffd54f);
+    border:none;
+    border-radius:12px;
+    font-size:18px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.4);
+  }
+  .dpad .blank{ background:transparent; box-shadow:none; pointer-events:none; }
+  @media(min-width:920px){ .dpad{ display:none } }
+
+  /* modal popups */
+  .modal-backdrop{
+    position:fixed; inset:0; background: rgba(0,0,0,0.6); display:flex; justify-content:center; align-items:center; z-index:2000;
+  }
+  .modal{
+    background: linear-gradient(180deg,#8B4513,#552B12);
+    border:4px solid #ffcc00;
+    padding:20px;
+    border-radius:14px;
+    color:#fff;
+    width:320px;
+    text-align:center;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+  }
+
+  .footer-note{ font-size:12px; color:#cfe9ff; opacity:0.9; margin-top:8px; text-align:center; }
+
+  @media(max-width:920px){
+    canvas{ width:92vw; height: calc(92vw * 1.1071); max-height:640px }
+    main{ flex-direction:column; align-items:center }
+    .hud{ width:92vw; max-width:420px }
+    .modal{ width:88vw }
+  }
 </style>
 </head>
 <body>
-<header>
-  <div style="display:flex;gap:12px;align-items:center">
-    <a href="index.html" class="btn">Back to MENU</a>
-    <div class="title">Plankton Pac-Chomp <span style="font-size:12px;color:#cfe9ff">— Bikini Bottom Arcade</span></div>
+  <header>
+    <div style="display:flex;align-items:center;gap:12px;">
+      <a class="btn back-btn" href="index.html">◀ MENU</a>
+      <div class="title">
+        <div style="font-size:18px;">Plankton Pac-Chomp</div>
+        <div style="font-size:11px;color:#cfe9ff">— Bikini Bottom Arcade</div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button id="startBtn" class="big-btn">Start Game</button>
+      <button id="pauseBtn" class="btn small">Pause</button>
+      <button id="restartBtn" class="btn small">Restart</button>
+      <button id="musicToggle" class="btn small" title="Toggle music">🎵</button>
+    </div>
+  </header>
+
+  <main>
+    <div id="canvas-wrap">
+      <canvas id="game" width="560" height="620" aria-label="Plankton Pac-Chomp"></canvas>
+      <div class="footer-note">Dots = bubbles • Power = Krabby Patties</div>
+    </div>
+
+    <aside class="hud" aria-hidden="false">
+      <div class="stat">Score: <strong id="score">0</strong><small>Eat bubbles to score</small></div>
+      <div class="stat">Lives: <strong id="lives">3</strong><small>Avoid jellyfish</small></div>
+      <div class="stat">Mode: <strong id="mode">paused</strong><small>Power makes ghosts scared</small></div>
+      <div class="stat">Controls:<br>WASD / Arrow keys (desktop) • D-pad (mobile)</div>
+    </aside>
+  </main>
+
+  <div class="dpad" id="dpad" aria-hidden="false">
+    <div class="blank"></div>
+    <button data-dir="up">▲</button>
+    <div class="blank"></div>
+    <button data-dir="left">◀</button>
+    <div class="blank"></div>
+    <button data-dir="right">▶</button>
+    <div class="blank"></div>
+    <button data-dir="down">▼</button>
   </div>
-  <div style="display:flex;gap:8px">
-    <button id="startBtn" class="big-btn">Start Game</button>
-    <button id="pauseBtn" class="btn small">Pause</button>
-    <button id="restartBtn" class="btn small">Restart</button>
-    <button id="musicToggle" class="btn small">Music On</button>
-  </div>
-</header>
 
-<main>
-  <div id="canvas-wrap">
-    <canvas id="game"></canvas>
-    <div style="text-align:center;margin-top:8px;color:#cfe9ff;font-size:13px">Bubbles = pellets • Krabby Patties = power pellets</div>
-  </div>
-  <aside class="hud">
-    <div class="stat">Score: <strong id="score">0</strong><small>Eat bubbles</small></div>
-    <div class="stat">Lives: <strong id="lives">3</strong><small>Avoid jellyfish</small></div>
-    <div class="stat">Mode: <strong id="mode">ready</strong></div>
-  </aside>
-</main>
+  <!-- music -->
+  <audio id="bgMusic" loop preload="auto"><source src="bob.mp3" type="audio/mpeg"></audio>
 
-<div class="dpad">
-  <div class="blank"></div><button data-dir="up">Up Arrow</button><div class="blank"></div>
-  <button data-dir="left">Left Arrow</button><div class="blank"></div><button data-dir="right">Right Arrow</button>
-  <div class="blank"></div><button data-dir="down">Down Arrow</button><div class="blank"></div>
-</div>
-
-<audio id="bgMusic" loop preload="auto"><source src="bob.mp3" type="audio/mpeg"></audio>
-
-<div id="modal" class="modal-backdrop" style="display:none">
-  <div class="modal">
-    <h2 id="title">Game Over</h2>
-    <p>Your score: <strong id="finalScore">0</strong></p>
-    <div style="margin-top:20px;display:flex;gap:12px;justify-content:center">
-      <button id="modalRestart" class="btn">Play Again</button>
-      <a href="index.html" class="btn">Menu</a>
+  <!-- Game Over / Win modals (hidden initially) -->
+  <div id="modalBackdrop" style="display:none;" class="modal-backdrop" role="dialog" aria-hidden="true">
+    <div class="modal" id="modalBox">
+      <h2 id="modalTitle">Game Over</h2>
+      <p id="modalMsg">Your score: <span id="modalScore">0</span></p>
+      <div style="display:flex;gap:8px;justify-content:center;margin-top:12px;">
+        <button id="modalRestart" class="btn">Restart</button>
+        <a href="index.html" class="btn">Back to Menu</a>
+      </div>
     </div>
   </div>
-</div>
 
 <script>
-// ─────────────────────────────────────────────────────────────────────────────
-// Plankton Pac-Chomp – fixed & polished version (2025 $COCKPANTS edition)
-// ─────────────────────────────────────────────────────────────────────────────
-const canvas = document.getElementById('game');
-const ctx = canvas.getContext('2d',{alpha:false});
-const scoreEl = document.getElementById('score');
-const livesEl = document.getElementById('lives');
-const modeEl = document.getElementById('mode');
+/* Full Plankton Pac-Chomp - Bikini Bottom Coral Maze style
+   Features implemented per request:
+   - Start button (game initially paused)
+   - Pause/Restart
+   - Slower ghosts than player
+   - Grid-snapped player movement (no drift)
+   - Ghost BFS chasing limited frequency, smoother moves
+   - Coral-style walls (pink/purple), rounded with soft glow
+   - Pellets are circles
+   - Game Over and You Win modals
+   - WASD/Arrow + mobile D-pad
+   - Music toggle (bob.mp3)
+   - Keeps the site's original styling & assets
+*/
 
-// 28×31 classic layout – fully enclosed & symmetrical
-const map = [
-"############################",
-"#............##............#",
-"#.####.#####..#####.####.#",
-"#o####.#####..#####.####o#",
-"#.####.#####..#####.####.#",
-"#..........................#",
-"#.####.#.##########.#.####.#",
-"#......#.....##.....#......#",
-"######.#####..#####.######",
-"#......##..........##......#",
-"#.####.##.####..####.##.####.#",
-"#o.....##....##....##.....o#",
-"######.##.##..##.##.##.######",
-"#.........##..##.........#",
-"######.##.######.##.######",
-"#......##.........##......#",
-"#.####.############.####.#",
-"#....#....##..##....#....#",
-"####.##..####..####..##.####",
-"#......#..........#......#",
-"#.####.####..####.####.####.#",
-"#o####................####o#",
-"####.##.####..####.##.####",
-"#.........##..##.........#",
-"#.####.##.########.##.####.#",
-"#......##....P.....##......#",
-"#.####.##.########.##.####.#",
-"#....#....##..##....#....#",
-"#.##########..##########.#",
-"#..........................#",
-"############################"
-];
+(() => {
+  // Canvas & context
+  const canvas = document.getElementById('game');
+  const ctx = canvas.getContext('2d', { alpha: false });
 
-const TILE = 20;
-canvas.width = 28*TILE;
-canvas.height = 31*TILE;
+  // UI elements
+  const scoreEl = document.getElementById('score');
+  const livesEl = document.getElementById('lives');
+  const modeEl = document.getElementById('mode');
+  const startBtn = document.getElementById('startBtn');
+  const pauseBtn = document.getElementById('pauseBtn');
+  const restartBtn = document.getElementById('restartBtn');
+  const musicToggle = document.getElementById('musicToggle');
+  const bgMusic = document.getElementById('bgMusic');
 
-// perfect 1:1 scaling
-canvas.style.width = canvas.width + 'px';
-canvas.style.height = canvas.height + 'px';
+  const modalBackdrop = document.getElementById('modalBackdrop');
+  const modalTitle = document.getElementById('modalTitle');
+  const modalMsg = document.getElementById('modalMsg');
+  const modalScore = document.getElementById('modalScore');
+  const modalRestart = document.getElementById('modalRestart');
 
-let score = 0, lives = 3, pelletsLeft = 0, powerTimer = 0, readyTimer = 120;
-let player = {x:13.5, y:23.5, dir:{x:0,y:0}, nextDir:{x:0,y:0}, speed:0.165};
-const ghosts = [
-  {x:13.5,y:11.5,color:'#FF5555',dir:{x:0,y:0},frightened:false,flash:false}, // red
-  {x:13.5,y:14.5,color:'#55FFFF',dir:{x:0,y:0},frightened:false,flash:false}, // cyan
-  {x:11.5,y:14.5,color:'#FFB852',dir:{x:0,y:0},frightened:false,flash:false}, // orange
-  {x:15.5,y:14.5,color:'#FF55FF',dir:{x:0,y:0},frightened:false,flash:false}  // pink
-];
+  // Tile and map
+  const TILE = 20; // fits 560x620 nicely with map below
+  // BIKINI BOTTOM CORAL MAZE: # wall, . pellet, o power, P player, G ghost lair, space empty
+  const rawMap = [
+    "########################",
+    "#........#....#........#",
+    "#.###.###.#.##.#.###.###",
+    "#o###.###.#.##.#.###.###",
+    "#.###.###.#.##.#.###.###",
+    "#......................#",
+    "#.###.#.######.#.###.###",
+    "#.###.#.######.#.###.###",
+    "#......#....#....#.....#",
+    "######.#####.#####.#####",
+    "     #.#####.#####.#    ",
+    "     #.##       ##.#    ",
+    "######.## ##G## ##.######",
+    "      ..  #GGG#  ..     ",
+    "######.## ###### ##.######",
+    "     #.##       ##.#    ",
+    "     #.## ###### ##.#    ",
+    "######.## ###### ##.######",
+    "#......................#",
+    "#.###.###.#.##.#.###.###",
+    "#o..#.....P..#.....#..o#",
+    "########################"
+  ];
 
-function resetGame(full=true){
-  score = full?0:score; lives = full?3:lives;
-  player.x=13.5; player.y=23.5; player.dir={x:0,y:0}; player.nextDir={x:0,y:0};
-  ghosts.forEach((g,i)=>{g.x=[13.5,13.5,11.5,15.5][i]; g.y=11.5+i*3; g.dir={x:0,y:0}; g.frightened=false;});
-  pelletsLeft = 0;
-  for(let y=0;y<map.length;y++)for(let x=0;x<map[y].length;x++){
-    if(map[y][x]==='.'||map[y][x]==='o') pelletsLeft++;
-  }
-  readyTimer = 150;
-  scoreEl.textContent=score; livesEl.textContent=lives;
-}
-resetGame();
+  const W = Math.max(...rawMap.map(r=>r.length));
+  const H = rawMap.length;
+  canvas.width = W * TILE;
+  canvas.height = H * TILE;
+  canvas.style.width = '560px';
+  canvas.style.height = '620px';
 
-function isWall(x,y){return map[Math.round(y)]?.[Math.round(x)]==='#'}
+  // Build mutable map and pellet sets
+  const map = rawMap.map(r => (r + ' '.repeat(W)).slice(0, W).split(''));
+  const pellets = new Set();
+  const powers = new Set();
+  let totalPellets = 0;
+  let playerStart = null;
+  const ghostStarts = [];
 
-document.getElementById('startBtn').onclick=()=>{if(readyTimer<=0)readyTimer=1;};
-document.getElementById('pauseBtn').onclick=()=>{paused=!paused; document.getElementById('pauseBtn').textContent=paused?'Resume':'Pause';};
-document.getElementById('restartBtn').onclick=()=>{resetGame();paused=false;document.getElementById('pauseBtn').textContent='Pause';};
-document.getElementById('modalRestart').onclick=()=>{document.getElementById('modal').style.display='none';resetGame();paused=false;};
-
-const keys={ArrowLeft:{x:-1,y:0},ArrowRight:{x:1,y:0},ArrowUp:{x:0,y:-1},ArrowDown:{x:0,y:1},
-            a:{x:-1,y:0},d:{x:1,y:0},w:{x:0,y:-1},s:{x:0,y:1}};
-addEventListener('keydown',e=>{if(keys[e.key])player.nextDir=keys[e.key];});
-
-document.querySelectorAll('[data-dir]').forEach(b=>{
-  const d={up:{x:0,y:-1},down:{x:0,y:1},left:{x:-1,y:0},right:{x:1,y:0}}[b.dataset.dir];
-  ['touchstart','mousedown'].forEach(ev=>b.addEventListener(ev,()=>{player.nextDir=d;},{passive:false}));
-});
-
-const music=document.getElementById('bgMusic');music.volume=0.3;
-document.addEventListener('click',()=>music.play(),{once:true});
-document.getElementById('musicToggle').onclick=()=>{
-  if(music.paused)music.play();else music.pause();
-  document.getElementById('musicToggle').textContent=music.paused?'Music Off':'Music On';
-};
-
-function update(){
-  if(paused||readyTimer>0) return;
-
-  // player direction logic
-  if(player.nextDir.x || player.nextDir.y){
-    const nx=player.x+player.nextDir.x, ny=player.y+player.nextDir.y;
-    if(!isWall(nx,ny)) player.dir = player.nextDir;
-  }
-  const nx=player.x+player.dir.x*player.speed, ny=player.y+player.dir.y*player.speed;
-  if(!isWall(nx,ny)){player.x=nx; player.y=ny;} 
-
-  // eat pellets
-  const tx=Math.round(player.x), ty=Math.round(player.y);
-  if(map[ty]?.[tx]==='.'){map[ty][tx]=' ';score+=10;pelletsLeft--;scoreEl.textContent=score;}
-  if(map[ty]?.[tx]==='o'){map[ty][tx]=' ';score+=50;pelletsLeft--;powerTimer=540;
-    ghosts.forEach(g=>g.frightened=true);scoreEl.textContent=score;}
-
-  if(powerTimer>0){powerTimer--; if(powerTimer===0)ghosts.forEach(g=>g.frightened=false);}
-
-  // ghost AI & movement
-  ghosts.forEach(g=>{
-    if(Math.random()<0.04){ // reduced BFS spam
-      const dirs=[{x:1,y:0},{x:-1,y:0},{x:0,y:1},{x:0,y:-1}].filter(d=>!isWall(g.x+d.x,g.y+d.y));
-      if(dirs.length) g.dir = g.frightened ? dirs[Math.floor(Math.random()*dirs.length)] : dirs.reduce((best,d)=> {
-        const dist=(g.x+d.x-player.x)**2+(g.y+d.y-player.y)**2;
-        return !best||dist<best.dist ? {dir:d,dist} : best;
-      },null).dir;
+  for(let y=0;y<H;y++){
+    for(let x=0;x<W;x++){
+      const ch = map[y][x];
+      if(ch === '.') { pellets.add(`${x},${y}`); totalPellets++; }
+      if(ch === 'o') { powers.add(`${x},${y}`); totalPellets++; }
+      if(ch === 'P') playerStart = {x,y};
+      if(ch === 'G') ghostStarts.push({x,y});
     }
-    const speed = g.frightened?0.08:0.125;
-    const gx=g.x+g.dir.x*speed, gy=g.y+g.dir.y*speed;
-    if(!isWall(gx,gy)){g.x=gx; g.y=gy;}
+  }
+  if(!playerStart) playerStart = {x: Math.floor(W/2), y: H-4};
+  if(ghostStarts.length < 4){
+    ghostStarts.length = 0;
+    ghostStarts.push({x: Math.floor(W/2)-1, y: Math.floor(H/2)});
+    ghostStarts.push({x: Math.floor(W/2)+1, y: Math.floor(H/2)});
+    ghostStarts.push({x: Math.floor(W/2)-2, y: Math.floor(H/2)});
+    ghostStarts.push({x: Math.floor(W/2)+2, y: Math.floor(H/2)});
+  }
+
+  // Player
+  const player = {
+    x: playerStart.x + 0.5,
+    y: playerStart.y + 0.5,
+    dir: {x:0,y:0},
+    nextDir: {x:0,y:0},
+    speed: 6/60 // tiles per frame -> 6 tiles/sec
+  };
+
+  // Ghosts (slower than player)
+  const ghostColors = ['#ff8aa0','#ff77ff','#ffb851','#ff9ad6']; // coral/pinkish palette
+  const ghosts = ghostStarts.slice(0,4).map((s,i)=>({
+    x: s.x + 0.5,
+    y: s.y + 0.5,
+    home: {x: s.x + 0.5, y: s.y + 0.5},
+    dir: {x:0,y:0},
+    speed: 3.6 / 60, // much slower than player (3.6 tiles/sec)
+    frightened: false,
+    frightTimer: 0,
+    id: i,
+    houseTimer: 20 + i*30
+  }));
+
+  // Offscreen emoji sprites for stability
+  const spriteSize = TILE * 2;
+  function makeEmoji(emoji){
+    const c = document.createElement('canvas');
+    c.width = spriteSize; c.height = spriteSize;
+    const cx = c.getContext('2d');
+    cx.textAlign = 'center'; cx.textBaseline = 'middle';
+    cx.font = Math.floor(spriteSize*0.9) + 'px serif';
+    cx.fillText(emoji, c.width/2, c.height/2 + 2);
+    return c;
+  }
+  const crabSprite = makeEmoji('🦀');
+  const jellySprite = makeEmoji('🪼');
+
+  // Utility functions
+  function isWall(gx,gy){
+    if(gx<0||gy<0||gx>=W||gy>=H) return true;
+    return map[gy][gx] === '#';
+  }
+  function isPassable(gx,gy){
+    if(gx<0||gy<0||gx>=W||gy>=H) return false;
+    return map[gy][gx] !== '#';
+  }
+
+  // Input handling
+  const keyMap = {
+    ArrowUp:{x:0,y:-1}, w:{x:0,y:-1}, W:{x:0,y:-1},
+    ArrowDown:{x:0,y:1}, s:{x:0,y:1}, S:{x:0,y:1},
+    ArrowLeft:{x:-1,y:0}, a:{x:-1,y:0}, A:{x:-1,y:0},
+    ArrowRight:{x:1,y:0}, d:{x:1,y:0}, D:{x:1,y:0}
+  };
+  window.addEventListener('keydown', e=>{
+    if(keyMap[e.key]) player.nextDir = keyMap[e.key];
+    if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key)) e.preventDefault();
   });
 
-  // collision
-  for(let g of ghosts){
-    if(Math.hypot(g.x-player.x,g.y-player.y)<0.6){
-      if(g.frightened){score+=200; g.x=13.5; g.y=14.5;}
-      else{
-        lives--; livesEl.textContent=lives;
-        if(lives<=0){document.getElementById('modal').style.display='flex';
-          document.getElementById('title').textContent='Game Over';
-          document.getElementById('finalScore').textContent=score;}
-        else resetGame(false);
-        return;
+  // D-pad handlers
+  document.querySelectorAll('.dpad button[data-dir]').forEach(btn=>{
+    const dir = btn.dataset.dir;
+    const mapDir = { up:{x:0,y:-1}, down:{x:0,y:1}, left:{x:-1,y:0}, right:{x:1,y:0} }[dir];
+    btn.addEventListener('touchstart', e=>{ e.preventDefault(); player.nextDir = mapDir; }, {passive:false});
+    btn.addEventListener('mousedown', e=>{ e.preventDefault(); player.nextDir = mapDir; });
+  });
+
+  // BFS pathfinding for ghosts (returns direction vector from start to target)
+  function bfsNext(startX,startY,targetX,targetY){
+    const sx = Math.floor(startX), sy = Math.floor(startY);
+    const tx = Math.floor(targetX), ty = Math.floor(targetY);
+    if(sx === tx && sy === ty) return null;
+    const q = [], seen = Array.from({length:H}, ()=>Array(W).fill(false));
+    const parent = Array.from({length:H}, ()=>Array(W).fill(null));
+    q.push({x:sx,y:sy});
+    seen[sy][sx] = true;
+    const dirs = [{x:1,y:0},{x:-1,y:0},{x:0,y:1},{x:0,y:-1}];
+    while(q.length){
+      const cur = q.shift();
+      if(cur.x === tx && cur.y === ty){
+        // backtrack to step
+        let c = cur;
+        while(parent[c.y][c.x] && !(parent[c.y][c.x].x === sx && parent[c.y][c.x].y === sy)){
+          c = parent[c.y][c.x];
+        }
+        return {x: c.x - sx, y: c.y - sy};
+      }
+      for(const d of dirs){
+        const nx = cur.x + d.x, ny = cur.y + d.y;
+        if(nx<0||ny<0||nx>=W||ny>=H) continue;
+        if(seen[ny][nx]) continue;
+        if(!isPassable(nx,ny)) continue;
+        seen[ny][nx] = true;
+        parent[ny][nx] = cur;
+        q.push({x:nx,y:ny});
       }
     }
+    return null;
   }
 
-  if(pelletsLeft===0){
-    document.getElementById('modal').style.display='flex';
-    document.getElementById('title').textContent='YOU WIN!';
-    document.getElementById('finalScore').textContent=score;
-  }
-}
+  // Game variables
+  let running = false; // starts paused until Start Game pressed
+  let paused = false;
+  let score = 0;
+  let lives = 3;
+  let mode = 'paused';
+  let powerTimer = 0;
+  const FPS = 60;
 
-function draw(){
-  ctx.fillStyle='#021827'; ctx.fillRect(0,0,canvas.width,canvas.height);
-
-  // walls – coral style
-  for(let y=0;y<map.length;y++)for(let x=0;x<map[y].length;x++){
-    if(map[y][x]==='#'){
-      ctx.fillStyle='#ff69b4';
-      ctx.fillRect(x*TILE+2,y*TILE+2,TILE-4,TILE-4);
-      ctx.fillStyle='#ff1493';
-      ctx.fillRect(x*TILE+5,y*TILE+5,TILE-10,TILE-10);
+  // Init/reset function
+  function resetRound(fullReset=true){
+    // rebuild pellets & powers from original map (don't mutate rawMap)
+    pellets.clear(); powers.clear(); totalPellets = 0;
+    for(let y=0;y<H;y++){
+      for(let x=0;x<W;x++){
+        const ch = map[y][x];
+        if(ch === '.') { pellets.add(`${x},${y}`); totalPellets++; }
+        if(ch === 'o') { powers.add(`${x},${y}`); totalPellets++; }
+      }
     }
-    else if(map[y][x]==='.'){
-      ctx.fillStyle='#ffffff';
-      ctx.beginPath();ctx.arc(x*TILE+TILE/2,y*TILE+TILE/2,3,0,Math.PI*2);ctx.fill();
+    if(fullReset){
+      score = 0; lives = 3;
+      player.x = playerStart.x + 0.5;
+      player.y = playerStart.y + 0.5;
+      player.dir = {x:0,y:0};
+      player.nextDir = {x:0,y:0};
+      ghosts.forEach((g,i)=>{
+        g.x = ghostStarts[i].x + 0.5;
+        g.y = ghostStarts[i].y + 0.5;
+        g.dir = {x:0,y:0};
+        g.frightened = false;
+        g.frightTimer = 0;
+        g.houseTimer = 20 + i*30;
+      });
+    } else {
+      // only reposition player and ghosts
+      player.x = playerStart.x + 0.5; player.y = playerStart.y + 0.5;
+      player.dir = {x:0,y:0}; player.nextDir = {x:0,y:0};
+      ghosts.forEach((g,i)=>{
+        g.x = ghostStarts[i].x + 0.5;
+        g.y = ghostStarts[i].y + 0.5;
+        g.dir = {x:0,y:0};
+        g.frightened = false;
+        g.frightTimer = 0;
+      });
     }
-    else if(map[y][x]==='o'){
-      ctx.fillStyle='#ffd700';
-      ctx.beginPath();ctx.arc(x*TILE+TILE/2,y*TILE+TILE/2,7,0,Math.PI*2);ctx.fill();
-    }
+    scoreEl.textContent = score;
+    livesEl.textContent = lives;
+    modeEl.textContent = mode;
   }
 
-  // READY!
-  if(readyTimer>0){
-    ctx.font='48px "Krabby Patty"';
-    ctx.fillStyle='#ffcc00'; ctx.strokeStyle='#000'; ctx.lineWidth=6;
-    ctx.strokeText('READY!',canvas.width/2-100,canvas.height/2+16);
-    ctx.fillText('READY!',canvas.width/2-100,canvas.height/2+16);
-    readyTimer--;
-  }
-
-  // player – Plankton (crab emoji)
-  ctx.font = (TILE*1.8)+'px serif';
-  ctx.textAlign='center'; ctx.textBaseline='middle';
-  ctx.fillText('Crab',player.x*TILE,player.y*TILE);
-
-  // ghosts – jellyfish with flashing when frightened
-  ghosts.forEach(g=>{
-    ctx.font = (TILE*1.6)+'px serif';
-    ctx.fillStyle = g.frightened && Math.floor(performance.now()/100)%2 ? '#2244ff' : g.color;
-    ctx.fillText('Jellyfish',(g.x)*TILE,(g.y)*TILE);
+  // Start/pause handlers
+  startBtn.addEventListener('click', ()=> {
+    if(!running){
+      running = true; paused = false;
+      mode = 'normal'; modeEl.textContent = mode;
+      startBtn.textContent = 'Playing';
+      startBtn.disabled = true;
+    }
   });
-}
+  pauseBtn.addEventListener('click', ()=>{
+    if(!running) return;
+    paused = !paused;
+    pauseBtn.textContent = paused ? 'Resume' : 'Pause';
+    modeEl.textContent = paused ? 'paused' : mode;
+  });
+  restartBtn.addEventListener('click', ()=> {
+    resetRound(true);
+    running = false;
+    paused = false;
+    mode = 'paused';
+    modeEl.textContent = mode;
+    startBtn.disabled = false;
+    startBtn.textContent = 'Start Game';
+    hideModal();
+  });
 
-(function loop(){
-  update();
-  draw();
+  modalRestart.addEventListener('click', ()=> {
+    resetRound(true);
+    hideModal();
+    running = false;
+    startBtn.disabled = false;
+    startBtn.textContent = 'Start Game';
+    mode = 'paused';
+    modeEl.textContent = mode;
+  });
+
+  // Music toggle logic
+  bgMusic.volume = 0.3;
+  let musicOn = true;
+  function tryPlayMusic(){ bgMusic.play().catch(()=>{}); }
+  document.addEventListener('click', tryPlayMusic, { once: true });
+  musicToggle.addEventListener('click', ()=>{
+    musicOn = !musicOn;
+    if(musicOn){ bgMusic.play().catch(()=>{}); musicToggle.textContent = '🎵'; musicToggle.classList.remove('muted'); }
+    else { bgMusic.pause(); musicToggle.textContent = '🔇'; musicToggle.classList.add('muted'); }
+  });
+
+  // Collision and life handling
+  function loseLife(){
+    lives--; livesEl.textContent = lives;
+    if(lives <= 0){
+      running = false;
+      showModal('Game Over', `Your score: ${score}`);
+    } else {
+      // reset positions only
+      player.x = playerStart.x + 0.5; player.y = playerStart.y + 0.5;
+      player.dir = {x:0,y:0}; player.nextDir = {x:0,y:0};
+      ghosts.forEach((g,i)=>{
+        g.x = ghostStarts[i].x + 0.5;
+        g.y = ghostStarts[i].y + 0.5;
+        g.dir = {x:0,y:0};
+        g.frightened = false;
+        g.frightTimer = 0;
+      });
+    }
+  }
+
+  function showModal(title, message){
+    modalTitle.textContent = title;
+    modalMsg.innerHTML = message + '<br/><br/>';
+    modalScore.textContent = score;
+    modalBackdrop.style.display = 'flex';
+    modalBackdrop.setAttribute('aria-hidden','false');
+  }
+  function hideModal(){
+    modalBackdrop.style.display = 'none';
+    modalBackdrop.setAttribute('aria-hidden','true');
+  }
+
+  // Ghost AI (limited calls) and movement
+  function ghostAI(g){
+    if(g.houseTimer > 0){ g.houseTimer--; return; }
+    if(g.frightened){
+      // random at intersections
+      const gx = Math.floor(g.x), gy = Math.floor(g.y);
+      const choices = [];
+      [{x:1,y:0},{x:-1,y:0},{x:0,y:1},{x:0,y:-1}].forEach(d=>{
+        if(isPassable(gx + d.x, gy + d.y)) choices.push(d);
+      });
+      if(choices.length) g.dir = choices[Math.floor(Math.random()*choices.length)];
+    } else {
+      const next = bfsNext(g.x, g.y, player.x, player.y);
+      if(next) g.dir = next;
+    }
+  }
+
+  // Check collisions with ghosts
+  function checkCollisions(){
+    ghosts.forEach(g=>{
+      const dx = g.x - player.x;
+      const dy = g.y - player.y;
+      const dist2 = dx*dx + dy*dy;
+      const threshold = 0.6;
+      if(dist2 < threshold*threshold){
+        if(g.frightened){
+          score += 200; scoreEl.textContent = score;
+          g.x = g.home.x; g.y = g.home.y;
+          g.frightened = false; g.frightTimer = 0;
+        } else {
+          loseLife();
+        }
+      }
+    });
+  }
+
+  // Update function
+  function update(){
+    if(!running || paused) return;
+
+    // handle player direction changes: reversing allowed anytime, otherwise only at center
+    if(player.nextDir.x === -player.dir.x && player.nextDir.y === -player.dir.y){
+      player.dir = player.nextDir;
+    } else {
+      const cx = Math.floor(player.x) + 0.5;
+      const cy = Math.floor(player.y) + 0.5;
+      if(Math.abs(player.x - cx) < 0.12 && Math.abs(player.y - cy) < 0.12){
+        if(isPassable(Math.floor(player.x + player.nextDir.x*0.6), Math.floor(player.y + player.nextDir.y*0.6))){
+          player.dir = player.nextDir;
+          player.x = cx; player.y = cy;
+        }
+      }
+    }
+
+    // move player
+    const moveAmt = player.speed;
+    const nx = player.x + player.dir.x * moveAmt;
+    const ny = player.y + player.dir.y * moveAmt;
+    if(isPassable(Math.floor(nx), Math.floor(ny))){
+      player.x = nx; player.y = ny;
+    } else {
+      player.dir = {x:0,y:0};
+      player.x = Math.round(player.x - 0.5) + 0.5;
+      player.y = Math.round(player.y - 0.5) + 0.5;
+    }
+
+    // collect pellets/powers when close to center
+    const pcx = Math.floor(player.x), pcy = Math.floor(player.y);
+    const key = `${pcx},${pcy}`;
+    if(pellets.has(key)){
+      const cx = pcx + 0.5, cy = pcy + 0.5;
+      if(Math.abs(player.x - cx) < 0.45 && Math.abs(player.y - cy) < 0.45){
+        pellets.delete(key); score += 10; scoreEl.textContent = score; totalPellets--;
+      }
+    }
+    if(powers.has(key)){
+      const cx = pcx + 0.5, cy = pcy + 0.5;
+      if(Math.abs(player.x - cx) < 0.45 && Math.abs(player.y - cy) < 0.45){
+        powers.delete(key); score += 50; scoreEl.textContent = score;
+        mode = 'power'; modeEl.textContent = 'POWER!';
+        powerTimer = 12 * FPS;
+        ghosts.forEach(g => { g.frightened = true; g.frightTimer = powerTimer; });
+      }
+    }
+
+    // power timer
+    if(mode === 'power'){
+      powerTimer--;
+      if(powerTimer <= 0){
+        mode = 'normal'; modeEl.textContent = 'normal';
+        ghosts.forEach(g => { g.frightened = false; g.frightTimer = 0; });
+        powerTimer = 0;
+      }
+    }
+
+    // call ghostAI with limited frequency (reduce BFS load)
+    if(Math.random() < 0.22) ghosts.forEach(g => ghostAI(g));
+
+    // move ghosts
+    ghosts.forEach(g=>{
+      const speedFactor = g.frightened ? 0.75 : 1; // frightened slower
+      const amt = g.speed * speedFactor;
+      const gx = g.x + g.dir.x * amt;
+      const gy = g.y + g.dir.y * amt;
+      if(isPassable(Math.floor(gx), Math.floor(gy))){
+        g.x = gx; g.y = gy;
+      } else {
+        // choose a random available direction at intersection
+        const gxF = Math.floor(g.x), gyF = Math.floor(g.y);
+        const opts = [];
+        [{x:1,y:0},{x:-1,y:0},{x:0,y:1},{x:0,y:-1}].forEach(d=>{
+          if(isPassable(gxF + d.x, gyF + d.y)) opts.push(d);
+        });
+        if(opts.length) g.dir = opts[Math.floor(Math.random()*opts.length)];
+      }
+      if(g.frightTimer) g.frightTimer--;
+      if(g.frightTimer <= 0) g.frightened = false;
+    });
+
+    // collisions
+    checkCollisions();
+
+    // win condition
+    if(totalPellets <= 0){
+      running = false;
+      showModal('You Win!', `Your score: ${score}`);
+    }
+  }
+
+  // Draw function (coral-themed walls)
+  function draw(){
+    // floor base
+    ctx.fillStyle = '#021827';
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+
+    // draw coral walls and pellets
+    for(let y=0;y<H;y++){
+      for(let x=0;x<W;x++){
+        const ch = map[y][x];
+        const rx = x * TILE, ry = y * TILE;
+        if(ch === '#'){
+          // coral wall: pink/purple with glow and rounded corners
+          ctx.save();
+          ctx.fillStyle = '#ff8fbf'; // main coral
+          roundRect(ctx, rx+2, ry+2, TILE-4, TILE-4, 6);
+          ctx.fill();
+          // inner darker shade for depth
+          ctx.fillStyle = '#d25a9a';
+          roundRect(ctx, rx+4, ry+6, TILE-8, TILE-12, 5);
+          ctx.fill();
+          // soft outer glow
+          ctx.shadowColor = 'rgba(255,140,200,0.24)';
+          ctx.shadowBlur = 12;
+          ctx.fillStyle = 'rgba(255,140,200,0.06)';
+          ctx.fillRect(rx-1, ry-1, TILE+2, TILE+2);
+          ctx.restore();
+        } else {
+          // subtle floor
+          ctx.fillStyle = 'rgba(255,255,255,0.02)';
+          ctx.fillRect(rx, ry, TILE, TILE);
+          const key = `${x},${y}`;
+          // pellet
+          if(pellets.has(key)){
+            ctx.beginPath();
+            ctx.fillStyle = '#cfe9ff';
+            ctx.arc(rx + TILE/2, ry + TILE/2, Math.max(1.8, TILE*0.09), 0, Math.PI*2);
+            ctx.fill();
+          } else if(powers.has(key)){
+            ctx.beginPath();
+            ctx.fillStyle = '#ffd54f';
+            ctx.arc(rx + TILE/2, ry + TILE/2, Math.max(4, TILE*0.2), 0, Math.PI*2);
+            ctx.fill();
+          }
+        }
+      }
+    }
+
+    // player (crab)
+    const px = (player.x - 0.5) * TILE;
+    const py = (player.y - 0.5) * TILE;
+    // glow
+    ctx.save();
+    ctx.beginPath();
+    ctx.fillStyle = 'rgba(255,235,59,0.07)';
+    ctx.ellipse(px + TILE/2, py + TILE/2, TILE*0.9, TILE*0.9, 0, 0, Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+    const s = TILE * 1.2;
+    ctx.drawImage(crabSprite, 0, 0, crabSprite.width, crabSprite.height, px + (TILE - s)/2, py + (TILE - s)/2, s, s);
+
+    // ghosts (jellyfish)
+    ghosts.forEach(g=>{
+      const gx = (g.x - 0.5) * TILE;
+      const gy = (g.y - 0.5) * TILE;
+      ctx.save();
+      if(g.frightened){
+        ctx.fillStyle = '#8ad1ff';
+        ctx.strokeStyle = '#fff';
+      } else {
+        ctx.fillStyle = g.color;
+        ctx.strokeStyle = '#7a0033';
+      }
+      // rounded ghost body for cartoony jelly
+      const bw = TILE*0.72, bh = TILE*0.85, bx = gx + TILE*0.14, by = gy + TILE*0.05;
+      roundRect(ctx, bx, by, bw, bh, TILE*0.18);
+      ctx.fill();
+      ctx.lineWidth = 1.2;
+      ctx.stroke();
+
+      // eyes
+      ctx.fillStyle = '#fff';
+      ctx.beginPath(); ctx.ellipse(bx + TILE*0.26, by + TILE*0.32, TILE*0.09, TILE*0.11, 0, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(bx + TILE*0.46, by + TILE*0.32, TILE*0.09, TILE*0.11, 0, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#001827';
+      ctx.beginPath(); ctx.ellipse(bx + TILE*0.26 + g.dir.x*0.03*TILE, by + TILE*0.32 + g.dir.y*0.03*TILE, TILE*0.035, TILE*0.045, 0, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(bx + TILE*0.46 + g.dir.x*0.03*TILE, by + TILE*0.32 + g.dir.y*0.03*TILE, TILE*0.035, TILE*0.045, 0, 0, Math.PI*2); ctx.fill();
+      ctx.restore();
+    });
+
+    // HUD label
+    ctx.save();
+    ctx.font = '11px Krabby Patty, sans-serif';
+    ctx.fillStyle = '#bfe7ff';
+    ctx.fillText('Plankton Pac-Chomp', 8, canvas.height - 8);
+    ctx.restore();
+  }
+
+  // utility: rounded rect path
+  function roundRect(ctx,x,y,w,h,r){
+    const rad = Math.min(r, Math.min(w/2, h/2));
+    ctx.beginPath();
+    ctx.moveTo(x + rad, y);
+    ctx.arcTo(x + w, y, x + w, y + h, rad);
+    ctx.arcTo(x + w, y + h, x, y + h, rad);
+    ctx.arcTo(x, y + h, x, y, rad);
+    ctx.arcTo(x, y, x + w, y, rad);
+    ctx.closePath();
+  }
+
+  // main loop
+  let last = performance.now();
+  function loop(now){
+    const dt = (now - last) / (1000/60);
+    last = now;
+    // crude step quantity based on dt
+    const steps = Math.max(1, Math.min(3, Math.round(dt)));
+    for(let i=0;i<steps;i++) update();
+    draw();
+    requestAnimationFrame(loop);
+  }
+
+  // Start the render loop (won't update until running=true)
   requestAnimationFrame(loop);
-})();
+
+  // Expose restart (for dev)
+  window._plankton = { resetRound };
+
+  // Start with reset
+  resetRound(true);
+
+})(); // end module
 </script>
 </body>
 </html>
