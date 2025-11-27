@@ -533,6 +533,7 @@
   <!-- BACKGROUND MUSIC -->
   <audio id="bgMusic" preload="auto" loop>
     <source src="Bob.mp3" type="audio/mpeg">
+    Your browser does not support audio.
   </audio>
   
   <!-- Music Toggle -->
@@ -639,22 +640,65 @@
     // BACKGROUND MUSIC
     const bgMusic = document.getElementById('bgMusic');
     let musicStarted = false;
+    let musicUnlocked = false;
+    
+    // Check if audio file loaded
+    bgMusic.addEventListener('error', (e) => {
+      console.error('❌ Audio failed to load:', e);
+      console.log('Make sure Bob.mp3 is in the same folder as index.html');
+    });
+    
+    bgMusic.addEventListener('canplaythrough', () => {
+      console.log('✅ Audio file loaded and ready!');
+    });
+    
+    // Unlock audio on any user interaction
+    function unlockAudio() {
+      if (musicUnlocked) return;
+      musicUnlocked = true;
+      
+      // Create and play a silent buffer to unlock audio
+      bgMusic.muted = true;
+      bgMusic.play().then(() => {
+        bgMusic.pause();
+        bgMusic.muted = false;
+        bgMusic.currentTime = 0;
+        console.log('🔓 Audio unlocked!');
+      }).catch(() => {});
+      
+      document.removeEventListener('click', unlockAudio);
+      document.removeEventListener('touchstart', unlockAudio);
+    }
+    
+    document.addEventListener('click', unlockAudio);
+    document.addEventListener('touchstart', unlockAudio);
     
     function startBackgroundMusic() {
       if (musicStarted) return;
       musicStarted = true;
       
       bgMusic.volume = 0.3;
-      bgMusic.play().then(() => {
-        console.log('🎵 Music started!');
-      }).catch(err => {
-        console.log('Music autoplay blocked');
-        const startOnClick = () => {
-          bgMusic.play();
-          document.removeEventListener('click', startOnClick);
-        };
-        document.addEventListener('click', startOnClick);
-      });
+      bgMusic.loop = true;
+      
+      const tryPlay = () => {
+        bgMusic.play().then(() => {
+          console.log('🎵 Music playing!');
+        }).catch(err => {
+          console.log('Music blocked, waiting for interaction...', err);
+          // Retry on next click
+          const retryPlay = () => {
+            bgMusic.play().then(() => {
+              document.removeEventListener('click', retryPlay);
+              document.removeEventListener('touchstart', retryPlay);
+            }).catch(() => {});
+          };
+          document.addEventListener('click', retryPlay);
+          document.addEventListener('touchstart', retryPlay);
+        });
+      };
+      
+      // Small delay to ensure audio context is ready
+      setTimeout(tryPlay, 100);
     }
     
     function toggleMusic() {
