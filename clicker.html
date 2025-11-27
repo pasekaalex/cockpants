@@ -11,10 +11,11 @@
       src: url('Krabby Patty.ttf') format('truetype');
     }
     
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    html {
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
     }
     
     body {
@@ -25,1270 +26,21 @@
       align-items: center;
       overflow-x: hidden;
       position: relative;
-      /* Bikini Bottom underwater gradient */
-      background: linear-gradient(180deg, 
-        #1a5a8a 0%,      /* Surface light blue */
-        #0d4a6e 20%,     /* Mid water */
-        #0a3a5c 40%,     /* Deeper */
-        #083050 60%,     /* Ocean floor approaching */
-        #f4d03f22 80%,   /* Sandy bottom glow */
-        #c9a227 100%     /* Sandy ocean floor */
-      );
+      background-color: #0a3a5c;
+      background-image: url('https://i.imgur.com/q8Qd5PK.jpeg');
+      background-size: cover;
+      background-position: center;
       background-attachment: fixed;
-      cursor: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><text y="24" font-size="24">🩲</text></svg>') 16 16, auto;
     }
     
-    /* Animated color overlay for underwater shimmer */
-    body::after {
-      content: '';
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(-45deg, 
-        rgba(26, 90, 138, 0.3),
-        rgba(255, 230, 100, 0.1),
-        rgba(13, 74, 110, 0.3),
-        rgba(255, 150, 200, 0.1)
-      );
-      background-size: 400% 400%;
-      animation: shimmer 20s ease infinite;
-      z-index: 0;
-      pointer-events: none;
-    }
-    
-    @keyframes shimmer {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
-    
-    /* Underwater light rays effect */
     body::before {
       content: '';
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: 
-        radial-gradient(ellipse at 20% 0%, rgba(100, 200, 255, 0.2) 0%, transparent 50%),
-        radial-gradient(ellipse at 80% 0%, rgba(100, 255, 200, 0.15) 0%, transparent 40%),
-        radial-gradient(ellipse at 50% 100%, rgba(0, 50, 100, 0.5) 0%, transparent 60%);
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0, 20, 40, 0.4);
       z-index: 0;
       pointer-events: none;
-    }
-    
-    /* Pulsing light effects */
-    body::after {
-      content: '';
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: radial-gradient(ellipse at 30% 20%, rgba(255, 100, 255, 0.15) 0%, transparent 50%),
-                  radial-gradient(ellipse at 70% 80%, rgba(100, 200, 255, 0.15) 0%, transparent 50%);
-      z-index: 0;
-      animation: pulseBg 4s ease-in-out infinite alternate;
-    }
-    
-    @keyframes pulseBg {
-      0% { opacity: 0.5; }
-      100% { opacity: 1; }
-    }
-    
-    /* Floating bubbles */
-    .bubble {
-      position: fixed;
-      background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.8), rgba(100, 200, 255, 0.3));
-      border-radius: 50%;
-      pointer-events: none;
-      z-index: 1;
-      animation: bubbleFloat linear infinite;
-    }
-    
-    @keyframes bubbleFloat {
-      0% { 
-        transform: translateY(100vh) scale(0);
-        opacity: 0;
-      }
-      10% {
-        opacity: 0.7;
-        transform: translateY(90vh) scale(1);
-      }
-      90% {
-        opacity: 0.7;
-      }
-      100% { 
-        transform: translateY(-10vh) scale(0.5);
-        opacity: 0;
-      }
-    }
-    
-    /* JELLYFISH */
-    .jellyfish {
-      position: fixed;
-      font-size: 40px;
-      pointer-events: none;
-      z-index: 1;
-      animation: jellyfishFloat 12s ease-in-out infinite;
-      filter: drop-shadow(0 0 10px rgba(255, 100, 200, 0.8));
-    }
-    
-    @keyframes jellyfishFloat {
-      0%, 100% { 
-        transform: translateY(0) translateX(0) rotate(-5deg);
-      }
-      25% {
-        transform: translateY(-30px) translateX(20px) rotate(5deg);
-      }
-      50% {
-        transform: translateY(-10px) translateX(-15px) rotate(-3deg);
-      }
-      75% {
-        transform: translateY(-40px) translateX(10px) rotate(8deg);
-      }
-    }
-    
-    /* SEAWEED */
-    .seaweed {
-      position: fixed;
-      bottom: 0;
-      font-size: 60px;
-      z-index: 1;
-      animation: seaweedSway 4s ease-in-out infinite;
-      transform-origin: bottom center;
-      pointer-events: none;
-    }
-    
-    @keyframes seaweedSway {
-      0%, 100% { transform: rotate(-5deg) scaleY(1); }
-      50% { transform: rotate(5deg) scaleY(1.05); }
-    }
-    
-    /* FLOWERS (like the ones from Jellyfish Fields) */
-    .flower {
-      position: fixed;
-      bottom: 0;
-      font-size: 35px;
-      z-index: 1;
-      pointer-events: none;
-      animation: flowerBob 3s ease-in-out infinite;
-    }
-    
-    @keyframes flowerBob {
-      0%, 100% { transform: translateY(0) rotate(-3deg); }
-      50% { transform: translateY(-5px) rotate(3deg); }
-    }
-    
-    /* KRABBY PATTY floating */
-    .krabby-patty {
-      position: fixed;
-      font-size: 30px;
-      pointer-events: none;
-      z-index: 1;
-      animation: pattyFloat 8s ease-in-out infinite;
-      filter: drop-shadow(0 0 15px rgba(255, 200, 50, 0.6));
-    }
-    
-    @keyframes pattyFloat {
-      0%, 100% { 
-        transform: translateY(0) rotate(0deg);
-        opacity: 0.8;
-      }
-      50% { 
-        transform: translateY(-20px) rotate(10deg);
-        opacity: 1;
-      }
-    }
-    
-    /* CORAL decorations */
-    .coral {
-      position: fixed;
-      bottom: 0;
-      font-size: 50px;
-      z-index: 1;
-      pointer-events: none;
-      filter: drop-shadow(0 5px 15px rgba(0,0,0,0.3));
-    }
-    
-    /* SANDY OCEAN FLOOR */
-    .ocean-floor {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      height: 120px;
-      background: linear-gradient(0deg, 
-        #c9a227 0%,
-        #d4b341 30%,
-        #e8c84a 60%,
-        transparent 100%
-      );
-      z-index: 0;
-      pointer-events: none;
-    }
-    
-    .ocean-floor::before {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      height: 60px;
-      background: 
-        radial-gradient(ellipse 80px 30px at 10% 100%, #b8922080 0%, transparent 100%),
-        radial-gradient(ellipse 60px 25px at 30% 95%, #c9a22780 0%, transparent 100%),
-        radial-gradient(ellipse 100px 35px at 50% 100%, #d4b34180 0%, transparent 100%),
-        radial-gradient(ellipse 70px 28px at 70% 98%, #b8922080 0%, transparent 100%),
-        radial-gradient(ellipse 90px 32px at 90% 100%, #c9a22780 0%, transparent 100%);
-    }
-    
-    /* ANCHOR decoration */
-    .anchor {
-      position: fixed;
-      font-size: 60px;
-      z-index: 1;
-      pointer-events: none;
-      filter: drop-shadow(0 5px 20px rgba(0,0,0,0.4));
-      animation: anchorSway 6s ease-in-out infinite;
-    }
-    
-    @keyframes anchorSway {
-      0%, 100% { transform: rotate(-3deg); }
-      50% { transform: rotate(3deg); }
-    }
-    
-    /* INTRO ANIMATION */
-    .intro-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: #000;
-      z-index: 9999;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      transition: opacity 0.5s, visibility 0.5s;
-    }
-    
-    .intro-overlay.hidden {
-      opacity: 0;
-      visibility: hidden;
-      pointer-events: none;
-    }
-    
-    .intro-video {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: none;
-    }
-    
-    .intro-video.playing {
-      display: block;
-    }
-    
-    .intro-content {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      z-index: 1;
-    }
-    
-    .intro-content.hidden {
-      display: none;
-    }
-    
-    .intro-text {
-      font-size: 48px;
-      color: #ffeb3b;
-      text-shadow: 3px 3px 0 #ff5722, 0 0 30px #ffeb3b;
-      text-align: center;
-      animation: introTextPop 0.5s ease-out;
-      padding: 0 20px;
-    }
-    
-    @keyframes introTextPop {
-      0% { transform: scale(0); opacity: 0; }
-      50% { transform: scale(1.3); }
-      100% { transform: scale(1); opacity: 1; }
-    }
-    
-    .intro-captain {
-      font-size: 60px;
-      margin-bottom: 20px;
-      animation: captainBounce 0.5s ease-out infinite alternate;
-    }
-    
-    @keyframes captainBounce {
-      0% { transform: translateY(0); }
-      100% { transform: translateY(-10px); }
-    }
-    
-    .skip-intro {
-      position: absolute;
-      bottom: 30px;
-      right: 30px;
-      background: rgba(255, 255, 255, 0.2);
-      color: #fff;
-      border: 2px solid #fff;
-      padding: 12px 24px;
-      font-family: 'Krabby Patty', Arial, sans-serif;
-      font-size: 18px;
-      cursor: pointer;
-      border-radius: 25px;
-      transition: all 0.3s;
-      z-index: 10;
-    }
-    
-    .skip-intro:hover {
-      background: rgba(255, 255, 255, 0.4);
-      transform: scale(1.1);
-    }
-    
-    .tap-to-skip {
-      position: absolute;
-      bottom: 80px;
-      left: 50%;
-      transform: translateX(-50%);
-      color: rgba(255, 255, 255, 0.5);
-      font-size: 14px;
-      font-family: Arial, sans-serif;
-      z-index: 10;
-      animation: tapPulse 2s ease-in-out infinite;
-    }
-    
-    @keyframes tapPulse {
-      0%, 100% { opacity: 0.5; }
-      50% { opacity: 1; }
-    }
-    
-    /* TREASURE CHEST */
-    .treasure {
-      position: fixed;
-      font-size: 50px;
-      z-index: 1;
-      pointer-events: none;
-      filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.5));
-      animation: treasureGlow 2s ease-in-out infinite alternate;
-    }
-    
-    @keyframes treasureGlow {
-      0% { filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.3)); transform: scale(1); }
-      100% { filter: drop-shadow(0 0 40px rgba(255, 215, 0, 0.8)); transform: scale(1.05); }
-    }
-    
-    /* GARY THE SNAIL */
-    .gary {
-      position: fixed;
-      font-size: 35px;
-      z-index: 2;
-      pointer-events: none;
-      animation: garyMove 20s linear infinite;
-    }
-    
-    @keyframes garyMove {
-      0% { transform: translateX(-50px) scaleX(1); }
-      49% { transform: translateX(calc(100vw + 50px)) scaleX(1); }
-      50% { transform: translateX(calc(100vw + 50px)) scaleX(-1); }
-      99% { transform: translateX(-50px) scaleX(-1); }
-      100% { transform: translateX(-50px) scaleX(1); }
-    }
-    
-    /* MR KRABS MONEY */
-    .money-float {
-      position: fixed;
-      font-size: 30px;
-      pointer-events: none;
-      z-index: 1;
-      animation: moneyFloat 6s ease-in-out infinite;
-      filter: drop-shadow(0 0 10px rgba(0, 255, 0, 0.5));
-    }
-    
-    @keyframes moneyFloat {
-      0%, 100% { transform: translateY(0) rotate(-5deg); }
-      50% { transform: translateY(-30px) rotate(5deg); }
-    }
-    
-    /* MR KRABS "FEELING IT" MODE */
-    .krabs-container {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      z-index: 200;
-      overflow: hidden;
-    }
-    
-    .krabs-image {
-      position: absolute;
-      width: 150px;
-      height: auto;
-      animation: krabsChaos 0.3s ease-in-out infinite;
-      filter: drop-shadow(0 0 20px rgba(255, 0, 0, 0.8));
-    }
-    
-    @keyframes krabsChaos {
-      0% { transform: scale(1) rotate(-15deg); filter: hue-rotate(0deg) brightness(1.5); }
-      25% { transform: scale(1.3) rotate(15deg); filter: hue-rotate(90deg) brightness(2); }
-      50% { transform: scale(0.8) rotate(-10deg); filter: hue-rotate(180deg) brightness(1.5); }
-      75% { transform: scale(1.2) rotate(10deg); filter: hue-rotate(270deg) brightness(2); }
-      100% { transform: scale(1) rotate(-15deg); filter: hue-rotate(360deg) brightness(1.5); }
-    }
-    
-    .feeling-it-text {
-      position: fixed;
-      top: 15%;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 42px;
-      color: #ff0000;
-      text-shadow: 3px 3px 0 #000, 0 0 30px #ff0000, 0 0 60px #ffff00;
-      z-index: 250;
-      opacity: 0;
-      white-space: nowrap;
-      letter-spacing: 3px;
-      pointer-events: none;
-    }
-    
-    .feeling-it-text.visible {
-      opacity: 1;
-      animation: feelingItPulse 0.2s ease-in-out infinite;
-    }
-    
-    @keyframes feelingItPulse {
-      0% { transform: translateX(-50%) scale(1) rotate(-2deg); color: #ff0000; }
-      50% { transform: translateX(-50%) scale(1.1) rotate(2deg); color: #ffff00; }
-      100% { transform: translateX(-50%) scale(1) rotate(-2deg); color: #ff0000; }
-    }
-    
-    /* SHOP PANEL (Cookie Clicker style) */
-    .shop-toggle {
-      position: fixed;
-      right: 0;
-      top: 20%;
-      background: linear-gradient(135deg, #4CAF50, #2E7D32);
-      color: #fff;
-      border: none;
-      padding: 15px 10px;
-      font-family: 'Krabby Patty', Arial, sans-serif;
-      font-size: 18px;
-      cursor: pointer;
-      z-index: 1000;
-      border-radius: 10px 0 0 10px;
-      writing-mode: vertical-rl;
-      text-orientation: mixed;
-      letter-spacing: 2px;
-      box-shadow: 0 0 20px rgba(76, 175, 80, 0.5);
-      transition: all 0.3s;
-    }
-    
-    .shop-toggle:hover {
-      padding-right: 20px;
-      box-shadow: 0 0 40px rgba(76, 175, 80, 0.8);
-    }
-    
-    .shop-panel {
-      position: fixed;
-      right: -380px;
-      top: 0;
-      width: 350px;
-      height: 100%;
-      background: linear-gradient(180deg, rgba(20, 40, 20, 0.98), rgba(10, 30, 10, 0.98));
-      border-left: 4px solid #4CAF50;
-      z-index: 1001;
-      transition: right 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-      overflow-y: auto;
-      padding: 20px;
-      box-shadow: -10px 0 50px rgba(76, 175, 80, 0.3);
-    }
-    
-    .shop-panel.open {
-      right: 0;
-    }
-    
-    .shop-close {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background: #ff0000;
-      color: #fff;
-      border: none;
-      width: 40px;
-      height: 40px;
-      font-size: 24px;
-      cursor: pointer;
-      border-radius: 50%;
-      font-family: Arial, sans-serif;
-      z-index: 10;
-    }
-    
-    .shop-panel h2 {
-      color: #4CAF50;
-      text-shadow: 0 0 20px #4CAF50;
-      margin-bottom: 15px;
-      font-size: 28px;
-      letter-spacing: 2px;
-    }
-    
-    .shop-stats {
-      background: rgba(255, 255, 255, 0.1);
-      padding: 15px;
-      border-radius: 10px;
-      margin-bottom: 15px;
-      border: 2px solid rgba(76, 175, 80, 0.3);
-      color: #fff;
-      font-size: 16px;
-    }
-    
-    .shop-stats div {
-      margin: 5px 0;
-    }
-    
-    .upgrade-item {
-      background: rgba(255, 255, 255, 0.05);
-      border: 2px solid rgba(76, 175, 80, 0.3);
-      border-radius: 10px;
-      padding: 15px;
-      margin: 10px 0;
-      cursor: pointer;
-      transition: all 0.3s;
-    }
-    
-    .upgrade-item:hover:not(.locked) {
-      background: rgba(76, 175, 80, 0.2);
-      border-color: #4CAF50;
-      transform: translateX(-5px);
-      box-shadow: 0 0 20px rgba(76, 175, 80, 0.3);
-    }
-    
-    .upgrade-item.locked {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-    
-    .upgrade-item.purchased {
-      background: rgba(76, 175, 80, 0.3);
-      border-color: #4CAF50;
-    }
-    
-    .upgrade-item .icon {
-      font-size: 32px;
-      float: left;
-      margin-right: 10px;
-    }
-    
-    .upgrade-item .name {
-      color: #4CAF50;
-      font-size: 18px;
-      margin-bottom: 5px;
-    }
-    
-    .upgrade-item .desc {
-      color: #aaa;
-      font-size: 12px;
-      margin-bottom: 5px;
-    }
-    
-    .upgrade-item .cost {
-      color: #ffd700;
-      font-size: 14px;
-    }
-    
-    .upgrade-item .owned {
-      color: #4CAF50;
-      font-size: 12px;
-      float: right;
-    }
-    
-    /* STARFISH */
-    .starfish {
-      position: fixed;
-      font-size: 40px;
-      z-index: 1;
-      pointer-events: none;
-      animation: starfishWiggle 5s ease-in-out infinite;
-    }
-    
-    @keyframes starfishWiggle {
-      0%, 100% { transform: rotate(-10deg); }
-      50% { transform: rotate(10deg); }
-    }
-    
-    /* Pineapple house decorations */
-    .pineapple {
-      position: fixed;
-      font-size: 80px;
-      z-index: 1;
-      pointer-events: none;
-      filter: drop-shadow(0 10px 30px rgba(0,0,0,0.5));
-      animation: pineapplePulse 4s ease-in-out infinite;
-    }
-    
-    @keyframes pineapplePulse {
-      0%, 100% { transform: scale(1); filter: drop-shadow(0 10px 30px rgba(0,0,0,0.5)) brightness(1); }
-      50% { transform: scale(1.02); filter: drop-shadow(0 10px 40px rgba(255,200,50,0.3)) brightness(1.1); }
-    }
-    
-    /* COLOR FLASH EFFECT FOR STROKE MODE */
-    .color-flash {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      z-index: 1;
-      opacity: 0;
-      transition: opacity 0.1s;
-    }
-    
-    .color-flash.active {
-      opacity: 1;
-      animation: colorCycle 0.15s linear infinite;
-    }
-    
-    @keyframes colorCycle {
-      0% { background: rgba(255, 0, 0, 0.3); }
-      16% { background: rgba(255, 255, 0, 0.3); }
-      33% { background: rgba(0, 255, 0, 0.3); }
-      50% { background: rgba(0, 255, 255, 0.3); }
-      66% { background: rgba(0, 0, 255, 0.3); }
-      83% { background: rgba(255, 0, 255, 0.3); }
-      100% { background: rgba(255, 0, 0, 0.3); }
-    }
-    
-    .banner {
-      width: 100%;
-      max-width: 600px;
-      margin-top: 10px;
-      z-index: 2;
-      position: relative;
-    }
-    
-    .banner img {
-      width: 100%;
-      height: auto;
-      filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.8));
-    }
-    
-    .warning {
-      color: #fff;
-      font-size: 22px;
-      text-align: center;
-      padding: 15px;
-      text-shadow: 2px 2px 4px #000, 0 0 20px #ffcc00, 0 0 40px #ff6b9d;
-      z-index: 2;
-      position: relative;
-      letter-spacing: 2px;
-      animation: warningPulse 1s ease-in-out infinite alternate;
-      background: linear-gradient(90deg, transparent, rgba(255, 200, 50, 0.1), transparent);
-      border-radius: 20px;
-      margin: 10px;
-    }
-    
-    @keyframes warningPulse {
-      0% { transform: scale(1); }
-      100% { transform: scale(1.02); text-shadow: 2px 2px 4px #000, 0 0 30px #ff00ff, 0 0 60px #00ffff; }
-    }
-    
-    .spinner-container {
-      position: relative;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex: 1;
-      z-index: 2;
-    }
-    
-    .spinner {
-      width: 350px;
-      max-width: 80vw;
-      animation: spin 3s linear infinite;
-      filter: drop-shadow(0 0 30px rgba(255, 255, 0, 0.8));
-      transition: transform 0.1s ease-out, filter 0.3s;
-      cursor: pointer;
-    }
-    
-    .spinner:hover {
-      filter: drop-shadow(0 0 50px rgba(255, 255, 0, 1)) drop-shadow(0 0 80px rgba(255, 0, 255, 0.8));
-    }
-    
-    @keyframes spin {
-      0% { transform: rotate(0deg) scale(var(--pump-scale, 1)); }
-      100% { transform: rotate(360deg) scale(var(--pump-scale, 1)); }
-    }
-    
-    /* STROKE MODE SPINNER */
-    .spinner.stroke-mode {
-      animation: spinCrazy 0.3s linear infinite;
-      filter: drop-shadow(0 0 50px rgba(255, 0, 0, 1)) 
-              drop-shadow(0 0 80px rgba(255, 255, 0, 1)) 
-              drop-shadow(0 0 120px rgba(255, 0, 255, 1)) !important;
-    }
-    
-    @keyframes spinCrazy {
-      0% { transform: rotate(0deg) scale(var(--pump-scale, 1.5)); }
-      25% { transform: rotate(90deg) scale(calc(var(--pump-scale, 1.5) * 1.1)); }
-      50% { transform: rotate(180deg) scale(var(--pump-scale, 1.5)); }
-      75% { transform: rotate(270deg) scale(calc(var(--pump-scale, 1.5) * 0.9)); }
-      100% { transform: rotate(360deg) scale(var(--pump-scale, 1.5)); }
-    }
-    
-    /* SpongeBob reaction text */
-    .sponge-text {
-      position: absolute;
-      top: -60px;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 28px;
-      color: #ffff00;
-      text-shadow: 3px 3px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 0 0 20px #ff00ff;
-      white-space: nowrap;
-      opacity: 0;
-      transition: opacity 0.3s;
-      z-index: 10;
-      letter-spacing: 1px;
-    }
-    
-    .sponge-text.visible {
-      opacity: 1;
-      animation: textBounce 0.5s ease-out;
-    }
-    
-    @keyframes textBounce {
-      0% { transform: translateX(-50%) translateY(20px) scale(0.5); }
-      50% { transform: translateX(-50%) translateY(-10px) scale(1.2); }
-      100% { transform: translateX(-50%) translateY(0) scale(1); }
-    }
-    
-    /* REACTION IMAGE - Side popup */
-    .reaction-image {
-      position: fixed;
-      right: -500px;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 400px;
-      max-width: 45vw;
-      z-index: 100;
-      transition: right 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-      filter: drop-shadow(0 0 30px rgba(255, 255, 0, 1)) 
-              drop-shadow(0 0 50px rgba(255, 0, 255, 0.8))
-              drop-shadow(0 0 80px rgba(0, 255, 255, 0.6));
-      border: 8px solid #ffff00;
-      border-radius: 20px;
-      animation: reactionGlow 0.2s ease-in-out infinite alternate;
-    }
-    
-    @keyframes reactionGlow {
-      0% { 
-        filter: drop-shadow(0 0 30px rgba(255, 255, 0, 1)) 
-                drop-shadow(0 0 50px rgba(255, 0, 255, 0.8))
-                drop-shadow(0 0 80px rgba(0, 255, 255, 0.6));
-        transform: translateY(-50%) scale(1) rotate(-2deg);
-      }
-      100% { 
-        filter: drop-shadow(0 0 50px rgba(255, 0, 0, 1)) 
-                drop-shadow(0 0 80px rgba(0, 255, 0, 0.8))
-                drop-shadow(0 0 120px rgba(255, 255, 0, 0.6));
-        transform: translateY(-50%) scale(1.05) rotate(2deg);
-      }
-    }
-    
-    .reaction-image.visible {
-      right: 20px;
-      animation: reactionEntrance 0.5s ease-out, reactionGlow 0.15s ease-in-out infinite alternate 0.5s;
-    }
-    
-    @keyframes reactionEntrance {
-      0% { right: -500px; transform: translateY(-50%) scale(0.3) rotate(-30deg); }
-      50% { transform: translateY(-50%) scale(1.3) rotate(10deg); }
-      100% { right: 20px; transform: translateY(-50%) scale(1) rotate(0deg); }
-    }
-    
-    /* STROKE MODE REACTION */
-    .reaction-image.stroke-mode {
-      animation: reactionCrazy 0.1s ease-in-out infinite !important;
-    }
-    
-    @keyframes reactionCrazy {
-      0% { transform: translateY(-50%) scale(1) rotate(-15deg); filter: hue-rotate(0deg) brightness(1.5); }
-      25% { transform: translateY(-50%) scale(1.2) rotate(15deg); filter: hue-rotate(90deg) brightness(2); }
-      50% { transform: translateY(-50%) scale(0.9) rotate(-10deg); filter: hue-rotate(180deg) brightness(1.5); }
-      75% { transform: translateY(-50%) scale(1.15) rotate(10deg); filter: hue-rotate(270deg) brightness(2); }
-      100% { transform: translateY(-50%) scale(1) rotate(-15deg); filter: hue-rotate(360deg) brightness(1.5); }
-    }
-    
-    .counter {
-      font-size: 32px;
-      color: #ffcc00;
-      text-shadow: 3px 3px 0 #000, 0 0 30px #ffcc00, 0 0 60px #ff6b35;
-      text-align: center;
-      padding: 20px;
-      z-index: 2;
-      position: relative;
-      letter-spacing: 2px;
-    }
-    
-    .pumps-per-second {
-      font-size: 16px;
-      color: #4CAF50;
-      margin-top: 8px;
-      text-shadow: 2px 2px 0 #000, 0 0 15px #4CAF50;
-      letter-spacing: 1px;
-    }
-    
-    .flash {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 80px;
-      color: #ff0000;
-      text-shadow: 4px 4px 0 #000, 0 0 40px #ff0000;
-      opacity: 0;
-      transition: opacity 0.3s;
-      z-index: 20;
-      pointer-events: none;
-    }
-    
-    .flash.visible {
-      opacity: 1;
-      animation: flashPop 0.5s ease-out;
-    }
-    
-    @keyframes flashPop {
-      0% { transform: translate(-50%, -50%) scale(0.5); }
-      50% { transform: translate(-50%, -50%) scale(1.3); }
-      100% { transform: translate(-50%, -50%) scale(1); }
-    }
-    
-    /* COMBO DISPLAY */
-    .combo-display {
-      position: fixed;
-      top: 20%;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 48px;
-      color: #ffcc00;
-      text-shadow: 3px 3px 0 #000, 0 0 30px #ffcc00, 0 0 60px #ff6b35;
-      opacity: 0;
-      z-index: 15;
-      pointer-events: none;
-      letter-spacing: 3px;
-    }
-    
-    .combo-display.visible {
-      opacity: 1;
-      animation: comboPop 0.4s ease-out;
-    }
-    
-    @keyframes comboPop {
-      0% { transform: translateX(-50%) scale(0.5) rotate(-10deg); }
-      50% { transform: translateX(-50%) scale(1.4) rotate(5deg); }
-      100% { transform: translateX(-50%) scale(1) rotate(0deg); }
-    }
-    
-    /* STROKE MODE BANNER */
-    .stroke-banner {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 72px;
-      color: #ff0000;
-      text-shadow: 4px 4px 0 #000, 0 0 50px #ff0000, 0 0 100px #ffff00;
-      opacity: 0;
-      z-index: 50;
-      pointer-events: none;
-      white-space: nowrap;
-      letter-spacing: 5px;
-    }
-    
-    .stroke-banner.visible {
-      opacity: 1;
-      animation: strokeBannerPulse 0.1s ease-in-out infinite;
-    }
-    
-    @keyframes strokeBannerPulse {
-      0% { 
-        transform: translate(-50%, -50%) scale(1) rotate(-3deg); 
-        color: #ff0000;
-        text-shadow: 4px 4px 0 #000, 0 0 50px #ff0000, 0 0 100px #ffff00;
-      }
-      33% { 
-        transform: translate(-50%, -50%) scale(1.1) rotate(3deg); 
-        color: #ffff00;
-        text-shadow: 4px 4px 0 #000, 0 0 50px #ffff00, 0 0 100px #ff00ff;
-      }
-      66% { 
-        transform: translate(-50%, -50%) scale(0.95) rotate(-2deg); 
-        color: #00ffff;
-        text-shadow: 4px 4px 0 #000, 0 0 50px #00ffff, 0 0 100px #ff0000;
-      }
-      100% { 
-        transform: translate(-50%, -50%) scale(1.05) rotate(2deg); 
-        color: #ff00ff;
-        text-shadow: 4px 4px 0 #000, 0 0 50px #ff00ff, 0 0 100px #00ff00;
-      }
-    }
-    
-    /* MULTIPLIER */
-    .multiplier {
-      position: relative;
-      margin-top: 10px;
-      font-size: 32px;
-      color: gold;
-      text-shadow: 2px 2px 0 #000, 0 0 20px gold;
-      z-index: 10;
-      letter-spacing: 2px;
-      text-align: center;
-    }
-    
-    /* STREAK BAR */
-    .streak-container {
-      position: relative;
-      margin: 10px auto;
-      width: 280px;
-      max-width: 80%;
-      height: 18px;
-      background: rgba(0, 0, 0, 0.7);
-      border: 3px solid #fff;
-      border-radius: 10px;
-      overflow: hidden;
-      z-index: 10;
-    }
-    
-    /* LEVEL DISPLAY */
-    .level-display {
-      position: relative;
-      margin: 5px auto;
-      font-size: 20px;
-      color: #00ffff;
-      text-shadow: 2px 2px 0 #000, 0 0 15px #00ffff;
-      text-align: center;
-      z-index: 10;
-    }
-    
-    .level-display .level-num {
-      color: #ffeb3b;
-      font-size: 28px;
-    }
-    
-    .xp-bar-container {
-      position: relative;
-      margin: 5px auto 15px;
-      width: 200px;
-      max-width: 60%;
-      height: 12px;
-      background: rgba(0, 0, 0, 0.7);
-      border: 2px solid #00ffff;
-      border-radius: 6px;
-      overflow: hidden;
-    }
-    
-    .xp-bar {
-      height: 100%;
-      width: 0%;
-      background: linear-gradient(90deg, #00ffff, #00ff88);
-      transition: width 0.3s;
-    }
-    
-    .streak-bar {
-      height: 100%;
-      width: 0%;
-      background: linear-gradient(90deg, #ffeb3b, #ffc107, #ff9800, #ff5722);
-      transition: width 0.2s;
-      box-shadow: 0 0 20px currentColor;
-    }
-    
-    /* PARTICLES */
-    .particle {
-      position: fixed;
-      pointer-events: none;
-      z-index: 100;
-      font-size: 30px;
-      animation: particleFly 1s ease-out forwards;
-    }
-    
-    @keyframes particleFly {
-      0% { opacity: 1; transform: translate(0, 0) scale(1) rotate(0deg); }
-      100% { opacity: 0; transform: translate(var(--tx), var(--ty)) scale(0) rotate(720deg); }
-    }
-    
-    /* INFO SIDEBAR (Right) - Krusty Krab Menu Style */
-    .sidebar-toggle {
-      position: fixed;
-      right: 0;
-      top: 50%;
-      transform: translateY(-50%);
-      background: linear-gradient(135deg, #ffcc00, #ff6b35);
-      color: #8b0000;
-      border: none;
-      padding: 15px 10px;
-      font-family: 'Krabby Patty', Arial, sans-serif;
-      font-size: 18px;
-      cursor: pointer;
-      z-index: 1000;
-      border-radius: 10px 0 0 10px;
-      writing-mode: vertical-rl;
-      text-orientation: mixed;
-      letter-spacing: 2px;
-      box-shadow: 0 0 20px rgba(255, 200, 50, 0.5);
-      transition: all 0.3s;
-      font-weight: bold;
-    }
-    
-    .sidebar-toggle:hover {
-      padding-right: 20px;
-      box-shadow: 0 0 40px rgba(255, 200, 50, 0.8);
-    }
-    
-    .sidebar {
-      position: fixed;
-      right: -350px;
-      top: 0;
-      width: 320px;
-      height: 100%;
-      background: linear-gradient(180deg, rgba(139, 69, 19, 0.98), rgba(101, 67, 33, 0.98));
-      border-left: 4px solid #ffcc00;
-      z-index: 1001;
-      transition: right 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-      overflow-y: auto;
-      padding: 20px;
-      box-shadow: -10px 0 50px rgba(255, 200, 50, 0.3);
-    }
-    
-    .sidebar.open {
-      right: 0;
-    }
-    
-    .sidebar-close {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background: #ff0000;
-      color: #fff;
-      border: none;
-      width: 40px;
-      height: 40px;
-      font-size: 24px;
-      cursor: pointer;
-      border-radius: 50%;
-      font-family: Arial, sans-serif;
-    }
-    
-    .sidebar h2 {
-      color: #ffff00;
-      text-shadow: 0 0 20px #ffff00;
-      margin-bottom: 20px;
-      font-size: 28px;
-      letter-spacing: 2px;
-    }
-    
-    .sidebar-section {
-      background: rgba(255, 255, 255, 0.1);
-      padding: 15px;
-      border-radius: 10px;
-      margin-bottom: 15px;
-      border: 2px solid rgba(255, 255, 255, 0.2);
-    }
-    
-    .sidebar-section h3 {
-      color: #00ffff;
-      margin-bottom: 10px;
-      font-size: 18px;
-    }
-    
-    .sidebar-section p {
-      color: #fff;
-      font-size: 14px;
-      word-break: break-all;
-      margin-bottom: 10px;
-    }
-    
-    .sidebar-section a {
-      display: block;
-      color: #ffcc00;
-      text-decoration: none;
-      padding: 10px;
-      margin: 5px 0;
-      background: rgba(255, 200, 50, 0.15);
-      border-radius: 5px;
-      transition: all 0.3s;
-      font-size: 16px;
-      border: 1px solid rgba(255, 200, 50, 0.3);
-    }
-    
-    .sidebar-section a:hover {
-      background: rgba(255, 200, 50, 0.4);
-      transform: translateX(5px);
-      box-shadow: 0 0 20px rgba(255, 200, 50, 0.5);
-    }
-    
-    #mcap {
-      color: #ffd700;
-      font-size: 24px;
-      text-shadow: 0 0 15px #ffd700;
-    }
-    
-    /* ACHIEVEMENTS SIDEBAR (Left) */
-    .achievements-toggle {
-      position: fixed;
-      left: 0;
-      bottom: 20px;
-      background: linear-gradient(135deg, #ffd700, #ff8c00);
-      color: #000;
-      border: none;
-      padding: 15px 20px;
-      font-family: 'Krabby Patty', Arial, sans-serif;
-      font-size: 18px;
-      cursor: pointer;
-      z-index: 1000;
-      border-radius: 0 10px 10px 0;
-      letter-spacing: 2px;
-      box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
-      transition: all 0.3s;
-    }
-    
-    .achievements-toggle:hover {
-      padding-left: 30px;
-      box-shadow: 0 0 40px rgba(255, 215, 0, 0.8);
-    }
-    
-    .achievements-sidebar {
-      position: fixed;
-      left: -380px;
-      top: 0;
-      width: 350px;
-      height: 100%;
-      background: linear-gradient(180deg, rgba(40, 30, 0, 0.98), rgba(20, 10, 0, 0.98));
-      border-right: 4px solid #ffd700;
-      z-index: 1001;
-      transition: left 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-      overflow-y: auto;
-      padding: 20px;
-      box-shadow: 10px 0 50px rgba(255, 215, 0, 0.3);
-    }
-    
-    .achievements-sidebar.open {
-      left: 0;
-    }
-    
-    .achievements-close {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background: #ff0000;
-      color: #fff;
-      border: none;
-      width: 40px;
-      height: 40px;
-      font-size: 24px;
-      cursor: pointer;
-      border-radius: 50%;
-      font-family: Arial, sans-serif;
-    }
-    
-    .achievements-sidebar h2 {
-      color: #ffd700;
-      text-shadow: 0 0 20px #ffd700;
-      margin-bottom: 20px;
-      font-size: 28px;
-      letter-spacing: 2px;
-    }
-    
-    .achievement {
-      display: flex;
-      align-items: center;
-      padding: 12px;
-      margin: 8px 0;
-      background: rgba(255, 255, 255, 0.05);
-      border-radius: 10px;
-      border: 2px solid rgba(255, 215, 0, 0.2);
-      transition: all 0.3s;
-    }
-    
-    .achievement.unlocked {
-      background: rgba(255, 215, 0, 0.2);
-      border-color: #ffd700;
-      box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
-    }
-    
-    .achievement-icon {
-      font-size: 32px;
-      margin-right: 15px;
-      filter: grayscale(1);
-      transition: filter 0.3s;
-    }
-    
-    .achievement.unlocked .achievement-icon {
-      filter: grayscale(0);
-      animation: iconBounce 0.5s ease-out;
-    }
-    
-    @keyframes iconBounce {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.3); }
-    }
-    
-    .achievement-info h4 {
-      color: #888;
-      font-size: 16px;
-      margin-bottom: 3px;
-    }
-    
-    .achievement.unlocked .achievement-info h4 {
-      color: #ffd700;
-    }
-    
-    .achievement-info p {
-      color: #666;
-      font-size: 12px;
-    }
-    
-    .achievement.unlocked .achievement-info p {
-      color: #ccc;
-    }
-    
-    /* Achievement Notification */
-    .achievement-notification {
-      position: fixed;
-      top: 100px;
-      left: 50%;
-      transform: translateX(-50%) translateY(-100px);
-      background: linear-gradient(135deg, #ffd700, #ff8c00);
-      color: #000;
-      padding: 20px 40px;
-      border-radius: 15px;
-      font-size: 24px;
-      z-index: 2000;
-      opacity: 0;
-      transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-      box-shadow: 0 0 50px rgba(255, 215, 0, 0.8);
-      text-align: center;
-    }
-    
-    .achievement-notification.visible {
-      opacity: 1;
-      transform: translateX(-50%) translateY(0);
-    }
-    
-    .achievement-notification .icon {
-      font-size: 48px;
-      display: block;
-      margin-bottom: 10px;
     }
     
     /* BACK BUTTON */
@@ -1307,14 +59,11 @@
       text-decoration: none;
       z-index: 1000;
       transition: all 0.3s;
-      display: flex;
-      align-items: center;
-      gap: 8px;
     }
     
     .back-btn:hover {
       transform: scale(1.05);
-      box-shadow: 0 0 20px rgba(255, 200, 50, 0.5);
+      box-shadow: 0 0 20px rgba(255, 200, 50, 0.5), 0 0 40px rgba(255, 200, 50, 0.3);
     }
     
     /* MUSIC TOGGLE */
@@ -1334,18 +83,653 @@
       transition: all 0.3s;
     }
     
-    .music-toggle:hover {
-      transform: scale(1.1);
+    .music-toggle:hover { transform: scale(1.1); }
+    .music-toggle.muted { opacity: 0.5; }
+    
+    /* CURRENCY DISPLAYS */
+    .currency-bar {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 20px;
+      z-index: 100;
+      flex-wrap: wrap;
+      justify-content: center;
     }
     
-    .music-toggle.muted {
+    .currency-item {
+      background: linear-gradient(135deg, rgba(0, 0, 0, 0.8), rgba(30, 30, 30, 0.8));
+      border: 3px solid;
+      padding: 10px 20px;
+      border-radius: 15px;
+      text-align: center;
+      min-width: 150px;
+    }
+    
+    .currency-item.pumps {
+      border-color: #ff6b6b;
+      box-shadow: 0 0 15px rgba(255, 107, 107, 0.3);
+    }
+    
+    .currency-item.dollars {
+      border-color: #4CAF50;
+      box-shadow: 0 0 15px rgba(76, 175, 80, 0.3);
+    }
+    
+    .currency-label {
+      font-size: 12px;
+      color: #aaa;
+      margin-bottom: 2px;
+    }
+    
+    .currency-value {
+      font-size: 24px;
+      font-weight: bold;
+    }
+    
+    .currency-item.pumps .currency-value { color: #ff6b6b; }
+    .currency-item.dollars .currency-value { color: #4CAF50; }
+    
+    .currency-rate {
+      font-size: 11px;
+      color: #888;
+      margin-top: 2px;
+    }
+    
+    /* MAIN CONTAINER */
+    .main-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 100px 20px 20px;
+      position: relative;
+      z-index: 1;
+      width: 100%;
+    }
+    
+    /* SPINNER */
+    .spinner-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      cursor: pointer;
+      min-height: 350px;
+      justify-content: center;
+    }
+    
+    .spinner {
+      width: 280px;
+      max-width: 70vw;
+      animation: spin var(--spin-speed, 3s) linear infinite;
+      filter: drop-shadow(0 0 30px rgba(255, 255, 0, 0.8));
+      transition: filter 0.3s;
+      cursor: pointer;
+      -webkit-user-drag: none;
+      user-select: none;
+    }
+    
+    .spinner:hover {
+      filter: drop-shadow(0 0 50px rgba(255, 255, 0, 1)) drop-shadow(0 0 80px rgba(255, 0, 255, 0.8));
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg) scale(var(--pump-scale, 1)); }
+      100% { transform: rotate(360deg) scale(var(--pump-scale, 1)); }
+    }
+    
+    .spinner.stroke-mode {
+      animation: spinCrazy var(--spin-speed-crazy, 0.3s) linear infinite;
+      filter: drop-shadow(0 0 50px rgba(255, 0, 0, 1)) 
+              drop-shadow(0 0 80px rgba(255, 255, 0, 1)) 
+              drop-shadow(0 0 120px rgba(255, 0, 255, 1)) !important;
+    }
+    
+    @keyframes spinCrazy {
+      0% { transform: rotate(0deg) scale(var(--pump-scale, 1.5)); }
+      25% { transform: rotate(90deg) scale(calc(var(--pump-scale, 1.5) * 1.1)); }
+      50% { transform: rotate(180deg) scale(var(--pump-scale, 1.5)); }
+      75% { transform: rotate(270deg) scale(calc(var(--pump-scale, 1.5) * 0.9)); }
+      100% { transform: rotate(360deg) scale(var(--pump-scale, 1.5)); }
+    }
+    
+    /* STATS DISPLAY */
+    .stats-display {
+      margin-top: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .combo-display {
+      font-size: 28px;
+      color: #ffcc00;
+      text-shadow: 2px 2px 0 #000, 0 0 20px #ffcc00;
+      opacity: 0;
+      transition: all 0.2s;
+    }
+    
+    .combo-display.visible { opacity: 1; }
+    
+    .combo-display.stroke-active {
+      color: #ff0000;
+      animation: strokePulse 0.1s ease-in-out infinite;
+    }
+    
+    @keyframes strokePulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+    
+    .multiplier {
+      font-size: 20px;
+      color: #4CAF50;
+      text-shadow: 2px 2px 0 #000;
+    }
+    
+    .pps-display {
+      font-size: 16px;
+      color: #aaa;
+      text-shadow: 1px 1px 0 #000;
+    }
+    
+    /* STROKE MODE BANNER */
+    .stroke-banner {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 48px;
+      color: #ff0000;
+      text-shadow: 4px 4px 0 #000, 0 0 50px #ff0000;
+      z-index: 300;
+      opacity: 0;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    
+    .stroke-banner.visible {
+      opacity: 1;
+      animation: strokeBannerPulse 0.2s ease-in-out infinite;
+    }
+    
+    @keyframes strokeBannerPulse {
+      0%, 100% { transform: translate(-50%, -50%) scale(1) rotate(-2deg); }
+      50% { transform: translate(-50%, -50%) scale(1.1) rotate(2deg); }
+    }
+    
+    /* FLASH TEXT */
+    .flash {
+      position: fixed;
+      top: 30%;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 42px;
+      color: #fff;
+      text-shadow: 3px 3px 0 #ff5722, 0 0 30px #ffeb3b;
+      z-index: 200;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+      white-space: nowrap;
+    }
+    
+    .flash.visible { opacity: 1; }
+    
+    /* PARTICLES */
+    .particle {
+      position: fixed;
+      pointer-events: none;
+      z-index: 150;
+      font-size: 24px;
+      animation: particleFly 1s ease-out forwards;
+    }
+    
+    @keyframes particleFly {
+      0% { opacity: 1; transform: translate(0, 0) scale(1); }
+      100% { opacity: 0; transform: translate(var(--tx), var(--ty)) scale(0); }
+    }
+    
+    /* DOLLAR FLOAT */
+    .dollar-float {
+      position: fixed;
+      pointer-events: none;
+      z-index: 160;
+      font-size: 20px;
+      color: #4CAF50;
+      text-shadow: 2px 2px 0 #000;
+      animation: dollarFloat 1.5s ease-out forwards;
+    }
+    
+    @keyframes dollarFloat {
+      0% { opacity: 1; transform: translateY(0); }
+      100% { opacity: 0; transform: translateY(-100px); }
+    }
+    
+    /* COLOR FLASH OVERLAY */
+    .color-flash {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 50;
+      opacity: 0;
+    }
+    
+    .color-flash.active {
+      animation: colorFlash 0.1s ease-in-out infinite;
+    }
+    
+    @keyframes colorFlash {
+      0% { background: rgba(255,0,0,0.3); opacity: 1; }
+      33% { background: rgba(255,255,0,0.3); opacity: 1; }
+      66% { background: rgba(255,0,255,0.3); opacity: 1; }
+      100% { background: rgba(0,255,255,0.3); opacity: 1; }
+    }
+    
+    /* MEGA SIDEBAR */
+    .mega-sidebar-tabs {
+      position: fixed;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      z-index: 1001;
+    }
+    
+    .mega-tab {
+      background: linear-gradient(135deg, rgba(139, 69, 19, 0.95), rgba(101, 67, 33, 0.95));
+      border: 3px solid #ffcc00;
+      border-right: none;
+      color: #ffcc00;
+      padding: 15px 12px;
+      font-family: 'Krabby Patty', Arial, sans-serif;
+      font-size: 14px;
+      cursor: pointer;
+      border-radius: 15px 0 0 15px;
+      transition: all 0.3s;
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .mega-tab::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: linear-gradient(135deg, rgba(255, 200, 50, 0), rgba(255, 200, 50, 0.3));
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    
+    .mega-tab:hover::before { opacity: 1; }
+    
+    .mega-tab:hover {
+      transform: translateX(-5px);
+      box-shadow: 0 0 25px rgba(255, 200, 50, 0.6), 0 0 50px rgba(255, 200, 50, 0.3), inset 0 0 20px rgba(255, 200, 50, 0.2);
+    }
+    
+    .mega-tab.active {
+      background: linear-gradient(135deg, #ffcc00, #ff8c00);
+      color: #000;
+      box-shadow: 0 0 30px rgba(255, 200, 50, 0.8);
+    }
+    
+    .mega-sidebar {
+      position: fixed;
+      right: -96%;
+      top: 0;
+      width: 92%;
+      max-width: 400px;
+      height: 100%;
+      background: linear-gradient(180deg, rgba(139, 69, 19, 0.98), rgba(80, 50, 20, 0.98));
+      border-left: 4px solid #ffcc00;
+      z-index: 1000;
+      transition: right 0.4s ease;
+      overflow-y: auto;
+    }
+    
+    .mega-sidebar.open { right: 0; }
+    
+    .mega-sidebar-header {
+      background: linear-gradient(135deg, #8B4513, #654321);
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 3px solid #ffcc00;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    
+    .mega-sidebar-header h2 {
+      color: #ffcc00;
+      font-size: 24px;
+      text-shadow: 2px 2px 0 #000;
+    }
+    
+    .mega-close {
+      background: #ff0000;
+      color: #fff;
+      border: none;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      font-size: 24px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .mega-close:hover {
+      transform: scale(1.1) rotate(90deg);
+      box-shadow: 0 0 20px rgba(255, 0, 0, 0.6);
+    }
+    
+    .mega-content { padding: 15px; }
+    
+    .mega-panel { display: none; }
+    .mega-panel.active { display: block; }
+    
+    /* SHOP STYLES */
+    .shop-stats {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 15px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      font-size: 14px;
+      color: #fff;
+    }
+    
+    .shop-stats div {
+      text-align: center;
+      padding: 8px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+    }
+    
+    .upgrade-item {
+      background: rgba(255, 255, 255, 0.08);
+      border: 2px solid rgba(255, 200, 50, 0.3);
+      border-radius: 12px;
+      padding: 15px;
+      margin: 10px 0;
+      cursor: pointer;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .upgrade-item::before {
+      content: '';
+      position: absolute;
+      top: -50%; left: -50%;
+      width: 200%; height: 200%;
+      background: radial-gradient(circle, rgba(255, 200, 50, 0.2) 0%, transparent 70%);
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+    }
+    
+    .upgrade-item:hover::before { opacity: 1; }
+    
+    .upgrade-item:hover {
+      border-color: #ffcc00;
+      transform: translateX(-5px);
+      box-shadow: 0 0 20px rgba(255, 200, 50, 0.3), 0 0 40px rgba(255, 200, 50, 0.1);
+    }
+    
+    .upgrade-item.locked {
       opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    .upgrade-item.locked:hover {
+      transform: none;
+      box-shadow: none;
+    }
+    
+    .upgrade-item.locked::before { display: none; }
+    
+    .upgrade-item .icon { font-size: 28px; }
+    .upgrade-item .name { color: #ffcc00; font-size: 16px; margin: 5px 0; }
+    .upgrade-item .desc { color: #aaa; font-size: 12px; margin-bottom: 5px; }
+    .upgrade-item .cost { color: #4CAF50; font-size: 14px; }
+    .upgrade-item .owned { color: #ffcc00; font-size: 12px; float: right; margin-top: -30px; }
+    
+    .upgrade-category {
+      color: #ffcc00;
+      font-size: 18px;
+      margin: 20px 0 10px;
+      padding-bottom: 5px;
+      border-bottom: 2px solid rgba(255, 200, 50, 0.3);
+    }
+    
+    /* ACHIEVEMENTS */
+    .achievement {
+      display: flex;
+      align-items: center;
+      padding: 12px;
+      margin: 8px 0;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+      border: 2px solid rgba(255, 200, 50, 0.15);
+      transition: all 0.3s;
+    }
+    
+    .achievement.unlocked {
+      background: rgba(255, 200, 50, 0.15);
+      border-color: #ffcc00;
+    }
+    
+    .achievement-icon {
+      font-size: 32px;
+      margin-right: 15px;
+      filter: grayscale(1);
+    }
+    
+    .achievement.unlocked .achievement-icon { filter: none; }
+    
+    .achievement-info h4 { color: #aaa; font-size: 16px; }
+    .achievement.unlocked .achievement-info h4 { color: #ffcc00; }
+    .achievement-info p { color: #666; font-size: 12px; }
+    .achievement.unlocked .achievement-info p { color: #aaa; }
+    
+    /* MILESTONES */
+    .milestone {
+      display: flex;
+      align-items: center;
+      padding: 12px;
+      margin: 8px 0;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+      border: 2px solid rgba(100, 100, 100, 0.3);
+      transition: all 0.3s;
+    }
+    
+    .milestone.claimed {
+      background: linear-gradient(135deg, rgba(76, 175, 80, 0.2), rgba(139, 195, 74, 0.2));
+      border-color: #4CAF50;
+    }
+    
+    .milestone-icon { font-size: 36px; margin-right: 15px; filter: grayscale(0.8); }
+    .milestone.claimed .milestone-icon { filter: none; }
+    .milestone-info { flex: 1; }
+    .milestone-info h4 { color: #aaa; font-size: 15px; margin-bottom: 3px; }
+    .milestone.claimed .milestone-info h4 { color: #4CAF50; }
+    .milestone-info p { color: #777; font-size: 12px; margin: 2px 0; }
+    .milestone-reward { color: #ffcc00 !important; }
+    
+    .milestone-progress {
+      width: 100%;
+      height: 6px;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 3px;
+      margin-top: 5px;
+      overflow: hidden;
+    }
+    
+    .milestone-progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #ffcc00, #ff8c00);
+      border-radius: 3px;
+      transition: width 0.3s;
+    }
+    
+    /* INFO SECTION */
+    .sidebar-section {
+      background: rgba(255, 255, 255, 0.08);
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 15px;
+      border: 2px solid rgba(255, 200, 50, 0.2);
+    }
+    
+    .sidebar-section h3 {
+      color: #ffcc00;
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+    
+    .sidebar-section p {
+      color: #fff;
+      font-size: 14px;
+      margin: 5px 0;
+    }
+    
+    .sidebar-section a {
+      display: block;
+      color: #ffcc00;
+      text-decoration: none;
+      padding: 12px;
+      margin: 5px 0;
+      background: rgba(255, 200, 50, 0.1);
+      border-radius: 8px;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .sidebar-section a::before {
+      content: '';
+      position: absolute;
+      top: 0; left: -100%;
+      width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 200, 50, 0.3), transparent);
+      transition: left 0.5s;
+    }
+    
+    .sidebar-section a:hover::before { left: 100%; }
+    
+    .sidebar-section a:hover {
+      background: rgba(255, 200, 50, 0.25);
+      transform: translateX(5px);
+      box-shadow: 0 0 15px rgba(255, 200, 50, 0.3);
+    }
+    
+    /* NOTIFICATION */
+    .notification {
+      position: fixed;
+      top: 100px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-100px);
+      background: linear-gradient(135deg, #ffd700, #ff8c00);
+      color: #000;
+      padding: 20px 40px;
+      border-radius: 15px;
+      font-size: 20px;
+      z-index: 2000;
+      opacity: 0;
+      transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      text-align: center;
+      box-shadow: 0 0 50px rgba(255, 215, 0, 0.8);
+    }
+    
+    .notification.visible {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    
+    .notification .icon { font-size: 40px; display: block; margin-bottom: 10px; }
+    
+    /* MR KRABS */
+    .krabs-container {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 200;
+    }
+    
+    .krabs-image {
+      position: absolute;
+      width: 200px;
+      height: auto;
+      animation: krabsChaos 0.3s ease-in-out infinite;
+      filter: drop-shadow(0 0 30px rgba(255, 0, 0, 0.9));
+    }
+    
+    @keyframes krabsChaos {
+      0% { transform: scale(1) rotate(-20deg); }
+      25% { transform: scale(1.4) rotate(20deg); }
+      50% { transform: scale(0.9) rotate(-15deg); }
+      75% { transform: scale(1.3) rotate(15deg); }
+      100% { transform: scale(1) rotate(-20deg); }
+    }
+    
+    .feeling-it-text {
+      position: fixed;
+      top: 15%;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 42px;
+      color: #ff0000;
+      text-shadow: 3px 3px 0 #000, 0 0 30px #ff0000, 0 0 60px #ffff00;
+      z-index: 250;
+      opacity: 0;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+    
+    .feeling-it-text.visible {
+      opacity: 1;
+      animation: feelingItPulse 0.2s ease-in-out infinite;
+    }
+    
+    @keyframes feelingItPulse {
+      0%, 100% { transform: translateX(-50%) scale(1) rotate(-3deg); }
+      50% { transform: translateX(-50%) scale(1.1) rotate(3deg); }
+    }
+    
+    /* BUBBLES */
+    .bubble {
+      position: fixed;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.8), rgba(100, 200, 255, 0.3));
+      animation: floatUp 15s linear infinite;
+      z-index: 1;
+      pointer-events: none;
+    }
+    
+    @keyframes floatUp {
+      0% { transform: translateY(100vh) scale(0); opacity: 0; }
+      10% { opacity: 0.6; }
+      90% { opacity: 0.6; }
+      100% { transform: translateY(-100px) scale(1); opacity: 0; }
     }
     
     /* SCREEN SHAKE */
-    .shake {
-      animation: shake 0.05s infinite;
-    }
+    .shake { animation: shake 0.05s infinite; }
     
     @keyframes shake {
       0% { transform: translate(0, 0); }
@@ -1355,281 +739,478 @@
       100% { transform: translate(10px, 10px); }
     }
     
-    /* Mobile styles */
+    /* REACTION IMAGE */
+    .reaction-image {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 120px;
+      height: auto;
+      border-radius: 15px;
+      border: 4px solid #ffcc00;
+      opacity: 0;
+      transform: scale(0.8);
+      transition: all 0.3s;
+      z-index: 100;
+    }
+    
+    .reaction-image.visible {
+      opacity: 1;
+      transform: scale(1);
+    }
+    
+    /* MOBILE */
     @media (max-width: 768px) {
-      .warning { font-size: 14px; padding: 8px; }
-      .spinner { width: 220px; }
-      .counter { font-size: 20px; }
-      .flash { font-size: 40px; }
-      .combo-display { font-size: 28px; }
+      .currency-bar { top: 10px; gap: 10px; }
+      .currency-item { padding: 8px 12px; min-width: 120px; }
+      .currency-value { font-size: 18px; }
+      .back-btn { top: auto; bottom: 80px; left: 15px; padding: 10px 15px; font-size: 14px; }
+      .music-toggle { width: 44px; height: 44px; font-size: 20px; }
+      .spinner { width: 200px; }
+      .mega-sidebar { width: 95%; max-width: none; }
+      .mega-tab { padding: 12px 10px; font-size: 12px; }
       .stroke-banner { font-size: 32px; }
-      .multiplier { font-size: 20px; }
-      .streak-container { width: 180px; }
-      .sponge-text { font-size: 18px; top: -35px; }
-      
-      .reaction-image {
-        width: 150px;
-        max-width: 35vw;
-      }
-      
-      .sidebar {
-        width: 85%;
-        right: -90%;
-      }
-      
-      .achievements-sidebar {
-        width: 85%;
-        left: -90%;
-      }
-      
-      .shop-panel {
-        width: 85%;
-        right: -90%;
-      }
-      
-      .sidebar-toggle,
-      .achievements-toggle,
-      .shop-toggle {
-        font-size: 12px;
-        padding: 8px 6px;
-      }
-      
-      .feeling-it-text {
-        font-size: 24px;
-        top: 12%;
-      }
-      
-      .krabs-image {
-        width: 80px;
-      }
-      
-      .intro-text {
-        font-size: 28px;
-        padding: 0 10px;
-      }
-      
-      .banner img {
-        max-width: 95%;
-      }
-      
-      /* Hide some decorations on mobile for performance */
-      .jellyfish:nth-child(n+3),
-      .seaweed:nth-child(n+4),
-      .flower:nth-child(n+4),
-      .money-float {
-        display: none;
-      }
-      
-      .upgrade-item {
-        padding: 10px;
-      }
-      
-      .upgrade-item .icon {
-        font-size: 24px;
-      }
-      
-      .upgrade-item .name {
-        font-size: 14px;
-      }
+      .flash { font-size: 28px; }
+    }
+    
+    @media (max-width: 400px) {
+      .currency-item { min-width: 100px; padding: 6px 10px; }
+      .currency-value { font-size: 16px; }
+      .spinner { width: 160px; }
     }
   </style>
 </head>
 <body>
-  <!-- BACK BUTTON -->
   <a href="index.html" class="back-btn">⬅️ MENU</a>
   
-  <!-- BACKGROUND MUSIC -->
   <audio id="bgMusic" preload="auto" loop>
     <source src="Bob.mp3" type="audio/mpeg">
   </audio>
   <button class="music-toggle" id="musicToggle" onclick="toggleMusic()">🎵</button>
   
-  <!-- Color flash overlay for STROKE MODE -->
   <div class="color-flash" id="colorFlash"></div>
   
-  <!-- Banner -->
-  <div class="banner">
-    <img src="https://i.imgur.com/CzRu9jK.gif" alt="$COCKPANTS Banner">
-  </div>
-  
-  <!-- Warning text -->
-  <div class="warning">🍍 AHOY THERE! YOU'RE THE 9,999,999th VISITOR TO BIKINI BOTTOM!!! CLICK TO PUMP $COCKPANTS 🦀</div>
-  
-  <!-- Multiplier -->
-  <div class="multiplier" id="multiplier">1x MULTIPLIER</div>
-  
-  <!-- Streak bar -->
-  <div class="streak-container">
-    <div class="streak-bar" id="streakBar"></div>
-  </div>
-  
-  <!-- Main spinner -->
-  <div class="spinner-container">
-    <div class="sponge-text" id="spongeText"></div>
-    <img src="https://i.imgur.com/T1W4AZd.jpeg" alt="Spinning SpongeBob" class="spinner" id="spinner">
-  </div>
-  
-  <!-- Counter -->
-  <div class="counter">
-    You have pumped $COCKPANTS <span id="count">0</span> times
-    <div class="pumps-per-second" id="ppsDisplay"></div>
-  </div>
-  
-  <!-- Flash text -->
-  <div class="flash" id="flash">MY LEG! 🦵</div>
-  
-  <!-- Combo display -->
-  <div class="combo-display" id="comboDisplay"></div>
-  
-  <!-- STROKE MODE banner -->
-  <div class="stroke-banner" id="strokeBanner">🔥 I'M READY! STROKE MODE! 🔥</div>
-  
-  <!-- FEELING IT text -->
-  <div class="feeling-it-text" id="feelingItText">🦀 ARE YOU FEELING IT NOW MR. KRABS?! 🦀</div>
-  
-  <!-- Reaction image (side popup) -->
-  <img src="" alt="Reaction" class="reaction-image" id="reactionImage">
-  
-  <!-- Achievement notification -->
-  <div class="achievement-notification" id="achievementNotification">
-    <span class="icon">🏆</span>
-    <span class="text">Achievement Unlocked!</span>
-  </div>
-  
-  <!-- INFO Sidebar Toggle (Right) -->
-  <button class="sidebar-toggle" onclick="toggleSidebar()">📊 INFO</button>
-  
-  <!-- INFO Sidebar -->
-  <div class="sidebar" id="sidebar">
-    <button class="sidebar-close" onclick="toggleSidebar()">✕</button>
-    <h2>📊 $COCKPANTS INFO</h2>
-    
-    <div class="sidebar-section">
-      <h3>💰 Market Cap</h3>
-      <p id="mcap">Loading...</p>
+  <!-- CURRENCY BAR -->
+  <div class="currency-bar">
+    <div class="currency-item pumps">
+      <div class="currency-label">🩲 TOTAL PUMPS</div>
+      <div class="currency-value" id="totalPumps">0</div>
+      <div class="currency-rate">+<span id="pumpsPerClick">1</span>/click | +<span id="pumpsPerSec">0</span>/sec</div>
     </div>
-    
-    <div class="sidebar-section">
-      <h3>📋 Contract Address</h3>
-      <p style="font-size: 11px;">516h3AJBX72YZvEGDJWsUaGePuub53kLVKH2NWeHpump</p>
-    </div>
-    
-    <div class="sidebar-section">
-      <h3>🔗 Links</h3>
-      <a href="https://x.com/CockPants_sol" target="_blank">🐦 Twitter @CockPants_sol</a>
-      <a href="https://dexscreener.com/solana/5Eh94i7aEtA8t21f1HbZoDgrtTTZcQq9nbEpFMAFShsg" target="_blank">📈 DexScreener</a>
-      <a href="https://jup.ag/swap?sell=So11111111111111111111111111111111111111112&buy=516h3AJBX72YZvEGDJWsUaGePuub53kLVKH2NWeHpump" target="_blank">🪐 Trade on Jupiter</a>
-      <a href="https://x.com/i/communities/1991679244938682496" target="_blank">🏠 Weenie Hut Jr.'s Community</a>
+    <div class="currency-item dollars">
+      <div class="currency-label">💵 BIKINI BOTTOM $</div>
+      <div class="currency-value" id="dollars">0</div>
+      <div class="currency-rate">+<span id="dollarsPerSec">0</span>/sec</div>
     </div>
   </div>
   
-  <!-- ACHIEVEMENTS Sidebar Toggle (Left Bottom) -->
-  <button class="achievements-toggle" id="achievementsToggleBtn">🏆 ACHIEVEMENTS</button>
-  
-  <!-- ACHIEVEMENTS Sidebar -->
-  <div class="achievements-sidebar" id="achievementsSidebar">
-    <button class="achievements-close" id="achievementsCloseBtn">✕</button>
-    <h2>🏆 ACHIEVEMENTS</h2>
-    <div id="achievementsList"></div>
+  <!-- MAIN GAME -->
+  <div class="main-container">
+    <div class="spinner-container" id="spinnerContainer">
+      <img src="https://i.imgur.com/CzRu9jK.gif" alt="SpongeBob Cockpants" class="spinner" id="spinner">
+    </div>
+    
+    <div class="stats-display">
+      <div class="combo-display" id="comboDisplay">0x COMBO</div>
+      <div class="multiplier" id="multiplier">1x Multiplier</div>
+      <div class="pps-display" id="ppsDisplay">⚡ 0 pumps/second</div>
+    </div>
   </div>
   
-  <!-- MR KRABS FEELING IT container -->
+  <div class="flash" id="flash"></div>
+  <div class="stroke-banner" id="strokeBanner">🔥 STROKE MODE 🔥</div>
+  <div class="feeling-it-text" id="feelingItText">ARE YOU FEELING IT NOW MR. KRABS?!</div>
   <div class="krabs-container" id="krabsContainer"></div>
+  <img class="reaction-image" id="reactionImage" src="" alt="">
+  <div class="notification" id="notification"><span class="icon"></span><span class="text"></span></div>
   
-  <!-- UPGRADES SHOP (Cookie Clicker style) -->
-  <div class="shop-toggle" id="shopToggle">🛒 SHOP</div>
-  <div class="shop-panel" id="shopPanel">
-    <button class="shop-close" id="shopCloseBtn">✕</button>
-    <h2>🦀 KRUSTY SHOP 🦀</h2>
-    <div class="shop-stats">
-      <div>💰 Pumps: <span id="shopPumps">0</span></div>
-      <div>⚡ Per Click: <span id="perClick">1</span></div>
-      <div>🤖 Auto Pumps/s: <span id="autoPumps">0</span></div>
+  <!-- SIDEBAR TABS -->
+  <div class="mega-sidebar-tabs">
+    <button class="mega-tab" id="tabInfo" data-panel="info">📊 INFO</button>
+    <button class="mega-tab" id="tabShop" data-panel="shop">🛒 SHOP</button>
+    <button class="mega-tab" id="tabMilestones" data-panel="milestones">🎯 GOALS</button>
+    <button class="mega-tab" id="tabAchievements" data-panel="achievements">🏆 BADGES</button>
+  </div>
+  
+  <!-- SIDEBAR -->
+  <div class="mega-sidebar" id="megaSidebar">
+    <div class="mega-sidebar-header">
+      <h2 id="megaSidebarTitle">📊 INFO</h2>
+      <button class="mega-close" id="megaCloseBtn">✕</button>
     </div>
-    <div id="upgradesList"></div>
+    <div class="mega-content">
+      <!-- INFO -->
+      <div class="mega-panel" id="panelInfo">
+        <div class="sidebar-section">
+          <h3>📊 Your Stats</h3>
+          <p>🩲 Total Pumps: <span id="infoTotalPumps">0</span></p>
+          <p>💵 BB Dollars: <span id="infoDollars">0</span></p>
+          <p>⚡ Per Click: <span id="infoPerClick">1</span></p>
+          <p>🤖 Pumps/sec: <span id="infoPumpsPerSec">0</span></p>
+          <p>💰 Dollars/sec: <span id="infoDollarsPerSec">0</span></p>
+          <p>🏆 Achievements: <span id="infoAchievements">0</span>/<span id="infoAchievementsTotal">0</span></p>
+        </div>
+        <div class="sidebar-section">
+          <h3>🔗 Links</h3>
+          <a href="https://x.com/CockPants_sol" target="_blank">🐦 Twitter</a>
+          <a href="https://dexscreener.com/solana/5Eh94i7aEtA8t21f1HbZoDgrtTTZcQq9nbEpFMAFShsg" target="_blank">📈 DexScreener</a>
+          <a href="https://jup.ag/swap?sell=So11111111111111111111111111111111111111112&buy=516h3AJBX72YZvEGDJWsUaGePuub53kLVKH2NWeHpump" target="_blank">🪐 Trade on Jupiter</a>
+        </div>
+      </div>
+      
+      <!-- SHOP -->
+      <div class="mega-panel" id="panelShop">
+        <div class="shop-stats">
+          <div>💵 <span id="shopDollars">0</span> BB$</div>
+          <div>⚡ <span id="shopPerClick">1</span>/click</div>
+          <div>🩲 <span id="shopPumpsPerSec">0</span>/sec</div>
+          <div>💰 <span id="shopDollarsPerSec">0</span>$/sec</div>
+        </div>
+        <div id="upgradesList"></div>
+      </div>
+      
+      <!-- MILESTONES -->
+      <div class="mega-panel" id="panelMilestones">
+        <div class="sidebar-section" style="border-color: #ffd700;">
+          <h3>🎯 Pump Milestones</h3>
+          <p style="font-size: 12px; color: #ccc;">Reach pump goals for permanent rewards!</p>
+        </div>
+        <div id="milestonesList"></div>
+      </div>
+      
+      <!-- ACHIEVEMENTS -->
+      <div class="mega-panel" id="panelAchievements">
+        <div id="achievementsList"></div>
+      </div>
+    </div>
   </div>
 
   <script>
-    // CONFIG
-    const CA = '516h3AJBX72YZvEGDJWsUaGePuub53kLVKH2NWeHpump';
-    const API_URL = `https://api.dexscreener.com/latest/dex/tokens/${CA}`;
+    // =====================
+    // GAME STATE
+    // =====================
+    let gameState = {
+      totalPumps: 0,
+      dollars: 0,
+      pumpsPerClick: 1,
+      pumpsPerSecond: 0,
+      dollarsPerSecond: 0,
+      dollarsPerPump: 0.1, // Base rate: 10 pumps = 1 dollar
+      combo: 0,
+      maxCombo: 0,
+      strokeModeActivations: 0,
+      unlockedAchievements: [],
+      claimedMilestones: [],
+      upgrades: {},
+      totalPlayTime: 0,
+      lastSaveTime: Date.now()
+    };
     
-    // REACTION IMAGES
-    const reactionImages = [
-      'https://i.imgur.com/wVgBk6t.jpeg',
-      'https://i.imgur.com/9KJ3jAQ.jpeg',
-      'https://i.imgur.com/vaKsAXk.jpeg'
-    ];
-    
-    // SPONGEBOB QUOTES - The classics!
-    const quotes = [
-      "I'm ready!", "I'M READY! I'M READY! I'M READY!", "Aye aye captain!", 
-      "F is for FIRE that burns down the whole town!", "FIRMLY GRASP IT!",
-      "I NEED IT!", "MY LEG! 🦵", "IMAGINATION! ✨", "Is mayonnaise an instrument?",
-      "CHOCOLATE! CHOCOLATE!! 🍫", "I'M A GOOFY GOOBER! ROCK! 🎸", 
-      "SWEET VICTORY! 🏆", "THE BEST DAY EVER!", "Bring it around town!",
-      "TECHNIQUE! TECHNIQUE!", "LEEDLE LEEDLE LEEDLE LEE!", "FUTURE! FUTURE! 🔮",
-      "The inner machinations of my mind are an enigma... 🥛",
-      "SOILED IT! SOILED IT! SOILED IT!", "VICTORY SCREECH! OLOLOLOLO!",
-      "I don't need it... I DEFINITELY don't need it... I NEEEED IIIT!",
-      "Ravioli ravioli give me the formuoli! 📜", "Rev up those fryers! 🍟",
-      "Too bad that didn't kill me 💀", "CORRECT! ✅", "25! 📦",
-      "ARE YOU FEELING IT NOW MR. KRABS?! 🦀", "I SMELL MONEY! 💰💰💰",
-      "TARTAR SAUCE!", "Holy shrimp! 🦐", "Oh barnacles!",
-      "The Krusty Krab pizza is the pizza for you and me! 🍕",
-      "NO! THIS IS PATRICK! 📞⭐", "WEENIE HUT JR'S?! 🌭",
-      "Welcome to the Salty Spitoon 💪", "The hash-slinging slasher! 👻",
-      "MY EYES! 👀", "INDOORS~! Take it away Penny! 🎵",
-      "It's not just a boulder... IT'S A ROCK! 🪨", "Wumbo.",
-      "One eternity later... ⏰", "DABBING?! 🧽",
-      "BUSINESS BUSINESS BUSINESS! Numbers! 📊", "Is this the Krusty Krab? 🦀",
-      "WHO PUT YOU ON THE PLANET?! 😤", "THE LID! 🥤"
-    ];
-    
-    // ACHIEVEMENTS - SpongeBob themed!
-    const achievements = [
-      { id: 'pump1', name: 'Aye Aye Captain!', desc: 'First pump', icon: '🧽', requirement: 1, type: 'pumps' },
-      { id: 'pump10', name: 'Fry Cook Trainee', desc: 'Pump 10 times', icon: '🍔', requirement: 10, type: 'pumps' },
-      { id: 'pump50', name: 'Employee of the Month', desc: 'Pump 50 times', icon: '⭐', requirement: 50, type: 'pumps' },
-      { id: 'pump100', name: 'Krusty Krab VIP', desc: 'Pump 100 times', icon: '🦀', requirement: 100, type: 'pumps' },
-      { id: 'pump500', name: 'Bikini Bottom Legend', desc: 'Pump 500 times', icon: '🍍', requirement: 500, type: 'pumps' },
-      { id: 'pump1000', name: 'GOOFY GOOBER', desc: 'Pump 1000 times', icon: '👑', requirement: 1000, type: 'pumps' },
-      { id: 'combo5', name: 'Jellyfish Catcher', desc: '5x Combo', icon: '🪼', requirement: 5, type: 'combo' },
-      { id: 'combo10', name: 'Karate Master', desc: '10x Combo', icon: '🥋', requirement: 10, type: 'combo' },
-      { id: 'combo30', name: 'Hall Monitor', desc: '30x Combo', icon: '🚨', requirement: 30, type: 'combo' },
-      { id: 'combo50', name: 'SWEET VICTORY!', desc: '50x Combo (STROKE MODE)', icon: '🏆', requirement: 50, type: 'combo' },
-    ];
-    
-    // STATE - Resets on refresh
-    let count = 0;
-    let combo = 0;
-    let multiplier = 1;
     let pumpScale = 1;
     let comboTimeout;
     let shrinkTimeout;
     let strokeMode = false;
     let strokeParticleInterval;
-    let unlockedAchievements = new Set();
-    let lastReactionTime = 0;
+    let feelingItActive = false;
+    let feelingItTimeout;
     
-    // DOM Elements
+    // =====================
+    // UPGRADES (Buy with BB$)
+    // =====================
+    const upgrades = [
+      // CLICK UPGRADES
+      { id: 'spatula', name: 'Golden Spatula', desc: '+1 pump per click', icon: '🥄', baseCost: 10, costMult: 1.5, effect: 'perClick', value: 1, category: 'click' },
+      { id: 'gloves', name: 'Karate Gloves', desc: '+2 pumps per click', icon: '🥊', baseCost: 50, costMult: 1.6, effect: 'perClick', value: 2, category: 'click' },
+      { id: 'net', name: 'Jellyfish Net', desc: '+5 pumps per click', icon: '🪼', baseCost: 200, costMult: 1.7, effect: 'perClick', value: 5, category: 'click' },
+      { id: 'anchor', name: 'Anchor Arms', desc: '+10 pumps per click', icon: '⚓', baseCost: 1000, costMult: 1.8, effect: 'perClick', value: 10, category: 'click' },
+      { id: 'crown', name: "Neptune's Crown", desc: '+25 pumps per click', icon: '👑', baseCost: 5000, costMult: 2.0, effect: 'perClick', value: 25, category: 'click' },
+      { id: 'trident', name: "Neptune's Trident", desc: '+100 pumps per click', icon: '🔱', baseCost: 50000, costMult: 2.2, effect: 'perClick', value: 100, category: 'click' },
+      
+      // AUTO PUMP UPGRADES
+      { id: 'gary', name: 'Gary Helper', desc: '+1 pump per second', icon: '🐌', baseCost: 25, costMult: 1.4, effect: 'autoPump', value: 1, category: 'auto' },
+      { id: 'patty', name: 'Krabby Patty Machine', desc: '+5 pumps per second', icon: '🍔', baseCost: 150, costMult: 1.5, effect: 'autoPump', value: 5, category: 'auto' },
+      { id: 'bubble', name: 'Bubble Blower', desc: '+10 pumps per second', icon: '🫧', baseCost: 500, costMult: 1.5, effect: 'autoPump', value: 10, category: 'auto' },
+      { id: 'pineapple', name: 'Pineapple Power', desc: '+25 pumps per second', icon: '🍍', baseCost: 2000, costMult: 1.6, effect: 'autoPump', value: 25, category: 'auto' },
+      { id: 'formula', name: 'Secret Formula', desc: '+100 pumps per second', icon: '📜', baseCost: 10000, costMult: 1.7, effect: 'autoPump', value: 100, category: 'auto' },
+      { id: 'mermaidman', name: 'Mermaid Man Powers', desc: '+500 pumps per second', icon: '🦸', baseCost: 100000, costMult: 1.8, effect: 'autoPump', value: 500, category: 'auto' },
+      
+      // PASSIVE INCOME (BB$/sec)
+      { id: 'penny', name: "Penny's Tips", desc: '+0.5 BB$ per second', icon: '🪙', baseCost: 100, costMult: 1.5, effect: 'dollarSec', value: 0.5, category: 'passive' },
+      { id: 'register', name: 'Cash Register', desc: '+2 BB$ per second', icon: '🧾', baseCost: 500, costMult: 1.6, effect: 'dollarSec', value: 2, category: 'passive' },
+      { id: 'vault', name: "Mr. Krabs' Vault", desc: '+10 BB$ per second', icon: '💰', baseCost: 2500, costMult: 1.7, effect: 'dollarSec', value: 10, category: 'passive' },
+      { id: 'bank', name: 'Bikini Bottom Bank', desc: '+50 BB$ per second', icon: '🏦', baseCost: 15000, costMult: 1.8, effect: 'dollarSec', value: 50, category: 'passive' },
+      { id: 'treasure', name: 'Flying Dutchman Treasure', desc: '+250 BB$ per second', icon: '💎', baseCost: 100000, costMult: 2.0, effect: 'dollarSec', value: 250, category: 'passive' },
+      
+      // DOLLAR RATE UPGRADES
+      { id: 'tip', name: 'Tip Jar', desc: '+0.05 BB$ per pump', icon: '🫙', baseCost: 200, costMult: 1.8, effect: 'dollarRate', value: 0.05, category: 'rate' },
+      { id: 'bonus', name: 'Employee Bonus', desc: '+0.1 BB$ per pump', icon: '📋', baseCost: 1000, costMult: 2.0, effect: 'dollarRate', value: 0.1, category: 'rate' },
+      { id: 'raise', name: 'Big Raise', desc: '+0.25 BB$ per pump', icon: '📈', baseCost: 5000, costMult: 2.2, effect: 'dollarRate', value: 0.25, category: 'rate' },
+      { id: 'profit', name: 'Profit Sharing', desc: '+1 BB$ per pump', icon: '💹', baseCost: 50000, costMult: 2.5, effect: 'dollarRate', value: 1, category: 'rate' },
+    ];
+    
+    // =====================
+    // ACHIEVEMENTS
+    // =====================
+    const achievements = [
+      // Pump achievements
+      { id: 'pump1', name: 'First Pump!', desc: 'Pump once', icon: '🧽', type: 'pumps', req: 1 },
+      { id: 'pump100', name: 'Getting Started', desc: 'Pump 100 times', icon: '💪', type: 'pumps', req: 100 },
+      { id: 'pump1k', name: 'Dedicated Pumper', desc: 'Pump 1,000 times', icon: '⭐', type: 'pumps', req: 1000 },
+      { id: 'pump10k', name: 'Pump Master', desc: 'Pump 10,000 times', icon: '🏆', type: 'pumps', req: 10000 },
+      { id: 'pump100k', name: 'Pump Legend', desc: 'Pump 100,000 times', icon: '👑', type: 'pumps', req: 100000 },
+      { id: 'pump1m', name: 'GOOFY GOOBER', desc: 'Pump 1,000,000 times', icon: '🎸', type: 'pumps', req: 1000000 },
+      
+      // Combo achievements
+      { id: 'combo10', name: 'Combo Starter', desc: '10x combo', icon: '🔥', type: 'combo', req: 10 },
+      { id: 'combo25', name: 'Combo Master', desc: '25x combo', icon: '💥', type: 'combo', req: 25 },
+      { id: 'combo50', name: 'STROKE MODE!', desc: '50x combo', icon: '🌟', type: 'combo', req: 50 },
+      { id: 'combo100', name: 'Unstoppable', desc: '100x combo', icon: '⚡', type: 'combo', req: 100 },
+      { id: 'combo200', name: 'LEGENDARY', desc: '200x combo', icon: '🌈', type: 'combo', req: 200 },
+      
+      // Dollar achievements
+      { id: 'dollar100', name: 'First Paycheck', desc: 'Earn 100 BB$', icon: '💵', type: 'dollars', req: 100 },
+      { id: 'dollar1k', name: 'Savings Account', desc: 'Earn 1,000 BB$', icon: '🏧', type: 'dollars', req: 1000 },
+      { id: 'dollar10k', name: 'Small Fortune', desc: 'Earn 10,000 BB$', icon: '💎', type: 'dollars', req: 10000 },
+      { id: 'dollar100k', name: 'Rich!', desc: 'Earn 100,000 BB$', icon: '🤑', type: 'dollars', req: 100000 },
+      { id: 'dollar1m', name: 'MILLIONAIRE!', desc: 'Earn 1,000,000 BB$', icon: '🏰', type: 'dollars', req: 1000000 },
+      
+      // Special achievements
+      { id: 'stroke5', name: 'Feeling It', desc: 'Activate STROKE MODE 5 times', icon: '🦀', type: 'strokes', req: 5 },
+      { id: 'stroke25', name: 'Mr. Krabs Approved', desc: 'Activate STROKE MODE 25 times', icon: '💰', type: 'strokes', req: 25 },
+      { id: 'allUpgrades', name: 'Collector', desc: 'Own every upgrade type', icon: '🎯', type: 'special', req: 0 },
+    ];
+    
+    // =====================
+    // MILESTONES
+    // =====================
+    const milestones = [
+      { id: 'm100', pumps: 100, name: 'Baby Steps', icon: '👶', reward: 'perClick', value: 1, text: '+1 per click' },
+      { id: 'm500', pumps: 500, name: 'Getting Warmed Up', icon: '🔥', reward: 'perClick', value: 2, text: '+2 per click' },
+      { id: 'm1k', pumps: 1000, name: 'Krusty Krab Employee', icon: '🍔', reward: 'autoPump', value: 5, text: '+5 pumps/sec' },
+      { id: 'm5k', pumps: 5000, name: 'Employee of the Month', icon: '⭐', reward: 'perClick', value: 5, text: '+5 per click' },
+      { id: 'm10k', pumps: 10000, name: 'Fry Cook Legend', icon: '🥄', reward: 'autoPump', value: 20, text: '+20 pumps/sec' },
+      { id: 'm25k', pumps: 25000, name: 'Jellyfishing Champion', icon: '🪼', reward: 'dollarSec', value: 10, text: '+10 BB$/sec' },
+      { id: 'm50k', pumps: 50000, name: 'Boating License!', icon: '🚗', reward: 'perClick', value: 25, text: '+25 per click' },
+      { id: 'm100k', pumps: 100000, name: 'Mermaid Man Sidekick', icon: '🦸', reward: 'autoPump', value: 100, text: '+100 pumps/sec' },
+      { id: 'm250k', pumps: 250000, name: 'Hall of Fame', icon: '🏆', reward: 'dollarSec', value: 100, text: '+100 BB$/sec' },
+      { id: 'm500k', pumps: 500000, name: 'Bikini Bottom Legend', icon: '🌟', reward: 'perClick', value: 100, text: '+100 per click' },
+      { id: 'm1m', pumps: 1000000, name: 'GOAT OF BIKINI BOTTOM', icon: '🐐', reward: 'all', value: 500, text: '+500 per click & +500/sec' },
+    ];
+    
+    // =====================
+    // DOM ELEMENTS
+    // =====================
     const spinner = document.getElementById('spinner');
-    const countEl = document.getElementById('count');
-    const flashEl = document.getElementById('flash');
+    const totalPumpsEl = document.getElementById('totalPumps');
+    const dollarsEl = document.getElementById('dollars');
+    const pumpsPerClickEl = document.getElementById('pumpsPerClick');
+    const pumpsPerSecEl = document.getElementById('pumpsPerSec');
+    const dollarsPerSecEl = document.getElementById('dollarsPerSec');
     const comboDisplay = document.getElementById('comboDisplay');
     const multiplierEl = document.getElementById('multiplier');
-    const streakBar = document.getElementById('streakBar');
-    const spongeText = document.getElementById('spongeText');
+    const ppsDisplay = document.getElementById('ppsDisplay');
+    const flashEl = document.getElementById('flash');
     const strokeBanner = document.getElementById('strokeBanner');
     const colorFlash = document.getElementById('colorFlash');
-    const reactionImage = document.getElementById('reactionImage');
-    const achievementNotification = document.getElementById('achievementNotification');
+    const notification = document.getElementById('notification');
+    const bgMusic = document.getElementById('bgMusic');
     
-    // Initialize achievements list
+    // =====================
+    // SAVE/LOAD
+    // =====================
+    function saveGame() {
+      gameState.lastSaveTime = Date.now();
+      localStorage.setItem('cockpantsClicker', JSON.stringify(gameState));
+    }
+    
+    function loadGame() {
+      const saved = localStorage.getItem('cockpantsClicker');
+      if (saved) {
+        const loaded = JSON.parse(saved);
+        gameState = { ...gameState, ...loaded };
+        
+        // Calculate offline earnings
+        const offlineTime = (Date.now() - gameState.lastSaveTime) / 1000;
+        if (offlineTime > 10 && gameState.pumpsPerSecond > 0) {
+          const maxOfflineTime = 3600 * 8; // Max 8 hours
+          const effectiveTime = Math.min(offlineTime, maxOfflineTime);
+          const offlinePumps = Math.floor(gameState.pumpsPerSecond * effectiveTime * 0.5); // 50% efficiency
+          const offlineDollars = Math.floor(gameState.dollarsPerSecond * effectiveTime * 0.5);
+          
+          if (offlinePumps > 0 || offlineDollars > 0) {
+            gameState.totalPumps += offlinePumps;
+            gameState.dollars += offlineDollars;
+            
+            setTimeout(() => {
+              showNotification('🌙', `Welcome back! You earned ${offlinePumps.toLocaleString()} pumps and ${offlineDollars.toLocaleString()} BB$ while away!`);
+            }, 1000);
+          }
+        }
+        
+        // Rebuild upgrades owned object
+        upgrades.forEach(u => {
+          if (!gameState.upgrades[u.id]) gameState.upgrades[u.id] = 0;
+        });
+        
+        recalculateStats();
+      }
+    }
+    
+    function recalculateStats() {
+      gameState.pumpsPerClick = 1;
+      gameState.pumpsPerSecond = 0;
+      gameState.dollarsPerSecond = 0;
+      gameState.dollarsPerPump = 0.1;
+      
+      upgrades.forEach(u => {
+        const owned = gameState.upgrades[u.id] || 0;
+        if (owned > 0) {
+          if (u.effect === 'perClick') gameState.pumpsPerClick += u.value * owned;
+          if (u.effect === 'autoPump') gameState.pumpsPerSecond += u.value * owned;
+          if (u.effect === 'dollarSec') gameState.dollarsPerSecond += u.value * owned;
+          if (u.effect === 'dollarRate') gameState.dollarsPerPump += u.value * owned;
+        }
+      });
+      
+      // Add milestone bonuses
+      milestones.forEach(m => {
+        if (gameState.claimedMilestones.includes(m.id)) {
+          if (m.reward === 'perClick') gameState.pumpsPerClick += m.value;
+          if (m.reward === 'autoPump') gameState.pumpsPerSecond += m.value;
+          if (m.reward === 'dollarSec') gameState.dollarsPerSecond += m.value;
+          if (m.reward === 'all') {
+            gameState.pumpsPerClick += m.value;
+            gameState.pumpsPerSecond += m.value;
+          }
+        }
+      });
+      
+      updateDisplays();
+    }
+    
+    // =====================
+    // DISPLAY UPDATES
+    // =====================
+    function updateDisplays() {
+      totalPumpsEl.textContent = formatNumber(gameState.totalPumps);
+      dollarsEl.textContent = formatNumber(Math.floor(gameState.dollars));
+      pumpsPerClickEl.textContent = gameState.pumpsPerClick;
+      pumpsPerSecEl.textContent = gameState.pumpsPerSecond;
+      dollarsPerSecEl.textContent = gameState.dollarsPerSecond.toFixed(1);
+      ppsDisplay.textContent = `⚡ ${gameState.pumpsPerSecond.toLocaleString()} pumps/sec | 💵 ${gameState.dollarsPerSecond.toFixed(1)} BB$/sec`;
+    }
+    
+    function formatNumber(n) {
+      if (n >= 1e9) return (n / 1e9).toFixed(2) + 'B';
+      if (n >= 1e6) return (n / 1e6).toFixed(2) + 'M';
+      if (n >= 1e3) return (n / 1e3).toFixed(1) + 'K';
+      return Math.floor(n).toLocaleString();
+    }
+    
+    // =====================
+    // NOTIFICATIONS
+    // =====================
+    function showNotification(icon, text) {
+      notification.querySelector('.icon').textContent = icon;
+      notification.querySelector('.text').innerHTML = text;
+      notification.classList.add('visible');
+      setTimeout(() => notification.classList.remove('visible'), 4000);
+    }
+    
+    // =====================
+    // UPGRADES
+    // =====================
+    function getUpgradeCost(upgrade) {
+      const owned = gameState.upgrades[upgrade.id] || 0;
+      return Math.floor(upgrade.baseCost * Math.pow(upgrade.costMult, owned));
+    }
+    
+    function buyUpgrade(id) {
+      const upgrade = upgrades.find(u => u.id === id);
+      if (!upgrade) return;
+      
+      const cost = getUpgradeCost(upgrade);
+      if (gameState.dollars < cost) return;
+      
+      gameState.dollars -= cost;
+      gameState.upgrades[upgrade.id] = (gameState.upgrades[upgrade.id] || 0) + 1;
+      
+      recalculateStats();
+      renderUpgrades();
+      checkAchievements();
+      saveGame();
+      
+      // Visual feedback
+      showNotification(upgrade.icon, `Bought ${upgrade.name}!`);
+    }
+    
+    function renderUpgrades() {
+      const list = document.getElementById('upgradesList');
+      const categories = {
+        click: { name: '⚡ Click Power', items: [] },
+        auto: { name: '🤖 Auto Pumpers', items: [] },
+        passive: { name: '💰 Passive Income', items: [] },
+        rate: { name: '📈 Dollar Rate', items: [] }
+      };
+      
+      upgrades.forEach(u => {
+        const cost = getUpgradeCost(u);
+        const owned = gameState.upgrades[u.id] || 0;
+        const canAfford = gameState.dollars >= cost;
+        
+        categories[u.category].items.push(`
+          <div class="upgrade-item ${canAfford ? '' : 'locked'}" onclick="buyUpgrade('${u.id}')">
+            <span class="icon">${u.icon}</span>
+            ${owned > 0 ? `<span class="owned">x${owned}</span>` : ''}
+            <div class="name">${u.name}</div>
+            <div class="desc">${u.desc}</div>
+            <div class="cost">💵 ${formatNumber(cost)} BB$</div>
+          </div>
+        `);
+      });
+      
+      list.innerHTML = Object.values(categories).map(cat => `
+        <div class="upgrade-category">${cat.name}</div>
+        ${cat.items.join('')}
+      `).join('');
+      
+      // Update shop stats
+      document.getElementById('shopDollars').textContent = formatNumber(Math.floor(gameState.dollars));
+      document.getElementById('shopPerClick').textContent = gameState.pumpsPerClick;
+      document.getElementById('shopPumpsPerSec').textContent = gameState.pumpsPerSecond;
+      document.getElementById('shopDollarsPerSec').textContent = gameState.dollarsPerSecond.toFixed(1);
+    }
+    
+    // =====================
+    // ACHIEVEMENTS
+    // =====================
+    function checkAchievements() {
+      achievements.forEach(a => {
+        if (gameState.unlockedAchievements.includes(a.id)) return;
+        
+        let unlocked = false;
+        if (a.type === 'pumps' && gameState.totalPumps >= a.req) unlocked = true;
+        if (a.type === 'combo' && gameState.maxCombo >= a.req) unlocked = true;
+        if (a.type === 'dollars' && gameState.dollars >= a.req) unlocked = true;
+        if (a.type === 'strokes' && gameState.strokeModeActivations >= a.req) unlocked = true;
+        if (a.type === 'special' && a.id === 'allUpgrades') {
+          const uniqueUpgrades = upgrades.filter(u => gameState.upgrades[u.id] > 0).length;
+          if (uniqueUpgrades >= upgrades.length) unlocked = true;
+        }
+        
+        if (unlocked) {
+          gameState.unlockedAchievements.push(a.id);
+          showNotification(a.icon, `🏆 Achievement: ${a.name}!`);
+          renderAchievements();
+          saveGame();
+        }
+      });
+    }
+    
     function renderAchievements() {
       const list = document.getElementById('achievementsList');
       list.innerHTML = achievements.map(a => `
-        <div class="achievement ${unlockedAchievements.has(a.id) ? 'unlocked' : ''}" id="ach-${a.id}">
+        <div class="achievement ${gameState.unlockedAchievements.includes(a.id) ? 'unlocked' : ''}">
           <span class="achievement-icon">${a.icon}</span>
           <div class="achievement-info">
             <h4>${a.name}</h4>
@@ -1637,169 +1218,151 @@
           </div>
         </div>
       `).join('');
+      
+      document.getElementById('infoAchievements').textContent = gameState.unlockedAchievements.length;
+      document.getElementById('infoAchievementsTotal').textContent = achievements.length;
     }
-    renderAchievements();
     
-    // Check achievements
-    function checkAchievements() {
-      achievements.forEach(a => {
-        if (unlockedAchievements.has(a.id)) return;
-        
-        let unlocked = false;
-        if (a.type === 'pumps' && count >= a.requirement) unlocked = true;
-        if (a.type === 'combo' && combo >= a.requirement) unlocked = true;
-        
-        if (unlocked) {
-          unlockedAchievements.add(a.id);
-          showAchievementNotification(a);
-          document.getElementById(`ach-${a.id}`).classList.add('unlocked');
+    // =====================
+    // MILESTONES
+    // =====================
+    function checkMilestones() {
+      milestones.forEach(m => {
+        if (gameState.claimedMilestones.includes(m.id)) return;
+        if (gameState.totalPumps >= m.pumps) {
+          gameState.claimedMilestones.push(m.id);
+          showNotification(m.icon, `🎯 Milestone: ${m.name}<br>${m.text}`);
+          recalculateStats();
+          renderMilestones();
+          saveGame();
         }
       });
     }
     
-    // Show achievement notification
-    function showAchievementNotification(achievement) {
-      achievementNotification.querySelector('.icon').textContent = achievement.icon;
-      achievementNotification.querySelector('.text').innerHTML = `<strong>${achievement.name}</strong><br>${achievement.desc}`;
-      achievementNotification.classList.add('visible');
-      setTimeout(() => achievementNotification.classList.remove('visible'), 3000);
+    function renderMilestones() {
+      const list = document.getElementById('milestonesList');
+      list.innerHTML = milestones.map(m => {
+        const claimed = gameState.claimedMilestones.includes(m.id);
+        const progress = Math.min(100, (gameState.totalPumps / m.pumps) * 100);
+        return `
+          <div class="milestone ${claimed ? 'claimed' : ''}">
+            <span class="milestone-icon">${m.icon}</span>
+            <div class="milestone-info">
+              <h4>${m.name}</h4>
+              <p>${formatNumber(m.pumps)} pumps</p>
+              <p class="milestone-reward">${claimed ? '✅ ' : '🎁 '}${m.text}</p>
+              ${!claimed ? `<div class="milestone-progress"><div class="milestone-progress-bar" style="width:${progress}%"></div></div>` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
     }
     
-    // Market cap fetch
-    function updateMarketCap() {
-      fetch(API_URL)
-        .then(res => res.json())
-        .then(data => {
-          if (data.pairs && data.pairs.length > 0) {
-            const mcap = data.pairs[0].marketCap || data.pairs[0].fdv;
-            document.getElementById('mcap').innerText = mcap ? `$${Number(mcap).toLocaleString()}` : 'N/A';
-          } else {
-            document.getElementById('mcap').innerText = 'N/A';
-          }
-        })
-        .catch(() => {
-          document.getElementById('mcap').innerText = 'Error - Check DexScreener';
-        });
-    }
-    updateMarketCap();
-    setInterval(updateMarketCap, 10000);
-    
-    // Create particle
-    function createParticle(x, y) {
-      const particle = document.createElement('div');
-      particle.className = 'particle';
-      // Ultimate SpongeBob themed particles!
-      const spongeParticles = [
-        '🩲', '💰', '⭐', '🔥', '💥', '✨', '🚀', '💎', 
-        '🍔', '🪼', '🐚', '🦀', '🧽', '🥒', '🍍', '💵',
-        '🦑', '🐿️', '🥜', '🎸', '🏆', '🦐', '🐌', '🪨',
-        '🍕', '🌭', '🥤', '📦', '🎺', '🪣', '⚓', '🧈'
-      ];
-      particle.textContent = spongeParticles[Math.floor(Math.random() * spongeParticles.length)];
-      particle.style.left = x + 'px';
-      particle.style.top = y + 'px';
-      const angle = Math.random() * Math.PI * 2;
-      const distance = 100 + Math.random() * 200;
-      particle.style.setProperty('--tx', Math.cos(angle) * distance + 'px');
-      particle.style.setProperty('--ty', Math.sin(angle) * distance + 'px');
-      document.body.appendChild(particle);
-      setTimeout(() => particle.remove(), 1000);
-    }
-    
-    // Show reaction image
-    function showReaction() {
-      const now = Date.now();
-      if (now - lastReactionTime < 1500) return; // Cooldown
-      lastReactionTime = now;
+    // =====================
+    // CLICK HANDLER
+    // =====================
+    function handleClick(e) {
+      if (e.target.closest('.mega-sidebar') || 
+          e.target.closest('.mega-sidebar-tabs') ||
+          e.target.closest('.back-btn') ||
+          e.target.closest('.music-toggle')) return;
       
-      // Pick image based on pump count (cycle through all 3)
-      const imageIndex = Math.floor((count / 5) % 3);
-      reactionImage.src = reactionImages[imageIndex];
-      reactionImage.classList.add('visible');
-      if (strokeMode) reactionImage.classList.add('stroke-mode');
+      // Add pumps
+      gameState.totalPumps += gameState.pumpsPerClick;
       
-      setTimeout(() => {
-        reactionImage.classList.remove('visible', 'stroke-mode');
-      }, 2000);
+      // Earn dollars based on pumps
+      const dollarsEarned = gameState.pumpsPerClick * gameState.dollarsPerPump;
+      gameState.dollars += dollarsEarned;
+      
+      // Combo
+      gameState.combo++;
+      if (gameState.combo > gameState.maxCombo) gameState.maxCombo = gameState.combo;
+      
+      // Visual scale
+      pumpScale = Math.min(pumpScale + 0.05, 2.5);
+      spinner.style.setProperty('--pump-scale', pumpScale);
+      
+      const spinSpeed = Math.max(0.5, 3 - (pumpScale - 1) * 1.5);
+      spinner.style.setProperty('--spin-speed', spinSpeed + 's');
+      spinner.style.setProperty('--spin-speed-crazy', Math.max(0.1, spinSpeed / 5) + 's');
+      
+      updateCombo();
+      createParticle(e.clientX, e.clientY);
+      
+      // Show dollar float
+      if (dollarsEarned >= 0.5) {
+        createDollarFloat(e.clientX, e.clientY, dollarsEarned);
+      }
+      
+      // Flash text
+      if (gameState.totalPumps % 25 === 0) {
+        const phrases = ["PUMP IT! 🩲", "LET'S GO! 🚀", "BULLISH! 📈", "WAGMI! 💎", "MY LEG! 🦵", "I'M READY! 🧽"];
+        flashEl.textContent = phrases[Math.floor(Math.random() * phrases.length)];
+        flashEl.classList.add('visible');
+        setTimeout(() => flashEl.classList.remove('visible'), 500);
+      }
+      
+      updateDisplays();
+      checkAchievements();
+      checkMilestones();
+      renderUpgrades();
+      
+      // Reset shrink
+      clearTimeout(shrinkTimeout);
+      shrinkTimeout = setTimeout(() => {
+        pumpScale = 1;
+        spinner.style.setProperty('--pump-scale', pumpScale);
+        spinner.style.setProperty('--spin-speed', '3s');
+        spinner.style.setProperty('--spin-speed-crazy', '0.3s');
+      }, 500);
     }
     
-    // Show quote
-    function showQuote() {
-      spongeText.textContent = quotes[Math.floor(Math.random() * quotes.length)];
-      spongeText.classList.add('visible');
-      setTimeout(() => spongeText.classList.remove('visible'), 1500);
-    }
+    document.body.addEventListener('click', handleClick);
     
-    // Update combo display
+    // =====================
+    // COMBO SYSTEM
+    // =====================
     function updateCombo() {
-      let text = '';
-      if (combo >= 50) {
-        text = `🎸 GOOFY GOOBER! 👑 ${combo}x`;
-      } else if (combo >= 30) {
-        text = `🦀 FEELING IT NOW! ⚡ ${combo}x`;
-      } else if (combo >= 20) {
-        text = `🍔 KRABBY COMBO! 💥 ${combo}x`;
-      } else if (combo >= 10) {
-        text = `🪼 STROKE COMBO! 🔥 ${combo}x`;
-      } else if (combo >= 5) {
-        text = `🩲 PUMP COMBO! ✨ ${combo}x`;
-      }
+      comboDisplay.textContent = `${gameState.combo}x COMBO`;
+      comboDisplay.classList.add('visible');
       
-      if (text) {
-        comboDisplay.textContent = text;
-        comboDisplay.classList.add('visible');
-      } else {
-        comboDisplay.classList.remove('visible');
-      }
+      const mult = 1 + Math.floor(gameState.combo / 10) * 0.5;
+      multiplierEl.textContent = `${mult}x Multiplier`;
       
-      // Update multiplier
-      if (combo >= 40) multiplier = 5;
-      else if (combo >= 30) multiplier = 4;
-      else if (combo >= 20) multiplier = 3;
-      else if (combo >= 10) multiplier = 2;
-      else multiplier = 1;
-      
-      multiplierEl.textContent = `${multiplier}x MULTIPLIER`;
-      
-      // Update streak bar
-      streakBar.style.width = Math.min(combo * 2, 100) + '%';
-      
-      // STROKE MODE CHECK
-      if (combo >= 50 && !strokeMode) {
+      if (gameState.combo >= 50 && !strokeMode) {
         activateStrokeMode();
       }
+      
+      if (gameState.combo >= 50) {
+        comboDisplay.classList.add('stroke-active');
+      } else {
+        comboDisplay.classList.remove('stroke-active');
+      }
+      
+      clearTimeout(comboTimeout);
+      comboTimeout = setTimeout(() => {
+        gameState.combo = 0;
+        comboDisplay.classList.remove('visible', 'stroke-active');
+        multiplierEl.textContent = '1x Multiplier';
+        if (strokeMode) deactivateStrokeMode();
+      }, 1500);
     }
     
-    // STROKE MODE
     function activateStrokeMode() {
       strokeMode = true;
+      gameState.strokeModeActivations++;
       strokeBanner.classList.add('visible');
       spinner.classList.add('stroke-mode');
       colorFlash.classList.add('active');
       document.body.classList.add('shake');
       
-      // TRIGGER MR. KRABS "FEELING IT" MODE during STROKE MODE!
       triggerFeelingIt();
       
-      // Keep triggering feeling it periodically during stroke mode
-      const feelingItInterval = setInterval(() => {
-        if (strokeMode && !feelingItActive) {
-          triggerFeelingIt();
-        }
-      }, 4000); // Every 4 seconds while in stroke mode
-      
-      // Store interval to clear later
-      window.feelingItStrokeInterval = feelingItInterval;
-      
-      // Spam particles
       strokeParticleInterval = setInterval(() => {
-        for (let i = 0; i < 15; i++) {
-          createParticle(
-            Math.random() * window.innerWidth,
-            Math.random() * window.innerHeight
-          );
+        for (let i = 0; i < 10; i++) {
+          createParticle(Math.random() * window.innerWidth, Math.random() * window.innerHeight);
         }
-      }, 50);
+      }, 100);
     }
     
     function deactivateStrokeMode() {
@@ -1808,484 +1371,154 @@
       spinner.classList.remove('stroke-mode');
       colorFlash.classList.remove('active');
       document.body.classList.remove('shake');
-      if (strokeParticleInterval) {
-        clearInterval(strokeParticleInterval);
-        strokeParticleInterval = null;
-      }
-      // Clear feeling it interval
-      if (window.feelingItStrokeInterval) {
-        clearInterval(window.feelingItStrokeInterval);
-        window.feelingItStrokeInterval = null;
-      }
+      if (strokeParticleInterval) clearInterval(strokeParticleInterval);
     }
     
-    // Main click handler
-    document.body.addEventListener('click', (e) => {
-      // Don't count clicks on buttons/sidebar/shop
-      if (e.target.closest('.sidebar') || 
-          e.target.closest('.achievements-sidebar') || 
-          e.target.closest('.sidebar-toggle') || 
-          e.target.closest('.achievements-toggle') ||
-          e.target.closest('.shop-panel') ||
-          e.target.closest('.shop-toggle') ||
-          e.target.closest('#achievementsToggleBtn') ||
-          e.target.closest('#achievementsCloseBtn') ||
-          e.target.closest('#shopToggle') ||
-          e.target.closest('#shopCloseBtn')) return;
-      
-      // Add perClick amount (Cookie Clicker style!)
-      count += perClick;
-      combo++;
-      countEl.textContent = count.toLocaleString();
-      
-      // Update shop stats
-      renderUpgrades();
-      
-      // Scale up
-      pumpScale = Math.min(pumpScale + 0.05, 2.5);
-      spinner.style.setProperty('--pump-scale', pumpScale);
-      
-      // Update combo
-      updateCombo();
-      
-      // Check achievements
-      checkAchievements();
-      
-      // Create particles (more with higher perClick!)
-      const numParticles = strokeMode ? 10 : Math.min(3 + Math.floor(perClick / 5), 10);
-      for (let i = 0; i < numParticles; i++) {
-        createParticle(e.clientX, e.clientY);
-      }
-      
-      // Show flash every 10 clicks with rotating SpongeBob phrases
-      if (count % 10 === 0) {
-        const flashPhrases = [
-          "MY LEG! 🦵", "I'M READY! 🧽", "CHOCOLATE! 🍫", 
-          "MY PANTS! 🩲", "IMAGINATION! ✨", "TECHNIQUE! 🥋",
-          "LEEDLE LEE! 👅", "VICTORY! 🏆", "TARTAR SAUCE! 🐟",
-          "25! 📦", "FUTURE! 🔮", "WUMBO! 🔄"
-        ];
-        flashEl.textContent = flashPhrases[Math.floor(Math.random() * flashPhrases.length)];
-        flashEl.classList.add('visible');
-        setTimeout(() => flashEl.classList.remove('visible'), 500);
-      }
-      
-      // Show reaction every 5 clicks
-      if (count % 5 === 0) {
-        showReaction();
-      }
-      
-      // Show quote every 10 clicks
-      if (count % 10 === 0) {
-        showQuote();
-      }
-      
-      // Screen shake on big combos
-      if (combo >= 10 && combo < 50) {
-        document.body.classList.add('shake');
-        setTimeout(() => {
-          if (!strokeMode) document.body.classList.remove('shake');
-        }, 100);
-      }
-      
-      // Reset combo timeout
-      clearTimeout(comboTimeout);
-      comboTimeout = setTimeout(() => {
-        combo = 0;
-        updateCombo();
-        if (strokeMode) {
-          setTimeout(deactivateStrokeMode, 3000);
-        }
-      }, 1000);
-      
-      // Reset shrink timeout
-      clearTimeout(shrinkTimeout);
-      shrinkTimeout = setTimeout(() => {
-        pumpScale = 1;
-        spinner.style.setProperty('--pump-scale', pumpScale);
-      }, 500);
-    });
+    // =====================
+    // PARTICLES
+    // =====================
+    const particleEmojis = ['💰', '🩲', '💵', '⭐', '🔥', '💎', '🚀', '🍍'];
     
-    // Sidebar toggles
-    function toggleSidebar() {
-      document.getElementById('sidebar').classList.toggle('open');
+    function createParticle(x, y) {
+      const particle = document.createElement('div');
+      particle.className = 'particle';
+      particle.textContent = particleEmojis[Math.floor(Math.random() * particleEmojis.length)];
+      particle.style.left = x + 'px';
+      particle.style.top = y + 'px';
+      particle.style.setProperty('--tx', (Math.random() - 0.5) * 200 + 'px');
+      particle.style.setProperty('--ty', (Math.random() - 0.5) * 200 - 100 + 'px');
+      document.body.appendChild(particle);
+      setTimeout(() => particle.remove(), 1000);
     }
     
-    function toggleAchievements() {
-      document.getElementById('achievementsSidebar').classList.toggle('open');
+    function createDollarFloat(x, y, amount) {
+      const float = document.createElement('div');
+      float.className = 'dollar-float';
+      float.textContent = `+${amount.toFixed(1)} BB$`;
+      float.style.left = x + 'px';
+      float.style.top = y + 'px';
+      document.body.appendChild(float);
+      setTimeout(() => float.remove(), 1500);
     }
     
-    // Set up button event listeners properly
-    document.getElementById('achievementsToggleBtn').addEventListener('click', (e) => {
-      e.stopPropagation();
-      toggleAchievements();
-    });
-    
-    document.getElementById('achievementsCloseBtn').addEventListener('click', (e) => {
-      e.stopPropagation();
-      toggleAchievements();
-    });
-    
-    // Shop toggle
-    document.getElementById('shopToggle').addEventListener('click', (e) => {
-      e.stopPropagation();
-      document.getElementById('shopPanel').classList.toggle('open');
-    });
-    
-    document.getElementById('shopCloseBtn').addEventListener('click', (e) => {
-      e.stopPropagation();
-      document.getElementById('shopPanel').classList.remove('open');
-    });
-    
-    // COOKIE CLICKER STYLE UPGRADES
-    const upgrades = [
-      { id: 'spatula', name: 'Golden Spatula', desc: '+1 pump per click', icon: '🥄', baseCost: 15, costMultiplier: 1.5, effect: 'perClick', effectValue: 1, owned: 0 },
-      { id: 'patty', name: 'Krabby Patty', desc: '+1 auto pump per second', icon: '🍔', baseCost: 100, costMultiplier: 1.4, effect: 'autoClick', effectValue: 1, owned: 0 },
-      { id: 'gary', name: 'Gary Helper', desc: '+5 auto pumps per second', icon: '🐌', baseCost: 500, costMultiplier: 1.5, effect: 'autoClick', effectValue: 5, owned: 0 },
-      { id: 'jellyfish', name: 'Jellyfish Net', desc: '+2 pumps per click', icon: '🪼', baseCost: 250, costMultiplier: 1.6, effect: 'perClick', effectValue: 2, owned: 0 },
-      { id: 'bubble', name: 'Bubble Blower', desc: '+10 auto pumps per second', icon: '🫧', baseCost: 2000, costMultiplier: 1.5, effect: 'autoClick', effectValue: 10, owned: 0 },
-      { id: 'anchor', name: 'Anchor Arms', desc: '+5 pumps per click', icon: '⚓', baseCost: 1000, costMultiplier: 1.7, effect: 'perClick', effectValue: 5, owned: 0 },
-      { id: 'money', name: 'Mr. Krabs\' Vault', desc: '+50 auto pumps per second', icon: '💰', baseCost: 10000, costMultiplier: 1.5, effect: 'autoClick', effectValue: 50, owned: 0 },
-      { id: 'pineapple', name: 'Pineapple House', desc: '+20 pumps per click', icon: '🍍', baseCost: 5000, costMultiplier: 1.8, effect: 'perClick', effectValue: 20, owned: 0 },
-      { id: 'formula', name: 'Secret Formula', desc: '+200 auto pumps per second', icon: '📜', baseCost: 50000, costMultiplier: 1.6, effect: 'autoClick', effectValue: 200, owned: 0 },
-      { id: 'neptune', name: 'Neptune\'s Crown', desc: '+100 pumps per click', icon: '👑', baseCost: 100000, costMultiplier: 2.0, effect: 'perClick', effectValue: 100, owned: 0 },
-    ];
-    
-    let perClick = 1;
-    let autoPerSecond = 0;
-    let autoInterval = null;
-    let feelingItActive = false;
-    let feelingItTimeout = null;
-    
-    // Calculate upgrade cost
-    function getUpgradeCost(upgrade) {
-      return Math.floor(upgrade.baseCost * Math.pow(upgrade.costMultiplier, upgrade.owned));
-    }
-    
-    // Render upgrades
-    function renderUpgrades() {
-      const list = document.getElementById('upgradesList');
-      list.innerHTML = upgrades.map(u => {
-        const cost = getUpgradeCost(u);
-        const canAfford = count >= cost;
-        return `
-          <div class="upgrade-item ${canAfford ? '' : 'locked'} ${u.owned > 0 ? 'purchased' : ''}" 
-               data-id="${u.id}" onclick="buyUpgrade('${u.id}')">
-            <span class="icon">${u.icon}</span>
-            <span class="owned">${u.owned > 0 ? 'x' + u.owned : ''}</span>
-            <div class="name">${u.name}</div>
-            <div class="desc">${u.desc}</div>
-            <div class="cost">💰 ${cost.toLocaleString()} pumps</div>
-          </div>
-        `;
-      }).join('');
-      
-      // Update stats
-      document.getElementById('shopPumps').textContent = count.toLocaleString();
-      document.getElementById('perClick').textContent = perClick;
-      document.getElementById('autoPumps').textContent = autoPerSecond;
-    }
-    
-    // Buy upgrade
-    function buyUpgrade(id) {
-      const upgrade = upgrades.find(u => u.id === id);
-      if (!upgrade) return;
-      
-      const cost = getUpgradeCost(upgrade);
-      if (count < cost) return;
-      
-      count -= cost;
-      upgrade.owned++;
-      
-      if (upgrade.effect === 'perClick') {
-        perClick += upgrade.effectValue;
-      } else if (upgrade.effect === 'autoClick') {
-        autoPerSecond += upgrade.effectValue;
-        startAutoClicker();
-      }
-      
-      countEl.textContent = count;
-      renderUpgrades();
-      
-      // Play purchase effect
-      createParticle(window.innerWidth / 2, window.innerHeight / 2);
-      showQuote();
-    }
-    
-    // Auto clicker
-    function startAutoClicker() {
-      if (autoInterval) clearInterval(autoInterval);
-      if (autoPerSecond <= 0) return;
-      
-      // Update PPS display
-      document.getElementById('ppsDisplay').textContent = `⚡ ${autoPerSecond.toLocaleString()} pumps/second`;
-      
-      autoInterval = setInterval(() => {
-        count += autoPerSecond;
-        countEl.textContent = count.toLocaleString();
-        renderUpgrades();
-        checkAchievements();
-        
-        // Visual feedback for auto clicks
-        if (Math.random() < 0.1) {
-          createParticle(
-            spinner.getBoundingClientRect().left + spinner.offsetWidth / 2,
-            spinner.getBoundingClientRect().top + spinner.offsetHeight / 2
-          );
-        }
-      }, 1000);
-    }
-    
-    // MR KRABS "FEELING IT" MODE
+    // =====================
+    // MR KRABS FEELING IT
+    // =====================
     function triggerFeelingIt() {
       if (feelingItActive) return;
       feelingItActive = true;
       
-      const krabsContainer = document.getElementById('krabsContainer');
-      const feelingItText = document.getElementById('feelingItText');
+      const container = document.getElementById('krabsContainer');
+      const text = document.getElementById('feelingItText');
+      text.classList.add('visible');
       
-      feelingItText.classList.add('visible');
-      
-      // More Mr. Krabs during stroke mode!
-      const krabsCount = strokeMode ? 20 : 12;
-      const spawnDelay = strokeMode ? 50 : 100;
-      
-      // Spawn many Mr. Krabs images
-      for (let i = 0; i < krabsCount; i++) {
+      const count = strokeMode ? 20 : 10;
+      for (let i = 0; i < count; i++) {
         setTimeout(() => {
           const krabs = document.createElement('img');
           krabs.src = 'https://i.imgur.com/VXvtS0N.jpeg';
           krabs.className = 'krabs-image';
-          // During stroke mode, they can appear anywhere on screen
-          if (strokeMode) {
-            krabs.style.left = Math.random() * 90 + 5 + '%';
-            krabs.style.top = Math.random() * 90 + 5 + '%';
-            krabs.style.width = (100 + Math.random() * 100) + 'px'; // Bigger!
-          } else {
-            krabs.style.left = Math.random() * 80 + 10 + '%';
-            krabs.style.top = Math.random() * 80 + 10 + '%';
-          }
-          krabs.style.animationDelay = (Math.random() * 0.1) + 's';
-          krabsContainer.appendChild(krabs);
-        }, i * spawnDelay);
+          krabs.style.left = Math.random() * 80 + 10 + '%';
+          krabs.style.top = Math.random() * 80 + 10 + '%';
+          if (strokeMode) krabs.style.width = (150 + Math.random() * 150) + 'px';
+          container.appendChild(krabs);
+        }, i * 50);
       }
       
-      // Clear after 3 seconds (shorter during stroke mode for re-triggering)
-      const clearDelay = strokeMode ? 3500 : 3000;
       clearTimeout(feelingItTimeout);
       feelingItTimeout = setTimeout(() => {
-        krabsContainer.innerHTML = '';
-        feelingItText.classList.remove('visible');
+        container.innerHTML = '';
+        text.classList.remove('visible');
         feelingItActive = false;
-      }, clearDelay);
+      }, 3000);
     }
     
-    // Initialize upgrades
-    renderUpgrades();
+    // =====================
+    // SIDEBAR
+    // =====================
+    const megaSidebar = document.getElementById('megaSidebar');
+    const megaTabs = document.querySelectorAll('.mega-tab');
+    const megaPanels = document.querySelectorAll('.mega-panel');
+    const megaTitle = document.getElementById('megaSidebarTitle');
     
-    // Create floating bubbles
+    const panelTitles = {
+      info: '📊 INFO',
+      shop: '🛒 KRUSTY SHOP',
+      milestones: '🎯 MILESTONES',
+      achievements: '🏆 ACHIEVEMENTS'
+    };
+    
+    megaTabs.forEach(tab => {
+      tab.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const panel = tab.dataset.panel;
+        
+        megaTabs.forEach(t => t.classList.toggle('active', t === tab));
+        megaPanels.forEach(p => p.classList.toggle('active', p.id === 'panel' + panel.charAt(0).toUpperCase() + panel.slice(1)));
+        megaTitle.textContent = panelTitles[panel];
+        megaSidebar.classList.add('open');
+        
+        if (panel === 'info') updateInfoPanel();
+        if (panel === 'milestones') renderMilestones();
+      });
+    });
+    
+    document.getElementById('megaCloseBtn').addEventListener('click', () => {
+      megaSidebar.classList.remove('open');
+      megaTabs.forEach(t => t.classList.remove('active'));
+    });
+    
+    function updateInfoPanel() {
+      document.getElementById('infoTotalPumps').textContent = formatNumber(gameState.totalPumps);
+      document.getElementById('infoDollars').textContent = formatNumber(Math.floor(gameState.dollars));
+      document.getElementById('infoPerClick').textContent = gameState.pumpsPerClick;
+      document.getElementById('infoPumpsPerSec').textContent = gameState.pumpsPerSecond;
+      document.getElementById('infoDollarsPerSec').textContent = gameState.dollarsPerSecond.toFixed(1);
+    }
+    
+    // =====================
+    // AUTO TICK
+    // =====================
+    setInterval(() => {
+      if (gameState.pumpsPerSecond > 0) {
+        gameState.totalPumps += gameState.pumpsPerSecond;
+        gameState.dollars += gameState.pumpsPerSecond * gameState.dollarsPerPump;
+      }
+      if (gameState.dollarsPerSecond > 0) {
+        gameState.dollars += gameState.dollarsPerSecond;
+      }
+      updateDisplays();
+      checkAchievements();
+      checkMilestones();
+      renderUpgrades();
+    }, 1000);
+    
+    // Save every 30 seconds
+    setInterval(saveGame, 30000);
+    
+    // =====================
+    // BUBBLES
+    // =====================
     function createBubbles() {
-      for (let i = 0; i < 15; i++) {
+      for (let i = 0; i < 10; i++) {
         const bubble = document.createElement('div');
         bubble.className = 'bubble';
-        const size = Math.random() * 30 + 10;
+        const size = Math.random() * 25 + 8;
         bubble.style.width = size + 'px';
         bubble.style.height = size + 'px';
         bubble.style.left = Math.random() * 100 + 'vw';
-        bubble.style.animationDuration = (Math.random() * 10 + 8) + 's';
+        bubble.style.animationDuration = (Math.random() * 10 + 10) + 's';
         bubble.style.animationDelay = (Math.random() * 10) + 's';
         document.body.appendChild(bubble);
       }
     }
     createBubbles();
     
-    // Create jellyfish
-    function createJellyfish() {
-      const jellyfishEmojis = ['🪼'];
-      const positions = [
-        { left: '5%', top: '20%' },
-        { left: '85%', top: '35%' },
-        { left: '15%', top: '60%' },
-        { left: '75%', top: '15%' },
-        { left: '90%', top: '70%' },
-      ];
-      positions.forEach((pos, i) => {
-        const jelly = document.createElement('div');
-        jelly.className = 'jellyfish';
-        jelly.textContent = '🪼';
-        jelly.style.left = pos.left;
-        jelly.style.top = pos.top;
-        jelly.style.animationDelay = (i * 2) + 's';
-        jelly.style.fontSize = (30 + Math.random() * 30) + 'px';
-        document.body.appendChild(jelly);
-      });
-    }
-    createJellyfish();
-    
-    // Create seaweed
-    function createSeaweed() {
-      const seaweedPositions = ['5%', '15%', '25%', '70%', '80%', '92%'];
-      seaweedPositions.forEach((pos, i) => {
-        const seaweed = document.createElement('div');
-        seaweed.className = 'seaweed';
-        seaweed.textContent = '🌿';
-        seaweed.style.left = pos;
-        seaweed.style.animationDelay = (i * 0.5) + 's';
-        seaweed.style.fontSize = (40 + Math.random() * 40) + 'px';
-        seaweed.style.opacity = 0.7;
-        document.body.appendChild(seaweed);
-      });
-    }
-    createSeaweed();
-    
-    // Create flowers (Jellyfish Fields style)
-    function createFlowers() {
-      const flowerEmojis = ['🌸', '🌺', '🌼', '💮'];
-      const positions = ['8%', '20%', '35%', '65%', '78%', '88%'];
-      positions.forEach((pos, i) => {
-        const flower = document.createElement('div');
-        flower.className = 'flower';
-        flower.textContent = flowerEmojis[i % flowerEmojis.length];
-        flower.style.left = pos;
-        flower.style.animationDelay = (i * 0.3) + 's';
-        document.body.appendChild(flower);
-      });
-    }
-    createFlowers();
-    
-    // Create coral
-    function createCoral() {
-      const coralEmojis = ['🪸', '🐚'];
-      const positions = ['10%', '30%', '50%', '60%', '85%'];
-      positions.forEach((pos, i) => {
-        const coral = document.createElement('div');
-        coral.className = 'coral';
-        coral.textContent = coralEmojis[i % coralEmojis.length];
-        coral.style.left = pos;
-        coral.style.fontSize = (35 + Math.random() * 30) + 'px';
-        document.body.appendChild(coral);
-      });
-    }
-    createCoral();
-    
-    // Create starfish (Patrick!)
-    function createStarfish() {
-      const positions = [
-        { left: '3%', bottom: '5%' },
-        { left: '95%', bottom: '8%' },
-        { left: '45%', bottom: '3%' },
-      ];
-      positions.forEach((pos, i) => {
-        const star = document.createElement('div');
-        star.className = 'starfish';
-        star.textContent = '⭐';
-        star.style.left = pos.left;
-        star.style.bottom = pos.bottom;
-        star.style.animationDelay = (i * 1.5) + 's';
-        star.style.color = '#ff69b4'; // Pink like Patrick
-        star.style.filter = 'drop-shadow(0 0 10px #ff69b4)';
-        document.body.appendChild(star);
-      });
-    }
-    createStarfish();
-    
-    // Create pineapple (SpongeBob's house!)
-    function createPineapple() {
-      const pineapple = document.createElement('div');
-      pineapple.className = 'pineapple';
-      pineapple.textContent = '🍍';
-      pineapple.style.left = '2%';
-      pineapple.style.bottom = '10%';
-      document.body.appendChild(pineapple);
-    }
-    createPineapple();
-    
-    // Create floating Krabby Patties
-    function createKrabbyPatties() {
-      const positions = [
-        { left: '10%', top: '40%' },
-        { left: '88%', top: '55%' },
-      ];
-      positions.forEach((pos, i) => {
-        const patty = document.createElement('div');
-        patty.className = 'krabby-patty';
-        patty.textContent = '🍔';
-        patty.style.left = pos.left;
-        patty.style.top = pos.top;
-        patty.style.animationDelay = (i * 3) + 's';
-        document.body.appendChild(patty);
-      });
-    }
-    createKrabbyPatties();
-    
-    // Create anchor
-    function createAnchor() {
-      const anchor = document.createElement('div');
-      anchor.className = 'anchor';
-      anchor.textContent = '⚓';
-      anchor.style.right = '5%';
-      anchor.style.bottom = '15%';
-      document.body.appendChild(anchor);
-    }
-    createAnchor();
-    
-    // Create treasure chest (Mr. Krabs would be proud)
-    function createTreasure() {
-      const treasure = document.createElement('div');
-      treasure.className = 'treasure';
-      treasure.textContent = '💰';
-      treasure.style.right = '8%';
-      treasure.style.bottom = '5%';
-      document.body.appendChild(treasure);
-    }
-    createTreasure();
-    
-    // Create Gary the Snail (meow!)
-    function createGary() {
-      const gary = document.createElement('div');
-      gary.className = 'gary';
-      gary.textContent = '🐌';
-      gary.style.bottom = '2%';
-      gary.style.left = '0';
-      document.body.appendChild(gary);
-    }
-    createGary();
-    
-    // Create floating money (for Mr. Krabs)
-    function createMoney() {
-      const positions = [
-        { left: '5%', top: '30%' },
-        { left: '92%', top: '45%' },
-        { left: '8%', top: '65%' },
-      ];
-      const moneyEmojis = ['💵', '💰', '💎'];
-      positions.forEach((pos, i) => {
-        const money = document.createElement('div');
-        money.className = 'money-float';
-        money.textContent = moneyEmojis[i];
-        money.style.left = pos.left;
-        money.style.top = pos.top;
-        money.style.animationDelay = (i * 2) + 's';
-        document.body.appendChild(money);
-      });
-    }
-    createMoney();
-    
-    // Create ocean floor
-    function createOceanFloor() {
-      const floor = document.createElement('div');
-      floor.className = 'ocean-floor';
-      document.body.appendChild(floor);
-    }
-    createOceanFloor();
-    
-    // BACKGROUND MUSIC
-    const bgMusic = document.getElementById('bgMusic');
+    // =====================
+    // MUSIC
+    // =====================
     bgMusic.volume = 0.3;
-    
-    // Auto-start music
     bgMusic.play().catch(() => {
-      // Will start on first click
       const startMusic = () => {
         bgMusic.play();
         document.removeEventListener('click', startMusic);
@@ -2305,6 +1538,18 @@
         btn.classList.add('muted');
       }
     }
+    
+    // =====================
+    // INIT
+    // =====================
+    loadGame();
+    renderUpgrades();
+    renderAchievements();
+    renderMilestones();
+    updateDisplays();
+    
+    // Save on page unload
+    window.addEventListener('beforeunload', saveGame);
   </script>
 </body>
 </html>
