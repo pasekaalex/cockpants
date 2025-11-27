@@ -239,7 +239,7 @@
       distance: 0,
       isGameOver: false,
       isPaused: false,
-      speed: 0.15,
+      speed: 0.08,
       startTime: 0,
       difficulty: 1
     };
@@ -302,6 +302,79 @@
           lane.position.set(i, -0.9, -tile * tileSize);
           scene.add(lane);
           window.laneMarkers.push(lane);
+        }
+      }
+
+      // Add coral reef decorations on the sides
+      window.coralReefs = [];
+      const coralColors = [0xFF69B4, 0xFF1493, 0xDA70D6, 0xFF6347];
+      
+      for (let tile = 0; tile < tileCount * 2; tile++) {
+        // Left side coral
+        for (let i = 0; i < 3; i++) {
+          const coralType = Math.floor(Math.random() * 3);
+          let coral;
+          
+          if (coralType === 0) {
+            // Tall coral
+            const geom = new THREE.ConeGeometry(0.8, 2.5, 6);
+            coral = new THREE.Mesh(geom, new THREE.MeshLambertMaterial({ 
+              color: coralColors[Math.floor(Math.random() * coralColors.length)] 
+            }));
+          } else if (coralType === 1) {
+            // Round coral
+            const geom = new THREE.SphereGeometry(0.7, 8, 8);
+            coral = new THREE.Mesh(geom, new THREE.MeshLambertMaterial({ 
+              color: coralColors[Math.floor(Math.random() * coralColors.length)] 
+            }));
+          } else {
+            // Fan coral
+            const geom = new THREE.BoxGeometry(1.2, 2, 0.2);
+            coral = new THREE.Mesh(geom, new THREE.MeshLambertMaterial({ 
+              color: coralColors[Math.floor(Math.random() * coralColors.length)] 
+            }));
+          }
+          
+          coral.position.set(
+            -12 - Math.random() * 3,
+            1,
+            -tile * 50 - Math.random() * 30
+          );
+          coral.rotation.y = Math.random() * Math.PI;
+          scene.add(coral);
+          window.coralReefs.push(coral);
+        }
+        
+        // Right side coral
+        for (let i = 0; i < 3; i++) {
+          const coralType = Math.floor(Math.random() * 3);
+          let coral;
+          
+          if (coralType === 0) {
+            const geom = new THREE.ConeGeometry(0.8, 2.5, 6);
+            coral = new THREE.Mesh(geom, new THREE.MeshLambertMaterial({ 
+              color: coralColors[Math.floor(Math.random() * coralColors.length)] 
+            }));
+          } else if (coralType === 1) {
+            const geom = new THREE.SphereGeometry(0.7, 8, 8);
+            coral = new THREE.Mesh(geom, new THREE.MeshLambertMaterial({ 
+              color: coralColors[Math.floor(Math.random() * coralColors.length)] 
+            }));
+          } else {
+            const geom = new THREE.BoxGeometry(1.2, 2, 0.2);
+            coral = new THREE.Mesh(geom, new THREE.MeshLambertMaterial({ 
+              color: coralColors[Math.floor(Math.random() * coralColors.length)] 
+            }));
+          }
+          
+          coral.position.set(
+            12 + Math.random() * 3,
+            1,
+            -tile * 50 - Math.random() * 30
+          );
+          coral.rotation.y = Math.random() * Math.PI;
+          scene.add(coral);
+          window.coralReefs.push(coral);
         }
       }
 
@@ -393,10 +466,9 @@
       const types = [
         { name: 'rock', color: 0x808080, size: 1.5 },
         { name: 'coral', color: 0xFF69B4, size: 1.8 },
-        { name: 'anchor', color: 0x404040, size: 1.3 },
-        { name: 'barrel', color: 0x8B4513, size: 1.4 },
-        { name: 'buoy', color: 0xFF4500, size: 1.2 },
-        { name: 'jellyfish', color: 0xFF00FF, size: 1.6 }
+        { name: 'shell', color: 0xFFE4B5, size: 1.3 },
+        { name: 'starfish', color: 0xFF8C00, size: 1.2 },
+        { name: 'buoy', color: 0xFF4500, size: 1.2 }
       ];
       
       const type = types[Math.floor(Math.random() * types.length)];
@@ -406,12 +478,15 @@
         geometry = new THREE.DodecahedronGeometry(type.size);
       } else if (type.name === 'coral') {
         geometry = new THREE.ConeGeometry(type.size, type.size * 2, 5);
-      } else if (type.name === 'barrel') {
-        geometry = new THREE.CylinderGeometry(type.size * 0.7, type.size * 0.8, type.size * 1.5);
+      } else if (type.name === 'shell') {
+        // Shell - flattened sphere
+        geometry = new THREE.SphereGeometry(type.size, 12, 8);
+        geometry.scale(1, 0.5, 1.2);
+      } else if (type.name === 'starfish') {
+        // Starfish - star shape
+        geometry = new THREE.CylinderGeometry(type.size, type.size, 0.3, 5);
       } else if (type.name === 'buoy') {
         geometry = new THREE.SphereGeometry(type.size, 8, 8);
-      } else if (type.name === 'jellyfish') {
-        geometry = new THREE.SphereGeometry(type.size, 12, 12);
       } else {
         geometry = new THREE.BoxGeometry(type.size, type.size * 2, type.size);
       }
@@ -419,12 +494,12 @@
       const material = new THREE.MeshLambertMaterial({ color: type.color });
       const obstacle = new THREE.Mesh(geometry, material);
       
-      // Vary spawn distance for more randomness
-      const spawnDistance = -60 - Math.random() * 50;
+      // Spawn MUCH farther ahead - was -60 to -110, now -150 to -250
+      const spawnDistance = -150 - Math.random() * 100;
       
       obstacle.position.set(
-        (Math.random() - 0.5) * 16, // Keep in visible range
-        type.name === 'jellyfish' ? 2.5 : 1.5,
+        (Math.random() - 0.5) * 16,
+        1.5,
         spawnDistance
       );
       obstacle.castShadow = true;
@@ -447,7 +522,7 @@
       collectible.position.set(
         (Math.random() - 0.5) * 16,
         2,
-        -60 - Math.random() * 30
+        -150 - Math.random() * 80
       );
       collectible.castShadow = true;
       
@@ -534,7 +609,7 @@
         distance: 0,
         isGameOver: false,
         isPaused: false,
-        speed: 0.15,
+        speed: 0.08,
         startTime: Date.now(),
         difficulty: 1
       };
@@ -633,25 +708,32 @@
             marker.position.z -= tileSize * (window.oceanTiles.length);
           }
         });
-
-        // Progressive difficulty
-        const timeElapsed = (Date.now() - gameState.startTime) / 1000;
-        gameState.difficulty = 1 + Math.min(timeElapsed / 30, 2); // Max 3x difficulty
-        const maxObstacles = Math.floor(8 * gameState.difficulty);
-        const spawnChance = 0.08 * gameState.difficulty;
         
-        // Spawn obstacles - MUCH MORE FREQUENT + PROGRESSIVE
+        // Endless coral reef loop
+        window.coralReefs.forEach(coral => {
+          if (coral.position.z - boat.position.z > 100) {
+            coral.position.z -= 1000; // Move far back
+          }
+        });
+
+        // Progressive difficulty - MUCH SLOWER
+        const timeElapsed = (Date.now() - gameState.startTime) / 1000;
+        gameState.difficulty = 1 + Math.min(timeElapsed / 60, 1); // Max 2x difficulty over 60s
+        const maxObstacles = Math.floor(4 * gameState.difficulty); // Was 8
+        const spawnChance = 0.02 * gameState.difficulty; // Was 0.08
+        
+        // Spawn obstacles - LESS FREQUENT
         if (obstacles.length < maxObstacles && Math.random() < spawnChance) {
           spawnObstacle();
         }
         
-        // Spawn obstacle patterns occasionally
-        if (obstacles.length < maxObstacles - 3 && Math.random() < 0.01 * gameState.difficulty) {
+        // Spawn obstacle patterns rarely
+        if (obstacles.length < maxObstacles - 2 && Math.random() < 0.003 * gameState.difficulty) {
           spawnObstaclePattern();
         }
 
-        // Spawn collectibles - MORE STARS
-        if (collectibles.length < 4 && Math.random() < 0.04) {
+        // Spawn collectibles - LESS STARS
+        if (collectibles.length < 2 && Math.random() < 0.015) {
           spawnCollectible();
         }
 
@@ -662,14 +744,14 @@
           obs.rotation.y += 0.02;
           
           // Bobbing animation for floating objects
-          if (obs.userData.type === 'jellyfish' || obs.userData.type === 'buoy') {
+          if (obs.userData.type === 'buoy') {
             obs.position.y = 2.5 + Math.sin(now * obs.userData.bobSpeed + obs.userData.bobOffset) * 0.5;
             obs.rotation.x = Math.sin(now * obs.userData.bobSpeed * 0.5) * 0.1;
           }
           
-          // Spin barrels
-          if (obs.userData.type === 'barrel') {
-            obs.rotation.x += 0.03;
+          // Spin starfish slowly
+          if (obs.userData.type === 'starfish') {
+            obs.rotation.y += 0.02;
           }
 
           // Remove if behind boat
