@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Plankton Pac-Chomp | $COCKPANTS Games</title>
+  <title>Plankton Pac-Chomp | $COCKPANTS</title>
   <style>
     @font-face { font-family: 'Krabby Patty'; src: url('Krabby Patty.ttf') format('truetype'); }
     * { margin:0; padding:0; box-sizing:border-box; touch-action:manipulation; }
@@ -35,12 +35,19 @@
   <div class="ui lives">Lives: <span id="lives">3</span></div>
   <button class="ui music-toggle" id="musicToggle">ON</button>
 
-  <div id="dpad"><button id="up">Up</button><button id="left">Left</button><button id="right">Right</button><button id="down">Down</button></div>
+  <div id="dpad">
+    <button id="up">Up</button>
+    <button id="left">Left</button>
+    <button id="right">Right</button>
+    <button id="down">Down</button>
+  </div>
 
   <h1>PLANKTON PAC-CHOMP</h1>
   <canvas id="game" width="560" height="620"></canvas>
 
-  <audio id="bgMusic" loop preload="auto"><source src="bob.mp3" type="audio/mpeg"></audio>
+  <audio id="bgMusic" loop preload="auto">
+    <source src="bob.mp3" type="audio/mpeg">
+  </audio>
 
   <script>
     const canvas = document.getElementById('game');
@@ -48,137 +55,168 @@
     const TILE = 20;
     const ROWS = 31, COLS = 28;
 
+    // FULL MAZE (fixed)
     const maze = [
-      "1111111111111111111111111111","1222222222221111222222222221","1211111221111111111121111121","1211111221111111111121111121",
-      "1211111221111111111121111121","1222222222222222222222222221","1211111121111121111121111121","1211111121111121111121111121",
-      "1222222222222222222222222221","1111111121111121111121111111","3333333121111121111121333333","3333333121111121111121333333",
-      "3333333121111121111121333333","1111111122222222222121111111","3333333111111121111133333333","3333333111111121111133333333",
-      "3333333111111121111133333333","1111111121111121111121111111","1222222222222222222222222221","1211111121111121111121111121",
-      "1211111121111121111121111121","1222222222222222222222222221","1211111111111111111111111121","1211111111111111111111111121",
-      "1222222111111111111111222221","1111112111222222221121111111","3333333111222222221133333333","3333333111222222221133333333",
-      "1111112111222222221121111111","1222222222222222222222222221","1111111111111111111111111111"
-    ].map(r=>r.split('').map(Number));
+      "1111111111111111111111111111",
+      "1222222222221111222222222221",
+      "1211111221111111111121111121",
+      "1211111221111111111121111121",
+      "1211111221111111111121111121",
+      "1222222222222222222222222221",
+      "1211111121111121111121111121",
+      "1211111121111121111121111121",
+      "1222222222222222222222222221",
+      "1111111121111121111121111111",
+      "3333333121111121111121333333",
+      "3333333121111121111121333333",
+      "3333333121111121111121333333",
+      "1111111122222222222121111111",
+      "3333333111111121111133333333",
+      "3333333111111121111133333333",
+      "3333333111111121111133333333",
+      "1111111121111121111121111111",
+      "1222222222222222222222222221",
+      "1211111121111121111121111121",
+      "1211111121111121111121111121",
+      "1222222222222222222222222221",
+      "1211111111111111111111111121",
+      "1211111111111111111111111121",
+      "1222222111111111111111222221",
+      "1111112111222222221121111111",
+      "3333333111222222221133333333",
+      "3333333111222222221133333333",
+      "1111112111222222221121111111",
+      "1222222222222222222222222221",
+      "1111111111111111111111111111"
+    ].map(r => r.split('').map(Number));
 
-    let player = {x:14*TILE,y:23*TILE,dir:0,nextDir:0,speed:2,mouth:0};
-    const dirs = [[-1,0],[0,-1],[1,0],[0,1]];
+    let player = {x:14*TILE, y:23*TILE, dir:0, nextDir:0, speed:2, mouth:0};
+    const dirs = [[-1,0],[0,-1],[1,0],[0,1]]; // L U R D
     const ghosts = [
-      {x:14*TILE,y:11*TILE,color:"#ff0000",dir:0,mode:"scatter"},
-      {x:14*TILE,y:14*TILE,color:"#ffb8ff",dir:0,mode:"house",timer:0},
-      {x:12*TILE,y:14*TILE,color:"#00ffff",dir:0,mode:"house",timer:240},
-      {x:16*TILE,y:14*TILE,color:"#ffb851",dir:0,mode:"house",timer:480}
+      {x:14*TILE, y:11*TILE, color:"#ff0000", dir:0, mode:"scatter"},
+      {x:14*TILE, y:14*TILE, color:"#ffb8ff", dir:0, mode:"house", timer:0},
+      {x:12*TILE, y:14*TILE, color:"#00ffff", dir:0, mode:"house", timer:240},
+      {x:16*TILE, y:14*TILE, color:"#ffb851", dir:0, mode:"house", timer:480}
     ];
-    let score=0,lives=3,dotsLeft=0,frightened=0,globalTimer=0;
+    let score = 0, lives = 3, dotsLeft = 0, frightened = 0;
 
-    for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++)if(maze[y][x]===0||maze[y][x]===2)dotsLeft++;
+    // Count dots
+    for(let y=0; y<ROWS; y++) for(let x=0; x<COLS; x++) 
+      if(maze[y][x]===0 || maze[y][x]===2) dotsLeft++;
 
-    function drawMaze(){for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++){
-      if(maze[y][x]===1){ctx.fillStyle="#0044aa";ctx.fillRect(x*TILE,y*TILE,TILE,TILE);}
-      else if(maze[y][x]===0){ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(x*TILE+10,y*TILE+10,3,0,Math.PI*2);ctx.fill();}
-      else if(maze[y][x]===2){ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(x*TILE+10,y*TILE+10,8,0,Math.PI*2);ctx.fill();}
-    }}
-
-    function drawPlayer(){
-      ctx.fillStyle="#ffeb3b";ctx.save();ctx.translate(player.x+10,player.y+10);
-      ctx.rotate(player.dir*Math.PI/2);const a=player.mouth*0.2;
-      ctx.beginPath();ctx.arc(0,0,18,a,Math.PI*2-a);ctx.lineTo(0,0);ctx.fill();
-      ctx.fillStyle="#000";ctx.beginPath();ctx.arc(5,-6,4,0,Math.PI*2);ctx.fill();ctx.restore();
-      player.mouth=(player.mouth+0.1)%(Math.PI*2);
+    function drawMaze() {
+      for(let y=0; y<ROWS; y++) for(let x=0; x<COLS; x++) {
+        if(maze[y][x]===1) { ctx.fillStyle="#0044aa"; ctx.fillRect(x*TILE,y*TILE,TILE,TILE); }
+        if(maze[y][x]===0) { ctx.fillStyle="#fff"; ctx.beginPath(); ctx.arc(x*TILE+10,y*TILE+10,3,0,Math.PI*2); ctx.fill(); }
+        if(maze[y][x]===2) { ctx.fillStyle="#fff"; ctx.beginPath(); ctx.arc(x*TILE+10,y*TILE+10,8,0,Math.PI*2); ctx.fill(); }
+      }
     }
 
-    function drawGhosts(){
-      ghosts.forEach(g=>{ctx.fillStyle=frightened?#0000ff:g.color;
-        ctx.fillRect(g.x+2,g.y+2,16,16);ctx.fillRect(g.x+4,g.y+8,12,8);
-        ctx.fillStyle="#fff";ctx.fillRect(g.x+4,g.y+6,4,4);ctx.fillRect(g.x+12,g.y+6,4,4);
-        ctx.fillStyle="#000";ctx.fillRect(g.x+5+(g.dir===0?-1:g.dir===2?1:0),g.y+7,2,2);
+    function drawPlayer() {
+      ctx.fillStyle = "#ffeb3b";
+      ctx.save();
+      ctx.translate(player.x+10, player.y+10);
+      ctx.rotate(player.dir * Math.PI/2);
+      const a = player.mouth * 0.2;
+      ctx.beginPath();
+      ctx.arc(0,0,18,a,Math.PI*2-a);
+      ctx.lineTo(0,0);
+      ctx.fill();
+      ctx.fillStyle="#000"; ctx.beginPath(); ctx.arc(5,-6,4,0,Math.PI*2); ctx.fill();
+      ctx.restore();
+      player.mouth = (player.mouth + 0.1) % (Math.PI*2);
+    }
+
+    function drawGhosts() {
+      ghosts.forEach(g => {
+        ctx.fillStyle = frightened ? "#0000ff" : g.color;
+        ctx.fillRect(g.x+2,g.y+2,16,16);
+        ctx.fillRect(g.x+4,g.y+8,12,8);
+        ctx.fillStyle="#fff";
+        ctx.fillRect(g.x+4,g.y+6,4,4);
+        ctx.fillRect(g.x+12,g.y+6,4,4);
+        ctx.fillStyle="#000";
+        ctx.fillRect(g.x+5+(g.dir===0?-1:g.dir===2?1:0),g.y+7,2,2);
         ctx.fillRect(g.x+13+(g.dir===0?-1:g.dir===2?1:0),g.y+7,2,2);
       });
     }
 
-    function update(){
-      globalTimer++;
-      if(globalTimer%480===0)ghosts.forEach(g=>g.mode=g.mode==="scatter"?"chase":"scatter");
+    function update() {
+      // Player movement
+      const pd = dirs[player.nextDir];
+      const nx = Math.floor((player.x + pd[0]*player.speed)/TILE);
+      const ny = Math.floor((player.y + pd[1]*player.speed)/TILE);
+      if(maze[ny] && maze[ny][nx] !== 1) player.dir = player.nextDir;
+      player.x += dirs[player.dir][0] * player.speed;
+      player.y += dirs[player.dir][1] * player.speed;
+      if(player.x < 0) player.x = COLS*TILE-10;
+      if(player.x > COLS*TILE) player.x = -10;
 
-      const pd=dirs[player.nextDir];
-      const nx=Math.floor((player.x+pd[0]*player.speed)/TILE);
-      const ny=Math.floor((player.y+pd[1]*player.speed)/TILE);
-      if(maze[ny][nx]!==1)player.dir=player.nextDir;
-      player.x+=dirs[player.dir][0]*player.speed;
-      player.y+=dirs[player.dir][1]*player.speed;
-      if(player.x<0)player.x=COLS*TILE-10;if(player.x>COLS*TILE)player.x=-10;
+      // Eat dots
+      const px = Math.floor((player.x+10)/TILE);
+      const py = Math.floor((player.y+10)/TILE);
+      if(maze[py] && maze[py][px]===0) { maze[py][px]=3; score+=10; dotsLeft--; }
+      if(maze[py] && maze[py][px]===2) { maze[py][px]=3; score+=50; frightened=600; }
 
-      const px=Math.floor((player.x+10)/TILE),py=Math.floor((player.y+10)/TILE);
-      if(maze[py][px]===0){maze[py][px]=3;score+=10;dotsLeft--;beep(500,80);}
-      if(maze[py][px]===2){maze[py][px]=3;score+=50;frightened=600;beep(200,300);}
-
-      ghosts.forEach(g=>{
-        if(Math.hypot(player.x-g.x,player.y-g.y)<18){
-          if(frightened){score+=200;g.x=14*TILE;g.y=14*TILE;beep(1000,200);}
-          else if(g.mode!=="eaten"){lives--;if(lives<=0){alert("GAME OVER! Score: "+score);location.reload();}
-            player.x=14*TILE;player.y=23*TILE;beep(150,800);}
+      // Ghost collision
+      ghosts.forEach(g => {
+        if(Math.hypot(player.x-g.x, player.y-g.y) < 18) {
+          if(frightened) { score+=200; g.x=14*TILE; g.y=14*TILE; }
+          else if(g.mode!=="eaten") { lives--; if(lives<=0) alert("GAME OVER! Score: "+score); location.reload(); }
         }
       });
-      if(frightened>0&&frightened%60===0)frightened--;
-      ghosts.forEach(moveGhost);
-      if(dotsLeft===0){alert("LEVEL COMPLETE! Score: "+score);location.reload();}
-    }
+      if(frightened>0) frightened--;
 
-    function moveGhost(g){
-      if(g.mode==="house"){if(g.timer--<=0)g.mode="scatter";return;}
-      const tx=Math.floor(g.x/TILE),ty=Math.floor(g.y/TILE);
-      const target = frightened?{x:0,y:0}:getTarget(g);
-      let best=Infinity,bd=0;
-      for(let d=0;d<4;d++)if((d+2)%4!==g.dir){
-        const nx=tx+dirs[d][0],ny=ty+dirs[d][1];
-        if(maze[ny][nx]!==1){
-          const dist=Math.hypot(nx-target.x,ny-target.y);
-          if(dist<best){best=dist;bd=d;}
+      ghosts.forEach(g => {
+        if(g.mode==="house") { if(g.timer--<=0) g.mode="scatter"; return; }
+        const tx = Math.floor(g.x/TILE), ty = Math.floor(g.y/TILE);
+        let best = Infinity, bd = g.dir;
+        for(let d=0; d<4; d++) if((d+2)%4 !== g.dir) {
+          const nx = tx + dirs[d][0], ny = ty + dirs[d][1];
+          if(maze[ny] && maze[ny][nx] !== 1) {
+            const dist = Math.hypot(nx - player.x/TILE, ny - player.y/TILE);
+            if(dist < best) { best = dist; bd = d; }
+          }
         }
-      }
-      g.dir=bd;
-      g.x+=dirs[g.dir][0]*(frightened?1:2);
-      g.y+=dirs[g.dir][1]*(frightened?1:2);
-      if(g.x<0)g.x=COLS*TILE-10;if(g.x>COLS*TILE)g.x=-10;
+        g.dir = bd;
+        g.x += dirs[g.dir][0] * (frightened?1:2);
+        g.y += dirs[g.dir][1] * (frightened?1:2);
+        if(g.x < 0) g.x = COLS*TILE-10;
+        if(g.x > COLS*TILE) g.x = -10;
+      });
+
+      if(dotsLeft===0) { alert("LEVEL COMPLETE! Score: "+score); location.reload(); }
     }
 
-    function getTarget(g){
-      const p={x:Math.floor(player.x/TILE),y:Math.floor(player.y/TILE)};
-      switch(g.name||["Blinky","Pinky","Inky","Clyde"][ghosts.indexOf(g)]){
-        case "Blinky":return p;
-        case "Pinky":return {x:p.x+4*dirs[player.dir][0],y:p.y+4*dirs[player.dir][1]};
-        case "Inky":const b=ghosts[0];const a={x:p.x+2*dirs[player.dir][0],y:p.y+2*dirs[player.dir][1]};
-          return {x:a.x+(a.x-b.x/TILE),y:a.y+(a.y-b.y/TILE)};
-        case "Clyde":return Math.hypot(g.x/TILE-p.x,g.y/TILE-p.y)<8?{x:2,y:29}:p;
-      }
-    }
-
-    function beep(f,d){const o=audioCtx.createOscillator();o.frequency.value=f;
-      const gn=audioCtx.createGain();o.connect(gn);gn.connect(audioCtx.destination);
-      gn.gain.setValueAtTime(0.2,audioCtx.currentTime);
-      gn.gain.exponentialRampToValueAtTime(0.01,audioCtx.currentTime+d/1000);
-      o.start();o.stop(audioCtx.currentTime+d/1000);}
-    const audioCtx=new AudioContext();
-
-    function render(){ctx.clearRect(0,0,canvas.width,canvas.height);drawMaze();drawGhosts();drawPlayer();
-      document.getElementById("score").textContent=score;
-      document.getElementById("lives").textContent=lives+" x SpongeBob";
+    function render() {
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      drawMaze();
+      drawGhosts();
+      drawPlayer();
+      document.getElementById("score").textContent = score;
+      document.getElementById("lives").textContent = lives + " x SpongeBob";
     }
 
     // CONTROLS
-    document.addEventListener("keydown",e=>{
-      const map={"ArrowLeft":0,"a":0,"A":0,"ArrowUp":1,"w":1,"W":1,"ArrowRight":2,"d":2,"D":2,"ArrowDown":3,"s":3,"S":3};
-      if(map[e.key]!==undefined)player.nextDir=map[e.key];
+    document.addEventListener("keydown", e => {
+      const map = {"ArrowLeft":0,"a":0,"A":0,"ArrowUp":1,"w":1,"W":1,"ArrowRight":2,"d":2,"D":2,"ArrowDown":3,"s":3,"S":3};
+      if(map[e.key]!==undefined) player.nextDir = map[e.key];
     });
-    ["up","left","right","down"].forEach(dir=>document.getElementById(dir).ontouchstart=e=>{
-      e.preventDefault();player.nextDir=["left","up","right","down"].indexOf(dir);
+
+    ["up","left","right","down"].forEach((dir,i) => {
+      document.getElementById(dir).ontouchstart = e => { e.preventDefault(); player.nextDir = i; };
     });
 
     // MUSIC
-    const music=document.getElementById("bgMusic");music.volume=0.3;
-    document.getElementById("musicToggle").onclick=()=>{music.paused?music.play():music.pause();
-      document.getElementById("musicToggle").textContent=music.paused?"OFF":"ON";};
-    document.addEventListener("click",()=>music.play().catch(()=>{}),{once:true});
+    const music = document.getElementById("bgMusic");
+    music.volume = 0.3;
+    document.getElementById("musicToggle").onclick = () => {
+      music.paused ? music.play() : music.pause();
+      document.getElementById("musicToggle").textContent = music.paused ? "OFF" : "ON";
+    };
+    document.addEventListener("click", () => music.play().catch(()=>{}), {once:true});
 
-    function loop(){update();render();requestAnimationFrame(loop);}
+    function loop() { update(); render(); requestAnimationFrame(loop); }
     loop();
   </script>
 </body>
