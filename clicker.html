@@ -225,15 +225,44 @@
     }
     
     .multiplier {
-      font-size: 20px;
+      font-size: 22px;
       color: #4CAF50;
       text-shadow: 2px 2px 0 #000;
+      background: linear-gradient(135deg, rgba(76, 175, 80, 0.2), rgba(139, 195, 74, 0.2));
+      border: 2px solid #4CAF50;
+      padding: 8px 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(76, 175, 80, 0.3), inset 0 0 10px rgba(76, 175, 80, 0.1);
     }
     
     .pps-display {
       font-size: 16px;
-      color: #aaa;
+      color: #fff;
       text-shadow: 1px 1px 0 #000;
+      background: linear-gradient(135deg, rgba(0, 0, 0, 0.6), rgba(30, 30, 30, 0.6));
+      border: 2px solid rgba(255, 200, 50, 0.5);
+      padding: 10px 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(255, 200, 50, 0.2), inset 0 0 10px rgba(0, 0, 0, 0.3);
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    
+    .pps-display .stat-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    
+    .pps-display .stat-value {
+      color: #ffcc00;
+      font-weight: bold;
+    }
+    
+    .pps-display .stat-label {
+      color: #aaa;
     }
     
     /* STROKE MODE BANNER */
@@ -807,13 +836,16 @@
   <!-- MAIN GAME -->
   <div class="main-container">
     <div class="spinner-container" id="spinnerContainer">
-      <img src="https://i.imgur.com/CzRu9jK.gif" alt="SpongeBob Cockpants" class="spinner" id="spinner">
+      <img src="https://i.imgur.com/T1W4AZd.jpeg" alt="SpongeBob Cockpants" class="spinner" id="spinner">
     </div>
     
     <div class="stats-display">
       <div class="combo-display" id="comboDisplay">0x COMBO</div>
       <div class="multiplier" id="multiplier">1x Multiplier</div>
-      <div class="pps-display" id="ppsDisplay">⚡ 0 pumps/second</div>
+      <div class="pps-display" id="ppsDisplay">
+        <span class="stat-item">🩲 <span class="stat-value" id="statPumpsPerSec">0</span><span class="stat-label">/sec</span></span>
+        <span class="stat-item">💵 <span class="stat-value" id="statDollarsPerSec">0</span><span class="stat-label"> BB$/sec</span></span>
+      </div>
     </div>
   </div>
   
@@ -1008,12 +1040,22 @@
     const dollarsPerSecEl = document.getElementById('dollarsPerSec');
     const comboDisplay = document.getElementById('comboDisplay');
     const multiplierEl = document.getElementById('multiplier');
-    const ppsDisplay = document.getElementById('ppsDisplay');
+    // ppsDisplay now uses individual stat elements
     const flashEl = document.getElementById('flash');
     const strokeBanner = document.getElementById('strokeBanner');
     const colorFlash = document.getElementById('colorFlash');
     const notification = document.getElementById('notification');
     const bgMusic = document.getElementById('bgMusic');
+    
+    // Check if audio file loaded
+    bgMusic.addEventListener('error', (e) => {
+      console.error('❌ Audio failed to load:', e);
+      console.log('Make sure Bob.mp3 is in the same folder as clicker.html');
+    });
+    
+    bgMusic.addEventListener('canplaythrough', () => {
+      console.log('✅ Audio file loaded and ready!');
+    });
     
     // =====================
     // SAVE/LOAD
@@ -1097,7 +1139,10 @@
       pumpsPerClickEl.textContent = gameState.pumpsPerClick;
       pumpsPerSecEl.textContent = gameState.pumpsPerSecond;
       dollarsPerSecEl.textContent = gameState.dollarsPerSecond.toFixed(1);
-      ppsDisplay.textContent = `⚡ ${gameState.pumpsPerSecond.toLocaleString()} pumps/sec | 💵 ${gameState.dollarsPerSecond.toFixed(1)} BB$/sec`;
+      
+      // Update the stats box
+      document.getElementById('statPumpsPerSec').textContent = gameState.pumpsPerSecond.toLocaleString();
+      document.getElementById('statDollarsPerSec').textContent = gameState.dollarsPerSecond.toFixed(1);
     }
     
     function formatNumber(n) {
@@ -1517,19 +1562,37 @@
     // =====================
     // MUSIC
     // =====================
-    bgMusic.volume = 0.3;
-    bgMusic.play().catch(() => {
-      const startMusic = () => {
-        bgMusic.play();
+    let musicStarted = false;
+    
+    function startMusic() {
+      if (musicStarted) return;
+      
+      bgMusic.volume = 0.3;
+      bgMusic.loop = true;
+      
+      bgMusic.play().then(() => {
+        musicStarted = true;
+        console.log('🎵 Music playing!');
         document.removeEventListener('click', startMusic);
-      };
-      document.addEventListener('click', startMusic);
-    });
+        document.removeEventListener('touchstart', startMusic);
+      }).catch(err => {
+        console.log('Music play failed, will retry on next click');
+      });
+    }
+    
+    // Try to start immediately (will likely fail)
+    startMusic();
+    
+    // Also try on first user interaction
+    document.addEventListener('click', startMusic);
+    document.addEventListener('touchstart', startMusic);
     
     function toggleMusic() {
       const btn = document.getElementById('musicToggle');
       if (bgMusic.paused) {
-        bgMusic.play();
+        bgMusic.play().then(() => {
+          musicStarted = true;
+        });
         btn.textContent = '🎵';
         btn.classList.remove('muted');
       } else {
