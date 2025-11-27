@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Plankton Pac-Chomp | $COCKPANTS</title>
+<title>Mr. Krabs Pac-Chomp | $COCKPANTS</title>
 <style>
   /* EXACT site font + visual rules from your index.html */
   @font-face { font-family: 'Krabby Patty'; src: url('Krabby Patty.ttf') format('truetype'); font-display: swap; }
@@ -182,7 +182,7 @@
     <div style="display:flex;align-items:center;gap:12px;">
       <a class="btn back-btn" href="index.html">◀ MENU</a>
       <div class="title">
-        <div style="font-size:18px;">Plankton Pac-Chomp</div>
+        <div style="font-size:18px;">🦀 Mr. Krabs Pac-Chomp</div>
         <div style="font-size:11px;color:#cfe9ff">— Bikini Bottom Arcade</div>
       </div>
     </div>
@@ -339,17 +339,17 @@
     y: playerStart.y + 0.5,
     dir: {x:0,y:0},
     nextDir: {x:0,y:0},
-    speed: 6/60 // tiles per frame -> 6 tiles/sec
+    speed: 8/60 // tiles per frame -> 8 tiles/sec (FASTER)
   };
 
-  // Ghosts (slower than player)
+  // Ghosts (MUCH slower than player)
   const ghostColors = ['#ff8aa0','#ff77ff','#ffb851','#ff9ad6']; // coral/pinkish palette
   const ghosts = ghostStarts.slice(0,4).map((s,i)=>({
     x: s.x + 0.5,
     y: s.y + 0.5,
     home: {x: s.x + 0.5, y: s.y + 0.5},
     dir: {x:0,y:0},
-    speed: 3.6 / 60, // much slower than player (3.6 tiles/sec)
+    speed: 2.5 / 60, // MUCH slower than player (2.5 tiles/sec vs 8)
     frightened: false,
     frightTimer: 0,
     id: i,
@@ -380,16 +380,30 @@
     return map[gy][gx] !== '#';
   }
 
-  // Input handling
+  // Input handling - WASD and Arrow keys
   const keyMap = {
-    ArrowUp:{x:0,y:-1}, w:{x:0,y:-1}, W:{x:0,y:-1},
-    ArrowDown:{x:0,y:1}, s:{x:0,y:1}, S:{x:0,y:1},
-    ArrowLeft:{x:-1,y:0}, a:{x:-1,y:0}, A:{x:-1,y:0},
-    ArrowRight:{x:1,y:0}, d:{x:1,y:0}, D:{x:1,y:0}
+    'ArrowUp': {x:0,y:-1}, 'w': {x:0,y:-1}, 'W': {x:0,y:-1},
+    'ArrowDown': {x:0,y:1}, 's': {x:0,y:1}, 'S': {x:0,y:1},
+    'ArrowLeft': {x:-1,y:0}, 'a': {x:-1,y:0}, 'A': {x:-1,y:0},
+    'ArrowRight': {x:1,y:0}, 'd': {x:1,y:0}, 'D': {x:1,y:0}
   };
-  window.addEventListener('keydown', e=>{
-    if(keyMap[e.key]) player.nextDir = keyMap[e.key];
-    if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key)) e.preventDefault();
+  
+  window.addEventListener('keydown', e => {
+    const dir = keyMap[e.key];
+    if (dir) {
+      player.nextDir = dir;
+      // Start game on first key press if not running
+      if (!running && !paused) {
+        running = true;
+        mode = 'normal';
+        modeEl.textContent = 'normal';
+      }
+      e.preventDefault();
+    }
+    // Prevent scrolling with arrow keys and space
+    if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key)) {
+      e.preventDefault();
+    }
   });
 
   // D-pad handlers
@@ -658,12 +672,12 @@
       }
     }
 
-    // call ghostAI with limited frequency (reduce BFS load)
-    if(Math.random() < 0.22) ghosts.forEach(g => ghostAI(g));
+    // call ghostAI with limited frequency (reduce BFS load) - LOWER = DUMBER GHOSTS
+    if(Math.random() < 0.12) ghosts.forEach(g => ghostAI(g));
 
     // move ghosts
     ghosts.forEach(g=>{
-      const speedFactor = g.frightened ? 0.75 : 1; // frightened slower
+      const speedFactor = g.frightened ? 0.5 : 1; // frightened MUCH slower
       const amt = g.speed * speedFactor;
       const gx = g.x + g.dir.x * amt;
       const gy = g.y + g.dir.y * amt;
@@ -786,7 +800,7 @@
     ctx.save();
     ctx.font = '11px Krabby Patty, sans-serif';
     ctx.fillStyle = '#bfe7ff';
-    ctx.fillText('Plankton Pac-Chomp', 8, canvas.height - 8);
+    ctx.fillText('Mr. Krabs Pac-Chomp', 8, canvas.height - 8);
     ctx.restore();
   }
 
