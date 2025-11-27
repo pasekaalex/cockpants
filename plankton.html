@@ -57,40 +57,51 @@ for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++)if(maze[y][x]<2)dots++;
 
 function draw(){
   ctx.clearRect(0,0,560,620);
+
   for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++){
     if(maze[y][x]===1){ctx.fillStyle="#0044aa";ctx.fillRect(x*TS,y*TS,TS,TS)}
     if(maze[y][x]===0){ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(x*TS+10,y*TS+10,4,0,6.28);ctx.fill()}
     if(maze[y][x]===2){ctx.fillStyle="#ffeb3b";ctx.beginPath();ctx.arc(x*TS+10,y*TS+10,8,0,6.28);ctx.fill()}
   }
-  // Mr. Krabs
-  ctx.font="36px Arial";ctx.fillText("Crab",px-12,py+20);
-  // Jellyfish ghosts
-  ghosts.forEach(g=>ctx.fillText("Jellyfish",g.x-18,g.y+20));
+
+  // 🦀 Mr. Krabs
+  ctx.font="32px Arial";
+  ctx.fillText("🦀",px-12,py+20);
+
+  // 🪼 Jellyfish ghosts
+  ghosts.forEach(g=>{
+    ctx.fillText("🪼",g.x-12,g.y+20);
+  });
+
   document.getElementById("score").textContent=score;
-  document.getElementById("lives").textContent=lives+" x Mr. Krabs";
+  document.getElementById("lives").textContent=lives+" x 🦀";
 }
 
 function update(){
-  // Player movement
   const nd=dirs[nextDir];
   if(maze[Math.floor((py+nd[1]*speed+10)/TS)][Math.floor((px+nd[0]*speed+10)/TS)]!==1)dir=nextDir;
   px+=dirs[dir][0]*speed;py+=dirs[dir][1]*speed;
+
   if(px<-TS)px=COLS*TS-TS;if(px>=COLS*TS)px=-TS;
+
   const tx=Math.floor((px+10)/TS),ty=Math.floor((py+10)/TS);
+
   if(maze[ty][tx]===0){maze[ty][tx]=3;score+=10;dots--}
   if(maze[ty][tx]===2){maze[ty][tx]=3;fright=480}
 
-  // Ghost collision
   ghosts.forEach(g=>{
     if(Math.hypot(px-g.x,py-g.y)<30){
       if(fright){score+=200;g.x=14*TS;g.y=14*TS}
-      else{lives--;if(lives<=0){alert("GAME OVER! Score: "+score);location.reload()}
-        px=14*TS;py=23*TS}
+      else{
+        lives--;
+        if(lives<=0){alert("GAME OVER! Score: "+score);location.reload()}
+        px=14*TS;py=23*TS;
+      }
     }
   });
+
   if(fright)fright--;
 
-  // Simple ghost chase
   ghosts.forEach(g=>{
     if(g.mode==="house"){if(g.timer-->0)g.mode="chase";return}
     let best=999,bd=g.dx*10+g.dy;
@@ -110,15 +121,22 @@ function update(){
 }
 
 const dirs=[[-1,0],[0,-1],[1,0],[0,1]];
+
 document.addEventListener("keydown",e=>{
   const k={"ArrowLeft":0,"a":0,"ArrowUp":1,"w":1,"ArrowRight":2,"d":2,"ArrowDown":3,"s":3};
   if(k[e.key]!==undefined)nextDir=k[e.key];
 });
+
 ["up","left","right","down"].forEach((id,i)=>document.getElementById(id).ontouchstart=e=>{e.preventDefault();nextDir=i});
 
-const music=document.getElementById("bgMusic");music.volume=0.3;
-document.getElementById("musicToggle").onclick=()=>{music.paused?music.play():music.pause();
-  document.getElementById("musicToggle").textContent=music.paused?"OFF":"ON"};
+const music=document.getElementById("bgMusic");
+music.volume=0.3;
+
+document.getElementById("musicToggle").onclick=()=>{
+  music.paused?music.play():music.pause();
+  document.getElementById("musicToggle").textContent=music.paused?"OFF":"ON";
+};
+
 document.addEventListener("click",()=>music.play().catch(()=>{}),{once:true});
 
 function loop(){update();draw();requestAnimationFrame(loop)}
