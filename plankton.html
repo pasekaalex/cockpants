@@ -1,19 +1,15 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Plankton Pac-Chomp | $COCKPANTS</title>
 <style>
-  /* Use same font and background styling as your index.html */
-  @font-face {
-    font-family: 'Krabby Patty';
-    src: url('Krabby Patty.ttf') format('truetype');
-    font-display: swap;
-  }
+  /* EXACT site font + visual rules from your index.html */
+  @font-face { font-family: 'Krabby Patty'; src: url('Krabby Patty.ttf') format('truetype'); font-display: swap; }
 
-  *{margin:0;padding:0;box-sizing:border-box;touch-action:manipulation}
-  html,body{height:100%}
+  * { box-sizing: border-box; margin: 0; padding: 0; touch-action: manipulation; }
+  html,body { height: 100%; }
   body{
     font-family: 'Krabby Patty', Arial, sans-serif;
     min-height:100vh;
@@ -24,25 +20,16 @@
     overflow-x:hidden;
     position:relative;
     background-color: #0a3a5c;
-    /* restored the exact background you used on index.html */
     background-image: url('https://i.imgur.com/q8Qd5PK.jpeg');
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
     color:#ffeb3b;
-    -webkit-font-smoothing:antialiased;
-    -moz-osx-font-smoothing:grayscale;
     padding:18px;
   }
+  /* dark overlay like index.html */
+  body::before{ content:''; position:fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,20,40,0.5); z-index:0; pointer-events:none; }
 
-  body::before{
-    content:'';
-    position:fixed; top:0; left:0; width:100%; height:100%;
-    background: rgba(0, 20, 40, 0.5);
-    z-index:0; pointer-events:none;
-  }
-
-  /* page chrome (matching index) */
   header{
     width:100%;
     max-width:980px;
@@ -50,8 +37,8 @@
     align-items:center;
     justify-content:space-between;
     gap:12px;
+    margin-bottom:8px;
     z-index:5;
-    margin-bottom:6px;
   }
   .title{
     display:flex;
@@ -62,8 +49,8 @@
     font-size:20px;
   }
 
-  /* index-style controls */
-  button, .btn {
+  /* index-style button */
+  .btn {
     background: linear-gradient(135deg, rgba(139, 69, 19, 0.95), rgba(101, 67, 33, 0.95));
     border: 4px solid #ffcc00;
     color: #ffcc00;
@@ -79,7 +66,6 @@
   }
   .small{ font-size:14px; padding:6px 10px; }
 
-  /* layout */
   main{
     width:100%;
     max-width:980px;
@@ -89,7 +75,6 @@
     z-index:5;
   }
 
-  /* canvas container similar to previous styling */
   #canvas-wrap{
     background: linear-gradient(180deg, rgba(0,0,0,0.12), rgba(0,0,0,0.18));
     padding:12px;
@@ -98,7 +83,7 @@
     box-shadow: 0 12px 40px rgba(0,0,0,0.6);
   }
 
-  /* use the same visual canvas border as your old file */
+  /* canvas matches original size you used earlier */
   canvas{
     display:block;
     width:560px;
@@ -111,7 +96,6 @@
     image-rendering:pixelated;
   }
 
-  /* HUD to the right, matching index colors */
   .hud{
     width:260px;
     display:flex;
@@ -128,36 +112,23 @@
   }
   .stat small{display:block;color:#cfe9ff;font-size:12px}
 
-  /* back button same style and placement as before */
-  .back-btn{
-    background:#8B4513;
-    border:4px solid #ffcc00;
-    color:#ffcc00;
-    padding:12px 20px;
+  /* controls area under header */
+  .controls { display:flex; gap:8px; align-items:center; }
+
+  /* Start / Pause big buttons */
+  .big-btn {
+    display:inline-block;
+    background: linear-gradient(135deg,#4CAF50,#2E7D32);
+    color:#fff;
+    border:3px solid #8BC34A;
+    padding:12px 18px;
     border-radius:12px;
     font-size:16px;
-    text-decoration:none;
+    cursor:pointer;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.5);
   }
 
-  /* music toggle same as index */
-  .music-toggle{
-    position:fixed;
-    bottom:20px;
-    left:20px;
-    width:50px;
-    height:50px;
-    border-radius:50%;
-    background: linear-gradient(135deg, rgba(139, 69, 19, 0.9), rgba(101, 67, 33, 0.9));
-    border: 3px solid #ffcc00;
-    color: #ffcc00;
-    font-size: 20px;
-    cursor: pointer;
-    z-index:1000;
-    box-shadow: 0 0 15px rgba(255,200,50,0.3);
-  }
-  .music-toggle.muted{ opacity:0.5; border-color:#888; color:#888; }
-
-  /* D-pad like your index's mobile layout */
+  /* D-pad */
   .dpad{
     position:fixed;
     right:18px;
@@ -181,42 +152,60 @@
   .dpad .blank{ background:transparent; box-shadow:none; pointer-events:none; }
   @media(min-width:920px){ .dpad{ display:none } }
 
-  @media (max-width:920px){
-    canvas{ width:92vw; height:92vw * 1.1071; max-height:640px } /* keep aspect */
-    main{ flex-direction:column; align-items:center }
-    .hud{ width:92vw; max-width:420px }
+  /* modal popups */
+  .modal-backdrop{
+    position:fixed; inset:0; background: rgba(0,0,0,0.6); display:flex; justify-content:center; align-items:center; z-index:2000;
+  }
+  .modal{
+    background: linear-gradient(180deg,#8B4513,#552B12);
+    border:4px solid #ffcc00;
+    padding:20px;
+    border-radius:14px;
+    color:#fff;
+    width:320px;
+    text-align:center;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.7);
   }
 
   .footer-note{ font-size:12px; color:#cfe9ff; opacity:0.9; margin-top:8px; text-align:center; }
+
+  @media(max-width:920px){
+    canvas{ width:92vw; height: calc(92vw * 1.1071); max-height:640px }
+    main{ flex-direction:column; align-items:center }
+    .hud{ width:92vw; max-width:420px }
+    .modal{ width:88vw }
+  }
 </style>
 </head>
 <body>
   <header>
-    <div class="title">
-      <a class="back-btn" href="index.html">◀ MENU</a>
-      <div style="display:flex;flex-direction:column;">
-        <div style="font-size:22px;">Plankton Pac-Chomp</div>
-        <div style="font-size:12px;color:#cfe9ff">— Bikini Bottom Arcade</div>
+    <div style="display:flex;align-items:center;gap:12px;">
+      <a class="btn back-btn" href="index.html">◀ MENU</a>
+      <div class="title">
+        <div style="font-size:18px;">Plankton Pac-Chomp</div>
+        <div style="font-size:11px;color:#cfe9ff">— Bikini Bottom Arcade</div>
       </div>
     </div>
 
-    <div style="display:flex;gap:8px;align-items:center;">
-      <button id="restart" class="small">Restart</button>
-      <button id="musicToggle" class="music-toggle" title="Toggle music">🎵</button>
+    <div class="controls">
+      <button id="startBtn" class="big-btn">Start Game</button>
+      <button id="pauseBtn" class="btn small">Pause</button>
+      <button id="restartBtn" class="btn small">Restart</button>
+      <button id="musicToggle" class="btn small" title="Toggle music">🎵</button>
     </div>
   </header>
 
   <main>
     <div id="canvas-wrap">
-      <canvas id="gameCanvas" width="560" height="620" aria-label="Plankton Pac-Chomp"></canvas>
+      <canvas id="game" width="560" height="620" aria-label="Plankton Pac-Chomp"></canvas>
       <div class="footer-note">Dots = bubbles • Power = Krabby Patties</div>
     </div>
 
     <aside class="hud" aria-hidden="false">
-      <div class="stat">Score: <strong id="score">0</strong><small>Eat bubbles</small></div>
-      <div class="stat">Lives: <strong id="lives">3</strong><small>Don't get eaten</small></div>
-      <div class="stat">Mode: <strong id="mode">normal</strong><small>Krabby Patty = power</small></div>
-      <div class="stat">Controls:<br>WASD / Arrows (desktop) • D-pad (mobile)</div>
+      <div class="stat">Score: <strong id="score">0</strong><small>Eat bubbles to score</small></div>
+      <div class="stat">Lives: <strong id="lives">3</strong><small>Avoid jellyfish</small></div>
+      <div class="stat">Mode: <strong id="mode">paused</strong><small>Power makes ghosts scared</small></div>
+      <div class="stat">Controls:<br>WASD / Arrow keys (desktop) • D-pad (mobile)</div>
     </aside>
   </main>
 
@@ -231,31 +220,61 @@
     <button data-dir="down">▼</button>
   </div>
 
-  <!-- background music (same bob.mp3 as your index) -->
+  <!-- music -->
   <audio id="bgMusic" loop preload="auto"><source src="bob.mp3" type="audio/mpeg"></audio>
 
+  <!-- Game Over / Win modals (hidden initially) -->
+  <div id="modalBackdrop" style="display:none;" class="modal-backdrop" role="dialog" aria-hidden="true">
+    <div class="modal" id="modalBox">
+      <h2 id="modalTitle">Game Over</h2>
+      <p id="modalMsg">Your score: <span id="modalScore">0</span></p>
+      <div style="display:flex;gap:8px;justify-content:center;margin-top:12px;">
+        <button id="modalRestart" class="btn">Restart</button>
+        <a href="index.html" class="btn">Back to Menu</a>
+      </div>
+    </div>
+  </div>
+
 <script>
-/* Complete, fixed Plankton Pac-Chomp - game logic kept from working rebuild,
-   but styling & assets restored to your index.html look.
-   Important: keep Krabby Patty.ttf and bob.mp3 in the same folder.
+/* Full Plankton Pac-Chomp - Bikini Bottom Coral Maze style
+   Features implemented per request:
+   - Start button (game initially paused)
+   - Pause/Restart
+   - Slower ghosts than player
+   - Grid-snapped player movement (no drift)
+   - Ghost BFS chasing limited frequency, smoother moves
+   - Coral-style walls (pink/purple), rounded with soft glow
+   - Pellets are circles
+   - Game Over and You Win modals
+   - WASD/Arrow + mobile D-pad
+   - Music toggle (bob.mp3)
+   - Keeps the site's original styling & assets
 */
 
 (() => {
-  const canvas = document.getElementById('gameCanvas');
+  // Canvas & context
+  const canvas = document.getElementById('game');
   const ctx = canvas.getContext('2d', { alpha: false });
 
-  // HUD/UI
+  // UI elements
   const scoreEl = document.getElementById('score');
   const livesEl = document.getElementById('lives');
   const modeEl = document.getElementById('mode');
+  const startBtn = document.getElementById('startBtn');
+  const pauseBtn = document.getElementById('pauseBtn');
+  const restartBtn = document.getElementById('restartBtn');
   const musicToggle = document.getElementById('musicToggle');
-  const restartBtn = document.getElementById('restart');
   const bgMusic = document.getElementById('bgMusic');
 
-  // Grid config
-  const TILE = 20; // smaller tile to fit the 560x620 canvas nicely
-  // Map adapted to fit the canvas - uses characters:
-  // '#' wall, '.' dot, 'o' power, 'P' player start, 'G' ghost lair
+  const modalBackdrop = document.getElementById('modalBackdrop');
+  const modalTitle = document.getElementById('modalTitle');
+  const modalMsg = document.getElementById('modalMsg');
+  const modalScore = document.getElementById('modalScore');
+  const modalRestart = document.getElementById('modalRestart');
+
+  // Tile and map
+  const TILE = 20; // fits 560x620 nicely with map below
+  // BIKINI BOTTOM CORAL MAZE: # wall, . pellet, o power, P player, G ghost lair, space empty
   const rawMap = [
     "########################",
     "#........#....#........#",
@@ -283,38 +302,29 @@
 
   const W = Math.max(...rawMap.map(r=>r.length));
   const H = rawMap.length;
-  // scale canvas to map * TILE but keep CSS size
   canvas.width = W * TILE;
   canvas.height = H * TILE;
   canvas.style.width = '560px';
   canvas.style.height = '620px';
 
-  // build map array (mutable; pellet storage kept separate)
-  const map = rawMap.map(r => (r + ' '.repeat(W)).slice(0,W).split(''));
-
-  // game state
-  let score = 0;
-  let lives = 3;
-  let mode = 'normal';
-  let powerTimer = 0;
-  let running = true;
-  let totalPellets = 0;
-
+  // Build mutable map and pellet sets
+  const map = rawMap.map(r => (r + ' '.repeat(W)).slice(0, W).split(''));
   const pellets = new Set();
   const powers = new Set();
+  let totalPellets = 0;
   let playerStart = null;
   const ghostStarts = [];
 
   for(let y=0;y<H;y++){
     for(let x=0;x<W;x++){
-      const c = map[y][x];
-      if(c === '.') { pellets.add(`${x},${y}`); totalPellets++; }
-      if(c === 'o') { powers.add(`${x},${y}`); totalPellets++; }
-      if(c === 'P') playerStart = {x,y};
-      if(c === 'G') ghostStarts.push({x,y});
+      const ch = map[y][x];
+      if(ch === '.') { pellets.add(`${x},${y}`); totalPellets++; }
+      if(ch === 'o') { powers.add(`${x},${y}`); totalPellets++; }
+      if(ch === 'P') playerStart = {x,y};
+      if(ch === 'G') ghostStarts.push({x,y});
     }
   }
-  if(!playerStart) playerStart = {x: Math.floor(W/2), y: H-3};
+  if(!playerStart) playerStart = {x: Math.floor(W/2), y: H-4};
   if(ghostStarts.length < 4){
     ghostStarts.length = 0;
     ghostStarts.push({x: Math.floor(W/2)-1, y: Math.floor(H/2)});
@@ -323,32 +333,32 @@
     ghostStarts.push({x: Math.floor(W/2)+2, y: Math.floor(H/2)});
   }
 
-  // player
+  // Player
   const player = {
     x: playerStart.x + 0.5,
     y: playerStart.y + 0.5,
     dir: {x:0,y:0},
     nextDir: {x:0,y:0},
-    speed: 6 / 60 // tiles per frame approx (6 tiles/sec)
+    speed: 6/60 // tiles per frame -> 6 tiles/sec
   };
 
-  // ghosts
-  const ghostColors = ['#ff3b3b','#00f2ff','#ffb851','#8fff6b'];
-  const ghosts = ghostStarts.slice(0,4).map((s,i) => ({
+  // Ghosts (slower than player)
+  const ghostColors = ['#ff8aa0','#ff77ff','#ffb851','#ff9ad6']; // coral/pinkish palette
+  const ghosts = ghostStarts.slice(0,4).map((s,i)=>({
     x: s.x + 0.5,
     y: s.y + 0.5,
     home: {x: s.x + 0.5, y: s.y + 0.5},
     dir: {x:0,y:0},
-    speed: 5.2 / 60,
+    speed: 3.6 / 60, // much slower than player (3.6 tiles/sec)
     frightened: false,
-    color: ghostColors[i],
+    frightTimer: 0,
     id: i,
-    houseTimer: 30 + i*20
+    houseTimer: 20 + i*30
   }));
 
-  // emoji sprites (offscreen) for better cross-device emoji rendering
+  // Offscreen emoji sprites for stability
   const spriteSize = TILE * 2;
-  const makeEmoji = emoji => {
+  function makeEmoji(emoji){
     const c = document.createElement('canvas');
     c.width = spriteSize; c.height = spriteSize;
     const cx = c.getContext('2d');
@@ -356,21 +366,21 @@
     cx.font = Math.floor(spriteSize*0.9) + 'px serif';
     cx.fillText(emoji, c.width/2, c.height/2 + 2);
     return c;
-  };
+  }
   const crabSprite = makeEmoji('🦀');
   const jellySprite = makeEmoji('🪼');
 
-  // helpers
-  function isWall(x,y){
-    if(x<0||y<0||x>=W||y>=H) return true;
-    return map[y][x] === '#';
+  // Utility functions
+  function isWall(gx,gy){
+    if(gx<0||gy<0||gx>=W||gy>=H) return true;
+    return map[gy][gx] === '#';
   }
-  function isPassable(x,y){
-    if(x<0||y<0||x>=W||y>=H) return false;
-    return map[y][x] !== '#';
+  function isPassable(gx,gy){
+    if(gx<0||gy<0||gx>=W||gy>=H) return false;
+    return map[gy][gx] !== '#';
   }
 
-  // input
+  // Input handling
   const keyMap = {
     ArrowUp:{x:0,y:-1}, w:{x:0,y:-1}, W:{x:0,y:-1},
     ArrowDown:{x:0,y:1}, s:{x:0,y:1}, S:{x:0,y:1},
@@ -382,7 +392,7 @@
     if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key)) e.preventDefault();
   });
 
-  // mobile D-pad
+  // D-pad handlers
   document.querySelectorAll('.dpad button[data-dir]').forEach(btn=>{
     const dir = btn.dataset.dir;
     const mapDir = { up:{x:0,y:-1}, down:{x:0,y:1}, left:{x:-1,y:0}, right:{x:1,y:0} }[dir];
@@ -390,19 +400,20 @@
     btn.addEventListener('mousedown', e=>{ e.preventDefault(); player.nextDir = mapDir; });
   });
 
-  // BFS for ghosts (next step)
+  // BFS pathfinding for ghosts (returns direction vector from start to target)
   function bfsNext(startX,startY,targetX,targetY){
     const sx = Math.floor(startX), sy = Math.floor(startY);
     const tx = Math.floor(targetX), ty = Math.floor(targetY);
     if(sx === tx && sy === ty) return null;
-    const q = [], seen = Array.from({length:H},()=>Array(W).fill(false));
-    const parent = Array.from({length:H},()=>Array(W).fill(null));
+    const q = [], seen = Array.from({length:H}, ()=>Array(W).fill(false));
+    const parent = Array.from({length:H}, ()=>Array(W).fill(null));
     q.push({x:sx,y:sy});
     seen[sy][sx] = true;
     const dirs = [{x:1,y:0},{x:-1,y:0},{x:0,y:1},{x:0,y:-1}];
     while(q.length){
       const cur = q.shift();
       if(cur.x === tx && cur.y === ty){
+        // backtrack to step
         let c = cur;
         while(parent[c.y][c.x] && !(parent[c.y][c.x].x === sx && parent[c.y][c.x].y === sy)){
           c = parent[c.y][c.x];
@@ -422,95 +433,141 @@
     return null;
   }
 
-  // initialize or reset pellets & state
-  function resetGame(){
-    pellets.clear(); powers.clear(); totalPellets = 0;
-    for(let y=0;y<H;y++){
-      for(let x=0;x<W;x++){
-        const c = map[y][x];
-        if(c === '.') { pellets.add(`${x},${y}`); totalPellets++; }
-        if(c === 'o') { powers.add(`${x},${y}`); totalPellets++; }
-      }
-    }
-    score = 0; lives = 3; powerTimer = 0; mode = 'normal'; running = true;
-    // reset player
-    player.x = playerStart.x + 0.5; player.y = playerStart.y + 0.5;
-    player.dir = {x:0,y:0}; player.nextDir = {x:0,y:0};
-    // reset ghosts
-    ghosts.forEach((g,i)=>{
-      g.x = ghostStarts[i].x + 0.5;
-      g.y = ghostStarts[i].y + 0.5;
-      g.dir = {x:0,y:0};
-      g.frightened = false;
-      g.houseTimer = 30 + i*20;
-    });
-    scoreEl.textContent = score;
-    livesEl.textContent = lives;
-    modeEl.textContent = mode;
-  }
+  // Game variables
+  let running = false; // starts paused until Start Game pressed
+  let paused = false;
+  let score = 0;
+  let lives = 3;
+  let mode = 'paused';
+  let powerTimer = 0;
+  const FPS = 60;
 
-  // initial pellet collection
-  (function init(){
+  // Init/reset function
+  function resetRound(fullReset=true){
+    // rebuild pellets & powers from original map (don't mutate rawMap)
     pellets.clear(); powers.clear(); totalPellets = 0;
     for(let y=0;y<H;y++){
       for(let x=0;x<W;x++){
         const ch = map[y][x];
         if(ch === '.') { pellets.add(`${x},${y}`); totalPellets++; }
         if(ch === 'o') { powers.add(`${x},${y}`); totalPellets++; }
-        if(ch === 'P') playerStart = {x,y};
       }
     }
-    // ensure ghostStarts array has starting positions
-    // find G positions if any
-    const found = [];
-    for(let y=0;y<H;y++) for(let x=0;x<W;x++) if(map[y][x] === 'G') found.push({x,y});
-    if(found.length >= 4){
-      for(let i=0;i<4;i++) ghostStarts[i] = found[i];
-    }
-    // final reset
-    resetGame();
-  })();
-
-  // collision handling
-  function loseLife(){
-    lives--; livesEl.textContent = lives;
-    if(lives <= 0){ running = false; setTimeout(()=> alert('GAME OVER\nScore: ' + score), 40); }
-    else {
-      // reset positions
+    if(fullReset){
+      score = 0; lives = 3;
+      player.x = playerStart.x + 0.5;
+      player.y = playerStart.y + 0.5;
+      player.dir = {x:0,y:0};
+      player.nextDir = {x:0,y:0};
+      ghosts.forEach((g,i)=>{
+        g.x = ghostStarts[i].x + 0.5;
+        g.y = ghostStarts[i].y + 0.5;
+        g.dir = {x:0,y:0};
+        g.frightened = false;
+        g.frightTimer = 0;
+        g.houseTimer = 20 + i*30;
+      });
+    } else {
+      // only reposition player and ghosts
       player.x = playerStart.x + 0.5; player.y = playerStart.y + 0.5;
       player.dir = {x:0,y:0}; player.nextDir = {x:0,y:0};
       ghosts.forEach((g,i)=>{
         g.x = ghostStarts[i].x + 0.5;
         g.y = ghostStarts[i].y + 0.5;
-        g.frightened = false;
         g.dir = {x:0,y:0};
+        g.frightened = false;
+        g.frightTimer = 0;
+      });
+    }
+    scoreEl.textContent = score;
+    livesEl.textContent = lives;
+    modeEl.textContent = mode;
+  }
+
+  // Start/pause handlers
+  startBtn.addEventListener('click', ()=> {
+    if(!running){
+      running = true; paused = false;
+      mode = 'normal'; modeEl.textContent = mode;
+      startBtn.textContent = 'Playing';
+      startBtn.disabled = true;
+    }
+  });
+  pauseBtn.addEventListener('click', ()=>{
+    if(!running) return;
+    paused = !paused;
+    pauseBtn.textContent = paused ? 'Resume' : 'Pause';
+    modeEl.textContent = paused ? 'paused' : mode;
+  });
+  restartBtn.addEventListener('click', ()=> {
+    resetRound(true);
+    running = false;
+    paused = false;
+    mode = 'paused';
+    modeEl.textContent = mode;
+    startBtn.disabled = false;
+    startBtn.textContent = 'Start Game';
+    hideModal();
+  });
+
+  modalRestart.addEventListener('click', ()=> {
+    resetRound(true);
+    hideModal();
+    running = false;
+    startBtn.disabled = false;
+    startBtn.textContent = 'Start Game';
+    mode = 'paused';
+    modeEl.textContent = mode;
+  });
+
+  // Music toggle logic
+  bgMusic.volume = 0.3;
+  let musicOn = true;
+  function tryPlayMusic(){ bgMusic.play().catch(()=>{}); }
+  document.addEventListener('click', tryPlayMusic, { once: true });
+  musicToggle.addEventListener('click', ()=>{
+    musicOn = !musicOn;
+    if(musicOn){ bgMusic.play().catch(()=>{}); musicToggle.textContent = '🎵'; musicToggle.classList.remove('muted'); }
+    else { bgMusic.pause(); musicToggle.textContent = '🔇'; musicToggle.classList.add('muted'); }
+  });
+
+  // Collision and life handling
+  function loseLife(){
+    lives--; livesEl.textContent = lives;
+    if(lives <= 0){
+      running = false;
+      showModal('Game Over', `Your score: ${score}`);
+    } else {
+      // reset positions only
+      player.x = playerStart.x + 0.5; player.y = playerStart.y + 0.5;
+      player.dir = {x:0,y:0}; player.nextDir = {x:0,y:0};
+      ghosts.forEach((g,i)=>{
+        g.x = ghostStarts[i].x + 0.5;
+        g.y = ghostStarts[i].y + 0.5;
+        g.dir = {x:0,y:0};
+        g.frightened = false;
+        g.frightTimer = 0;
       });
     }
   }
 
-  function checkCollisions(){
-    ghosts.forEach(g=>{
-      const dx = g.x - player.x;
-      const dy = g.y - player.y;
-      const dist2 = dx*dx + dy*dy;
-      const threshold = 0.6;
-      if(dist2 < threshold*threshold){
-        if(g.frightened){
-          score += 200;
-          scoreEl.textContent = score;
-          g.x = g.home.x; g.y = g.home.y;
-          g.frightened = false;
-        } else {
-          loseLife();
-        }
-      }
-    });
+  function showModal(title, message){
+    modalTitle.textContent = title;
+    modalMsg.innerHTML = message + '<br/><br/>';
+    modalScore.textContent = score;
+    modalBackdrop.style.display = 'flex';
+    modalBackdrop.setAttribute('aria-hidden','false');
+  }
+  function hideModal(){
+    modalBackdrop.style.display = 'none';
+    modalBackdrop.setAttribute('aria-hidden','true');
   }
 
-  // ghost AI: BFS or random when frightened
+  // Ghost AI (limited calls) and movement
   function ghostAI(g){
     if(g.houseTimer > 0){ g.houseTimer--; return; }
     if(g.frightened){
+      // random at intersections
       const gx = Math.floor(g.x), gy = Math.floor(g.y);
       const choices = [];
       [{x:1,y:0},{x:-1,y:0},{x:0,y:1},{x:0,y:-1}].forEach(d=>{
@@ -523,12 +580,30 @@
     }
   }
 
-  // update loop
-  const FPS = 60;
-  function update(){
-    if(!running) return;
+  // Check collisions with ghosts
+  function checkCollisions(){
+    ghosts.forEach(g=>{
+      const dx = g.x - player.x;
+      const dy = g.y - player.y;
+      const dist2 = dx*dx + dy*dy;
+      const threshold = 0.6;
+      if(dist2 < threshold*threshold){
+        if(g.frightened){
+          score += 200; scoreEl.textContent = score;
+          g.x = g.home.x; g.y = g.home.y;
+          g.frightened = false; g.frightTimer = 0;
+        } else {
+          loseLife();
+        }
+      }
+    });
+  }
 
-    // allow reversing anytime, otherwise only turn at center
+  // Update function
+  function update(){
+    if(!running || paused) return;
+
+    // handle player direction changes: reversing allowed anytime, otherwise only at center
     if(player.nextDir.x === -player.dir.x && player.nextDir.y === -player.dir.y){
       player.dir = player.nextDir;
     } else {
@@ -554,7 +629,7 @@
       player.y = Math.round(player.y - 0.5) + 0.5;
     }
 
-    // collect pellets/powers when near center
+    // collect pellets/powers when close to center
     const pcx = Math.floor(player.x), pcy = Math.floor(player.y);
     const key = `${pcx},${pcy}`;
     if(pellets.has(key)){
@@ -567,12 +642,13 @@
       const cx = pcx + 0.5, cy = pcy + 0.5;
       if(Math.abs(player.x - cx) < 0.45 && Math.abs(player.y - cy) < 0.45){
         powers.delete(key); score += 50; scoreEl.textContent = score;
-        mode = 'power'; modeEl.textContent = 'POWER!'; powerTimer = 12 * FPS;
+        mode = 'power'; modeEl.textContent = 'POWER!';
+        powerTimer = 12 * FPS;
         ghosts.forEach(g => { g.frightened = true; g.frightTimer = powerTimer; });
       }
     }
 
-    // handle power timer
+    // power timer
     if(mode === 'power'){
       powerTimer--;
       if(powerTimer <= 0){
@@ -582,24 +658,25 @@
       }
     }
 
-    // ghosts AI sometimes to limit BFS cost
-    if(Math.random() < 0.28) ghosts.forEach(g => ghostAI(g));
+    // call ghostAI with limited frequency (reduce BFS load)
+    if(Math.random() < 0.22) ghosts.forEach(g => ghostAI(g));
 
     // move ghosts
     ghosts.forEach(g=>{
-      const speedFactor = g.frightened ? 0.85 : 1;
+      const speedFactor = g.frightened ? 0.75 : 1; // frightened slower
       const amt = g.speed * speedFactor;
       const gx = g.x + g.dir.x * amt;
       const gy = g.y + g.dir.y * amt;
       if(isPassable(Math.floor(gx), Math.floor(gy))){
         g.x = gx; g.y = gy;
       } else {
-        const gxFloor = Math.floor(g.x), gyFloor = Math.floor(g.y);
-        const options = [];
+        // choose a random available direction at intersection
+        const gxF = Math.floor(g.x), gyF = Math.floor(g.y);
+        const opts = [];
         [{x:1,y:0},{x:-1,y:0},{x:0,y:1},{x:0,y:-1}].forEach(d=>{
-          if(isPassable(gxFloor + d.x, gyFloor + d.y)) options.push(d);
+          if(isPassable(gxF + d.x, gyF + d.y)) opts.push(d);
         });
-        if(options.length) g.dir = options[Math.floor(Math.random()*options.length)];
+        if(opts.length) g.dir = opts[Math.floor(Math.random()*opts.length)];
       }
       if(g.frightTimer) g.frightTimer--;
       if(g.frightTimer <= 0) g.frightened = false;
@@ -608,50 +685,62 @@
     // collisions
     checkCollisions();
 
-    // win
+    // win condition
     if(totalPellets <= 0){
       running = false;
-      setTimeout(()=> alert('YOU WIN! Score: ' + score), 40);
+      showModal('You Win!', `Your score: ${score}`);
     }
   }
 
-  // draw
+  // Draw function (coral-themed walls)
   function draw(){
-    // background
+    // floor base
     ctx.fillStyle = '#021827';
     ctx.fillRect(0,0,canvas.width,canvas.height);
 
-    // draw map (walls, pellets, power)
+    // draw coral walls and pellets
     for(let y=0;y<H;y++){
       for(let x=0;x<W;x++){
         const ch = map[y][x];
         const rx = x * TILE, ry = y * TILE;
         if(ch === '#'){
-          ctx.fillStyle = '#0044aa';
-          ctx.fillRect(rx, ry, TILE, TILE);
-          ctx.lineWidth = 2;
-          ctx.strokeStyle = '#ffeb3b';
-          ctx.strokeRect(rx+1, ry+1, TILE-2, TILE-2);
+          // coral wall: pink/purple with glow and rounded corners
+          ctx.save();
+          ctx.fillStyle = '#ff8fbf'; // main coral
+          roundRect(ctx, rx+2, ry+2, TILE-4, TILE-4, 6);
+          ctx.fill();
+          // inner darker shade for depth
+          ctx.fillStyle = '#d25a9a';
+          roundRect(ctx, rx+4, ry+6, TILE-8, TILE-12, 5);
+          ctx.fill();
+          // soft outer glow
+          ctx.shadowColor = 'rgba(255,140,200,0.24)';
+          ctx.shadowBlur = 12;
+          ctx.fillStyle = 'rgba(255,140,200,0.06)';
+          ctx.fillRect(rx-1, ry-1, TILE+2, TILE+2);
+          ctx.restore();
         } else {
+          // subtle floor
           ctx.fillStyle = 'rgba(255,255,255,0.02)';
           ctx.fillRect(rx, ry, TILE, TILE);
-          const k = `${x},${y}`;
-          if(pellets.has(k)){
+          const key = `${x},${y}`;
+          // pellet
+          if(pellets.has(key)){
             ctx.beginPath();
             ctx.fillStyle = '#cfe9ff';
-            ctx.arc(rx + TILE/2, ry + TILE/2, Math.max(1.5, TILE*0.08), 0, Math.PI*2);
+            ctx.arc(rx + TILE/2, ry + TILE/2, Math.max(1.8, TILE*0.09), 0, Math.PI*2);
             ctx.fill();
-          } else if(powers.has(k)){
+          } else if(powers.has(key)){
             ctx.beginPath();
             ctx.fillStyle = '#ffd54f';
-            ctx.arc(rx + TILE/2, ry + TILE/2, Math.max(4, TILE*0.18), 0, Math.PI*2);
+            ctx.arc(rx + TILE/2, ry + TILE/2, Math.max(4, TILE*0.2), 0, Math.PI*2);
             ctx.fill();
           }
         }
       }
     }
 
-    // draw player (crab emoji)
+    // player (crab)
     const px = (player.x - 0.5) * TILE;
     const py = (player.y - 0.5) * TILE;
     // glow
@@ -664,7 +753,7 @@
     const s = TILE * 1.2;
     ctx.drawImage(crabSprite, 0, 0, crabSprite.width, crabSprite.height, px + (TILE - s)/2, py + (TILE - s)/2, s, s);
 
-    // draw ghosts
+    // ghosts (jellyfish)
     ghosts.forEach(g=>{
       const gx = (g.x - 0.5) * TILE;
       const gy = (g.y - 0.5) * TILE;
@@ -674,25 +763,26 @@
         ctx.strokeStyle = '#fff';
       } else {
         ctx.fillStyle = g.color;
-        ctx.strokeStyle = '#001827';
+        ctx.strokeStyle = '#7a0033';
       }
-      // ghost body
+      // rounded ghost body for cartoony jelly
       const bw = TILE*0.72, bh = TILE*0.85, bx = gx + TILE*0.14, by = gy + TILE*0.05;
       roundRect(ctx, bx, by, bw, bh, TILE*0.18);
       ctx.fill();
       ctx.lineWidth = 1.2;
       ctx.stroke();
+
       // eyes
       ctx.fillStyle = '#fff';
-      ctx.beginPath(); ctx.ellipse(bx + TILE*0.2, by + TILE*0.29, TILE*0.09, TILE*0.11, 0, 0, Math.PI*2); ctx.fill();
-      ctx.beginPath(); ctx.ellipse(bx + TILE*0.47, by + TILE*0.29, TILE*0.09, TILE*0.11, 0, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(bx + TILE*0.26, by + TILE*0.32, TILE*0.09, TILE*0.11, 0, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(bx + TILE*0.46, by + TILE*0.32, TILE*0.09, TILE*0.11, 0, 0, Math.PI*2); ctx.fill();
       ctx.fillStyle = '#001827';
-      ctx.beginPath(); ctx.ellipse(bx + TILE*0.2 + g.dir.x*0.03*TILE, by + TILE*0.29 + g.dir.y*0.03*TILE, TILE*0.035, TILE*0.045, 0, 0, Math.PI*2); ctx.fill();
-      ctx.beginPath(); ctx.ellipse(bx + TILE*0.47 + g.dir.x*0.03*TILE, by + TILE*0.29 + g.dir.y*0.03*TILE, TILE*0.035, TILE*0.045, 0, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(bx + TILE*0.26 + g.dir.x*0.03*TILE, by + TILE*0.32 + g.dir.y*0.03*TILE, TILE*0.035, TILE*0.045, 0, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(bx + TILE*0.46 + g.dir.x*0.03*TILE, by + TILE*0.32 + g.dir.y*0.03*TILE, TILE*0.035, TILE*0.045, 0, 0, Math.PI*2); ctx.fill();
       ctx.restore();
     });
 
-    // label
+    // HUD label
     ctx.save();
     ctx.font = '11px Krabby Patty, sans-serif';
     ctx.fillStyle = '#bfe7ff';
@@ -700,51 +790,40 @@
     ctx.restore();
   }
 
-  // util roundRect
+  // utility: rounded rect path
   function roundRect(ctx,x,y,w,h,r){
     const rad = Math.min(r, Math.min(w/2, h/2));
     ctx.beginPath();
-    ctx.moveTo(x+rad, y);
-    ctx.arcTo(x+w, y, x+w, y+h, rad);
-    ctx.arcTo(x+w, y+h, x, y+h, rad);
-    ctx.arcTo(x, y+h, x, y, rad);
-    ctx.arcTo(x, y, x+w, y, rad);
+    ctx.moveTo(x + rad, y);
+    ctx.arcTo(x + w, y, x + w, y + h, rad);
+    ctx.arcTo(x + w, y + h, x, y + h, rad);
+    ctx.arcTo(x, y + h, x, y, rad);
+    ctx.arcTo(x, y, x + w, y, rad);
     ctx.closePath();
   }
 
-  // game loop
+  // main loop
   let last = performance.now();
-  function frame(now){
+  function loop(now){
     const dt = (now - last) / (1000/60);
     last = now;
-    // run updates (clamping)
+    // crude step quantity based on dt
     const steps = Math.max(1, Math.min(3, Math.round(dt)));
     for(let i=0;i<steps;i++) update();
     draw();
-    requestAnimationFrame(frame);
+    requestAnimationFrame(loop);
   }
 
-  // music toggles (match index behavior)
-  bgMusic.volume = 0.3;
-  let musicOn = true;
-  function tryPlayMusic(){ bgMusic.play().catch(()=>{}); }
-  document.addEventListener('click', tryPlayMusic, {once:true});
-  musicToggle.addEventListener('click', ()=>{
-    musicOn = !musicOn;
-    if(musicOn){ bgMusic.play().catch(()=>{}); musicToggle.classList.remove('muted'); musicToggle.textContent = '🎵'; }
-    else { bgMusic.pause(); musicToggle.classList.add('muted'); musicToggle.textContent = '🔇'; }
-  });
+  // Start the render loop (won't update until running=true)
+  requestAnimationFrame(loop);
 
-  // restart
-  restartBtn.addEventListener('click', resetGame);
+  // Expose restart (for dev)
+  window._plankton = { resetRound };
 
-  // expose for debugging if needed
-  window.PLANKTON = { resetGame, player, ghosts, map };
+  // Start with reset
+  resetRound(true);
 
-  // start
-  requestAnimationFrame(frame);
-
-})();
+})(); // end module
 </script>
 </body>
 </html>
