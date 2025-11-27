@@ -642,14 +642,31 @@
     let musicStarted = false;
     let musicUnlocked = false;
     
-    // Check if audio file loaded
+    // Check if audio file loaded - with detailed error info
     bgMusic.addEventListener('error', (e) => {
-      console.error('❌ Audio failed to load:', e);
-      console.log('Make sure Bob.mp3 is in the same folder as index.html');
+      const error = bgMusic.error;
+      let errorMsg = 'Unknown error';
+      if (error) {
+        switch(error.code) {
+          case 1: errorMsg = 'MEDIA_ERR_ABORTED - Fetching aborted'; break;
+          case 2: errorMsg = 'MEDIA_ERR_NETWORK - Network error'; break;
+          case 3: errorMsg = 'MEDIA_ERR_DECODE - Decoding error'; break;
+          case 4: errorMsg = 'MEDIA_ERR_SRC_NOT_SUPPORTED - Source not supported or not found'; break;
+        }
+      }
+      console.error('❌ Audio failed to load:', errorMsg);
+      console.log('Make sure Bob.mp3 is uploaded to GitHub in the same folder as index.html');
+      // Update music button to show error
+      document.getElementById('musicToggle').textContent = '❌';
+      document.getElementById('musicToggle').title = 'Audio file not found: Bob.mp3';
     });
     
     bgMusic.addEventListener('canplaythrough', () => {
       console.log('✅ Audio file loaded and ready!');
+    });
+    
+    bgMusic.addEventListener('loadstart', () => {
+      console.log('🔄 Starting to load audio...');
     });
     
     // Unlock audio on any user interaction
