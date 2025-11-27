@@ -25,6 +25,11 @@
   </style>
 </head>
 <body>
+  <!-- Background Music -->
+  <audio id="bgMusic" loop>
+    <source src="bob.mp3" type="audio/mpeg">
+  </audio>
+  
   <div id="root"></div>
 
   <script type="text/babel">
@@ -36,6 +41,7 @@
       const [score, setScore] = useState(0);
       const [highScore, setHighScore] = useState(0);
       const [lives, setLives] = useState(3);
+      const [musicPlaying, setMusicPlaying] = useState(false);
       
       const gameRef = useRef({
         player: {
@@ -56,9 +62,9 @@
         enemies: [],
         particles: [],
         keys: {},
-        gravity: 0.35,
-        jumpStrength: -8.5,
-        moveSpeed: 5,
+        gravity: 0.125,
+        jumpStrength: -3.5,
+        moveSpeed: 2.5,
         scrollOffset: 0,
         level: 1,
         jellyfishCaught: 0,
@@ -126,7 +132,7 @@
           }
         }
         
-        // Fewer but smarter enemies
+        // Fewer but smarter enemies - SPEED LOCKED AT 0.75 (50% slower)
         const enemyCount = 2 + Math.floor(level * 0.8);
         for (let i = 0; i < enemyCount; i++) {
           game.enemies.push({
@@ -134,7 +140,7 @@
             y: 500,
             width: 30,
             height: 30,
-            velocityX: 1.5 + Math.random() * 0.5,
+            velocityX: 0.75, // LOCKED SPEED - no level scaling
             direction: Math.random() > 0.5 ? 1 : -1
           });
         }
@@ -361,8 +367,8 @@
           
           game.player.velocityY += game.gravity;
           
-          // Add underwater resistance/drag to falling
-          game.player.velocityY *= 0.98;
+          // Add strong underwater resistance/drag to falling for very floaty feel
+          game.player.velocityY *= 0.96;
           
           game.player.x += game.player.velocityX;
           game.player.y += game.player.velocityY;
@@ -683,6 +689,14 @@
         setLives(3);
         generateLevel(1);
         setGameState('playing');
+        
+        // Start background music
+        const music = document.getElementById('bgMusic');
+        if (music) {
+          music.volume = 0.3;
+          music.play().catch(err => console.log('Music autoplay blocked:', err));
+          setMusicPlaying(true);
+        }
       };
 
       const resumeGame = () => {
@@ -691,6 +705,24 @@
 
       const returnToMenu = () => {
         setGameState('menu');
+        const music = document.getElementById('bgMusic');
+        if (music) {
+          music.pause();
+          setMusicPlaying(false);
+        }
+      };
+      
+      const toggleMusic = () => {
+        const music = document.getElementById('bgMusic');
+        if (music) {
+          if (music.paused) {
+            music.play();
+            setMusicPlaying(true);
+          } else {
+            music.pause();
+            setMusicPlaying(false);
+          }
+        }
       };
 
       return (
@@ -918,6 +950,38 @@
                 MAIN MENU
               </button>
             </div>
+          )}
+
+          {gameState === 'playing' && (
+            <button
+              onClick={toggleMusic}
+              style={{
+                position: 'absolute',
+                top: '20px',
+                right: '20px',
+                width: '50px',
+                height: '50px',
+                borderRadius: '50%',
+                background: 'rgba(139, 69, 19, 0.9)',
+                border: '3px solid #ffcc00',
+                color: '#ffcc00',
+                fontSize: '24px',
+                cursor: 'pointer',
+                zIndex: 1000,
+                transition: 'all 0.3s',
+                boxShadow: '0 0 15px rgba(255, 200, 50, 0.3)'
+              }}
+              onMouseOver={(e) => {
+                e.target.style.transform = 'scale(1.1)';
+                e.target.style.boxShadow = '0 0 25px rgba(255, 200, 50, 0.6)';
+              }}
+              onMouseOut={(e) => {
+                e.target.style.transform = 'scale(1)';
+                e.target.style.boxShadow = '0 0 15px rgba(255, 200, 50, 0.3)';
+              }}
+            >
+              {musicPlaying ? '🎵' : '🔇'}
+            </button>
           )}
 
           <canvas

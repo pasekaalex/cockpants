@@ -4,12 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Boating School Chaos | $COCKPANTS</title>
-  <meta name="description" content="Navigate your boat through Bikini Bottom! Avoid obstacles and collect Krabby Patties.">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <style>
     @font-face {
       font-family: 'Krabby Patty';
-      src: url('Krabby Patty.ttf') format('truetype');
+      src: url('../Krabby Patty.ttf') format('truetype');
     }
     
     * {
@@ -18,116 +17,57 @@
       box-sizing: border-box;
     }
     
-    html, body {
-      width: 100%;
-      height: 100%;
+    body {
       font-family: 'Krabby Patty', Arial, sans-serif;
-      background: #0a3a5c;
       overflow: hidden;
-      touch-action: manipulation;
+      background: linear-gradient(180deg, #87CEEB 0%, #4682B4 100%);
     }
     
-    body::before {
-      content: '';
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-image: url('https://i.imgur.com/q8Qd5PK.jpeg');
-      background-size: cover;
-      background-position: center;
-      background-attachment: fixed;
-      z-index: 0;
-    }
-    
-    body::after {
-      content: '';
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 20, 40, 0.5);
-      z-index: 1;
-      pointer-events: none;
-    }
-    
-    #gameContainer {
-      width: 100%;
-      height: 100%;
-      position: relative;
-      z-index: 2;
-    }
-    
-    canvas {
+    #canvas {
       display: block;
-      width: 100%;
-      height: 100%;
+      width: 100vw;
+      height: 100vh;
     }
     
-    .ui-overlay {
+    .hud {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      z-index: 10;
-    }
-    
-    .header {
-      position: absolute;
       top: 20px;
       left: 50%;
       transform: translateX(-50%);
       display: flex;
-      gap: 40px;
-      justify-content: center;
-      flex-wrap: wrap;
-      pointer-events: auto;
+      gap: 30px;
+      z-index: 100;
+      pointer-events: none;
     }
     
-    .stat {
-      background: rgba(0, 0, 0, 0.7);
+    .stat-box {
+      background: rgba(0, 0, 0, 0.8);
       border: 3px solid #ffcc00;
-      padding: 12px 20px;
       border-radius: 10px;
+      padding: 10px 20px;
       color: #ffcc00;
-      font-size: 20px;
+      font-size: 24px;
       text-shadow: 2px 2px 0 #000;
-      min-width: 160px;
+      min-width: 120px;
       text-align: center;
     }
     
-    .stat-label {
-      font-size: 12px;
-      color: #ccc;
-      display: block;
-      margin-bottom: 4px;
-    }
-    
-    .stat-value {
-      font-size: 32px;
-      color: #ffff00;
-    }
-    
     .controls {
-      position: absolute;
+      position: fixed;
       top: 20px;
       right: 20px;
       display: flex;
       gap: 10px;
-      pointer-events: auto;
+      z-index: 100;
     }
     
     .btn {
       background: linear-gradient(135deg, rgba(139, 69, 19, 0.95), rgba(101, 67, 33, 0.95));
       border: 3px solid #ffcc00;
       color: #ffcc00;
-      padding: 10px 15px;
+      padding: 10px 20px;
       font-family: 'Krabby Patty', Arial, sans-serif;
-      font-size: 16px;
+      font-size: 18px;
       cursor: pointer;
       border-radius: 10px;
       transition: all 0.3s;
@@ -135,297 +75,226 @@
     
     .btn:hover {
       transform: scale(1.05);
-      box-shadow: 0 0 20px rgba(255, 200, 50, 0.5);
+      box-shadow: 0 0 20px rgba(255, 200, 50, 0.6);
     }
     
     .back-btn {
-      position: absolute;
+      position: fixed;
       top: 20px;
       left: 20px;
       z-index: 100;
-      pointer-events: auto;
     }
     
-    .title {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      text-align: center;
-      color: #ffeb3b;
-      text-shadow: 4px 4px 0 #8B4513, 0 0 30px #ffeb3b;
+    .menu-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(180deg, rgba(10, 58, 92, 0.95), rgba(26, 95, 138, 0.95));
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+    }
+    
+    .menu-screen.hidden {
       display: none;
-      z-index: 50;
-      pointer-events: auto;
     }
     
-    .title.show {
-      display: block;
-    }
-    
-    .title h1 {
+    .menu-screen h1 {
       font-size: 64px;
+      color: #ffeb3b;
+      text-shadow: 4px 4px 0 #8B4513;
       margin-bottom: 20px;
-      letter-spacing: 2px;
     }
     
-    .title p {
+    .menu-screen p {
       font-size: 24px;
-      margin-bottom: 30px;
       color: #fff;
+      margin-bottom: 40px;
       text-shadow: 2px 2px 0 #000;
     }
     
-    .title-btn {
+    .start-btn {
       background: linear-gradient(135deg, #4CAF50, #2E7D32);
-      border: 3px solid #8BC34A;
+      border: 4px solid #8BC34A;
       color: #fff;
-      padding: 20px 40px;
-      font-family: 'Krabby Patty', Arial, sans-serif;
-      font-size: 28px;
+      padding: 20px 50px;
+      font-size: 32px;
       cursor: pointer;
       border-radius: 15px;
-      transition: all 0.3s;
-    }
-    
-    .title-btn:hover {
-      transform: scale(1.1);
-      box-shadow: 0 0 30px rgba(76, 175, 80, 0.5);
-    }
-    
-    .game-over {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: linear-gradient(180deg, rgba(139, 69, 19, 0.98), rgba(80, 50, 20, 0.98));
-      border: 4px solid #ffcc00;
-      border-radius: 20px;
-      padding: 40px;
-      text-align: center;
-      display: none;
-      z-index: 100;
-      pointer-events: auto;
-    }
-    
-    .game-over.show {
-      display: block;
-    }
-    
-    .game-over h2 {
-      font-size: 48px;
-      color: #ffcc00;
-      margin-bottom: 20px;
-      text-shadow: 2px 2px 0 #000;
-    }
-    
-    .game-over p {
-      font-size: 28px;
-      color: #fff;
-      margin-bottom: 30px;
-      text-shadow: 1px 1px 0 #000;
-    }
-    
-    .game-over-btn {
-      background: linear-gradient(135deg, #4CAF50, #2E7D32);
-      border: 3px solid #8BC34A;
-      color: #fff;
-      padding: 15px 30px;
       font-family: 'Krabby Patty', Arial, sans-serif;
-      font-size: 20px;
-      cursor: pointer;
-      border-radius: 10px;
-      margin: 0 10px;
       transition: all 0.3s;
     }
     
-    .game-over-btn:hover {
-      transform: scale(1.05);
+    .start-btn:hover {
+      transform: scale(1.1);
+      box-shadow: 0 0 30px rgba(76, 175, 80, 0.8);
     }
     
-    .mobile-controls {
+    .game-over-screen {
       position: fixed;
-      bottom: 30px;
-      right: 30px;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.9);
       display: none;
       flex-direction: column;
-      gap: 10px;
-      z-index: 50;
-      pointer-events: auto;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
     }
     
-    .mobile-controls.show {
+    .game-over-screen.show {
       display: flex;
     }
     
-    .dpad {
-      display: grid;
-      grid-template-columns: repeat(3, 60px);
-      gap: 5px;
+    .game-over-screen h2 {
+      font-size: 56px;
+      color: #ff6b6b;
+      margin-bottom: 30px;
+      text-shadow: 3px 3px 0 #000;
     }
     
-    .dpad-btn {
-      width: 60px;
-      height: 60px;
-      background: linear-gradient(135deg, rgba(139, 69, 19, 0.9), rgba(101, 67, 33, 0.9));
-      border: 3px solid #ffcc00;
-      color: #ffcc00;
-      font-size: 24px;
-      cursor: pointer;
-      border-radius: 10px;
-      transition: all 0.2s;
+    .game-over-screen p {
+      font-size: 32px;
+      color: #fff;
+      margin-bottom: 40px;
     }
     
-    .dpad-btn:active {
-      transform: scale(0.95);
-      box-shadow: 0 0 15px rgba(255, 200, 50, 0.5);
+    @keyframes scoreFloat {
+      0% { opacity: 1; transform: translate(-50%, -50%) scale(0.5); }
+      50% { transform: translate(-50%, -80%) scale(1.2); }
+      100% { opacity: 0; transform: translate(-50%, -120%); }
     }
     
-    .dpad-empty {
-      background: transparent;
-      border: none;
-      cursor: default;
+    @keyframes damageFlash {
+      0%, 100% { opacity: 0; }
+      50% { opacity: 1; }
     }
   </style>
 </head>
 <body>
-  <a href="index.html" class="btn back-btn">◀ MENU</a>
+  <!-- Background Music -->
+  <audio id="bgMusic" loop>
+    <source src="../bob.mp3" type="audio/mpeg">
+  </audio>
   
-  <div id="gameContainer"></div>
+  <a href="../index.html" class="btn back-btn">◀ MENU</a>
   
-  <div class="ui-overlay">
-    <div class="header">
-      <div class="stat">
-        <span class="stat-label">Score</span>
-        <span class="stat-value" id="scoreDisplay">0</span>
-      </div>
-      <div class="stat">
-        <span class="stat-label">Lives</span>
-        <span class="stat-value" id="livesDisplay">3</span>
-      </div>
-      <div class="stat">
-        <span class="stat-label">Distance</span>
-        <span class="stat-value" id="distanceDisplay">0m</span>
-      </div>
+  <div class="menu-screen" id="menuScreen">
+    <h1>🛥️ BOATING SCHOOL CHAOS</h1>
+    <p>Steer your boat • Avoid obstacles • Collect Krabby Patties!</p>
+    <p style="font-size: 18px; color: #ccc; margin-top: -20px;">Use A/D or Arrow Keys to steer</p>
+    <button class="start-btn" onclick="startGame()">START GAME</button>
+  </div>
+  
+  <div class="game-over-screen" id="gameOverScreen">
+    <h2>GAME OVER!</h2>
+    <p id="finalScore">Final Score: 0</p>
+    <button class="start-btn" onclick="startGame()">PLAY AGAIN</button>
+  </div>
+  
+  <div class="hud">
+    <div class="stat-box">
+      <div style="font-size: 14px; color: #ccc;">SCORE</div>
+      <div id="scoreDisplay">0</div>
     </div>
-    
-    <div class="controls">
-      <button class="btn" id="pauseBtn">Pause</button>
-      <button class="btn" id="restartBtn">Restart</button>
+    <div class="stat-box">
+      <div style="font-size: 14px; color: #ccc;">LIVES</div>
+      <div id="livesDisplay">3</div>
     </div>
-    
-    <div class="title show" id="titleScreen">
-      <h1>🛥️ Boating School Chaos</h1>
-      <p>Navigate your boat through Bikini Bottom!</p>
-      <p style="font-size: 16px; color: #ccc; margin-bottom: 20px;">Avoid obstacles • Collect Krabby Patties • Don't lose your lives!</p>
-      <button class="title-btn" onclick="startGame()">START GAME</button>
-    </div>
-    
-    <div class="game-over" id="gameOverScreen">
-      <h2>GAME OVER</h2>
-      <p id="finalScore">Final Score: 0</p>
-      <button class="game-over-btn" onclick="startGame()">Play Again</button>
-      <button class="game-over-btn" onclick="window.location.href='index.html'">Back to Menu</button>
-    </div>
-    
-    <div class="mobile-controls" id="mobileControls">
-      <div class="dpad">
-        <button class="dpad-btn dpad-empty"></button>
-        <button class="dpad-btn" data-dir="up">▲</button>
-        <button class="dpad-btn dpad-empty"></button>
-        <button class="dpad-btn" data-dir="left">◀</button>
-        <button class="dpad-btn dpad-empty"></button>
-        <button class="dpad-btn" data-dir="right">▶</button>
-      </div>
+    <div class="stat-box">
+      <div style="font-size: 14px; color: #ccc;">DISTANCE</div>
+      <div id="distanceDisplay">0m</div>
     </div>
   </div>
-
+  
+  <div class="controls">
+    <button class="btn" id="musicBtn">🎵</button>
+    <button class="btn" id="pauseBtn">Pause</button>
+  </div>
+  
   <script>
-    // Game Variables
     let scene, camera, renderer, boat;
     let obstacles = [];
     let collectibles = [];
+    let keys = {};
     let gameState = {
       score: 0,
       lives: 3,
+      distance: 0,
       isGameOver: false,
       isPaused: false,
-      distance: 0,
-      velocity: 0.25,
-      startTime: 0
+      speed: 0.15
     };
-    let keys = {};
     let lastCollisionTime = 0;
-    let mobileInput = {};
 
-    // Initialize Game
     function init() {
-      // Scene setup
+      // Scene
       scene = new THREE.Scene();
-      scene.background = new THREE.Color(0x1a5a8a);
-      scene.fog = new THREE.Fog(0x1a5a8a, 200, 0.1);
+      scene.background = new THREE.Color(0x87CEEB); // Sky blue
+      scene.fog = new THREE.Fog(0x87CEEB, 50, 150);
 
-      // Camera
+      // Camera - MUCH closer and better angle
       camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-      camera.position.set(0, 7, 20);
-      camera.lookAt(0, 1.5, 0);
+      camera.position.set(0, 8, 15);
+      camera.lookAt(0, 0, 0);
 
       // Renderer
-      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+      renderer = new THREE.WebGLRenderer({ antialias: true });
       renderer.setSize(window.innerWidth, window.innerHeight);
       renderer.shadowMap.enabled = true;
-      document.getElementById('gameContainer').appendChild(renderer.domElement);
+      document.body.appendChild(renderer.domElement);
 
-      // Lighting
-      const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+      // Lighting - MUCH BRIGHTER
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.9);
       scene.add(ambientLight);
 
-      const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
-      dirLight.position.set(50, 50, 50);
-      dirLight.castShadow = true;
-      dirLight.shadow.mapSize.width = 2048;
-      dirLight.shadow.mapSize.height = 2048;
-      scene.add(dirLight);
+      const sunLight = new THREE.DirectionalLight(0xffff99, 0.8);
+      sunLight.position.set(20, 50, 20);
+      sunLight.castShadow = true;
+      scene.add(sunLight);
+
+      // Ocean floor - VISIBLE COLOR
+      const oceanGeom = new THREE.PlaneGeometry(40, 200);
+      const oceanMat = new THREE.MeshLambertMaterial({ 
+        color: 0x4169E1, // Royal blue - MUCH MORE VISIBLE
+        side: THREE.DoubleSide
+      });
+      const ocean = new THREE.Mesh(oceanGeom, oceanMat);
+      ocean.rotation.x = -Math.PI / 2;
+      ocean.position.y = -1;
+      scene.add(ocean);
+
+      // Add lane markers for visibility
+      const laneGeom = new THREE.PlaneGeometry(0.5, 200);
+      const laneMat = new THREE.MeshBasicMaterial({ color: 0xFFFFFF, transparent: true, opacity: 0.3 });
+      
+      for (let i = -15; i <= 15; i += 5) {
+        const lane = new THREE.Mesh(laneGeom, laneMat);
+        lane.rotation.x = -Math.PI / 2;
+        lane.position.set(i, -0.9, 0);
+        scene.add(lane);
+      }
 
       // Create boat
       createBoat();
 
-      // Add ocean floor
-      const floorGeom = new THREE.PlaneGeometry(100, 200);
-      const floorMat = new THREE.MeshLambertMaterial({ color: 0x8B7500 });
-      const floor = new THREE.Mesh(floorGeom, floorMat);
-      floor.rotation.x = -Math.PI / 2;
-      floor.position.z = -50;
-      scene.add(floor);
-
       // Event listeners
-      window.addEventListener('keydown', handleKeyDown);
-      window.addEventListener('keyup', handleKeyUp);
+      window.addEventListener('keydown', (e) => keys[e.key.toLowerCase()] = true);
+      window.addEventListener('keyup', (e) => keys[e.key.toLowerCase()] = false);
       window.addEventListener('resize', handleResize);
       
-      // Mobile D-pad
-      document.querySelectorAll('[data-dir]').forEach(btn => {
-        btn.addEventListener('touchstart', (e) => {
-          e.preventDefault();
-          const dir = e.target.dataset.dir;
-          if (dir === 'left') keys['a'] = true;
-          if (dir === 'right') keys['d'] = true;
-        });
-        btn.addEventListener('touchend', (e) => {
-          e.preventDefault();
-          const dir = e.target.dataset.dir;
-          if (dir === 'left') keys['a'] = false;
-          if (dir === 'right') keys['d'] = false;
-        });
-      });
-
       document.getElementById('pauseBtn').addEventListener('click', togglePause);
-      document.getElementById('restartBtn').addEventListener('click', startGame);
+      document.getElementById('musicBtn').addEventListener('click', toggleMusic);
 
-      // Check mobile
-      if (window.innerWidth <= 768) {
-        document.getElementById('mobileControls').classList.add('show');
-      }
+      // Setup music
+      const music = document.getElementById('bgMusic');
+      music.volume = 0.3;
 
       animate();
     }
@@ -433,97 +302,114 @@
     function createBoat() {
       boat = new THREE.Group();
 
-      // Hull (yellow)
-      const hullGeom = new THREE.BoxGeometry(2.5, 1, 4);
-      const hullMat = new THREE.MeshLambertMaterial({ color: 0xffff00 });
+      // Hull - BRIGHT YELLOW
+      const hullGeom = new THREE.BoxGeometry(2, 1, 3.5);
+      const hullMat = new THREE.MeshLambertMaterial({ color: 0xFFFF00 });
       const hull = new THREE.Mesh(hullGeom, hullMat);
-      hull.position.y = 0.5;
+      hull.castShadow = true;
       boat.add(hull);
 
-      // Cabin (white)
-      const cabinGeom = new THREE.BoxGeometry(2, 0.8, 1.5);
-      const cabinMat = new THREE.MeshLambertMaterial({ color: 0xffffff });
+      // Cabin - WHITE
+      const cabinGeom = new THREE.BoxGeometry(1.5, 0.8, 1.2);
+      const cabinMat = new THREE.MeshLambertMaterial({ color: 0xFFFFFF });
       const cabin = new THREE.Mesh(cabinGeom, cabinMat);
-      cabin.position.y = 1.3;
+      cabin.position.y = 0.9;
+      cabin.castShadow = true;
       boat.add(cabin);
 
-      // Bow (red)
-      const bowGeom = new THREE.ConeGeometry(1.2, 0.8, 8);
-      const bowMat = new THREE.MeshLambertMaterial({ color: 0xff0000 });
+      // Bow accent - RED
+      const bowGeom = new THREE.ConeGeometry(0.8, 0.6, 4);
+      const bowMat = new THREE.MeshLambertMaterial({ color: 0xFF0000 });
       const bow = new THREE.Mesh(bowGeom, bowMat);
-      bow.position.y = 0.8;
-      bow.position.z = 2.2;
+      bow.position.z = 1.9;
+      bow.position.y = 0.3;
+      bow.rotation.x = Math.PI / 2;
+      bow.castShadow = true;
       boat.add(bow);
 
+      boat.position.y = 1;
       boat.position.z = 0;
       scene.add(boat);
     }
 
     function spawnObstacle() {
-      const types = ['rock', 'patrick', 'jellyfish', 'anchor'];
+      const types = [
+        { name: 'rock', color: 0x808080, size: 1.5 },
+        { name: 'coral', color: 0xFF69B4, size: 1.8 },
+        { name: 'anchor', color: 0x404040, size: 1.3 }
+      ];
+      
       const type = types[Math.floor(Math.random() * types.length)];
-
-      let geometry, color;
-
-      switch (type) {
-        case 'rock':
-          geometry = new THREE.DodecahedronGeometry(2);
-          color = 0x666666;
-          break;
-        case 'patrick':
-          geometry = new THREE.ConeGeometry(2, 4, 5);
-          color = 0xff69b4;
-          break;
-        case 'jellyfish':
-          geometry = new THREE.SphereGeometry(1.5, 16, 12);
-          color = 0xff00ff;
-          break;
-        case 'anchor':
-          geometry = new THREE.BoxGeometry(1.5, 4, 1.5);
-          color = 0x333333;
-          break;
+      
+      let geometry;
+      if (type.name === 'rock') {
+        geometry = new THREE.DodecahedronGeometry(type.size);
+      } else if (type.name === 'coral') {
+        geometry = new THREE.ConeGeometry(type.size, type.size * 2, 5);
+      } else {
+        geometry = new THREE.BoxGeometry(type.size, type.size * 2, type.size);
       }
-
-      const material = new THREE.MeshLambertMaterial({ color });
+      
+      const material = new THREE.MeshLambertMaterial({ color: type.color });
       const obstacle = new THREE.Mesh(geometry, material);
+      
       obstacle.position.set(
-        (Math.random() - 0.5) * 14,
-        type === 'jellyfish' ? 2.5 : 1.5,
-        -60 - Math.random() * 40
+        (Math.random() - 0.5) * 16, // Keep in visible range
+        1.5,
+        -80 - Math.random() * 20
       );
-      obstacle.userData = { type };
+      obstacle.castShadow = true;
+      obstacle.userData = { type: type.name };
+      
       scene.add(obstacle);
       obstacles.push(obstacle);
     }
 
     function spawnCollectible() {
-      const geometry = new THREE.BoxGeometry(1.2, 0.8, 1.2);
-      const material = new THREE.MeshLambertMaterial({ color: 0xffcc00 });
+      // Krabby Patty
+      const geometry = new THREE.BoxGeometry(1, 0.6, 1);
+      const material = new THREE.MeshLambertMaterial({ color: 0xFFCC00 });
       const collectible = new THREE.Mesh(geometry, material);
+      
       collectible.position.set(
-        (Math.random() - 0.5) * 14,
+        (Math.random() - 0.5) * 16,
         2,
-        -50 - Math.random() * 30
+        -60 - Math.random() * 30
       );
-      collectible.userData = { type: 'krabby_patty' };
+      collectible.castShadow = true;
+      
       scene.add(collectible);
       collectibles.push(collectible);
     }
 
-    function handleKeyDown(e) {
-      const key = e.key.toLowerCase();
-      keys[key] = true;
-    }
-
-    function handleKeyUp(e) {
-      const key = e.key.toLowerCase();
-      keys[key] = false;
-    }
-
-    function handleResize() {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
+    function startGame() {
+      gameState = {
+        score: 0,
+        lives: 3,
+        distance: 0,
+        isGameOver: false,
+        isPaused: false,
+        speed: 0.15
+      };
+      
+      // Clear everything
+      obstacles.forEach(obs => scene.remove(obs));
+      collectibles.forEach(col => scene.remove(col));
+      obstacles = [];
+      collectibles = [];
+      
+      boat.position.set(0, 1, 0);
+      lastCollisionTime = 0;
+      
+      document.getElementById('menuScreen').classList.add('hidden');
+      document.getElementById('gameOverScreen').classList.remove('show');
+      
+      // Start music
+      const music = document.getElementById('bgMusic');
+      music.play().catch(err => console.log('Music autoplay blocked'));
+      document.getElementById('musicBtn').textContent = '🎵';
+      
+      updateUI();
     }
 
     function togglePause() {
@@ -533,31 +419,16 @@
       }
     }
 
-    function startGame() {
-      gameState = {
-        score: 0,
-        lives: 3,
-        isGameOver: false,
-        isPaused: false,
-        distance: 0,
-        velocity: 0.25,
-        startTime: Date.now()
-      };
-      
-      // Clear obstacles and collectibles
-      obstacles.forEach(obs => scene.remove(obs));
-      collectibles.forEach(col => scene.remove(col));
-      obstacles = [];
-      collectibles = [];
-
-      boat.position.z = 0;
-      boat.position.x = 0;
-      camera.position.set(0, 7, 20);
-
-      document.getElementById('titleScreen').classList.remove('show');
-      document.getElementById('gameOverScreen').classList.remove('show');
-      document.getElementById('pauseBtn').textContent = 'Pause';
-      updateUI();
+    function toggleMusic() {
+      const music = document.getElementById('bgMusic');
+      const btn = document.getElementById('musicBtn');
+      if (music.paused) {
+        music.play();
+        btn.textContent = '🎵';
+      } else {
+        music.pause();
+        btn.textContent = '🔇';
+      }
     }
 
     function updateUI() {
@@ -566,64 +437,80 @@
       document.getElementById('distanceDisplay').textContent = Math.floor(gameState.distance) + 'm';
     }
 
+    function handleResize() {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
     function animate() {
       requestAnimationFrame(animate);
 
       if (!gameState.isGameOver && !gameState.isPaused) {
-        // Movement
-        if (keys['a'] || keys['arrowleft']) boat.position.x -= 0.35;
-        if (keys['d'] || keys['arrowright']) boat.position.x += 0.35;
-        boat.position.x = Math.max(Math.min(boat.position.x, 8), -8);
+        // Boat movement - SMOOTH
+        if (keys['a'] || keys['arrowleft']) {
+          boat.position.x -= 0.25;
+        }
+        if (keys['d'] || keys['arrowright']) {
+          boat.position.x += 0.25;
+        }
+        
+        // Keep boat in bounds
+        boat.position.x = Math.max(-10, Math.min(10, boat.position.x));
+        
+        // Boat tilt for steering feedback
+        boat.rotation.z = boat.position.x * -0.05;
 
-        boat.position.z -= gameState.velocity;
+        // Move boat forward
+        boat.position.z -= gameState.speed;
         gameState.distance = -boat.position.z;
 
-        // Progressive difficulty
-        const elapsed = (Date.now() - gameState.startTime) / 1000;
-        const difficulty = Math.min(1 + elapsed / 90, 2.5);
+        // Camera follows boat
+        camera.position.x = boat.position.x * 0.3;
+        camera.position.z = boat.position.z + 15;
+        camera.lookAt(boat.position.x, 0, boat.position.z - 10);
 
         // Spawn obstacles
-        const maxObstacles = Math.min(3 + Math.floor(elapsed / 20), 6);
-        const spawnChance = (0.001 + gameState.velocity * 0.002) * difficulty;
-
-        if (obstacles.length < maxObstacles && Math.random() < spawnChance) {
+        if (obstacles.length < 4 && Math.random() < 0.02) {
           spawnObstacle();
         }
 
         // Spawn collectibles
-        if (collectibles.length < 3 && Math.random() < 0.004) {
+        if (collectibles.length < 2 && Math.random() < 0.015) {
           spawnCollectible();
         }
-
-        // Update camera
-        camera.position.x = boat.position.x * 0.5;
-        camera.position.z = boat.position.z + 20;
-        camera.lookAt(boat.position.x, 1.5, boat.position.z - 15);
 
         // Update obstacles
         const now = Date.now();
         obstacles = obstacles.filter(obs => {
-          obs.position.z += gameState.velocity;
+          obs.position.z += gameState.speed;
+          obs.rotation.y += 0.02;
 
-          if (obs.userData.type === 'jellyfish') {
-            obs.rotation.y += 0.03;
-            obs.position.y = 2.5 + Math.sin(now * 0.003) * 0.5;
-          }
-
-          if (obs.position.z > 25) {
+          // Remove if behind boat
+          if (obs.position.z > 20) {
             scene.remove(obs);
             return false;
           }
 
           // Collision detection
-          if (now - lastCollisionTime > 1000) {
+          if (now - lastCollisionTime > 1500) {
             const dx = obs.position.x - boat.position.x;
             const dz = obs.position.z - boat.position.z;
-            const distance = Math.sqrt(dx * dx + dz * dz);
+            const dist = Math.sqrt(dx * dx + dz * dz);
 
-            if (distance < 3.2) {
+            if (dist < 2.5) {
               lastCollisionTime = now;
               gameState.lives--;
+
+              // Damage flash
+              const flash = document.createElement('div');
+              flash.style.cssText = `
+                position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+                background: rgba(255, 0, 0, 0.5); pointer-events: none; z-index: 999;
+                animation: damageFlash 0.3s;
+              `;
+              document.body.appendChild(flash);
+              setTimeout(() => flash.remove(), 300);
 
               if (gameState.lives <= 0) {
                 gameState.isGameOver = true;
@@ -642,20 +529,34 @@
 
         // Update collectibles
         collectibles = collectibles.filter(col => {
-          col.position.z += gameState.velocity;
+          col.position.z += gameState.speed;
           col.rotation.y += 0.1;
 
-          if (col.position.z > 25) {
+          if (col.position.z > 20) {
             scene.remove(col);
             return false;
           }
 
           const dx = col.position.x - boat.position.x;
           const dz = col.position.z - boat.position.z;
-          const distance = Math.sqrt(dx * dx + dz * dz);
+          const dist = Math.sqrt(dx * dx + dz * dz);
 
-          if (distance < 2) {
+          if (dist < 2) {
             gameState.score += 50;
+
+            // Score popup
+            const popup = document.createElement('div');
+            popup.textContent = '+50';
+            popup.style.cssText = `
+              position: fixed; left: 50%; top: 50%;
+              transform: translate(-50%, -50%);
+              color: #ffcc00; font-size: 48px; font-weight: bold;
+              text-shadow: 3px 3px 0 #000; pointer-events: none; z-index: 1000;
+              animation: scoreFloat 1s ease-out forwards;
+            `;
+            document.body.appendChild(popup);
+            setTimeout(() => popup.remove(), 1000);
+
             updateUI();
             scene.remove(col);
             return false;
@@ -668,7 +569,6 @@
       renderer.render(scene, camera);
     }
 
-    // Start when page loads
     window.addEventListener('load', init);
   </script>
 </body>
