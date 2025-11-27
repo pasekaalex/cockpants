@@ -10,23 +10,20 @@
     body {
       font-family: 'Krabby Patty', Arial, sans-serif;
       background:#0a3a5c url('https://i.imgur.com/q8Qd5PK.jpeg') center/cover fixed;
-      color:#ffeb3b; text-align:center; min-height:100vh;
-      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      color:#ffeb3b; min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center;
       overflow:hidden; position:relative;
     }
     body::before { content:''; position:fixed; inset:0; background:rgba(0,20,40,0.6); z-index:0; }
-    h1 { font-size:3rem; text-shadow:4px 4px #ff5722,0 0 30px #ffeb3b; margin:10px; z-index:1; }
-    canvas { border:8px solid #ffcc00; border-radius:15px; box-shadow:0 0 40px #ffeb3b; z-index:1; background:#000; }
+    h1 { font-size:3.5rem; text-shadow:4px 4px #ff5722,0 0 30px #ffeb3b; margin:10px; z-index:1; }
+    #board { font-size:18px; line-height:20px; background:#000; padding:20px; border:8px solid #ffcc00; border-radius:15px; box-shadow:0 0 40px #ffeb3b; z-index:1; }
     .ui { position:fixed; z-index:10; }
     .back-btn { top:20px; left:20px; padding:12px 20px; background:#8B4513; border:4px solid #ffcc00; border-radius:12px; color:#ffcc00; font-size:20px; text-decoration:none; }
-    .score { top:20px; right:20px; font-size:24px; text-shadow:2px 2px #000; background:rgba(0,0,0,0.5); padding:5px 15px; border-radius:10px; }
-    .lives { bottom:90px; left:50%; transform:translateX(-50%); font-size:28px; background:rgba(0,0,0,0.5); padding:5px 20px; border-radius:15px; }
-    .music-toggle { bottom:20px; right:20px; width:60px; height:60px; border-radius:50%; background:#8B4513; border:4px solid #ffcc00; color:#ffcc00; font-size:30px; cursor:pointer; line-height:60px; }
-    #dpad { position:fixed; bottom:20px; left:20px; width:140px; height:140px; z-index:100; display:none; }
-    #dpad button { position:absolute; width:50px; height:50px; background:rgba(255,204,0,0.9); border:4px solid #ffeb3b; border-radius:50%; color:#000; font-size:28px; font-weight:bold; }
-    #up{top:0;left:50%;transform:translateX(-50%)} #left{left:0;top:50%;transform:translateY(-50%)}
-    #right{right:0;top:50%;transform:translateY(-50%)} #down{bottom:0;left:50%;transform:translateX(-50%)}
-    @media (max-width:768px){ #dpad{display:block} .lives{bottom:180px} }
+    .score { top:20px; right:20px; font-size:24px; background:rgba(0,0,0,0.7); padding:8px 16px; border-radius:10px; }
+    .lives { bottom:90px; left:50%; transform:translateX(-50%); font-size:28px; background:rgba(0,0,0,0.7); padding:8px 20px; border-radius:15px; }
+    .music-toggle { bottom:20px; right:20px; width:60px; height:60px; border-radius:50%; background:#8B4513; border:4px solid #ffcc00; color:#ffcc00; font-size:30px; cursor:pointer; }
+    #dpad { position:fixed; bottom:20px; left:20px; display:none; }
+    #dpad button { width:50px; height:50px; margin:5px; background:rgba(255,204,0,0.9); border:4px solid #ffeb3b; border-radius:50%; font-size:28px; }
+    @media (max-width:768px) { #dpad { display:block; } .lives { bottom:180px; } }
   </style>
 </head>
 <body>
@@ -43,181 +40,99 @@
   </div>
 
   <h1>PLANKTON PAC-CHOMP</h1>
-  <canvas id="game" width="560" height="620"></canvas>
+  <pre id="board"></pre>
 
-  <audio id="bgMusic" loop preload="auto">
-    <source src="bob.mp3" type="audio/mpeg">
-  </audio>
+  <audio id="bgMusic" loop><source src="bob.mp3" type="audio/mpeg"></audio>
 
   <script>
-    const canvas = document.getElementById('game');
-    const ctx = canvas.getContext('2d');
-    const TILE = 20;
     const ROWS = 31, COLS = 28;
-
-    // FULL MAZE (fixed)
-    const maze = [
-      "1111111111111111111111111111",
-      "1222222222221111222222222221",
-      "1211111221111111111121111121",
-      "1211111221111111111121111121",
-      "1211111221111111111121111121",
-      "1222222222222222222222222221",
-      "1211111121111121111121111121",
-      "1211111121111121111121111121",
-      "1222222222222222222222222221",
-      "1111111121111121111121111111",
-      "3333333121111121111121333333",
-      "3333333121111121111121333333",
-      "3333333121111121111121333333",
-      "1111111122222222222121111111",
-      "3333333111111121111133333333",
-      "3333333111111121111133333333",
-      "3333333111111121111133333333",
-      "1111111121111121111121111111",
-      "1222222222222222222222222221",
-      "1211111121111121111121111121",
-      "1211111121111121111121111121",
-      "1222222222222222222222222221",
-      "1211111111111111111111111121",
-      "1211111111111111111111111121",
-      "1222222111111111111111222221",
-      "1111112111222222221121111111",
-      "3333333111222222221133333333",
-      "3333333111222222221133333333",
-      "1111112111222222221121111111",
-      "1222222222222222222222222221",
-      "1111111111111111111111111111"
-    ].map(r => r.split('').map(Number));
-
-    let player = {x:14*TILE, y:23*TILE, dir:0, nextDir:0, speed:2, mouth:0};
-    const dirs = [[-1,0],[0,-1],[1,0],[0,1]]; // L U R D
-    const ghosts = [
-      {x:14*TILE, y:11*TILE, color:"#ff0000", dir:0, mode:"scatter"},
-      {x:14*TILE, y:14*TILE, color:"#ffb8ff", dir:0, mode:"house", timer:0},
-      {x:12*TILE, y:14*TILE, color:"#00ffff", dir:0, mode:"house", timer:240},
-      {x:16*TILE, y:14*TILE, color:"#ffb851", dir:0, mode:"house", timer:480}
+    let board = Array(ROWS).fill().map(() => Array(COLS).fill(' '));
+    let player = {r:23, c:14, dir:0};
+    let ghosts = [
+      {r:11, c:14, emoji:'Jellyfish', dir:0},
+      {r:14, c:14, emoji:'Jellyfish', dir:0},
+      {r:14, c:12, emoji:'Jellyfish', dir:0},
+      {r:14, c:16, emoji:'Jellyfish', dir:0}
     ];
-    let score = 0, lives = 3, dotsLeft = 0, frightened = 0;
+    let score = 0, lives = 3, power = 0;
 
-    // Count dots
-    for(let y=0; y<ROWS; y++) for(let x=0; x<COLS; x++) 
-      if(maze[y][x]===0 || maze[y][x]===2) dotsLeft++;
+    const maze = [
+      "1111111111111111111111111111","1222222222221111222222222221","1211111221111111111121111121","1211111221111111111121111121",
+      "1211111221111111111121111121","1222222222222222222222222221","1211111121111121111121111121","1211111121111121111121111121",
+      "1222222222222222222222222221","1111111121111121111121111111","3000003121111121111121000003","3000003121111121111121000003",
+      "3000003121111121111121000003","1111111122222222222121111111","3000003111111121111100000003","3000003111111121111100000003",
+      "3000003111111121111100000003","1111111121111121111121111111","1222222222222222222222222221","1211111121111121111121111121",
+      "1211111121111121111121111121","1222222222222222222222222221","1211111111111111111111111121","1211111111111111111111111121",
+      "1222222111111111111111222221","1111112111222222221121111111","3000003111222222221100000003","3000003111222222221100000003",
+      "1111112111222222221121111111","1222222222222222222222222221","1111111111111111111111111111"
+    ];
 
-    function drawMaze() {
-      for(let y=0; y<ROWS; y++) for(let x=0; x<COLS; x++) {
-        if(maze[y][x]===1) { ctx.fillStyle="#0044aa"; ctx.fillRect(x*TILE,y*TILE,TILE,TILE); }
-        if(maze[y][x]===0) { ctx.fillStyle="#fff"; ctx.beginPath(); ctx.arc(x*TILE+10,y*TILE+10,3,0,Math.PI*2); ctx.fill(); }
-        if(maze[y][x]===2) { ctx.fillStyle="#fff"; ctx.beginPath(); ctx.arc(x*TILE+10,y*TILE+10,8,0,Math.PI*2); ctx.fill(); }
-      }
+    // Load maze
+    for(let r=0; r<ROWS; r++) for(let c=0; c<COLS; c++) {
+      const v = maze[r][c];
+      board[r][c] = v==='1'?'Wall':v==='2'?'Bubble':v==='3'?' ':v==='0'?'Dot':'Krabby Patty';
     }
-
-    function drawPlayer() {
-      ctx.fillStyle = "#ffeb3b";
-      ctx.save();
-      ctx.translate(player.x+10, player.y+10);
-      ctx.rotate(player.dir * Math.PI/2);
-      const a = player.mouth * 0.2;
-      ctx.beginPath();
-      ctx.arc(0,0,18,a,Math.PI*2-a);
-      ctx.lineTo(0,0);
-      ctx.fill();
-      ctx.fillStyle="#000"; ctx.beginPath(); ctx.arc(5,-6,4,0,Math.PI*2); ctx.fill();
-      ctx.restore();
-      player.mouth = (player.mouth + 0.1) % (Math.PI*2);
-    }
-
-    function drawGhosts() {
-      ghosts.forEach(g => {
-        ctx.fillStyle = frightened ? "#0000ff" : g.color;
-        ctx.fillRect(g.x+2,g.y+2,16,16);
-        ctx.fillRect(g.x+4,g.y+8,12,8);
-        ctx.fillStyle="#fff";
-        ctx.fillRect(g.x+4,g.y+6,4,4);
-        ctx.fillRect(g.x+12,g.y+6,4,4);
-        ctx.fillStyle="#000";
-        ctx.fillRect(g.x+5+(g.dir===0?-1:g.dir===2?1:0),g.y+7,2,2);
-        ctx.fillRect(g.x+13+(g.dir===0?-1:g.dir===2?1:0),g.y+7,2,2);
-      });
-    }
-
-    function update() {
-      // Player movement
-      const pd = dirs[player.nextDir];
-      const nx = Math.floor((player.x + pd[0]*player.speed)/TILE);
-      const ny = Math.floor((player.y + pd[1]*player.speed)/TILE);
-      if(maze[ny] && maze[ny][nx] !== 1) player.dir = player.nextDir;
-      player.x += dirs[player.dir][0] * player.speed;
-      player.y += dirs[player.dir][1] * player.speed;
-      if(player.x < 0) player.x = COLS*TILE-10;
-      if(player.x > COLS*TILE) player.x = -10;
-
-      // Eat dots
-      const px = Math.floor((player.x+10)/TILE);
-      const py = Math.floor((player.y+10)/TILE);
-      if(maze[py] && maze[py][px]===0) { maze[py][px]=3; score+=10; dotsLeft--; }
-      if(maze[py] && maze[py][px]===2) { maze[py][px]=3; score+=50; frightened=600; }
-
-      // Ghost collision
-      ghosts.forEach(g => {
-        if(Math.hypot(player.x-g.x, player.y-g.y) < 18) {
-          if(frightened) { score+=200; g.x=14*TILE; g.y=14*TILE; }
-          else if(g.mode!=="eaten") { lives--; if(lives<=0) alert("GAME OVER! Score: "+score); location.reload(); }
-        }
-      });
-      if(frightened>0) frightened--;
-
-      ghosts.forEach(g => {
-        if(g.mode==="house") { if(g.timer--<=0) g.mode="scatter"; return; }
-        const tx = Math.floor(g.x/TILE), ty = Math.floor(g.y/TILE);
-        let best = Infinity, bd = g.dir;
-        for(let d=0; d<4; d++) if((d+2)%4 !== g.dir) {
-          const nx = tx + dirs[d][0], ny = ty + dirs[d][1];
-          if(maze[ny] && maze[ny][nx] !== 1) {
-            const dist = Math.hypot(nx - player.x/TILE, ny - player.y/TILE);
-            if(dist < best) { best = dist; bd = d; }
-          }
-        }
-        g.dir = bd;
-        g.x += dirs[g.dir][0] * (frightened?1:2);
-        g.y += dirs[g.dir][1] * (frightened?1:2);
-        if(g.x < 0) g.x = COLS*TILE-10;
-        if(g.x > COLS*TILE) g.x = -10;
-      });
-
-      if(dotsLeft===0) { alert("LEVEL COMPLETE! Score: "+score); location.reload(); }
-    }
+    board[player.r][player.c] = 'Crab';
 
     function render() {
-      ctx.clearRect(0,0,canvas.width,canvas.height);
-      drawMaze();
-      drawGhosts();
-      drawPlayer();
-      document.getElementById("score").textContent = score;
-      document.getElementById("lives").textContent = lives + " x SpongeBob";
+      document.getElementById('board').textContent = board.map(row=>row.join('')).join('\n');
+      document.getElementById('score').textContent = score;
+      document.getElementById('lives').textContent = lives + " x Mr. Krabs";
     }
 
-    // CONTROLS
-    document.addEventListener("keydown", e => {
-      const map = {"ArrowLeft":0,"a":0,"A":0,"ArrowUp":1,"w":1,"W":1,"ArrowRight":2,"d":2,"D":2,"ArrowDown":3,"s":3,"S":3};
-      if(map[e.key]!==undefined) player.nextDir = map[e.key];
+    function movePlayer() {
+      const dirs = [[0,-1],[1,0],[0,1],[-1,0]]; // U R D L
+      const [dr,dc] = dirs[player.dir];
+      const nr = player.r + dr, nc = player.c + dc;
+      if(nr>=0&&nr<ROWS&&nc>=0&&nc<COLS && board[nr][nc]!=='Wall') {
+        board[player.r][player.c] = ' ';
+        player.r = nr; player.c = nc;
+        if(board[nr][nc]==='Dot') { score+=10; board[nr][nc]=' '; }
+        if(board[nr][nc]==='Bubble') { score+=50; power=100; board[nr][nc]=' '; }
+      }
+      board[player.r][player.c] = 'Crab';
+    }
+
+    function moveGhosts() {
+      ghosts.forEach(g => {
+        const dirs = [[-1,0],[0,1],[1,0],[0,-1]];
+        let moved = false;
+        while(!moved) {
+          const [dr,dc] = dirs[Math.floor(Math.random()*4)];
+          const nr = g.r + dr, nc = g.c + dc;
+          if(nr>=0&&nr<ROWS&&nc>=0&&nc<COLS && board[nr][nc]!=='Wall' && board[nr][nc]!=='Jellyfish') {
+            board[g.r][g.c] = ' ';
+            g.r = nr; g.c = nc;
+            board[g.r][g.c] = 'Jellyfish';
+            moved = true;
+          }
+        }
+        if(g.r===player.r && g.c===player.c) {
+          if(power>0) { score+=200; g.r=14; g.c=14; board[g.r][g.c]='Jellyfish'; }
+          else { lives--; if(lives<=0) alert("GAME OVER! Score: "+score); location.reload(); }
+        }
+      });
+      if(power>0) power--;
+    }
+
+    document.addEventListener('keydown', e => {
+      const map = {ArrowUp:0, w:0, W:0, ArrowRight:1, d:1, D:1, ArrowDown:2, s:2, S:2, ArrowLeft:3, a:3, A:3};
+      if(map[e.key]!==undefined) player.dir = map[e.key];
     });
 
-    ["up","left","right","down"].forEach((dir,i) => {
-      document.getElementById(dir).ontouchstart = e => { e.preventDefault(); player.nextDir = i; };
+    ["up","left","right","down"].forEach((id,i) => {
+      document.getElementById(id).ontouchstart = e => { e.preventDefault(); player.dir = [0,3,1,2][i]; };
     });
 
-    // MUSIC
-    const music = document.getElementById("bgMusic");
-    music.volume = 0.3;
+    const music = document.getElementById("bgMusic"); music.volume=0.3;
     document.getElementById("musicToggle").onclick = () => {
       music.paused ? music.play() : music.pause();
       document.getElementById("musicToggle").textContent = music.paused ? "OFF" : "ON";
     };
-    document.addEventListener("click", () => music.play().catch(()=>{}), {once:true});
+    document.addEventListener("click",()=>music.play().catch(()=>{}),{once:true});
 
-    function loop() { update(); render(); requestAnimationFrame(loop); }
-    loop();
+    setInterval(() => { movePlayer(); moveGhosts(); render(); }, 200);
+    render();
   </script>
 </body>
 </html>
