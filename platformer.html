@@ -47,14 +47,17 @@
           velocityX: 0,
           isJumping: false,
           direction: 1,
-          isMoving: false
+          isMoving: false,
+          canDoubleJump: false,
+          hasDoubleJumped: false
         },
         platforms: [],
         collectibles: [],
         enemies: [],
+        particles: [],
         keys: {},
-        gravity: 0.6,
-        jumpStrength: -12,
+        gravity: 0.35,
+        jumpStrength: -8.5,
         moveSpeed: 5,
         scrollOffset: 0,
         level: 1,
@@ -75,19 +78,45 @@
         game.collectibles = [];
         game.enemies = [];
         
+        // Ground platform
         game.platforms.push({ x: -100, y: 550, width: 3000, height: 50, type: 'ground' });
         
-        const platformCount = 8 + level * 2;
+        // Generate more playable platform layout
+        const platformCount = 12 + level * 3;
+        let lastPlatformY = 450; // Start higher
+        
         for (let i = 0; i < platformCount; i++) {
-          const x = 200 + i * 180 + Math.random() * 50;
-          const y = 200 + Math.random() * 250;
-          const width = 120 + Math.random() * 60;
+          const x = 200 + i * 150; // More consistent spacing
+          
+          // Vary height but keep it reachable
+          const heightVariation = (Math.random() - 0.5) * 120;
+          let y = lastPlatformY + heightVariation;
+          
+          // Keep platforms within reasonable range
+          y = Math.max(200, Math.min(480, y));
+          lastPlatformY = y;
+          
+          const width = 100 + Math.random() * 80; // Slightly larger platforms
           game.platforms.push({ x, y, width, height: 20, type: 'floating' });
           
-          if (Math.random() > 0.4) {
+          // Add collectibles more strategically
+          if (i % 2 === 0 || Math.random() > 0.3) {
             game.collectibles.push({
               x: x + width / 2 - 15,
-              y: y - 40,
+              y: y - 50,
+              width: 30,
+              height: 30,
+              type: 'jellyfish',
+              collected: false,
+              float: Math.random() * Math.PI * 2
+            });
+          }
+          
+          // Add some higher collectibles for double jump practice
+          if (i % 4 === 0 && Math.random() > 0.5) {
+            game.collectibles.push({
+              x: x + width / 2 - 15,
+              y: y - 100,
               width: 30,
               height: 30,
               type: 'jellyfish',
@@ -97,14 +126,15 @@
           }
         }
         
-        const enemyCount = 3 + level;
+        // Fewer but smarter enemies
+        const enemyCount = 2 + Math.floor(level * 0.8);
         for (let i = 0; i < enemyCount; i++) {
           game.enemies.push({
-            x: 300 + i * 250 + Math.random() * 100,
+            x: 400 + i * 350 + Math.random() * 100,
             y: 500,
             width: 30,
             height: 30,
-            velocityX: 2 + Math.random(),
+            velocityX: 1.5 + Math.random() * 0.5,
             direction: Math.random() > 0.5 ? 1 : -1
           });
         }
@@ -141,6 +171,144 @@
             ctx.fill();
           }
           
+          // Draw coral decorations (static background elements)
+          ctx.save();
+          ctx.translate(-game.scrollOffset * 0.3, 0); // Parallax effect
+          
+          // Draw various coral pieces
+          const corals = [
+            { x: 50, y: 450, color: '#FF6B9D', type: 'tall' },
+            { x: 200, y: 480, color: '#FF8FB3', type: 'round' },
+            { x: 400, y: 440, color: '#FFB6C1', type: 'tall' },
+            { x: 600, y: 470, color: '#FF6B9D', type: 'wide' },
+            { x: 800, y: 460, color: '#FF8FB3', type: 'round' },
+            { x: 1000, y: 450, color: '#FFB6C1', type: 'tall' },
+            { x: 1200, y: 480, color: '#FF6B9D', type: 'wide' },
+            { x: 1400, y: 440, color: '#FF8FB3', type: 'tall' },
+            { x: 1600, y: 470, color: '#FFB6C1', type: 'round' },
+            { x: 1800, y: 460, color: '#FF6B9D', type: 'wide' },
+          ];
+          
+          corals.forEach(coral => {
+            ctx.fillStyle = coral.color;
+            
+            if (coral.type === 'tall') {
+              // Tall branching coral
+              ctx.beginPath();
+              ctx.moveTo(coral.x, coral.y + 100);
+              ctx.lineTo(coral.x + 5, coral.y);
+              ctx.lineTo(coral.x + 10, coral.y + 100);
+              ctx.closePath();
+              ctx.fill();
+              
+              // Branches
+              ctx.beginPath();
+              ctx.moveTo(coral.x + 5, coral.y + 30);
+              ctx.lineTo(coral.x - 10, coral.y + 20);
+              ctx.lineTo(coral.x - 8, coral.y + 35);
+              ctx.closePath();
+              ctx.fill();
+              
+              ctx.beginPath();
+              ctx.moveTo(coral.x + 5, coral.y + 50);
+              ctx.lineTo(coral.x + 20, coral.y + 40);
+              ctx.lineTo(coral.x + 18, coral.y + 55);
+              ctx.closePath();
+              ctx.fill();
+            } else if (coral.type === 'round') {
+              // Round brain coral
+              ctx.beginPath();
+              ctx.ellipse(coral.x, coral.y + 80, 25, 20, 0, 0, Math.PI * 2);
+              ctx.fill();
+              
+              // Texture lines
+              ctx.strokeStyle = 'rgba(0, 0, 0, 0.2)';
+              ctx.lineWidth = 2;
+              for (let i = 0; i < 4; i++) {
+                ctx.beginPath();
+                ctx.arc(coral.x, coral.y + 80, 15 - i * 4, 0, Math.PI);
+                ctx.stroke();
+              }
+            } else if (coral.type === 'wide') {
+              // Wide fan coral
+              ctx.beginPath();
+              ctx.moveTo(coral.x, coral.y + 100);
+              ctx.quadraticCurveTo(coral.x - 20, coral.y + 50, coral.x - 25, coral.y + 30);
+              ctx.quadraticCurveTo(coral.x, coral.y + 20, coral.x + 25, coral.y + 30);
+              ctx.quadraticCurveTo(coral.x + 20, coral.y + 50, coral.x, coral.y + 100);
+              ctx.closePath();
+              ctx.fill();
+            }
+          });
+          
+          // Add some seaweed
+          const seaweeds = [
+            { x: 150, y: 520 },
+            { x: 350, y: 510 },
+            { x: 550, y: 525 },
+            { x: 900, y: 515 },
+            { x: 1300, y: 520 },
+            { x: 1700, y: 510 },
+          ];
+          
+          seaweeds.forEach(seaweed => {
+            ctx.fillStyle = '#2E7D32';
+            for (let i = 0; i < 3; i++) {
+              const wave = Math.sin(game.bubbleTimer * 2 + seaweed.x + i) * 5;
+              ctx.beginPath();
+              ctx.moveTo(seaweed.x + i * 8, seaweed.y + 80);
+              ctx.quadraticCurveTo(
+                seaweed.x + i * 8 + wave,
+                seaweed.y + 40,
+                seaweed.x + i * 8 + wave * 1.5,
+                seaweed.y
+              );
+              ctx.lineWidth = 4;
+              ctx.strokeStyle = '#2E7D32';
+              ctx.stroke();
+            }
+          });
+          
+          // Add rocks/pebbles on ground
+          const rocks = [
+            { x: 100, y: 540, size: 15 },
+            { x: 280, y: 535, size: 20 },
+            { x: 450, y: 538, size: 12 },
+            { x: 700, y: 542, size: 18 },
+            { x: 950, y: 537, size: 16 },
+            { x: 1250, y: 540, size: 22 },
+            { x: 1500, y: 535, size: 14 },
+          ];
+          
+          rocks.forEach(rock => {
+            ctx.fillStyle = '#5D4E37';
+            ctx.beginPath();
+            ctx.ellipse(rock.x, rock.y, rock.size, rock.size * 0.7, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Highlight
+            ctx.fillStyle = '#8B7355';
+            ctx.beginPath();
+            ctx.ellipse(rock.x - rock.size * 0.3, rock.y - rock.size * 0.2, rock.size * 0.3, rock.size * 0.2, 0, 0, Math.PI * 2);
+            ctx.fill();
+          });
+          
+          ctx.restore();
+          
+          // Draw additional floating particles (plankton/debris)
+          ctx.save();
+          ctx.translate(-game.scrollOffset * 0.5, 0);
+          for (let i = 0; i < 25; i++) {
+            const x = (i * 150 + game.bubbleTimer * 10) % (canvas.width + 500);
+            const y = 100 + (i * 30 + game.bubbleTimer * 15) % 400;
+            const size = 2 + Math.sin(game.bubbleTimer + i * 0.5) * 1;
+            ctx.fillStyle = `rgba(200, 255, 200, ${0.3 + Math.sin(game.bubbleTimer + i) * 0.2})`;
+            ctx.beginPath();
+            ctx.arc(x, y, size, 0, Math.PI * 2);
+            ctx.fill();
+          }
+          ctx.restore();
+          
           const targetOffset = Math.max(0, game.player.x - canvas.width / 3);
           game.scrollOffset += (targetOffset - game.scrollOffset) * 0.1;
           
@@ -157,12 +325,45 @@
             game.player.isMoving = Math.abs(game.player.velocityX) > 0.5;
           }
           
-          if ((game.keys.ArrowUp || game.keys.Space || game.keys.KeyW) && !game.player.isJumping) {
-            game.player.velocityY = game.jumpStrength;
-            game.player.isJumping = true;
+          // Jump controls with double jump
+          if (game.keys.ArrowUp || game.keys.Space || game.keys.KeyW) {
+            if (!game.player.isJumping) {
+              // First jump
+              game.player.velocityY = game.jumpStrength;
+              game.player.isJumping = true;
+              game.player.canDoubleJump = true;
+              game.player.hasDoubleJumped = false;
+            } else if (game.player.canDoubleJump && !game.player.hasDoubleJumped) {
+              // Double jump (slightly weaker)
+              game.player.velocityY = game.jumpStrength * 0.85;
+              game.player.hasDoubleJumped = true;
+              game.player.canDoubleJump = false;
+              
+              // Create particle burst for double jump feedback
+              for (let i = 0; i < 12; i++) {
+                const angle = (Math.PI * 2 * i) / 12;
+                game.particles.push({
+                  x: game.player.x + game.player.width / 2,
+                  y: game.player.y + game.player.height / 2,
+                  velocityX: Math.cos(angle) * 3,
+                  velocityY: Math.sin(angle) * 3,
+                  life: 30,
+                  maxLife: 30,
+                  color: '#00D4FF'
+                });
+              }
+            }
+            // Prevent rapid re-jumps
+            game.keys.ArrowUp = false;
+            game.keys.Space = false;
+            game.keys.KeyW = false;
           }
           
           game.player.velocityY += game.gravity;
+          
+          // Add underwater resistance/drag to falling
+          game.player.velocityY *= 0.98;
+          
           game.player.x += game.player.velocityX;
           game.player.y += game.player.velocityY;
           
@@ -178,6 +379,8 @@
               game.player.y = platform.y - game.player.height;
               game.player.velocityY = 0;
               game.player.isJumping = false;
+              game.player.canDoubleJump = false;
+              game.player.hasDoubleJumped = false;
             }
           });
           
@@ -232,6 +435,16 @@
               game.player.velocityX = 0;
               game.player.velocityY = 0;
             }
+          });
+          
+          // Update particles
+          game.particles = game.particles.filter(p => {
+            p.x += p.velocityX;
+            p.y += p.velocityY;
+            p.velocityX *= 0.95;
+            p.velocityY *= 0.95;
+            p.life--;
+            return p.life > 0;
           });
           
           const allCollected = game.collectibles.every(c => c.collected);
@@ -394,6 +607,20 @@
           
           ctx.restore();
           
+          // Draw particles (double jump effect)
+          game.particles.forEach(particle => {
+            ctx.save();
+            ctx.translate(-game.scrollOffset, 0);
+            
+            const alpha = particle.life / particle.maxLife;
+            ctx.fillStyle = particle.color + Math.floor(alpha * 255).toString(16).padStart(2, '0');
+            ctx.beginPath();
+            ctx.arc(particle.x, particle.y, 4 * alpha, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.restore();
+          });
+          
           ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
           ctx.fillRect(0, 0, canvas.width, 60);
           
@@ -527,8 +754,9 @@
               </p>
               <div style={{ marginBottom: '30px', fontSize: '16px', lineHeight: '1.8' }}>
                 <p>⬅️➡️ or A/D: Move</p>
-                <p>⬆️ or W or SPACE: Jump</p>
+                <p>⬆️ or W or SPACE: Jump (press twice for double jump!)</p>
                 <p>ESC: Pause</p>
+                <p style={{ color: '#FFB6C1', fontSize: '14px', marginTop: '10px' }}>💡 Tip: Use double jump to reach high jellyfish!</p>
               </div>
               <p style={{ fontSize: '24px', marginBottom: '20px' }}>
                 High Score: {highScore}
