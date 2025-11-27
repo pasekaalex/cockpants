@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Plankton Pac-Chomp | $COCKPANTS</title>
+  <title>Plankton Pac-Chomp | $COCKPANTS Games</title>
   <style>
     @font-face { font-family: 'Krabby Patty'; src: url('Krabby Patty.ttf') format('truetype'); }
     * { margin:0; padding:0; box-sizing:border-box; touch-action:manipulation; }
@@ -14,16 +14,18 @@
       overflow:hidden; position:relative;
     }
     body::before { content:''; position:fixed; inset:0; background:rgba(0,20,40,0.6); z-index:0; }
-    h1 { font-size:3.5rem; text-shadow:4px 4px #ff5722,0 0 30px #ffeb3b; margin:10px; z-index:1; }
-    #board { font-size:18px; line-height:20px; background:#000; padding:20px; border:8px solid #ffcc00; border-radius:15px; box-shadow:0 0 40px #ffeb3b; z-index:1; }
+    h1 { font-size:3.5rem; text-shadow:4px 4px #ff5722,0 0 30px #ffeb3b; margin:20px; z-index:1; }
+    canvas { border:8px solid #ffcc00; border-radius:15px; box-shadow:0 0 40px #ffeb3b; z-index:1; background:#000; }
     .ui { position:fixed; z-index:10; }
     .back-btn { top:20px; left:20px; padding:12px 20px; background:#8B4513; border:4px solid #ffcc00; border-radius:12px; color:#ffcc00; font-size:20px; text-decoration:none; }
     .score { top:20px; right:20px; font-size:24px; background:rgba(0,0,0,0.7); padding:8px 16px; border-radius:10px; }
     .lives { bottom:90px; left:50%; transform:translateX(-50%); font-size:28px; background:rgba(0,0,0,0.7); padding:8px 20px; border-radius:15px; }
-    .music-toggle { bottom:20px; right:20px; width:60px; height:60px; border-radius:50%; background:#8B4513; border:4px solid #ffcc00; color:#ffcc00; font-size:30px; cursor:pointer; }
-    #dpad { position:fixed; bottom:20px; left:20px; display:none; }
-    #dpad button { width:50px; height:50px; margin:5px; background:rgba(255,204,0,0.9); border:4px solid #ffeb3b; border-radius:50%; font-size:28px; }
-    @media (max-width:768px) { #dpad { display:block; } .lives { bottom:180px; } }
+    .music-toggle { bottom:20px; right:20px; width:60px; height:60px; border-radius:50%; background:#8B4513; border:4px solid #ffcc00; color:#ffcc00; font-size:30px; cursor:pointer; line-height:60px; }
+    #dpad { position:fixed; bottom:20px; left:20px; width:140px; height:140px; display:none; z-index:100; }
+    #dpad button { position:absolute; width:50px; height:50px; background:rgba(255,204,0,0.9); border:4px solid #ffeb3b; border-radius:50%; color:#000; font-size:28px; font-weight:bold; }
+    #up{top:0;left:50%;transform:translateX(-50%)} #left{left:0;top:50%;transform:translateY(-50%)}
+    #right{right:0;top:50%;transform:translateY(-50%)} #down{bottom:0;left:50%;transform:translateX(-50%)}
+    @media (max-width:768px){ #dpad{display:block} .lives{bottom:180px} }
   </style>
 </head>
 <body>
@@ -40,21 +42,15 @@
   </div>
 
   <h1>PLANKTON PAC-CHOMP</h1>
-  <pre id="board"></pre>
+  <canvas id="game" width="560" height="620"></canvas>
 
-  <audio id="bgMusic" loop><source src="bob.mp3" type="audio/mpeg"></audio>
+  <audio id="bgMusic" loop preload="auto"><source src="bob.mp3" type="audio/mpeg"></audio>
 
   <script>
+    const canvas = document.getElementById('game');
+    const ctx = canvas.getContext('2d');
+    const TILE = 20;
     const ROWS = 31, COLS = 28;
-    let board = Array(ROWS).fill().map(() => Array(COLS).fill(' '));
-    let player = {r:23, c:14, dir:0};
-    let ghosts = [
-      {r:11, c:14, emoji:'Jellyfish', dir:0},
-      {r:14, c:14, emoji:'Jellyfish', dir:0},
-      {r:14, c:12, emoji:'Jellyfish', dir:0},
-      {r:14, c:16, emoji:'Jellyfish', dir:0}
-    ];
-    let score = 0, lives = 3, power = 0;
 
     const maze = [
       "1111111111111111111111111111","1222222222221111222222222221","1211111221111111111121111121","1211111221111111111121111121",
@@ -65,74 +61,117 @@
       "1211111121111121111121111121","1222222222222222222222222221","1211111111111111111111111121","1211111111111111111111111121",
       "1222222111111111111111222221","1111112111222222221121111111","3000003111222222221100000003","3000003111222222221100000003",
       "1111112111222222221121111111","1222222222222222222222222221","1111111111111111111111111111"
+    ].map(r => r.split('').map(Number));
+
+    let player = {x:14*TILE, y:23*TILE, dir:0, nextDir:0, speed:2};
+    const dirs = [[-1,0],[0,-1],[1,0],[0,1]];
+    const ghosts = [
+      {x:14*TILE, y:11*TILE, color:"#ff0000", dir:0, mode:"scatter"},
+      {x:14*TILE, y:14*TILE, color:"#ffb8ff", dir:0, mode:"house", timer:0},
+      {x:12*TILE, y:14*TILE, color:"#00ffff", dir:0, mode:"house", timer:240},
+      {x:16*TILE, y:14*TILE, color:"#ffb851", dir:0, mode:"house", timer:480}
     ];
+    let score = 0, lives = 3, dotsLeft = 0, frightened = 0;
 
-    // Load maze
-    for(let r=0; r<ROWS; r++) for(let c=0; c<COLS; c++) {
-      const v = maze[r][c];
-      board[r][c] = v==='1'?'Wall':v==='2'?'Bubble':v==='3'?' ':v==='0'?'Dot':'Krabby Patty';
-    }
-    board[player.r][player.c] = 'Crab';
+    for(let y=0; y<ROWS; y++) for(let x=0; x<COLS; x++) 
+      if(maze[y][x]===0 || maze[y][x]===2) dotsLeft++;
 
-    function render() {
-      document.getElementById('board').textContent = board.map(row=>row.join('')).join('\n');
-      document.getElementById('score').textContent = score;
-      document.getElementById('lives').textContent = lives + " x Mr. Krabs";
-    }
-
-    function movePlayer() {
-      const dirs = [[0,-1],[1,0],[0,1],[-1,0]]; // U R D L
-      const [dr,dc] = dirs[player.dir];
-      const nr = player.r + dr, nc = player.c + dc;
-      if(nr>=0&&nr<ROWS&&nc>=0&&nc<COLS && board[nr][nc]!=='Wall') {
-        board[player.r][player.c] = ' ';
-        player.r = nr; player.c = nc;
-        if(board[nr][nc]==='Dot') { score+=10; board[nr][nc]=' '; }
-        if(board[nr][nc]==='Bubble') { score+=50; power=100; board[nr][nc]=' '; }
+    function drawMaze() {
+      for(let y=0; y<ROWS; y++) for(let x=0; x<COLS; x++) {
+        const v = maze[y][x];
+        if(v===1) { ctx.fillStyle="#0044aa"; ctx.fillRect(x*TILE,y*TILE,TILE,TILE); }
+        else if(v===0) { ctx.fillStyle="#fff"; ctx.beginPath(); ctx.arc(x*TILE+10,y*TILE+10,4,0,Math.PI*2); ctx.fill(); }
+        else if(v===2) { ctx.fillStyle="#ffeb3b"; ctx.beginPath(); ctx.arc(x*TILE+10,y*TILE+10,8,0,Math.PI*2); ctx.fill(); }
       }
-      board[player.r][player.c] = 'Crab';
     }
 
-    function moveGhosts() {
+    function drawPlayer() {
+      ctx.font = "36px Arial";
+      ctx.fillText("Crab", player.x-8, player.y+18);
+    }
+
+    function drawGhosts() {
       ghosts.forEach(g => {
-        const dirs = [[-1,0],[0,1],[1,0],[0,-1]];
-        let moved = false;
-        while(!moved) {
-          const [dr,dc] = dirs[Math.floor(Math.random()*4)];
-          const nr = g.r + dr, nc = g.c + dc;
-          if(nr>=0&&nr<ROWS&&nc>=0&&nc<COLS && board[nr][nc]!=='Wall' && board[nr][nc]!=='Jellyfish') {
-            board[g.r][g.c] = ' ';
-            g.r = nr; g.c = nc;
-            board[g.r][g.c] = 'Jellyfish';
-            moved = true;
+        ctx.font = "36px Arial";
+        ctx.fillText("Jellyfish", g.x-10, g.y+18);
+      });
+    }
+
+    function update() {
+      const pd = dirs[player.nextDir];
+      const nx = Math.floor((player.x + pd[0]*player.speed + 10)/TILE);
+      const ny = Math.floor((player.y + pd[1]*player.speed + 10)/TILE);
+      if(maze[ny] && maze[ny][nx] !== 1) player.dir = player.nextDir;
+
+      player.x += dirs[player.dir][0] * player.speed;
+      player.y += dirs[player.dir][1] * player.speed;
+      if(player.x < -TILE) player.x = COLS*TILE - TILE;
+      if(player.x >= COLS*TILE) player.x = -TILE;
+
+      const px = Math.floor((player.x + 10)/TILE);
+      const py = Math.floor((player.y + 10)/TILE);
+      if(maze[py] && maze[py][px] === 0) { maze[py][px] = 3; score += 10; dotsLeft--; }
+      if(maze[py] && maze[py][px] === 2) { maze[py][px] = 3; score += 50; frightened = 400; }
+
+      ghosts.forEach(g => {
+        if(Math.hypot(player.x - g.x, player.y - g.y) < 25) {
+          if(frightened) { score += 200; g.x = 14*TILE; g.y = 14*TILE; }
+          else { lives--; if(lives <= 0) { alert("GAME OVER! Score: "+score); location.reload(); } 
+            player.x = 14*TILE; player.y = 23*TILE;
           }
         }
-        if(g.r===player.r && g.c===player.c) {
-          if(power>0) { score+=200; g.r=14; g.c=14; board[g.r][g.c]='Jellyfish'; }
-          else { lives--; if(lives<=0) alert("GAME OVER! Score: "+score); location.reload(); }
-        }
       });
-      if(power>0) power--;
+      if(frightened > 0) frightened--;
+
+      ghosts.forEach(g => {
+        if(g.mode === "house") { if(g.timer-- <= 0) g.mode = "scatter"; return; }
+        const tx = Math.floor(g.x/TILE), ty = Math.floor(g.y/TILE);
+        let best = Infinity, bd = g.dir;
+        for(let d=0; d<4; d++) if((d+2)%4 !== g.dir) {
+          const nx = tx + dirs[d][0], ny = ty + dirs[d][1];
+          if(maze[ny] && maze[ny][nx] !== 1) {
+            const dist = Math.hypot(nx - player.x/TILE, ny - player.y/TILE);
+            if(dist < best) { best = dist; bd = d; }
+          }
+        }
+        g.dir = bd;
+        g.x += dirs[g.dir][0] * (frightened ? 1 : 2);
+        g.y += dirs[g.dir][1] * (frightened ? 1 : 2);
+        if(g.x < 0) g.x = COLS*TILE - 20;
+        if(g.x >= COLS*TILE) g.x = 0;
+      });
+
+      if(dotsLeft === 0) { alert("LEVEL COMPLETE! Score: "+score); location.reload(); }
     }
 
-    document.addEventListener('keydown', e => {
-      const map = {ArrowUp:0, w:0, W:0, ArrowRight:1, d:1, D:1, ArrowDown:2, s:2, S:2, ArrowLeft:3, a:3, A:3};
-      if(map[e.key]!==undefined) player.dir = map[e.key];
+    function render() {
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      drawMaze();
+      drawGhosts();
+      drawPlayer();
+      document.getElementById("score").textContent = score;
+      document.getElementById("lives").textContent = lives + " x Mr. Krabs";
+    }
+
+    document.addEventListener("keydown", e => {
+      const map = {ArrowLeft:0,a:0,A:0,ArrowUp:1,w:1,W:1,ArrowRight:2,d:2,D:2,ArrowDown:3,s:3,S:3};
+      if(map[e.key] !== undefined) player.nextDir = map[e.key];
     });
 
     ["up","left","right","down"].forEach((id,i) => {
-      document.getElementById(id).ontouchstart = e => { e.preventDefault(); player.dir = [0,3,1,2][i]; };
+      document.getElementById(id).ontouchstart = e => { e.preventDefault(); player.nextDir = i; };
     });
 
-    const music = document.getElementById("bgMusic"); music.volume=0.3;
+    const music = document.getElementById("bgMusic");
+    music.volume = 0.3;
     document.getElementById("musicToggle").onclick = () => {
       music.paused ? music.play() : music.pause();
       document.getElementById("musicToggle").textContent = music.paused ? "OFF" : "ON";
     };
-    document.addEventListener("click",()=>music.play().catch(()=>{}),{once:true});
+    document.addEventListener("click", () => music.play().catch(()=>{}), {once:true});
 
-    setInterval(() => { movePlayer(); moveGhosts(); render(); }, 200);
-    render();
+    function loop() { update(); render(); requestAnimationFrame(loop); }
+    loop();
   </script>
 </body>
 </html>
