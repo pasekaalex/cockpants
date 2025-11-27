@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Krusty Krab Order Rush | $COCKPANTS</title>
+  <style>
+    @font-face {
+      font-family: 'Krabby Patty';
+      src: url('Krabby Patty.ttf') format('truetype');
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Krabby Patty', Arial, sans-serif;
+      overflow: hidden;
+      background: linear-gradient(180deg, #8B4513 0%, #654321 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+    
+    .game-container {
+      display: flex;
+      gap: 20px;
+      max-width: 1400px;
+      padding: 20px;
+      width: 100%;
+      height: 100vh;
+    }
+    
+    .left-section {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      overflow-y: auto;
+      max-height: calc(100vh - 40px);
+      padding-right: 10px;
+    }
+    
+    .center-section {
+      flex: 2;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    
+    .right-section {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    
+    .panel {
+      background: rgba(255, 255, 255, 0.95);
+      border: 5px solid #8B4513;
+      border-radius: 20px;
+      padding: 25px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    }
+    
+    .panel-title {
+      font-size: 28px;
+      color: #FF6B6B;
+      text-shadow: 2px 2px 0 #000;
+      margin-bottom: 20px;
+      text-align: center;
+      border-bottom: 4px solid #FF6B6B;
+      padding-bottom: 10px;
+    }
+    
+    /* Customer Queue */
+    .customer-queue {
+      flex: 1;
+      min-height: 300px;
+    }
+    
+    .customer-card {
+      background: linear-gradient(135deg, #FFE4B5, #FFD700);
+      border: 4px solid #FF8C00;
+      border-radius: 15px;
+      padding: 20px;
+      margin-bottom: 15px;
+      position: relative;
+      animation: slideIn 0.5s ease;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+    
+    @keyframes slideIn {
+      from { transform: translateX(-100px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    
+    .customer-card.active {
+      border-color: #32CD32;
+      border-width: 5px;
+      box-shadow: 0 0 20px #32CD32;
+      animation: glow 1s ease-in-out infinite;
+    }
+    
+    @keyframes glow {
+      0%, 100% { box-shadow: 0 0 20px #32CD32; }
+      50% { box-shadow: 0 0 30px #32CD32, 0 0 40px #32CD32; }
+    }
+    
+    .customer-name {
+      font-size: 22px;
+      color: #8B4513;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .customer-emoji {
+      font-size: 32px;
+      animation: bounce 1s ease-in-out infinite;
+    }
+    
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+    }
+    
+    .order-list {
+      background: rgba(255, 255, 255, 0.9);
+      padding: 15px;
+      border-radius: 10px;
+      border: 2px solid #8B4513;
+      margin-top: 10px;
+    }
+    
+    .order-item {
+      font-size: 18px;
+      padding: 5px 10px;
+      margin: 5px 0;
+      background: #FFF8DC;
+      border-radius: 8px;
+      border-left: 4px solid #FF6B6B;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .timer-bar {
+      height: 12px;
+      background: #ddd;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-top: 10px;
+      border: 2px solid #000;
+    }
+    
+    .timer-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #32CD32, #FFD700, #FF6B6B);
+      transition: width 0.1s linear;
+      border-radius: 8px;
+    }
+    
+    /* Cooking Station */
+    .cooking-station {
+      flex: 1;
+      min-height: 400px;
+    }
+    
+    .burger-build {
+      background: linear-gradient(135deg, #87CEEB, #4682B4);
+      border: 5px solid #1E90FF;
+      border-radius: 20px;
+      padding: 30px;
+      min-height: 300px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.2);
+    }
+    
+    .burger-ingredient {
+      width: 200px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      font-weight: bold;
+      border: 3px solid #000;
+      box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+      animation: placeIngredient 0.3s ease;
+      position: relative;
+    }
+    
+    @keyframes placeIngredient {
+      0% { transform: scale(0) rotate(180deg); opacity: 0; }
+      100% { transform: scale(1) rotate(0deg); opacity: 1; }
+    }
+    
+    .ingredient-bun-bottom { background: linear-gradient(135deg, #DEB887, #D2691E); }
+    .ingredient-patty { background: linear-gradient(135deg, #8B4513, #654321); }
+    .ingredient-cheese { background: linear-gradient(135deg, #FFD700, #FFA500); }
+    .ingredient-lettuce { background: linear-gradient(135deg, #90EE90, #32CD32); }
+    .ingredient-tomato { background: linear-gradient(135deg, #FF6347, #DC143C); }
+    .ingredient-pickles { background: linear-gradient(135deg, #9ACD32, #6B8E23); }
+    .ingredient-onion { background: linear-gradient(135deg, #FFE4E1, #FFC0CB); }
+    .ingredient-bun-top { 
+      background: linear-gradient(135deg, #DEB887, #D2691E);
+      border-radius: 50% 50% 40% 40%;
+      position: relative;
+    }
+    
+    .ingredient-bun-top::before {
+      content: '';
+      position: absolute;
+      top: 5px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 20px;
+      height: 20px;
+      background: #FFE4B5;
+      border-radius: 50%;
+      border: 2px solid #000;
+    }
+    
+    /* Ingredient Buttons */
+    .ingredient-buttons {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 15px;
+      margin-top: 20px;
+    }
+    
+    .ingredient-btn {
+      background: linear-gradient(135deg, #4CAF50, #2E7D32);
+      border: 4px solid #8BC34A;
+      border-radius: 15px;
+      padding: 20px;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-align: center;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .ingredient-btn::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.4);
+      transform: translate(-50%, -50%);
+      transition: width 0.4s, height 0.4s;
+    }
+    
+    .ingredient-btn:hover::before {
+      width: 200px;
+      height: 200px;
+    }
+    
+    .ingredient-btn:hover {
+      transform: translateY(-5px) scale(1.05);
+      box-shadow: 0 10px 25px rgba(76, 175, 80, 0.5);
+      border-color: #FFD700;
+    }
+    
+    .ingredient-btn:active {
+      transform: translateY(-2px) scale(1.02);
+    }
+    
+    .ingredient-icon {
+      font-size: 48px;
+      margin-bottom: 10px;
+      filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.3));
+    }
+    
+    .ingredient-name {
+      font-size: 16px;
+      color: #fff;
+      text-shadow: 2px 2px 0 #000;
+      font-weight: bold;
+    }
+    
+    /* Action Buttons */
+    .action-buttons {
+      display: flex;
+      gap: 15px;
+      margin-top: 20px;
+    }
+    
+    .action-btn {
+      flex: 1;
+      padding: 20px;
+      border: none;
+      border-radius: 15px;
+      font-family: 'Krabby Patty', Arial, sans-serif;
+      font-size: 24px;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      text-shadow: 2px 2px 0 #000;
+    }
+    
+    .serve-btn {
+      background: linear-gradient(135deg, #32CD32, #228B22);
+      color: white;
+      border: 4px solid #90EE90;
+    }
+    
+    .serve-btn:hover {
+      transform: translateY(-5px) scale(1.05);
+      box-shadow: 0 10px 25px rgba(50, 205, 50, 0.5);
+    }
+    
+    .serve-btn:disabled {
+      background: #808080;
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+    
+    .clear-btn {
+      background: linear-gradient(135deg, #FF6B6B, #DC143C);
+      color: white;
+      border: 4px solid #FFB6C1;
+    }
+    
+    .clear-btn:hover {
+      transform: translateY(-5px) scale(1.05);
+      box-shadow: 0 10px 25px rgba(220, 20, 60, 0.5);
+    }
+    
+    /* Stats Panel */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+    }
+    
+    .stat-box {
+      background: linear-gradient(135deg, #FFD700, #FFA500);
+      border: 4px solid #FF8C00;
+      border-radius: 15px;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+    
+    .stat-label {
+      font-size: 16px;
+      color: #8B4513;
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+    
+    .stat-value {
+      font-size: 36px;
+      color: #fff;
+      text-shadow: 2px 2px 0 #8B4513;
+      font-weight: bold;
+    }
+    
+    /* Mr. Krabs Panel */
+    .krabs-panel {
+      text-align: center;
+    }
+    
+    .krabs-emoji {
+      font-size: 80px;
+      animation: krabsHappy 2s ease-in-out infinite;
+    }
+    
+    @keyframes krabsHappy {
+      0%, 100% { transform: scale(1) rotate(0deg); }
+      50% { transform: scale(1.1) rotate(5deg); }
+    }
+    
+    .krabs-speech {
+      background: linear-gradient(135deg, #FFE4E1, #FFB6C1);
+      border: 4px solid #FF69B4;
+      border-radius: 20px;
+      padding: 20px;
+      margin-top: 20px;
+      font-size: 20px;
+      color: #8B0000;
+      text-shadow: 1px 1px 0 #fff;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      position: relative;
+    }
+    
+    .krabs-speech::before {
+      content: '';
+      position: absolute;
+      top: -15px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 15px solid transparent;
+      border-right: 15px solid transparent;
+      border-bottom: 15px solid #FF69B4;
+    }
+    
+    /* Menu Screen */
+    .menu-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(180deg, #FF6B6B, #DC143C);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    
+    .menu-screen.hidden {
+      display: none;
+    }
+    
+    .menu-title {
+      font-size: 72px;
+      color: #FFD700;
+      text-shadow: 5px 5px 0 #000;
+      margin-bottom: 20px;
+      animation: titleBounce 1s infinite;
+    }
+    
+    @keyframes titleBounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-20px); }
+    }
+    
+    .menu-subtitle {
+      font-size: 32px;
+      color: #fff;
+      text-shadow: 3px 3px 0 #000;
+      margin-bottom: 40px;
+    }
+    
+    .start-btn {
+      background: linear-gradient(135deg, #FFD700, #FFA500);
+      border: 6px solid #FF8C00;
+      color: #8B4513;
+      padding: 30px 60px;
+      font-size: 42px;
+      cursor: pointer;
+      border-radius: 20px;
+      font-family: 'Krabby Patty', Arial, sans-serif;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      transition: all 0.3s;
+      text-shadow: 2px 2px 0 #fff;
+    }
+    
+    .start-btn:hover {
+      transform: translateY(-10px) scale(1.1);
+      box-shadow: 0 15px 40px rgba(255, 165, 0, 0.6);
+    }
+    
+    /* Game Over Screen */
+    .game-over-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.95);
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    
+    .game-over-screen.show {
+      display: flex;
+      animation: fadeIn 0.5s;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    .game-over-title {
+      font-size: 64px;
+      color: #FF6B6B;
+      text-shadow: 5px 5px 0 #000;
+      margin-bottom: 30px;
+      animation: shake 0.5s;
+    }
+    
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-10px); }
+      75% { transform: translateX(10px); }
+    }
+    
+    .final-stats {
+      background: rgba(255, 255, 255, 0.1);
+      border: 5px solid #FFD700;
+      border-radius: 20px;
+      padding: 40px;
+      margin-bottom: 30px;
+    }
+    
+    .final-stat {
+      font-size: 28px;
+      color: #FFD700;
+      margin: 15px 0;
+      text-shadow: 2px 2px 0 #000;
+    }
+    
+    .back-btn {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      background: linear-gradient(135deg, rgba(139, 69, 19, 0.95), rgba(101, 67, 33, 0.95));
+      border: 3px solid #ffcc00;
+      color: #ffcc00;
+      padding: 12px 24px;
+      font-family: 'Krabby Patty', Arial, sans-serif;
+      font-size: 18px;
+      cursor: pointer;
+      border-radius: 10px;
+      text-decoration: none;
+      z-index: 100;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+      transition: all 0.3s;
+    }
+    
+    .back-btn:hover {
+      transform: scale(1.05);
+    }
+    
+    /* Particles */
+    .particle {
+      position: fixed;
+      pointer-events: none;
+      animation: particleFloat 1s ease-out forwards;
+      font-size: 32px;
+      z-index: 1000;
+    }
+    
+    @keyframes particleFloat {
+      0% { transform: translateY(0) scale(1); opacity: 1; }
+      100% { transform: translateY(-100px) scale(1.5); opacity: 0; }
+    }
+    
+    .combo-text {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 72px;
+      color: #FFD700;
+      text-shadow: 4px 4px 0 #000;
+      pointer-events: none;
+      animation: comboPopup 1s ease-out forwards;
+      z-index: 1001;
+    }
+    
+    @keyframes comboPopup {
+      0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+      50% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+      100% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
+    }
+    
+    @media (max-width: 1200px) {
+      .game-container {
+        flex-direction: column;
+        overflow-y: auto;
+        height: auto;
+      }
+      
+      .left-section, .center-section, .right-section {
+        width: 100%;
+        max-height: none;
+      }
+      
+      .ingredient-buttons {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+  <a href="index.html" class="back-btn">◀ MENU</a>
+  
+  <!-- Menu Screen -->
+  <div class="menu-screen" id="menuScreen">
+    <div class="menu-title">🍔 KRUSTY KRAB ORDER RUSH 🍔</div>
+    <div class="menu-subtitle">Cook fast! Serve customers! Make money!</div>
+    <button class="start-btn" onclick="startGame()">I'M READY!</button>
+  </div>
+  
+  <!-- Game Over Screen -->
+  <div class="game-over-screen" id="gameOverScreen">
+    <div class="game-over-title">TIME'S UP!</div>
+    <div class="final-stats">
+      <div class="final-stat">Orders Served: <span id="finalOrders">0</span></div>
+      <div class="final-stat">Money Earned: $<span id="finalMoney">0</span></div>
+      <div class="final-stat">Perfect Orders: <span id="finalPerfect">0</span></div>
+      <div class="final-stat">Best Combo: <span id="finalCombo">0</span>x</div>
+    </div>
+    <button class="start-btn" onclick="startGame()">COOK AGAIN!</button>
+  </div>
+  
+  <!-- Game Container -->
+  <div class="game-container" id="gameContainer" style="display: none;">
+    <!-- Left Section: Customer Queue -->
+    <div class="left-section">
+      <div class="panel customer-queue">
+        <div class="panel-title">👥 CUSTOMER QUEUE</div>
+        <div id="customerList"></div>
+      </div>
+    </div>
+    
+    <!-- Center Section: Cooking Station -->
+    <div class="center-section">
+      <div class="panel cooking-station">
+        <div class="panel-title">🍳 COOKING STATION</div>
+        <div class="burger-build" id="burgerBuild">
+          <div style="font-size: 48px; color: #666;">🍔</div>
+          <div style="font-size: 24px; color: #666;">Click ingredients below!</div>
+        </div>
+        
+        <div class="ingredient-buttons">
+          <div class="ingredient-btn" onclick="addIngredient('bun-bottom')">
+            <div class="ingredient-icon">🍞</div>
+            <div class="ingredient-name">BOTTOM BUN</div>
+          </div>
+          <div class="ingredient-btn" onclick="addIngredient('patty')">
+            <div class="ingredient-icon">🥩</div>
+            <div class="ingredient-name">PATTY</div>
+          </div>
+          <div class="ingredient-btn" onclick="addIngredient('cheese')">
+            <div class="ingredient-icon">🧀</div>
+            <div class="ingredient-name">CHEESE</div>
+          </div>
+          <div class="ingredient-btn" onclick="addIngredient('lettuce')">
+            <div class="ingredient-icon">🥬</div>
+            <div class="ingredient-name">LETTUCE</div>
+          </div>
+          <div class="ingredient-btn" onclick="addIngredient('tomato')">
+            <div class="ingredient-icon">🍅</div>
+            <div class="ingredient-name">TOMATO</div>
+          </div>
+          <div class="ingredient-btn" onclick="addIngredient('pickles')">
+            <div class="ingredient-icon">🥒</div>
+            <div class="ingredient-name">PICKLES</div>
+          </div>
+          <div class="ingredient-btn" onclick="addIngredient('onion')">
+            <div class="ingredient-icon">🧅</div>
+            <div class="ingredient-name">ONION</div>
+          </div>
+          <div class="ingredient-btn" onclick="addIngredient('bun-top')">
+            <div class="ingredient-icon">🍞</div>
+            <div class="ingredient-name">TOP BUN</div>
+          </div>
+        </div>
+        
+        <div class="action-buttons">
+          <button class="action-btn serve-btn" id="serveBtn" onclick="serveOrder()">
+            SERVE ORDER!
+          </button>
+          <button class="action-btn clear-btn" onclick="clearBurger()">
+            CLEAR
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Right Section: Stats & Mr. Krabs -->
+    <div class="right-section">
+      <div class="panel">
+        <div class="panel-title">📊 STATS</div>
+        <div class="stats-grid">
+          <div class="stat-box">
+            <div class="stat-label">💰 Money</div>
+            <div class="stat-value" id="money">$0</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">🍔 Served</div>
+            <div class="stat-value" id="served">0</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">⏱️ Time</div>
+            <div class="stat-value" id="timer">90</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">🔥 Combo</div>
+            <div class="stat-value" id="combo">0x</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="panel krabs-panel">
+        <div class="krabs-emoji">🦀</div>
+        <div class="krabs-speech" id="krabsSpeech">
+          Get to work, boy! Me money ain't gonna make itself!
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    // Game State
+    let customers = [];
+    let currentBurger = [];
+    let money = 0;
+    let ordersServed = 0;
+    let perfectOrders = 0;
+    let currentCombo = 0;
+    let bestCombo = 0;
+    let gameTime = 90;
+    let gameRunning = false;
+    let timerInterval = null;
+    let customerInterval = null;
+    
+    // Customer names and emojis
+    const customerPool = [
+      { name: 'SpongeBob', emoji: '🧽' },
+      { name: 'Patrick', emoji: '⭐' },
+      { name: 'Squidward', emoji: '🐙' },
+      { name: 'Sandy', emoji: '🐿️' },
+      { name: 'Pearl', emoji: '🐋' },
+      { name: 'Larry', emoji: '🦞' },
+      { name: 'Mrs. Puff', emoji: '🐡' },
+      { name: 'Bubble Bass', emoji: '🐟' },
+      { name: 'Plankton', emoji: '🦠' }
+    ];
+    
+    // Ingredient mappings
+    const ingredientMap = {
+      'bun-bottom': '🍞 Bottom Bun',
+      'patty': '🥩 Patty',
+      'cheese': '🧀 Cheese',
+      'lettuce': '🥬 Lettuce',
+      'tomato': '🍅 Tomato',
+      'pickles': '🥒 Pickles',
+      'onion': '🧅 Onion',
+      'bun-top': '🍞 Top Bun'
+    };
+    
+    // Mr. Krabs quotes
+    const krabsQuotes = {
+      perfect: [
+        "Excellent work, boy! That's me money!",
+        "Perfect! Just like me mother used to make!",
+        "Beautiful! Keep 'em coming!",
+        "Now THAT'S a Krabby Patty!",
+        "Me money! Me beautiful money!"
+      ],
+      good: [
+        "Good enough, lad!",
+        "Not bad, not bad at all!",
+        "Keep up the pace!",
+        "That'll do, boy!"
+      ],
+      wrong: [
+        "THAT'S NOT WHAT THEY ORDERED!",
+        "Are ye trying to bankrupt me?!",
+        "Pay attention to the order!",
+        "Me money! Me precious money!",
+        "Get it right next time!"
+      ],
+      slow: [
+        "Faster, boy! Time is money!",
+        "Pick up the pace!",
+        "Me customers are waiting!",
+        "Speed it up, lad!"
+      ]
+    };
+    
+    function startGame() {
+      // Reset game state
+      customers = [];
+      currentBurger = [];
+      money = 0;
+      ordersServed = 0;
+      perfectOrders = 0;
+      currentCombo = 0;
+      bestCombo = 0;
+      gameTime = 90;
+      gameRunning = true;
+      
+      // Hide menu, show game
+      document.getElementById('menuScreen').classList.add('hidden');
+      document.getElementById('gameOverScreen').classList.remove('show');
+      document.getElementById('gameContainer').style.display = 'flex';
+      
+      // Update displays
+      updateStats();
+      clearBurger();
+      
+      // Start timers
+      timerInterval = setInterval(updateTimer, 1000);
+      
+      // Spawn first customer immediately
+      spawnCustomer();
+      
+      // Then spawn customers every 8-15 seconds
+      customerInterval = setInterval(() => {
+        if (customers.length < 5) {
+          spawnCustomer();
+        }
+      }, Math.random() * 7000 + 8000);
+      
+      sayKrabs("Let's make some money!");
+    }
+    
+    function spawnCustomer() {
+      const customer = customerPool[Math.floor(Math.random() * customerPool.length)];
+      const numIngredients = Math.floor(Math.random() * 3) + 4; // 4-6 ingredients
+      
+      // Generate random order (always starts with bottom bun, ends with top bun)
+      const middleIngredients = ['patty', 'cheese', 'lettuce', 'tomato', 'pickles', 'onion'];
+      const order = ['bun-bottom'];
+      
+      // Add random middle ingredients
+      for (let i = 0; i < numIngredients - 2; i++) {
+        const ingredient = middleIngredients[Math.floor(Math.random() * middleIngredients.length)];
+        order.push(ingredient);
+      }
+      
+      order.push('bun-top');
+      
+      customers.push({
+        id: Date.now(),
+        name: customer.name,
+        emoji: customer.emoji,
+        order: order,
+        timeLeft: 30,
+        maxTime: 30
+      });
+      
+      updateCustomerDisplay();
+      
+      // Start customer timer
+      const customerId = customers[customers.length - 1].id;
+      const customerTimer = setInterval(() => {
+        const customer = customers.find(c => c.id === customerId);
+        if (!customer) {
+          clearInterval(customerTimer);
+          return;
+        }
+        
+        customer.timeLeft--;
+        
+        if (customer.timeLeft <= 0) {
+          // Customer left angry
+          customers = customers.filter(c => c.id !== customerId);
+          updateCustomerDisplay();
+          clearInterval(customerTimer);
+          sayKrabs(krabsQuotes.slow[Math.floor(Math.random() * krabsQuotes.slow.length)]);
+          currentCombo = 0;
+          updateStats();
+        } else {
+          updateCustomerDisplay();
+        }
+      }, 1000);
+    }
+    
+    function updateCustomerDisplay() {
+      const list = document.getElementById('customerList');
+      list.innerHTML = '';
+      
+      customers.forEach((customer, index) => {
+        const card = document.createElement('div');
+        card.className = 'customer-card' + (index === 0 ? ' active' : '');
+        
+        const timePercent = (customer.timeLeft / customer.maxTime) * 100;
+        
+        card.innerHTML = `
+          <div class="customer-name">
+            <span class="customer-emoji">${customer.emoji}</span>
+            <strong>${customer.name}</strong>
+          </div>
+          <div class="order-list">
+            ${customer.order.map(ing => `
+              <div class="order-item">${ingredientMap[ing]}</div>
+            `).join('')}
+          </div>
+          <div class="timer-bar">
+            <div class="timer-fill" style="width: ${timePercent}%"></div>
+          </div>
+        `;
+        
+        list.appendChild(card);
+      });
+    }
+    
+    function addIngredient(ingredient) {
+      if (!gameRunning) return;
+      
+      currentBurger.push(ingredient);
+      updateBurgerDisplay();
+      
+      // Enable serve button if we have ingredients
+      document.getElementById('serveBtn').disabled = currentBurger.length === 0;
+    }
+    
+    function updateBurgerDisplay() {
+      const build = document.getElementById('burgerBuild');
+      build.innerHTML = '';
+      
+      if (currentBurger.length === 0) {
+        build.innerHTML = `
+          <div style="font-size: 48px; color: #666;">🍔</div>
+          <div style="font-size: 24px; color: #666;">Click ingredients below!</div>
+        `;
+        return;
+      }
+      
+      // Show burger being built (reverse order so top bun is on top)
+      [...currentBurger].reverse().forEach(ingredient => {
+        const div = document.createElement('div');
+        div.className = 'burger-ingredient ingredient-' + ingredient;
+        div.textContent = ingredientMap[ingredient];
+        build.appendChild(div);
+      });
+    }
+    
+    function clearBurger() {
+      currentBurger = [];
+      updateBurgerDisplay();
+      document.getElementById('serveBtn').disabled = true;
+    }
+    
+    function serveOrder() {
+      if (!gameRunning || customers.length === 0 || currentBurger.length === 0) return;
+      
+      const customer = customers[0];
+      
+      // Check if order matches
+      const correct = JSON.stringify(currentBurger) === JSON.stringify(customer.order);
+      
+      if (correct) {
+        // Perfect order!
+        const baseReward = 10;
+        const timeBonus = Math.floor(customer.timeLeft / 2);
+        const comboBonus = currentCombo * 2;
+        const totalReward = baseReward + timeBonus + comboBonus;
+        
+        money += totalReward;
+        ordersServed++;
+        perfectOrders++;
+        currentCombo++;
+        
+        if (currentCombo > bestCombo) bestCombo = currentCombo;
+        
+        // Remove customer
+        customers.shift();
+        
+        // Effects
+        createParticles('💰');
+        sayKrabs(krabsQuotes.perfect[Math.floor(Math.random() * krabsQuotes.perfect.length)]);
+        
+        if (currentCombo >= 3) {
+          showCombo(currentCombo);
+        }
+        
+      } else {
+        // Wrong order!
+        money = Math.max(0, money - 5);
+        currentCombo = 0;
+        
+        // Remove customer (they leave angry)
+        customers.shift();
+        
+        createParticles('💢');
+        sayKrabs(krabsQuotes.wrong[Math.floor(Math.random() * krabsQuotes.wrong.length)]);
+      }
+      
+      clearBurger();
+      updateCustomerDisplay();
+      updateStats();
+    }
+    
+    function updateTimer() {
+      if (!gameRunning) return;
+      
+      gameTime--;
+      updateStats();
+      
+      if (gameTime <= 0) {
+        endGame();
+      }
+    }
+    
+    function updateStats() {
+      document.getElementById('money').textContent = '$' + money;
+      document.getElementById('served').textContent = ordersServed;
+      document.getElementById('timer').textContent = gameTime;
+      document.getElementById('combo').textContent = currentCombo + 'x';
+    }
+    
+    function sayKrabs(quote) {
+      document.getElementById('krabsSpeech').textContent = quote;
+    }
+    
+    function createParticles(emoji) {
+      for (let i = 0; i < 10; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.textContent = emoji;
+        particle.style.left = (Math.random() * window.innerWidth) + 'px';
+        particle.style.top = (Math.random() * window.innerHeight) + 'px';
+        document.body.appendChild(particle);
+        
+        setTimeout(() => particle.remove(), 1000);
+      }
+    }
+    
+    function showCombo(combo) {
+      const comboText = document.createElement('div');
+      comboText.className = 'combo-text';
+      comboText.textContent = combo + 'x COMBO! 🔥';
+      document.body.appendChild(comboText);
+      
+      setTimeout(() => comboText.remove(), 1000);
+    }
+    
+    function endGame() {
+      gameRunning = false;
+      clearInterval(timerInterval);
+      clearInterval(customerInterval);
+      
+      // Show game over screen
+      document.getElementById('finalOrders').textContent = ordersServed;
+      document.getElementById('finalMoney').textContent = money;
+      document.getElementById('finalPerfect').textContent = perfectOrders;
+      document.getElementById('finalCombo').textContent = bestCombo;
+      
+      document.getElementById('gameOverScreen').classList.add('show');
+      document.getElementById('gameContainer').style.display = 'none';
+    }
+  </script>
+</body>
+</html>
