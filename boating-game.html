@@ -186,26 +186,28 @@
   <a href="../index.html" class="btn back-btn">◀ MENU</a>
   
   <div class="menu-screen" id="menuScreen">
-    <h1>🛥️ BOATING SCHOOL CHAOS</h1>
-    <p>Steer your boat • Avoid obstacles • Collect Krabby Patties!</p>
+    <h1>🛥️ MRS. PUFF'S BOATING SCHOOL</h1>
+    <p>Pass your boating test • Avoid obstacles • Collect points!</p>
     <p style="font-size: 18px; color: #ccc; margin-top: -20px;">Use A/D or Arrow Keys to steer</p>
-    <button class="start-btn" onclick="startGame()">START GAME</button>
+    <p style="font-size: 16px; color: #ffeb3b; margin-top: 10px;">⭐ Don't crash or Mrs. Puff will fail you! ⭐</p>
+    <button class="start-btn" onclick="startGame()">START TEST</button>
   </div>
   
   <div class="game-over-screen" id="gameOverScreen">
-    <h2>GAME OVER!</h2>
+    <h2>TEST FAILED!</h2>
+    <p style="color: #ff6b6b;">Mrs. Puff says: "Oh, SpongeBob..."</p>
     <p id="finalScore">Final Score: 0</p>
-    <button class="start-btn" onclick="startGame()">PLAY AGAIN</button>
+    <button class="start-btn" onclick="startGame()">RETRY TEST</button>
   </div>
   
   <div class="hud">
     <div class="stat-box">
-      <div style="font-size: 14px; color: #ccc;">SCORE</div>
+      <div style="font-size: 14px; color: #ccc;">TEST POINTS</div>
       <div id="scoreDisplay">0</div>
     </div>
     <div class="stat-box">
-      <div style="font-size: 14px; color: #ccc;">LIVES</div>
-      <div id="livesDisplay">3</div>
+      <div style="font-size: 14px; color: #ccc;">MISTAKES</div>
+      <div id="livesDisplay">0/3</div>
     </div>
     <div class="stat-box">
       <div style="font-size: 14px; color: #ccc;">DISTANCE</div>
@@ -259,26 +261,38 @@
       sunLight.castShadow = true;
       scene.add(sunLight);
 
-      // Ocean floor - VISIBLE COLOR
-      const oceanGeom = new THREE.PlaneGeometry(40, 200);
-      const oceanMat = new THREE.MeshLambertMaterial({ 
-        color: 0x4169E1, // Royal blue - MUCH MORE VISIBLE
-        side: THREE.DoubleSide
-      });
-      const ocean = new THREE.Mesh(oceanGeom, oceanMat);
-      ocean.rotation.x = -Math.PI / 2;
-      ocean.position.y = -1;
-      scene.add(ocean);
+      // Endless ocean floor system
+      window.oceanTiles = [];
+      const tileSize = 100;
+      const tileCount = 5;
+      
+      for (let i = 0; i < tileCount; i++) {
+        const oceanGeom = new THREE.PlaneGeometry(40, tileSize);
+        const oceanMat = new THREE.MeshLambertMaterial({ 
+          color: 0x4169E1,
+          side: THREE.DoubleSide
+        });
+        const ocean = new THREE.Mesh(oceanGeom, oceanMat);
+        ocean.rotation.x = -Math.PI / 2;
+        ocean.position.y = -1;
+        ocean.position.z = -i * tileSize;
+        scene.add(ocean);
+        window.oceanTiles.push(ocean);
+      }
 
-      // Add lane markers for visibility
-      const laneGeom = new THREE.PlaneGeometry(0.5, 200);
+      // Endless lane markers
+      window.laneMarkers = [];
+      const laneGeom = new THREE.PlaneGeometry(0.5, tileSize);
       const laneMat = new THREE.MeshBasicMaterial({ color: 0xFFFFFF, transparent: true, opacity: 0.3 });
       
-      for (let i = -15; i <= 15; i += 5) {
-        const lane = new THREE.Mesh(laneGeom, laneMat);
-        lane.rotation.x = -Math.PI / 2;
-        lane.position.set(i, -0.9, 0);
-        scene.add(lane);
+      for (let tile = 0; tile < tileCount; tile++) {
+        for (let i = -15; i <= 15; i += 5) {
+          const lane = new THREE.Mesh(laneGeom, laneMat);
+          lane.rotation.x = -Math.PI / 2;
+          lane.position.set(i, -0.9, -tile * tileSize);
+          scene.add(lane);
+          window.laneMarkers.push(lane);
+        }
       }
 
       // Create boat
@@ -366,9 +380,9 @@
     }
 
     function spawnCollectible() {
-      // Krabby Patty
-      const geometry = new THREE.BoxGeometry(1, 0.6, 1);
-      const material = new THREE.MeshLambertMaterial({ color: 0xFFCC00 });
+      // Gold star for test points
+      const geometry = new THREE.OctahedronGeometry(0.8);
+      const material = new THREE.MeshLambertMaterial({ color: 0xFFD700, emissive: 0xFFD700, emissiveIntensity: 0.3 });
       const collectible = new THREE.Mesh(geometry, material);
       
       collectible.position.set(
@@ -433,7 +447,8 @@
 
     function updateUI() {
       document.getElementById('scoreDisplay').textContent = gameState.score;
-      document.getElementById('livesDisplay').textContent = gameState.lives;
+      const mistakes = 3 - gameState.lives;
+      document.getElementById('livesDisplay').textContent = mistakes + '/3';
       document.getElementById('distanceDisplay').textContent = Math.floor(gameState.distance) + 'm';
     }
 
@@ -469,6 +484,22 @@
         camera.position.x = boat.position.x * 0.3;
         camera.position.z = boat.position.z + 15;
         camera.lookAt(boat.position.x, 0, boat.position.z - 10);
+
+        // Endless ocean tiles loop
+        const tileSize = 100;
+        window.oceanTiles.forEach(tile => {
+          // When tile passes behind camera, move it to the front
+          if (tile.position.z - boat.position.z > tileSize / 2) {
+            tile.position.z -= tileSize * window.oceanTiles.length;
+          }
+        });
+        
+        // Endless lane markers loop
+        window.laneMarkers.forEach(marker => {
+          if (marker.position.z - boat.position.z > tileSize / 2) {
+            marker.position.z -= tileSize * (window.oceanTiles.length);
+          }
+        });
 
         // Spawn obstacles
         if (obstacles.length < 4 && Math.random() < 0.02) {
@@ -546,11 +577,11 @@
 
             // Score popup
             const popup = document.createElement('div');
-            popup.textContent = '+50';
+            popup.textContent = '⭐ GOOD DRIVING! +50';
             popup.style.cssText = `
               position: fixed; left: 50%; top: 50%;
               transform: translate(-50%, -50%);
-              color: #ffcc00; font-size: 48px; font-weight: bold;
+              color: #FFD700; font-size: 40px; font-weight: bold;
               text-shadow: 3px 3px 0 #000; pointer-events: none; z-index: 1000;
               animation: scoreFloat 1s ease-out forwards;
             `;
