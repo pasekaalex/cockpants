@@ -23,75 +23,78 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      height: 100vh;
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
     }
     
     .game-container {
       display: flex;
-      gap: 20px;
-      max-width: 1400px;
-      padding: 20px;
+      gap: 15px;
+      max-width: 1600px;
       width: 100%;
+      padding: 15px;
       height: 100vh;
+      box-sizing: border-box;
     }
     
     .left-section {
-      flex: 1;
+      flex: 0 0 300px;
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      gap: 15px;
       overflow-y: auto;
-      max-height: calc(100vh - 40px);
-      padding-right: 10px;
+      max-height: calc(100vh - 30px);
     }
     
     .center-section {
-      flex: 2;
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
-    
-    .right-section {
       flex: 1;
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      gap: 15px;
+      min-width: 0;
+    }
+    
+    .right-section {
+      flex: 0 0 280px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
     }
     
     .panel {
       background: rgba(255, 255, 255, 0.95);
-      border: 5px solid #8B4513;
-      border-radius: 20px;
-      padding: 25px;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+      border: 4px solid #8B4513;
+      border-radius: 15px;
+      padding: 15px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
     }
     
     .panel-title {
-      font-size: 28px;
+      font-size: 20px;
       color: #FF6B6B;
       text-shadow: 2px 2px 0 #000;
-      margin-bottom: 20px;
+      margin-bottom: 12px;
       text-align: center;
-      border-bottom: 4px solid #FF6B6B;
-      padding-bottom: 10px;
+      border-bottom: 3px solid #FF6B6B;
+      padding-bottom: 8px;
     }
     
     /* Customer Queue */
     .customer-queue {
       flex: 1;
-      min-height: 300px;
+      overflow-y: auto;
     }
     
     .customer-card {
       background: linear-gradient(135deg, #FFE4B5, #FFD700);
-      border: 4px solid #FF8C00;
-      border-radius: 15px;
-      padding: 20px;
-      margin-bottom: 15px;
+      border: 3px solid #FF8C00;
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 12px;
       position: relative;
       animation: slideIn 0.5s ease;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     }
     
     @keyframes slideIn {
@@ -101,7 +104,7 @@
     
     .customer-card.active {
       border-color: #32CD32;
-      border-width: 5px;
+      border-width: 4px;
       box-shadow: 0 0 20px #32CD32;
       animation: glow 1s ease-in-out infinite;
     }
@@ -112,16 +115,17 @@
     }
     
     .customer-name {
-      font-size: 22px;
+      font-size: 16px;
       color: #8B4513;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
+      font-weight: bold;
     }
     
     .customer-emoji {
-      font-size: 32px;
+      font-size: 24px;
       animation: bounce 1s ease-in-out infinite;
     }
     
@@ -132,30 +136,30 @@
     
     .order-list {
       background: rgba(255, 255, 255, 0.9);
-      padding: 15px;
-      border-radius: 10px;
+      padding: 10px;
+      border-radius: 8px;
       border: 2px solid #8B4513;
-      margin-top: 10px;
+      margin-top: 8px;
     }
     
     .order-item {
-      font-size: 18px;
-      padding: 5px 10px;
-      margin: 5px 0;
+      font-size: 14px;
+      padding: 4px 8px;
+      margin: 4px 0;
       background: #FFF8DC;
-      border-radius: 8px;
-      border-left: 4px solid #FF6B6B;
+      border-radius: 6px;
+      border-left: 3px solid #FF6B6B;
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 6px;
     }
     
     .timer-bar {
-      height: 12px;
+      height: 10px;
       background: #ddd;
-      border-radius: 10px;
+      border-radius: 8px;
       overflow: hidden;
-      margin-top: 10px;
+      margin-top: 8px;
       border: 2px solid #000;
     }
     
@@ -163,42 +167,47 @@
       height: 100%;
       background: linear-gradient(90deg, #32CD32, #FFD700, #FF6B6B);
       transition: width 0.1s linear;
-      border-radius: 8px;
+      border-radius: 6px;
     }
     
     /* Cooking Station */
     .cooking-station {
       flex: 1;
-      min-height: 400px;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
     }
     
     .burger-build {
       background: linear-gradient(135deg, #87CEEB, #4682B4);
-      border: 5px solid #1E90FF;
-      border-radius: 20px;
-      padding: 30px;
-      min-height: 300px;
+      border: 4px solid #1E90FF;
+      border-radius: 15px;
+      padding: 20px;
+      min-height: 200px;
+      max-height: 300px;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 5px;
+      gap: 4px;
       box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.2);
+      overflow-y: auto;
     }
     
     .burger-ingredient {
-      width: 200px;
-      height: 40px;
+      width: 180px;
+      height: 35px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 24px;
+      font-size: 18px;
       font-weight: bold;
       border: 3px solid #000;
-      box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
       animation: placeIngredient 0.3s ease;
       position: relative;
+      flex-shrink: 0;
     }
     
     @keyframes placeIngredient {
@@ -207,10 +216,10 @@
     }
     
     .ingredient-bun-bottom { background: linear-gradient(135deg, #DEB887, #D2691E); }
-    .ingredient-patty { background: linear-gradient(135deg, #8B4513, #654321); }
+    .ingredient-patty { background: linear-gradient(135deg, #8B4513, #654321); color: #fff; }
     .ingredient-cheese { background: linear-gradient(135deg, #FFD700, #FFA500); }
     .ingredient-lettuce { background: linear-gradient(135deg, #90EE90, #32CD32); }
-    .ingredient-tomato { background: linear-gradient(135deg, #FF6347, #DC143C); }
+    .ingredient-tomato { background: linear-gradient(135deg, #FF6347, #DC143C); color: #fff; }
     .ingredient-pickles { background: linear-gradient(135deg, #9ACD32, #6B8E23); }
     .ingredient-onion { background: linear-gradient(135deg, #FFE4E1, #FFC0CB); }
     .ingredient-bun-top { 
@@ -222,11 +231,11 @@
     .ingredient-bun-top::before {
       content: '';
       position: absolute;
-      top: 5px;
+      top: 4px;
       left: 50%;
       transform: translateX(-50%);
-      width: 20px;
-      height: 20px;
+      width: 15px;
+      height: 15px;
       background: #FFE4B5;
       border-radius: 50%;
       border: 2px solid #000;
@@ -236,19 +245,19 @@
     .ingredient-buttons {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 15px;
-      margin-top: 20px;
+      gap: 10px;
+      margin-top: 15px;
     }
     
     .ingredient-btn {
       background: linear-gradient(135deg, #4CAF50, #2E7D32);
-      border: 4px solid #8BC34A;
-      border-radius: 15px;
-      padding: 20px;
+      border: 3px solid #8BC34A;
+      border-radius: 12px;
+      padding: 12px 8px;
       cursor: pointer;
       transition: all 0.3s;
       text-align: center;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
       position: relative;
       overflow: hidden;
     }
@@ -272,57 +281,57 @@
     }
     
     .ingredient-btn:hover {
-      transform: translateY(-5px) scale(1.05);
-      box-shadow: 0 10px 25px rgba(76, 175, 80, 0.5);
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 8px 20px rgba(76, 175, 80, 0.5);
       border-color: #FFD700;
     }
     
     .ingredient-btn:active {
-      transform: translateY(-2px) scale(1.02);
+      transform: translateY(-1px) scale(1.02);
     }
     
     .ingredient-icon {
-      font-size: 48px;
-      margin-bottom: 10px;
-      filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.3));
+      font-size: 32px;
+      margin-bottom: 6px;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
     }
     
     .ingredient-name {
-      font-size: 16px;
+      font-size: 12px;
       color: #fff;
-      text-shadow: 2px 2px 0 #000;
+      text-shadow: 1px 1px 0 #000;
       font-weight: bold;
     }
     
     /* Action Buttons */
     .action-buttons {
       display: flex;
-      gap: 15px;
-      margin-top: 20px;
+      gap: 10px;
+      margin-top: 15px;
     }
     
     .action-btn {
       flex: 1;
-      padding: 20px;
+      padding: 15px;
       border: none;
-      border-radius: 15px;
+      border-radius: 12px;
       font-family: 'Krabby Patty', Arial, sans-serif;
-      font-size: 24px;
+      font-size: 18px;
       cursor: pointer;
       transition: all 0.3s;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
       text-shadow: 2px 2px 0 #000;
     }
     
     .serve-btn {
       background: linear-gradient(135deg, #32CD32, #228B22);
       color: white;
-      border: 4px solid #90EE90;
+      border: 3px solid #90EE90;
     }
     
-    .serve-btn:hover {
-      transform: translateY(-5px) scale(1.05);
-      box-shadow: 0 10px 25px rgba(50, 205, 50, 0.5);
+    .serve-btn:hover:not(:disabled) {
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 8px 20px rgba(50, 205, 50, 0.5);
     }
     
     .serve-btn:disabled {
@@ -334,39 +343,39 @@
     .clear-btn {
       background: linear-gradient(135deg, #FF6B6B, #DC143C);
       color: white;
-      border: 4px solid #FFB6C1;
+      border: 3px solid #FFB6C1;
     }
     
     .clear-btn:hover {
-      transform: translateY(-5px) scale(1.05);
-      box-shadow: 0 10px 25px rgba(220, 20, 60, 0.5);
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 8px 20px rgba(220, 20, 60, 0.5);
     }
     
     /* Stats Panel */
     .stats-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 15px;
+      gap: 10px;
     }
     
     .stat-box {
       background: linear-gradient(135deg, #FFD700, #FFA500);
-      border: 4px solid #FF8C00;
-      border-radius: 15px;
-      padding: 20px;
+      border: 3px solid #FF8C00;
+      border-radius: 12px;
+      padding: 12px;
       text-align: center;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     }
     
     .stat-label {
-      font-size: 16px;
+      font-size: 12px;
       color: #8B4513;
-      margin-bottom: 10px;
+      margin-bottom: 6px;
       font-weight: bold;
     }
     
     .stat-value {
-      font-size: 36px;
+      font-size: 24px;
       color: #fff;
       text-shadow: 2px 2px 0 #8B4513;
       font-weight: bold;
@@ -378,7 +387,7 @@
     }
     
     .krabs-emoji {
-      font-size: 80px;
+      font-size: 60px;
       animation: krabsHappy 2s ease-in-out infinite;
     }
     
@@ -389,28 +398,32 @@
     
     .krabs-speech {
       background: linear-gradient(135deg, #FFE4E1, #FFB6C1);
-      border: 4px solid #FF69B4;
-      border-radius: 20px;
-      padding: 20px;
-      margin-top: 20px;
-      font-size: 20px;
+      border: 3px solid #FF69B4;
+      border-radius: 15px;
+      padding: 12px;
+      margin-top: 15px;
+      font-size: 14px;
       color: #8B0000;
       text-shadow: 1px 1px 0 #fff;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
       position: relative;
+      min-height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     
     .krabs-speech::before {
       content: '';
       position: absolute;
-      top: -15px;
+      top: -12px;
       left: 50%;
       transform: translateX(-50%);
       width: 0;
       height: 0;
-      border-left: 15px solid transparent;
-      border-right: 15px solid transparent;
-      border-bottom: 15px solid #FF69B4;
+      border-left: 12px solid transparent;
+      border-right: 12px solid transparent;
+      border-bottom: 12px solid #FF69B4;
     }
     
     /* Menu Screen */
@@ -585,15 +598,237 @@
         flex-direction: column;
         overflow-y: auto;
         height: auto;
+        padding: 10px;
       }
       
       .left-section, .center-section, .right-section {
+        flex: none;
         width: 100%;
         max-height: none;
       }
       
+      .left-section {
+        order: 2;
+      }
+      
+      .center-section {
+        order: 1;
+      }
+      
+      .right-section {
+        order: 3;
+      }
+      
+      .ingredient-buttons {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+      }
+      
+      .ingredient-btn {
+        padding: 10px 6px;
+      }
+      
+      .ingredient-icon {
+        font-size: 28px;
+        margin-bottom: 4px;
+      }
+      
+      .ingredient-name {
+        font-size: 10px;
+      }
+      
+      .burger-build {
+        max-height: 250px;
+        min-height: 180px;
+        padding: 15px;
+      }
+      
+      .burger-ingredient {
+        width: 160px;
+        height: 30px;
+        font-size: 16px;
+      }
+      
+      .customer-card {
+        padding: 10px;
+      }
+      
+      .customer-name {
+        font-size: 14px;
+      }
+      
+      .customer-emoji {
+        font-size: 20px;
+      }
+      
+      .order-item {
+        font-size: 12px;
+        padding: 3px 6px;
+      }
+      
+      .stat-value {
+        font-size: 20px;
+      }
+      
+      .stat-label {
+        font-size: 11px;
+      }
+      
+      .krabs-emoji {
+        font-size: 50px;
+      }
+      
+      .krabs-speech {
+        font-size: 12px;
+        padding: 10px;
+        min-height: 50px;
+      }
+      
+      .action-btn {
+        font-size: 16px;
+        padding: 12px;
+      }
+      
+      .panel-title {
+        font-size: 18px;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      body {
+        overflow-y: auto;
+      }
+      
+      .game-container {
+        padding: 5px;
+        gap: 10px;
+      }
+      
+      .panel {
+        padding: 12px;
+        border-width: 3px;
+      }
+      
       .ingredient-buttons {
         grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+      }
+      
+      .ingredient-btn {
+        padding: 15px 10px;
+      }
+      
+      .ingredient-icon {
+        font-size: 36px;
+        margin-bottom: 8px;
+      }
+      
+      .ingredient-name {
+        font-size: 13px;
+      }
+      
+      .burger-build {
+        min-height: 200px;
+        max-height: 280px;
+      }
+      
+      .burger-ingredient {
+        width: 140px;
+        height: 28px;
+        font-size: 14px;
+      }
+      
+      .action-buttons {
+        flex-direction: column;
+        gap: 10px;
+      }
+      
+      .action-btn {
+        width: 100%;
+        font-size: 18px;
+        padding: 15px;
+      }
+      
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+      }
+      
+      .stat-box {
+        padding: 10px;
+      }
+      
+      .stat-value {
+        font-size: 22px;
+      }
+      
+      .menu-title {
+        font-size: 48px;
+      }
+      
+      .menu-subtitle {
+        font-size: 22px;
+      }
+      
+      .start-btn {
+        font-size: 32px;
+        padding: 20px 40px;
+      }
+      
+      .game-over-title {
+        font-size: 48px;
+      }
+      
+      .final-stats {
+        padding: 25px;
+      }
+      
+      .final-stat {
+        font-size: 20px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .panel-title {
+        font-size: 16px;
+        margin-bottom: 10px;
+        padding-bottom: 6px;
+      }
+      
+      .customer-queue {
+        max-height: 400px;
+        overflow-y: auto;
+      }
+      
+      .ingredient-btn {
+        padding: 12px 8px;
+      }
+      
+      .ingredient-icon {
+        font-size: 32px;
+      }
+      
+      .ingredient-name {
+        font-size: 11px;
+      }
+      
+      .burger-ingredient {
+        width: 120px;
+        height: 25px;
+        font-size: 12px;
+      }
+      
+      .menu-title {
+        font-size: 36px;
+      }
+      
+      .menu-subtitle {
+        font-size: 18px;
+      }
+      
+      .start-btn {
+        font-size: 24px;
+        padding: 15px 30px;
       }
     }
   </style>
@@ -799,6 +1034,10 @@
       gameTime = 90;
       gameRunning = true;
       
+      // Clear any existing timers
+      if (timerInterval) clearInterval(timerInterval);
+      if (customerInterval) clearInterval(customerInterval);
+      
       // Hide menu, show game
       document.getElementById('menuScreen').classList.add('hidden');
       document.getElementById('gameOverScreen').classList.remove('show');
@@ -814,17 +1053,19 @@
       // Spawn first customer immediately
       spawnCustomer();
       
-      // Then spawn customers every 8-15 seconds
+      // Then spawn customers every 10-15 seconds
       customerInterval = setInterval(() => {
-        if (customers.length < 5) {
+        if (customers.length < 4) {
           spawnCustomer();
         }
-      }, Math.random() * 7000 + 8000);
+      }, Math.random() * 5000 + 10000);
       
       sayKrabs("Let's make some money!");
     }
     
     function spawnCustomer() {
+      if (!gameRunning) return;
+      
       const customer = customerPool[Math.floor(Math.random() * customerPool.length)];
       const numIngredients = Math.floor(Math.random() * 3) + 4; // 4-6 ingredients
       
@@ -840,20 +1081,26 @@
       
       order.push('bun-top');
       
+      const customerId = Date.now() + Math.random(); // Ensure unique ID
+      
       customers.push({
-        id: Date.now(),
+        id: customerId,
         name: customer.name,
         emoji: customer.emoji,
         order: order,
-        timeLeft: 30,
-        maxTime: 30
+        timeLeft: 35,
+        maxTime: 35
       });
       
       updateCustomerDisplay();
       
       // Start customer timer
-      const customerId = customers[customers.length - 1].id;
       const customerTimer = setInterval(() => {
+        if (!gameRunning) {
+          clearInterval(customerTimer);
+          return;
+        }
+        
         const customer = customers.find(c => c.id === customerId);
         if (!customer) {
           clearInterval(customerTimer);
@@ -864,12 +1111,15 @@
         
         if (customer.timeLeft <= 0) {
           // Customer left angry
-          customers = customers.filter(c => c.id !== customerId);
-          updateCustomerDisplay();
+          const index = customers.findIndex(c => c.id === customerId);
+          if (index !== -1) {
+            customers.splice(index, 1);
+            updateCustomerDisplay();
+            sayKrabs(krabsQuotes.slow[Math.floor(Math.random() * krabsQuotes.slow.length)]);
+            currentCombo = 0;
+            updateStats();
+          }
           clearInterval(customerTimer);
-          sayKrabs(krabsQuotes.slow[Math.floor(Math.random() * krabsQuotes.slow.length)]);
-          currentCombo = 0;
-          updateStats();
         } else {
           updateCustomerDisplay();
         }
@@ -911,8 +1161,8 @@
       currentBurger.push(ingredient);
       updateBurgerDisplay();
       
-      // Enable serve button if we have ingredients
-      document.getElementById('serveBtn').disabled = currentBurger.length === 0;
+      // Enable serve button when we have at least 3 ingredients
+      document.getElementById('serveBtn').disabled = currentBurger.length < 3;
     }
     
     function updateBurgerDisplay() {
@@ -922,7 +1172,7 @@
       if (currentBurger.length === 0) {
         build.innerHTML = `
           <div style="font-size: 48px; color: #666;">🍔</div>
-          <div style="font-size: 24px; color: #666;">Click ingredients below!</div>
+          <div style="font-size: 20px; color: #666;">Click ingredients below!</div>
         `;
         return;
       }
@@ -947,7 +1197,7 @@
       
       const customer = customers[0];
       
-      // Check if order matches
+      // Check if order matches exactly
       const correct = JSON.stringify(currentBurger) === JSON.stringify(customer.order);
       
       if (correct) {
@@ -965,10 +1215,11 @@
         if (currentCombo > bestCombo) bestCombo = currentCombo;
         
         // Remove customer
+        const customerId = customers[0].id;
         customers.shift();
         
         // Effects
-        createParticles('💰');
+        createParticles('💰', 8);
         sayKrabs(krabsQuotes.perfect[Math.floor(Math.random() * krabsQuotes.perfect.length)]);
         
         if (currentCombo >= 3) {
@@ -983,7 +1234,7 @@
         // Remove customer (they leave angry)
         customers.shift();
         
-        createParticles('💢');
+        createParticles('💢', 6);
         sayKrabs(krabsQuotes.wrong[Math.floor(Math.random() * krabsQuotes.wrong.length)]);
       }
       
@@ -1014,8 +1265,8 @@
       document.getElementById('krabsSpeech').textContent = quote;
     }
     
-    function createParticles(emoji) {
-      for (let i = 0; i < 10; i++) {
+    function createParticles(emoji, count = 10) {
+      for (let i = 0; i < count; i++) {
         const particle = document.createElement('div');
         particle.className = 'particle';
         particle.textContent = emoji;
