@@ -1,91 +1,85 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Plankton Pac-Chomp | $COCKPANTS</title>
 <style>
-  @font-face{
+  /* Use same font and background styling as your index.html */
+  @font-face {
     font-family: 'Krabby Patty';
     src: url('Krabby Patty.ttf') format('truetype');
     font-display: swap;
   }
 
-  :root{
-    --tile: 24px;
-    --ui-bg: rgba(0,0,0,0.6);
-    --accent: #ffeb3b;
-    --accent-2: #ffcc00;
-    --wood: #8B4513;
-  }
-
-  *{box-sizing:border-box;margin:0;padding:0}
+  *{margin:0;padding:0;box-sizing:border-box;touch-action:manipulation}
   html,body{height:100%}
   body{
     font-family: 'Krabby Patty', Arial, sans-serif;
-    background: linear-gradient(180deg,#1b5f8a 0%, #0f3a5d 40%, #0a2a44 100%);
-    /* Bikini Bottom themed background (keeps with your site) */
-    background-image: url('https://i.imgur.com/CzRu9jK.gif');
-    background-size: cover;
-    background-position:center;
-    color:#fff;
-    -webkit-font-smoothing:antialiased;
-    -moz-osx-font-smoothing:grayscale;
+    min-height:100vh;
     display:flex;
     flex-direction:column;
     align-items:center;
-    gap:10px;
-    min-height:100vh;
-    padding:18px;
+    justify-content:flex-start;
+    overflow-x:hidden;
     position:relative;
+    background-color: #0a3a5c;
+    /* restored the exact background you used on index.html */
+    background-image: url('https://i.imgur.com/q8Qd5PK.jpeg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    color:#ffeb3b;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    padding:18px;
   }
 
-  /* dark overlay for readability */
   body::before{
     content:'';
-    position:fixed; inset:0;
-    background: linear-gradient( rgba(0,10,20,0.35), rgba(0,30,50,0.45) );
+    position:fixed; top:0; left:0; width:100%; height:100%;
+    background: rgba(0, 20, 40, 0.5);
     z-index:0; pointer-events:none;
   }
 
+  /* page chrome (matching index) */
   header{
     width:100%;
     max-width:980px;
     display:flex;
-    justify-content:space-between;
     align-items:center;
+    justify-content:space-between;
     gap:12px;
     z-index:5;
+    margin-bottom:6px;
   }
-
   .title{
-    color:var(--accent);
-    font-size:28px;
-    text-shadow: 0 0 12px rgba(255,235,59,0.5), 4px 4px 0 #ff5722;
     display:flex;
     gap:12px;
     align-items:center;
+    color:#ffeb3b;
+    text-shadow: 4px 4px 0 #8B4513, 0 0 30px #ffeb3b;
+    font-size:20px;
   }
 
-  .controls{
-    display:flex;
-    gap:8px;
-    align-items:center;
-  }
-
-  button, a.btn {
-    background: linear-gradient(180deg, #0f3b5a, #062f44);
-    border: 3px solid var(--accent-2);
-    color: var(--accent-2);
-    padding:8px 12px;
-    border-radius:10px;
-    font-family:'Krabby Patty', inherit;
-    cursor:pointer;
+  /* index-style controls */
+  button, .btn {
+    background: linear-gradient(135deg, rgba(139, 69, 19, 0.95), rgba(101, 67, 33, 0.95));
+    border: 4px solid #ffcc00;
+    color: #ffcc00;
+    padding: 8px 12px;
+    font-family: 'Krabby Patty', Arial, sans-serif;
+    cursor: pointer;
+    border-radius: 10px;
     text-decoration:none;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.45);
   }
-  .small{padding:6px 10px;font-size:14px}
+  .small{ font-size:14px; padding:6px 10px; }
 
+  /* layout */
   main{
     width:100%;
     max-width:980px;
@@ -95,40 +89,75 @@
     z-index:5;
   }
 
+  /* canvas container similar to previous styling */
   #canvas-wrap{
-    background: linear-gradient(180deg, rgba(0,0,0,0.18), rgba(0,0,0,0.22));
+    background: linear-gradient(180deg, rgba(0,0,0,0.12), rgba(0,0,0,0.18));
     padding:12px;
     border-radius:14px;
     border: 4px solid rgba(255,235,59,0.06);
-    box-shadow: 0 12px 40px rgba(0,0,0,0.7);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.6);
   }
 
+  /* use the same visual canvas border as your old file */
   canvas{
     display:block;
-    width:728px; /* default visual size; scales on mobile */
-    height:576px;
-    background: radial-gradient(circle at 20% 10%, rgba(255,255,255,0.02), transparent 15%);
-    border-radius:10px;
-    image-rendering: crisp-edges;
-    image-rendering: pixelated;
+    width:560px;
+    height:620px;
+    background:#000;
+    border:8px solid #ffcc00;
+    border-radius:15px;
+    box-shadow:0 0 40px #ffeb3b;
+    image-rendering:crisp-edges;
+    image-rendering:pixelated;
   }
 
-  /* HUD */
+  /* HUD to the right, matching index colors */
   .hud{
     width:260px;
     display:flex;
     flex-direction:column;
     gap:10px;
+    align-self:flex-start;
   }
   .stat{
-    background: var(--ui-bg);
+    background: linear-gradient(#06283b,#04222f);
     border-radius:12px;
     padding:12px;
-    border: 3px solid rgba(255,235,59,0.06);
+    border: 3px solid #ffcc00;
+    color:#fff;
   }
   .stat small{display:block;color:#cfe9ff;font-size:12px}
 
-  /* D-pad mobile */
+  /* back button same style and placement as before */
+  .back-btn{
+    background:#8B4513;
+    border:4px solid #ffcc00;
+    color:#ffcc00;
+    padding:12px 20px;
+    border-radius:12px;
+    font-size:16px;
+    text-decoration:none;
+  }
+
+  /* music toggle same as index */
+  .music-toggle{
+    position:fixed;
+    bottom:20px;
+    left:20px;
+    width:50px;
+    height:50px;
+    border-radius:50%;
+    background: linear-gradient(135deg, rgba(139, 69, 19, 0.9), rgba(101, 67, 33, 0.9));
+    border: 3px solid #ffcc00;
+    color: #ffcc00;
+    font-size: 20px;
+    cursor: pointer;
+    z-index:1000;
+    box-shadow: 0 0 15px rgba(255,200,50,0.3);
+  }
+  .music-toggle.muted{ opacity:0.5; border-color:#888; color:#888; }
+
+  /* D-pad like your index's mobile layout */
   .dpad{
     position:fixed;
     right:18px;
@@ -136,91 +165,86 @@
     width:140px;
     height:140px;
     display:grid;
-    grid-template-columns:repeat(3,1fr);
-    grid-template-rows:repeat(3,1fr);
+    grid-template-columns: repeat(3,1fr);
+    grid-template-rows: repeat(3,1fr);
     gap:8px;
     z-index:50;
     touch-action:none;
   }
   .dpad button{
-    background:linear-gradient(#ffef9c,#ffd54f);
+    background: linear-gradient(#ffef9c,#ffd54f);
     border:none;
     border-radius:12px;
     font-size:18px;
     box-shadow: 0 6px 18px rgba(0,0,0,0.4);
   }
-  .dpad .blank{background:transparent;box-shadow:none;pointer-events:none}
-  @media(min-width:920px){ .dpad{display:none} }
+  .dpad .blank{ background:transparent; box-shadow:none; pointer-events:none; }
+  @media(min-width:920px){ .dpad{ display:none } }
 
-  /* responsive */
   @media (max-width:920px){
-    canvas{width:92vw;height:72vw;max-height:640px}
-    main{flex-direction:column;align-items:center}
-    .hud{width:92vw;max-width:420px}
+    canvas{ width:92vw; height:92vw * 1.1071; max-height:640px } /* keep aspect */
+    main{ flex-direction:column; align-items:center }
+    .hud{ width:92vw; max-width:420px }
   }
 
-  /* small label under canvas */
-  .footer-note{font-size:12px;color:#cfe9ff;opacity:0.9}
+  .footer-note{ font-size:12px; color:#cfe9ff; opacity:0.9; margin-top:8px; text-align:center; }
 </style>
 </head>
 <body>
-<header>
-  <div class="title"><div style="font-size:28px">Plankton Pac-Chomp</div><div style="font-size:12px;color:#cfe9ff">— Bikini Bottom Arcade</div></div>
+  <header>
+    <div class="title">
+      <a class="back-btn" href="index.html">◀ MENU</a>
+      <div style="display:flex;flex-direction:column;">
+        <div style="font-size:22px;">Plankton Pac-Chomp</div>
+        <div style="font-size:12px;color:#cfe9ff">— Bikini Bottom Arcade</div>
+      </div>
+    </div>
 
-  <div class="controls">
-    <a class="btn small" href="index.html" title="Back to menu">◀ Back</a>
-    <button id="musicToggle" class="small">Music: On</button>
-    <button id="restart" class="small">Restart</button>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <button id="restart" class="small">Restart</button>
+      <button id="musicToggle" class="music-toggle" title="Toggle music">🎵</button>
+    </div>
+  </header>
+
+  <main>
+    <div id="canvas-wrap">
+      <canvas id="gameCanvas" width="560" height="620" aria-label="Plankton Pac-Chomp"></canvas>
+      <div class="footer-note">Dots = bubbles • Power = Krabby Patties</div>
+    </div>
+
+    <aside class="hud" aria-hidden="false">
+      <div class="stat">Score: <strong id="score">0</strong><small>Eat bubbles</small></div>
+      <div class="stat">Lives: <strong id="lives">3</strong><small>Don't get eaten</small></div>
+      <div class="stat">Mode: <strong id="mode">normal</strong><small>Krabby Patty = power</small></div>
+      <div class="stat">Controls:<br>WASD / Arrows (desktop) • D-pad (mobile)</div>
+    </aside>
+  </main>
+
+  <div class="dpad" id="dpad" aria-hidden="false">
+    <div class="blank"></div>
+    <button data-dir="up">▲</button>
+    <div class="blank"></div>
+    <button data-dir="left">◀</button>
+    <div class="blank"></div>
+    <button data-dir="right">▶</button>
+    <div class="blank"></div>
+    <button data-dir="down">▼</button>
   </div>
-</header>
 
-<main>
-  <div id="canvas-wrap">
-    <canvas id="board" width="608" height="528" aria-label="Game board"></canvas>
-    <div class="footer-note">Dots = bubbles • Power = Krabby Patties</div>
-  </div>
-
-  <aside class="hud" aria-hidden="false">
-    <div class="stat">Score: <strong id="score">0</strong><small>Eat bubbles to score</small></div>
-    <div class="stat">Lives: <strong id="lives">3</strong><small>Don't get eaten</small></div>
-    <div class="stat">Mode: <strong id="mode">normal</strong><small>Power lasts briefly</small></div>
-    <div class="stat">Controls:<br>WASD / Arrows (desktop) • D-pad (mobile)</div>
-  </aside>
-</main>
-
-<!-- D-pad (mobile) -->
-<div class="dpad" id="dpad" aria-hidden="false">
-  <div class="blank"></div>
-  <button data-dir="up">▲</button>
-  <div class="blank"></div>
-  <button data-dir="left">◀</button>
-  <div class="blank"></div>
-  <button data-dir="right">▶</button>
-  <div class="blank"></div>
-  <button data-dir="down">▼</button>
-</div>
-
-<!-- audio -->
-<audio id="bgMusic" loop preload="auto">
-  <source src="bob.mp3" type="audio/mpeg">
-</audio>
+  <!-- background music (same bob.mp3 as your index) -->
+  <audio id="bgMusic" loop preload="auto"><source src="bob.mp3" type="audio/mpeg"></audio>
 
 <script>
-/* Plankton Pac-Chomp
-   - Grid-snapped movement
-   - 4 ghosts with BFS chasing
-   - Bubbles (dots) & Krabby Patties (power)
-   - WASD/arrow + D-pad
-   - Uses Krabby Patty font + site style
-   - Keep assets local: Krabby Patty.ttf and bob.mp3 must be in same folder
+/* Complete, fixed Plankton Pac-Chomp - game logic kept from working rebuild,
+   but styling & assets restored to your index.html look.
+   Important: keep Krabby Patty.ttf and bob.mp3 in the same folder.
 */
 
 (() => {
-  // canvas
-  const canvas = document.getElementById('board');
+  const canvas = document.getElementById('gameCanvas');
   const ctx = canvas.getContext('2d', { alpha: false });
 
-  // hud elements
+  // HUD/UI
   const scoreEl = document.getElementById('score');
   const livesEl = document.getElementById('lives');
   const modeEl = document.getElementById('mode');
@@ -228,9 +252,10 @@
   const restartBtn = document.getElementById('restart');
   const bgMusic = document.getElementById('bgMusic');
 
-  // tile/grid config
-  const TILE = 24; // px per tile
-  // Map designed to be 28x22-ish; we'll use the compact map below
+  // Grid config
+  const TILE = 20; // smaller tile to fit the 560x620 canvas nicely
+  // Map adapted to fit the canvas - uses characters:
+  // '#' wall, '.' dot, 'o' power, 'P' player start, 'G' ghost lair
   const rawMap = [
     "########################",
     "#........#....#........#",
@@ -255,18 +280,17 @@
     "#o..#.....P..#.....#..o#",
     "########################"
   ];
-  // normalize width
+
   const W = Math.max(...rawMap.map(r=>r.length));
   const H = rawMap.length;
-
-  // build map array
-  const map = rawMap.map(r => (r + ' '.repeat(W)).slice(0,W).split(''));
-
-  // resize canvas to match map * tile
+  // scale canvas to map * TILE but keep CSS size
   canvas.width = W * TILE;
   canvas.height = H * TILE;
-  canvas.style.width = Math.min(728, canvas.width) + 'px';
-  canvas.style.height = (canvas.height * (canvas.style.width.replace('px','')/canvas.width)) + 'px';
+  canvas.style.width = '560px';
+  canvas.style.height = '620px';
+
+  // build map array (mutable; pellet storage kept separate)
+  const map = rawMap.map(r => (r + ' '.repeat(W)).slice(0,W).split(''));
 
   // game state
   let score = 0;
@@ -274,32 +298,24 @@
   let mode = 'normal';
   let powerTimer = 0;
   let running = true;
-
-  // pellets sets
-  const pellets = new Set();
-  const powers = new Set();
   let totalPellets = 0;
 
-  // find player & ghost starts
+  const pellets = new Set();
+  const powers = new Set();
   let playerStart = null;
   const ghostStarts = [];
 
   for(let y=0;y<H;y++){
     for(let x=0;x<W;x++){
-      const ch = map[y][x];
-      if(ch === '.' ) { pellets.add(`${x},${y}`); totalPellets++; }
-      if(ch === 'o' ) { powers.add(`${x},${y}`); totalPellets++; }
-      if(ch === 'P') playerStart = {x,y};
-      if(ch === 'G') ghostStarts.push({x,y});
+      const c = map[y][x];
+      if(c === '.') { pellets.add(`${x},${y}`); totalPellets++; }
+      if(c === 'o') { powers.add(`${x},${y}`); totalPellets++; }
+      if(c === 'P') playerStart = {x,y};
+      if(c === 'G') ghostStarts.push({x,y});
     }
   }
-
-  if(!playerStart){
-    // fallback center bottom
-    playerStart = { x: Math.floor(W/2), y: H-4 };
-  }
+  if(!playerStart) playerStart = {x: Math.floor(W/2), y: H-3};
   if(ghostStarts.length < 4){
-    // fallback around center
     ghostStarts.length = 0;
     ghostStarts.push({x: Math.floor(W/2)-1, y: Math.floor(H/2)});
     ghostStarts.push({x: Math.floor(W/2)+1, y: Math.floor(H/2)});
@@ -313,7 +329,7 @@
     y: playerStart.y + 0.5,
     dir: {x:0,y:0},
     nextDir: {x:0,y:0},
-    speed: 6 / 60 // tiles per frame at 60Hz -> 6 tiles/sec
+    speed: 6 / 60 // tiles per frame approx (6 tiles/sec)
   };
 
   // ghosts
@@ -323,70 +339,59 @@
     y: s.y + 0.5,
     home: {x: s.x + 0.5, y: s.y + 0.5},
     dir: {x:0,y:0},
-    speed: 5.2 / 60, // tiles per frame
+    speed: 5.2 / 60,
     frightened: false,
     color: ghostColors[i],
     id: i,
-    mode: 'chase',
-    houseTimer: 30 + i*40
+    houseTimer: 30 + i*20
   }));
 
-  // offscreen emoji sprites for stable rendering
+  // emoji sprites (offscreen) for better cross-device emoji rendering
   const spriteSize = TILE * 2;
-  const makeEmojiSprite = (emoji) => {
-    const cvs = document.createElement('canvas');
-    cvs.width = spriteSize;
-    cvs.height = spriteSize;
-    const c = cvs.getContext('2d');
-    c.clearRect(0,0,cvs.width,cvs.height);
-    c.textAlign = 'center';
-    c.textBaseline = 'middle';
-    // draw emoji large
-    c.font = Math.floor(spriteSize*0.9) + 'px serif';
-    c.fillText(emoji, cvs.width/2, cvs.height/2 + 2);
-    return cvs;
+  const makeEmoji = emoji => {
+    const c = document.createElement('canvas');
+    c.width = spriteSize; c.height = spriteSize;
+    const cx = c.getContext('2d');
+    cx.textAlign = 'center'; cx.textBaseline = 'middle';
+    cx.font = Math.floor(spriteSize*0.9) + 'px serif';
+    cx.fillText(emoji, c.width/2, c.height/2 + 2);
+    return c;
   };
-  const crabSprite = makeEmojiSprite('🦀');
-  const jellySprite = makeEmojiSprite('🪼');
+  const crabSprite = makeEmoji('🦀');
+  const jellySprite = makeEmoji('🪼');
 
-  // Utilities
-  function isWall(gx,gy){
-    if(gx<0||gy<0||gx>=W||gy>=H) return true;
-    return map[gy][gx] === '#';
+  // helpers
+  function isWall(x,y){
+    if(x<0||y<0||x>=W||y>=H) return true;
+    return map[y][x] === '#';
   }
-  function isPassable(gx,gy){
-    if(gx<0||gy<0||gx>=W||gy>=H) return false;
-    return map[gy][gx] !== '#';
+  function isPassable(x,y){
+    if(x<0||y<0||x>=W||y>=H) return false;
+    return map[y][x] !== '#';
   }
 
-  // Input
-  const keys = {};
-  window.addEventListener('keydown', e => {
-    keys[e.key] = true;
-    // prevent scroll
+  // input
+  const keyMap = {
+    ArrowUp:{x:0,y:-1}, w:{x:0,y:-1}, W:{x:0,y:-1},
+    ArrowDown:{x:0,y:1}, s:{x:0,y:1}, S:{x:0,y:1},
+    ArrowLeft:{x:-1,y:0}, a:{x:-1,y:0}, A:{x:-1,y:0},
+    ArrowRight:{x:1,y:0}, d:{x:1,y:0}, D:{x:1,y:0}
+  };
+  window.addEventListener('keydown', e=>{
+    if(keyMap[e.key]) player.nextDir = keyMap[e.key];
     if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key)) e.preventDefault();
-    const mapping = {
-      ArrowUp: {x:0,y:-1}, w:{x:0,y:-1}, W:{x:0,y:-1},
-      ArrowDown:{x:0,y:1}, s:{x:0,y:1}, S:{x:0,y:1},
-      ArrowLeft:{x:-1,y:0}, a:{x:-1,y:0}, A:{x:-1,y:0},
-      ArrowRight:{x:1,y:0}, d:{x:1,y:0}, D:{x:1,y:0}
-    };
-    if(mapping[e.key]){
-      player.nextDir = mapping[e.key];
-    }
   });
-  window.addEventListener('keyup', e => { delete keys[e.key]; });
 
-  // D-pad touch
+  // mobile D-pad
   document.querySelectorAll('.dpad button[data-dir]').forEach(btn=>{
     const dir = btn.dataset.dir;
     const mapDir = { up:{x:0,y:-1}, down:{x:0,y:1}, left:{x:-1,y:0}, right:{x:1,y:0} }[dir];
-    btn.addEventListener('touchstart', e => { e.preventDefault(); player.nextDir = mapDir; });
-    btn.addEventListener('mousedown', e => { e.preventDefault(); player.nextDir = mapDir; });
+    btn.addEventListener('touchstart', e=>{ e.preventDefault(); player.nextDir = mapDir; }, {passive:false});
+    btn.addEventListener('mousedown', e=>{ e.preventDefault(); player.nextDir = mapDir; });
   });
 
-  // BFS pathfinding returning next direction from start to target
-  function bfsNext(startX, startY, targetX, targetY){
+  // BFS for ghosts (next step)
+  function bfsNext(startX,startY,targetX,targetY){
     const sx = Math.floor(startX), sy = Math.floor(startY);
     const tx = Math.floor(targetX), ty = Math.floor(targetY);
     if(sx === tx && sy === ty) return null;
@@ -398,7 +403,6 @@
     while(q.length){
       const cur = q.shift();
       if(cur.x === tx && cur.y === ty){
-        // backtrack to get first step
         let c = cur;
         while(parent[c.y][c.x] && !(parent[c.y][c.x].x === sx && parent[c.y][c.x].y === sy)){
           c = parent[c.y][c.x];
@@ -407,7 +411,7 @@
       }
       for(const d of dirs){
         const nx = cur.x + d.x, ny = cur.y + d.y;
-        if(nx < 0 || ny < 0 || nx >= W || ny >= H) continue;
+        if(nx<0||ny<0||nx>=W||ny>=H) continue;
         if(seen[ny][nx]) continue;
         if(!isPassable(nx,ny)) continue;
         seen[ny][nx] = true;
@@ -418,59 +422,61 @@
     return null;
   }
 
-  // reset / restart
+  // initialize or reset pellets & state
   function resetGame(){
-    // restore pellets & powers
     pellets.clear(); powers.clear(); totalPellets = 0;
     for(let y=0;y<H;y++){
       for(let x=0;x<W;x++){
         const c = map[y][x];
-        if(c === '.' ){ pellets.add(`${x},${y}`); totalPellets++; }
-        if(c === 'o' ){ powers.add(`${x},${y}`); totalPellets++; }
-        if(c === 'P'){} // player start preserved
+        if(c === '.') { pellets.add(`${x},${y}`); totalPellets++; }
+        if(c === 'o') { powers.add(`${x},${y}`); totalPellets++; }
       }
     }
     score = 0; lives = 3; powerTimer = 0; mode = 'normal'; running = true;
-    scoreEl.textContent = score; livesEl.textContent = lives; modeEl.textContent = mode;
-    // reset positions
+    // reset player
     player.x = playerStart.x + 0.5; player.y = playerStart.y + 0.5;
     player.dir = {x:0,y:0}; player.nextDir = {x:0,y:0};
+    // reset ghosts
     ghosts.forEach((g,i)=>{
       g.x = ghostStarts[i].x + 0.5;
       g.y = ghostStarts[i].y + 0.5;
       g.dir = {x:0,y:0};
       g.frightened = false;
-      g.mode = 'chase';
-      g.houseTimer = 30 + i*40;
+      g.houseTimer = 30 + i*20;
     });
+    scoreEl.textContent = score;
+    livesEl.textContent = lives;
+    modeEl.textContent = mode;
   }
 
-  // initialize pellets from current map (make copy to avoid mutating rawMap)
-  (function initPellets(){
+  // initial pellet collection
+  (function init(){
     pellets.clear(); powers.clear(); totalPellets = 0;
     for(let y=0;y<H;y++){
       for(let x=0;x<W;x++){
-        const c = map[y][x];
-        if(c === '.' ){ pellets.add(`${x},${y}`); totalPellets++; }
-        if(c === 'o' ){ powers.add(`${x},${y}`); totalPellets++; }
-        if(c === 'P') playerStart = {x,y};
-        if(c === 'G') {} // ghost starts already found
+        const ch = map[y][x];
+        if(ch === '.') { pellets.add(`${x},${y}`); totalPellets++; }
+        if(ch === 'o') { powers.add(`${x},${y}`); totalPellets++; }
+        if(ch === 'P') playerStart = {x,y};
       }
     }
-    // if ghostStarts were collected earlier, ensure consistent positions array
-    for(let i=0;i<ghostStarts.length;i++){
-      // noop
+    // ensure ghostStarts array has starting positions
+    // find G positions if any
+    const found = [];
+    for(let y=0;y<H;y++) for(let x=0;x<W;x++) if(map[y][x] === 'G') found.push({x,y});
+    if(found.length >= 4){
+      for(let i=0;i<4;i++) ghostStarts[i] = found[i];
     }
+    // final reset
+    resetGame();
   })();
 
-  // game mechanics
+  // collision handling
   function loseLife(){
     lives--; livesEl.textContent = lives;
-    if(lives <= 0){
-      running = false;
-      setTimeout(()=> alert('GAME OVER\nScore: ' + score), 40);
-    } else {
-      // reset positions but keep pellets & score
+    if(lives <= 0){ running = false; setTimeout(()=> alert('GAME OVER\nScore: ' + score), 40); }
+    else {
+      // reset positions
       player.x = playerStart.x + 0.5; player.y = playerStart.y + 0.5;
       player.dir = {x:0,y:0}; player.nextDir = {x:0,y:0};
       ghosts.forEach((g,i)=>{
@@ -482,19 +488,16 @@
     }
   }
 
-  // check collisions with ghosts
   function checkCollisions(){
     ghosts.forEach(g=>{
       const dx = g.x - player.x;
       const dy = g.y - player.y;
       const dist2 = dx*dx + dy*dy;
-      const threshold = 0.6; // tiles
+      const threshold = 0.6;
       if(dist2 < threshold*threshold){
         if(g.frightened){
-          // eat ghost
           score += 200;
           scoreEl.textContent = score;
-          // send ghost home
           g.x = g.home.x; g.y = g.home.y;
           g.frightened = false;
         } else {
@@ -504,18 +507,15 @@
     });
   }
 
-  // ghost AI: choose next direction via BFS or random if frightened
+  // ghost AI: BFS or random when frightened
   function ghostAI(g){
-    // simple house timer handling
     if(g.houseTimer > 0){ g.houseTimer--; return; }
     if(g.frightened){
-      // random move at intersections
       const gx = Math.floor(g.x), gy = Math.floor(g.y);
       const choices = [];
-      const dirs = [{x:1,y:0},{x:-1,y:0},{x:0,y:1},{x:0,y:-1}];
-      for(const d of dirs){
+      [{x:1,y:0},{x:-1,y:0},{x:0,y:1},{x:0,y:-1}].forEach(d=>{
         if(isPassable(gx + d.x, gy + d.y)) choices.push(d);
-      }
+      });
       if(choices.length) g.dir = choices[Math.floor(Math.random()*choices.length)];
     } else {
       const next = bfsNext(g.x, g.y, player.x, player.y);
@@ -523,92 +523,77 @@
     }
   }
 
-  // main update
-  let fps = 60;
+  // update loop
+  const FPS = 60;
   function update(){
     if(!running) return;
-    // read queued input (player.nextDir already set by keyboard/dpad)
-    // allow reversing at any time
+
+    // allow reversing anytime, otherwise only turn at center
     if(player.nextDir.x === -player.dir.x && player.nextDir.y === -player.dir.y){
       player.dir = player.nextDir;
     } else {
-      // only allow turns at tile center
       const cx = Math.floor(player.x) + 0.5;
       const cy = Math.floor(player.y) + 0.5;
       if(Math.abs(player.x - cx) < 0.12 && Math.abs(player.y - cy) < 0.12){
-        // check if the tile in nextDir is passable
         if(isPassable(Math.floor(player.x + player.nextDir.x*0.6), Math.floor(player.y + player.nextDir.y*0.6))){
           player.dir = player.nextDir;
-          player.x = cx; player.y = cy; // snap to center to avoid drift
+          player.x = cx; player.y = cy;
         }
       }
     }
 
     // move player
-    const moveAmount = player.speed; // tiles per frame
-    const nx = player.x + player.dir.x * moveAmount;
-    const ny = player.y + player.dir.y * moveAmount;
-    // wall collision: check the tile the center would be in
+    const moveAmt = player.speed;
+    const nx = player.x + player.dir.x * moveAmt;
+    const ny = player.y + player.dir.y * moveAmt;
     if(isPassable(Math.floor(nx), Math.floor(ny))){
       player.x = nx; player.y = ny;
     } else {
-      // stop (snap)
       player.dir = {x:0,y:0};
       player.x = Math.round(player.x - 0.5) + 0.5;
       player.y = Math.round(player.y - 0.5) + 0.5;
     }
 
-    // collect pellets if near center
+    // collect pellets/powers when near center
     const pcx = Math.floor(player.x), pcy = Math.floor(player.y);
-    const pcKey = `${pcx},${pcy}`;
-    if(pellets.has(pcKey)){
-      // ensure near center before collecting
-      const centerX = pcx + 0.5, centerY = pcy + 0.5;
-      if(Math.abs(player.x - centerX) < 0.45 && Math.abs(player.y - centerY) < 0.45){
-        pellets.delete(pcKey);
-        score += 10;
-        scoreEl.textContent = score;
-        totalPellets--;
+    const key = `${pcx},${pcy}`;
+    if(pellets.has(key)){
+      const cx = pcx + 0.5, cy = pcy + 0.5;
+      if(Math.abs(player.x - cx) < 0.45 && Math.abs(player.y - cy) < 0.45){
+        pellets.delete(key); score += 10; scoreEl.textContent = score; totalPellets--;
       }
     }
-    if(powers.has(pcKey)){
-      const centerX = pcx + 0.5, centerY = pcy + 0.5;
-      if(Math.abs(player.x - centerX) < 0.45 && Math.abs(player.y - centerY) < 0.45){
-        powers.delete(pcKey);
-        score += 50;
-        scoreEl.textContent = score;
-        // trigger frightened
-        mode = 'power'; modeEl.textContent = 'POWER!';
-        powerTimer = 12 * fps; // 12 seconds * fps
+    if(powers.has(key)){
+      const cx = pcx + 0.5, cy = pcy + 0.5;
+      if(Math.abs(player.x - cx) < 0.45 && Math.abs(player.y - cy) < 0.45){
+        powers.delete(key); score += 50; scoreEl.textContent = score;
+        mode = 'power'; modeEl.textContent = 'POWER!'; powerTimer = 12 * FPS;
         ghosts.forEach(g => { g.frightened = true; g.frightTimer = powerTimer; });
       }
     }
 
-    // update power mode timer
+    // handle power timer
     if(mode === 'power'){
       powerTimer--;
       if(powerTimer <= 0){
-        mode = 'normal';
-        modeEl.textContent = 'normal';
+        mode = 'normal'; modeEl.textContent = 'normal';
         ghosts.forEach(g => { g.frightened = false; g.frightTimer = 0; });
         powerTimer = 0;
       }
     }
 
-    // ghosts AI every few frames to limit BFS cost
-    if(Math.random() < 0.25){
-      ghosts.forEach(g => ghostAI(g));
-    }
+    // ghosts AI sometimes to limit BFS cost
+    if(Math.random() < 0.28) ghosts.forEach(g => ghostAI(g));
 
     // move ghosts
     ghosts.forEach(g=>{
-      const amt = g.speed * (g.frightened ? 0.85 : 1); // frightened move slower
+      const speedFactor = g.frightened ? 0.85 : 1;
+      const amt = g.speed * speedFactor;
       const gx = g.x + g.dir.x * amt;
       const gy = g.y + g.dir.y * amt;
       if(isPassable(Math.floor(gx), Math.floor(gy))){
         g.x = gx; g.y = gy;
       } else {
-        // pick random available direction
         const gxFloor = Math.floor(g.x), gyFloor = Math.floor(g.y);
         const options = [];
         [{x:1,y:0},{x:-1,y:0},{x:0,y:1},{x:0,y:-1}].forEach(d=>{
@@ -616,15 +601,14 @@
         });
         if(options.length) g.dir = options[Math.floor(Math.random()*options.length)];
       }
-      // decrement frightened timers if any
       if(g.frightTimer) g.frightTimer--;
       if(g.frightTimer <= 0) g.frightened = false;
     });
 
-    // collision detection
+    // collisions
     checkCollisions();
 
-    // win condition
+    // win
     if(totalPellets <= 0){
       running = false;
       setTimeout(()=> alert('YOU WIN! Score: ' + score), 40);
@@ -633,35 +617,31 @@
 
   // draw
   function draw(){
-    // background fill
-    ctx.fillStyle = '#001827';
+    // background
+    ctx.fillStyle = '#021827';
     ctx.fillRect(0,0,canvas.width,canvas.height);
 
-    // draw maze: walls, pellets, powers
+    // draw map (walls, pellets, power)
     for(let y=0;y<H;y++){
       for(let x=0;x<W;x++){
         const ch = map[y][x];
-        const rx = x*TILE, ry = y*TILE;
+        const rx = x * TILE, ry = y * TILE;
         if(ch === '#'){
-          // blue wall with yellow border
-          ctx.fillStyle = '#1a73b8';
-          roundRect(ctx, rx+1, ry+1, TILE-2, TILE-2, 4);
-          ctx.fill();
+          ctx.fillStyle = '#0044aa';
+          ctx.fillRect(rx, ry, TILE, TILE);
           ctx.lineWidth = 2;
           ctx.strokeStyle = '#ffeb3b';
-          roundRectStroke(ctx, rx+1, ry+1, TILE-2, TILE-2, 4);
+          ctx.strokeRect(rx+1, ry+1, TILE-2, TILE-2);
         } else {
-          // floor (subtle)
           ctx.fillStyle = 'rgba(255,255,255,0.02)';
           ctx.fillRect(rx, ry, TILE, TILE);
-          const key = `${x},${y}`;
-          // pellet
-          if(pellets.has(key)){
+          const k = `${x},${y}`;
+          if(pellets.has(k)){
             ctx.beginPath();
             ctx.fillStyle = '#cfe9ff';
-            ctx.arc(rx + TILE/2, ry + TILE/2, Math.max(1.6, TILE*0.08), 0, Math.PI*2);
+            ctx.arc(rx + TILE/2, ry + TILE/2, Math.max(1.5, TILE*0.08), 0, Math.PI*2);
             ctx.fill();
-          } else if(powers.has(key)){
+          } else if(powers.has(k)){
             ctx.beginPath();
             ctx.fillStyle = '#ffd54f';
             ctx.arc(rx + TILE/2, ry + TILE/2, Math.max(4, TILE*0.18), 0, Math.PI*2);
@@ -671,7 +651,7 @@
       }
     }
 
-    // draw player (crab) - use emoji sprite centered
+    // draw player (crab emoji)
     const px = (player.x - 0.5) * TILE;
     const py = (player.y - 0.5) * TILE;
     // glow
@@ -681,8 +661,6 @@
     ctx.ellipse(px + TILE/2, py + TILE/2, TILE*0.9, TILE*0.9, 0, 0, Math.PI*2);
     ctx.fill();
     ctx.restore();
-
-    // draw crab sprite scaled to tile
     const s = TILE * 1.2;
     ctx.drawImage(crabSprite, 0, 0, crabSprite.width, crabSprite.height, px + (TILE - s)/2, py + (TILE - s)/2, s, s);
 
@@ -692,30 +670,29 @@
       const gy = (g.y - 0.5) * TILE;
       ctx.save();
       if(g.frightened){
-        // frightened blue
         ctx.fillStyle = '#8ad1ff';
         ctx.strokeStyle = '#fff';
       } else {
         ctx.fillStyle = g.color;
         ctx.strokeStyle = '#001827';
       }
-      // simple rounded ghost body
-      roundRect(ctx, gx + TILE*0.14, gy + TILE*0.05, TILE*0.72, TILE*0.85, TILE*0.18);
+      // ghost body
+      const bw = TILE*0.72, bh = TILE*0.85, bx = gx + TILE*0.14, by = gy + TILE*0.05;
+      roundRect(ctx, bx, by, bw, bh, TILE*0.18);
       ctx.fill();
       ctx.lineWidth = 1.2;
       ctx.stroke();
-
       // eyes
       ctx.fillStyle = '#fff';
-      ctx.beginPath(); ctx.ellipse(gx + TILE*0.34, gy + TILE*0.34, TILE*0.1, TILE*0.12, 0, 0, Math.PI*2); ctx.fill();
-      ctx.beginPath(); ctx.ellipse(gx + TILE*0.6, gy + TILE*0.34, TILE*0.1, TILE*0.12, 0, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(bx + TILE*0.2, by + TILE*0.29, TILE*0.09, TILE*0.11, 0, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(bx + TILE*0.47, by + TILE*0.29, TILE*0.09, TILE*0.11, 0, 0, Math.PI*2); ctx.fill();
       ctx.fillStyle = '#001827';
-      ctx.beginPath(); ctx.ellipse(gx + TILE*0.34 + g.dir.x*0.03*TILE, gy + TILE*0.34 + g.dir.y*0.03*TILE, TILE*0.04, TILE*0.05, 0, 0, Math.PI*2); ctx.fill();
-      ctx.beginPath(); ctx.ellipse(gx + TILE*0.6 + g.dir.x*0.03*TILE, gy + TILE*0.34 + g.dir.y*0.03*TILE, TILE*0.04, TILE*0.05, 0, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(bx + TILE*0.2 + g.dir.x*0.03*TILE, by + TILE*0.29 + g.dir.y*0.03*TILE, TILE*0.035, TILE*0.045, 0, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(bx + TILE*0.47 + g.dir.x*0.03*TILE, by + TILE*0.29 + g.dir.y*0.03*TILE, TILE*0.035, TILE*0.045, 0, 0, Math.PI*2); ctx.fill();
       ctx.restore();
     });
 
-    // footer text
+    // label
     ctx.save();
     ctx.font = '11px Krabby Patty, sans-serif';
     ctx.fillStyle = '#bfe7ff';
@@ -723,8 +700,8 @@
     ctx.restore();
   }
 
-  // drawing helpers
-  function roundRect(ctx, x, y, w, h, r){
+  // util roundRect
+  function roundRect(ctx,x,y,w,h,r){
     const rad = Math.min(r, Math.min(w/2, h/2));
     ctx.beginPath();
     ctx.moveTo(x+rad, y);
@@ -734,51 +711,40 @@
     ctx.arcTo(x, y, x+w, y, rad);
     ctx.closePath();
   }
-  function roundRectStroke(ctx,x,y,w,h,r){ roundRect(ctx,x,y,w,h,r); ctx.stroke(); }
 
-  // main loop
+  // game loop
   let last = performance.now();
-  function tick(now){
+  function frame(now){
     const dt = (now - last) / (1000/60);
     last = now;
-    // update a few times proportional to dt (clamp)
-    const steps = Math.max(1, Math.min(4, Math.round(dt)));
+    // run updates (clamping)
+    const steps = Math.max(1, Math.min(3, Math.round(dt)));
     for(let i=0;i<steps;i++) update();
     draw();
-    requestAnimationFrame(tick);
+    requestAnimationFrame(frame);
   }
 
-  // music toggle logic
-  let musicOn = true;
+  // music toggles (match index behavior)
   bgMusic.volume = 0.3;
-  // try to autoplay silently if unlocked
-  function tryPlayMusic(){
-    bgMusic.play().catch(()=>{/* user gesture required */});
-  }
+  let musicOn = true;
+  function tryPlayMusic(){ bgMusic.play().catch(()=>{}); }
   document.addEventListener('click', tryPlayMusic, {once:true});
   musicToggle.addEventListener('click', ()=>{
     musicOn = !musicOn;
-    if(musicOn){ bgMusic.play().catch(()=>{}); musicToggle.textContent = 'Music: On'; musicToggle.classList.remove('muted'); }
-    else { bgMusic.pause(); musicToggle.textContent = 'Music: Off'; musicToggle.classList.add('muted'); }
+    if(musicOn){ bgMusic.play().catch(()=>{}); musicToggle.classList.remove('muted'); musicToggle.textContent = '🎵'; }
+    else { bgMusic.pause(); musicToggle.classList.add('muted'); musicToggle.textContent = '🔇'; }
   });
 
-  // restart button
-  restartBtn.addEventListener('click', ()=> {
-    resetGame();
-  });
+  // restart
+  restartBtn.addEventListener('click', resetGame);
 
-  // expose restart via window for debugging
-  window.restartPlankton = resetGame;
+  // expose for debugging if needed
+  window.PLANKTON = { resetGame, player, ghosts, map };
 
   // start
-  resetGame();
-  requestAnimationFrame(tick);
+  requestAnimationFrame(frame);
 
-  // keyboard mapping exported earlier already sets player.nextDir
-  // Also expose simple cheats for speed debug (optional)
-  window.__debug = { player, ghosts, map };
-
-})(); // end module
+})();
 </script>
 </body>
 </html>
