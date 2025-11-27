@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bikini Bottom Adventure | $COCKPANTS</title>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      overflow: hidden;
+    }
+    
+    #root {
+      width: 100vw;
+      height: 100vh;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
+
+    function BikiniBottomPlatformer() {
+      const canvasRef = useRef(null);
+      const [gameState, setGameState] = useState('menu'); // 'menu', 'playing', 'paused', 'gameover'
+      const [score, setScore] = useState(0);
+      const [highScore, setHighScore] = useState(0);
+      const [lives, setLives] = useState(3);
+      
+      const gameRef = useRef({
+        player: {
+          x: 100,
+          y: 300,
+          width: 40,
+          height: 40,
+          velocityY: 0,
+          velocityX: 0,
+          isJumping: false,
+          direction: 1,
+          isMoving: false
+        },
+        platforms: [],
+        collectibles: [],
+        enemies: [],
+        keys: {},
+        gravity: 0.6,
+        jumpStrength: -12,
+        moveSpeed: 5,
+        scrollOffset: 0,
+        level: 1,
+        jellyfishCaught: 0,
+        bubbleTimer: 0
+      });
+
+      useEffect(() => {
+        const savedHighScore = localStorage.getItem('platformerHighScore');
+        if (savedHighScore) {
+          setHighScore(parseInt(savedHighScore));
+        }
+      }, []);
+
+      const generateLevel = (level) => {
+        const game = gameRef.current;
+        game.platforms = [];
+        game.collectibles = [];
+        game.enemies = [];
+        
+        game.platforms.push({ x: -100, y: 550, width: 3000, height: 50, type: 'ground' });
+        
+        const platformCount = 8 + level * 2;
+        for (let i = 0; i < platformCount; i++) {
+          const x = 200 + i * 180 + Math.random() * 50;
+          const y = 200 + Math.random() * 250;
+          const width = 120 + Math.random() * 60;
+          game.platforms.push({ x, y, width, height: 20, type: 'floating' });
+          
+          if (Math.random() > 0.4) {
+            game.collectibles.push({
+              x: x + width / 2 - 15,
+              y: y - 40,
+              width: 30,
+              height: 30,
+              type: 'jellyfish',
+              collected: false,
+              float: Math.random() * Math.PI * 2
+            });
+          }
+        }
+        
+        const enemyCount = 3 + level;
+        for (let i = 0; i < enemyCount; i++) {
+          game.enemies.push({
+            x: 300 + i * 250 + Math.random() * 100,
+            y: 500,
+            width: 30,
+            height: 30,
+            velocityX: 2 + Math.random(),
+            direction: Math.random() > 0.5 ? 1 : -1
+          });
+        }
+      };
+
+      useEffect(() => {
+        if (gameState !== 'playing') return;
+
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        
+        const ctx = canvas.getContext('2d');
+        const game = gameRef.current;
+        
+        let animationId;
+        
+        const gameLoop = () => {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          
+          const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+          gradient.addColorStop(0, '#1a5f7a');
+          gradient.addColorStop(1, '#0a3a5c');
+          ctx.fillStyle = gradient;
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          
+          game.bubbleTimer += 0.05;
+          for (let i = 0; i < 15; i++) {
+            const x = (i * 100 + game.bubbleTimer * 20) % canvas.width;
+            const y = (i * 50 + game.bubbleTimer * 30) % canvas.height;
+            const size = 5 + Math.sin(game.bubbleTimer + i) * 3;
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+            ctx.beginPath();
+            ctx.arc(x, y, size, 0, Math.PI * 2);
+            ctx.fill();
+          }
+          
+          const targetOffset = Math.max(0, game.player.x - canvas.width / 3);
+          game.scrollOffset += (targetOffset - game.scrollOffset) * 0.1;
+          
+          if (game.keys.ArrowLeft || game.keys.KeyA) {
+            game.player.velocityX = -game.moveSpeed;
+            game.player.direction = -1;
+            game.player.isMoving = true;
+          } else if (game.keys.ArrowRight || game.keys.KeyD) {
+            game.player.velocityX = game.moveSpeed;
+            game.player.direction = 1;
+            game.player.isMoving = true;
+          } else {
+            game.player.velocityX *= 0.8;
+            game.player.isMoving = Math.abs(game.player.velocityX) > 0.5;
+          }
+          
+          if ((game.keys.ArrowUp || game.keys.Space || game.keys.KeyW) && !game.player.isJumping) {
+            game.player.velocityY = game.jumpStrength;
+            game.player.isJumping = true;
+          }
+          
+          game.player.velocityY += game.gravity;
+          game.player.x += game.player.velocityX;
+          game.player.y += game.player.velocityY;
+          
+          game.player.isJumping = true;
+          game.platforms.forEach(platform => {
+            if (
+              game.player.x + game.player.width > platform.x &&
+              game.player.x < platform.x + platform.width &&
+              game.player.y + game.player.height > platform.y &&
+              game.player.y + game.player.height < platform.y + platform.height &&
+              game.player.velocityY > 0
+            ) {
+              game.player.y = platform.y - game.player.height;
+              game.player.velocityY = 0;
+              game.player.isJumping = false;
+            }
+          });
+          
+          game.collectibles.forEach(collectible => {
+            if (!collectible.collected &&
+              game.player.x + game.player.width > collectible.x &&
+              game.player.x < collectible.x + collectible.width &&
+              game.player.y + game.player.height > collectible.y &&
+              game.player.y < collectible.y + collectible.height
+            ) {
+              collectible.collected = true;
+              game.jellyfishCaught++;
+              setScore(prev => prev + 100);
+            }
+          });
+          
+          game.enemies.forEach(enemy => {
+            enemy.x += enemy.velocityX * enemy.direction;
+            
+            const onPlatform = game.platforms.find(p => 
+              enemy.y + enemy.height >= p.y - 5 &&
+              enemy.y + enemy.height <= p.y + 5 &&
+              enemy.x + enemy.width > p.x &&
+              enemy.x < p.x + p.width
+            );
+            
+            if (onPlatform) {
+              if (enemy.x <= onPlatform.x || enemy.x + enemy.width >= onPlatform.x + onPlatform.width) {
+                enemy.direction *= -1;
+              }
+            }
+            
+            if (
+              game.player.x + game.player.width > enemy.x &&
+              game.player.x < enemy.x + enemy.width &&
+              game.player.y + game.player.height > enemy.y &&
+              game.player.y < enemy.y + enemy.height
+            ) {
+              setLives(prev => {
+                const newLives = prev - 1;
+                if (newLives <= 0) {
+                  setGameState('gameover');
+                  if (score > highScore) {
+                    setHighScore(score);
+                    localStorage.setItem('platformerHighScore', score.toString());
+                  }
+                }
+                return newLives;
+              });
+              game.player.x = 100;
+              game.player.y = 300;
+              game.player.velocityX = 0;
+              game.player.velocityY = 0;
+            }
+          });
+          
+          const allCollected = game.collectibles.every(c => c.collected);
+          if (allCollected && game.collectibles.length > 0) {
+            game.level++;
+            generateLevel(game.level);
+            game.player.x = 100;
+            game.player.y = 300;
+            game.scrollOffset = 0;
+            setScore(prev => prev + game.level * 500);
+          }
+          
+          if (game.player.y > canvas.height + 100) {
+            setLives(prev => {
+              const newLives = prev - 1;
+              if (newLives <= 0) {
+                setGameState('gameover');
+                if (score > highScore) {
+                  setHighScore(score);
+                  localStorage.setItem('platformerHighScore', score.toString());
+                }
+              }
+              return newLives;
+            });
+            game.player.x = 100;
+            game.player.y = 300;
+            game.scrollOffset = 0;
+          }
+          
+          game.platforms.forEach(platform => {
+            ctx.save();
+            ctx.translate(-game.scrollOffset, 0);
+            
+            if (platform.type === 'ground') {
+              ctx.fillStyle = '#C2B280';
+              ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
+              ctx.fillStyle = '#8B7355';
+              ctx.fillRect(platform.x, platform.y, platform.width, 5);
+            } else {
+              ctx.fillStyle = '#FF6B9D';
+              ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
+              ctx.fillStyle = '#FF8FB3';
+              ctx.fillRect(platform.x, platform.y, platform.width, 8);
+            }
+            ctx.restore();
+          });
+          
+          game.collectibles.forEach(collectible => {
+            if (!collectible.collected) {
+              collectible.float += 0.05;
+              const floatY = Math.sin(collectible.float) * 5;
+              
+              ctx.save();
+              ctx.translate(-game.scrollOffset, 0);
+              
+              ctx.fillStyle = '#FFB6C1';
+              ctx.beginPath();
+              ctx.arc(
+                collectible.x + collectible.width / 2,
+                collectible.y + floatY + 10,
+                12,
+                0,
+                Math.PI,
+                true
+              );
+              ctx.fill();
+              
+              ctx.strokeStyle = '#FFB6C1';
+              ctx.lineWidth = 2;
+              for (let i = 0; i < 4; i++) {
+                ctx.beginPath();
+                ctx.moveTo(
+                  collectible.x + collectible.width / 2 - 6 + i * 4,
+                  collectible.y + floatY + 10
+                );
+                ctx.lineTo(
+                  collectible.x + collectible.width / 2 - 6 + i * 4 + Math.sin(collectible.float + i) * 2,
+                  collectible.y + floatY + 20 + Math.sin(collectible.float + i) * 3
+                );
+                ctx.stroke();
+              }
+              
+              ctx.restore();
+            }
+          });
+          
+          game.enemies.forEach(enemy => {
+            ctx.save();
+            ctx.translate(-game.scrollOffset, 0);
+            
+            ctx.fillStyle = '#90EE90';
+            ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
+            
+            ctx.fillStyle = '#FF0000';
+            ctx.beginPath();
+            ctx.arc(enemy.x + enemy.width / 2, enemy.y + enemy.height / 3, 6, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.restore();
+          });
+          
+          ctx.save();
+          ctx.translate(-game.scrollOffset, 0);
+          
+          ctx.fillStyle = '#FFEB3B';
+          ctx.fillRect(game.player.x, game.player.y, game.player.width, game.player.height);
+          
+          ctx.fillStyle = '#FDD835';
+          for (let i = 0; i < 6; i++) {
+            const holeX = game.player.x + 5 + (i % 3) * 12;
+            const holeY = game.player.y + 8 + Math.floor(i / 3) * 15;
+            ctx.beginPath();
+            ctx.arc(holeX, holeY, 3, 0, Math.PI * 2);
+            ctx.fill();
+          }
+          
+          const eyeY = game.player.y + 8;
+          const eyeSpacing = game.player.direction > 0 ? 8 : -8;
+          
+          ctx.fillStyle = '#FFF';
+          ctx.beginPath();
+          ctx.arc(game.player.x + 15, eyeY, 7, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.beginPath();
+          ctx.arc(game.player.x + 25, eyeY, 7, 0, Math.PI * 2);
+          ctx.fill();
+          
+          ctx.fillStyle = '#0084FF';
+          ctx.beginPath();
+          ctx.arc(game.player.x + 15 + eyeSpacing / 2, eyeY, 3, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.beginPath();
+          ctx.arc(game.player.x + 25 + eyeSpacing / 2, eyeY, 3, 0, Math.PI * 2);
+          ctx.fill();
+          
+          ctx.strokeStyle = '#000';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.arc(game.player.x + game.player.width / 2, game.player.y + 28, 8, 0, Math.PI);
+          ctx.stroke();
+          
+          ctx.fillStyle = '#FFF';
+          for (let i = 0; i < 3; i++) {
+            ctx.fillRect(game.player.x + 14 + i * 4, game.player.y + 28, 3, 4);
+          }
+          
+          if (game.player.isMoving) {
+            const legSwing = Math.sin(Date.now() / 100) * 5;
+            ctx.strokeStyle = '#FFEB3B';
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.moveTo(game.player.x + 10, game.player.y + game.player.height);
+            ctx.lineTo(game.player.x + 10 + legSwing, game.player.y + game.player.height + 8);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(game.player.x + 30, game.player.y + game.player.height);
+            ctx.lineTo(game.player.x + 30 - legSwing, game.player.y + game.player.height + 8);
+            ctx.stroke();
+          }
+          
+          ctx.restore();
+          
+          ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+          ctx.fillRect(0, 0, canvas.width, 60);
+          
+          ctx.fillStyle = '#FFEB3B';
+          ctx.font = 'bold 20px Arial';
+          ctx.fillText(`Score: ${score}`, 20, 30);
+          ctx.fillText(`Level: ${game.level}`, 20, 50);
+          
+          ctx.fillText(`Lives: ${'❤️'.repeat(lives)}`, canvas.width - 150, 30);
+          ctx.fillText(`🪼 ${game.jellyfishCaught}`, canvas.width - 150, 50);
+          
+          animationId = requestAnimationFrame(gameLoop);
+        };
+        
+        gameLoop();
+        
+        return () => {
+          if (animationId) {
+            cancelAnimationFrame(animationId);
+          }
+        };
+      }, [gameState, score, lives, highScore]);
+
+      useEffect(() => {
+        const handleKeyDown = (e) => {
+          if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space'].includes(e.code)) {
+            e.preventDefault();
+          }
+          gameRef.current.keys[e.code] = true;
+          
+          if (e.code === 'Escape' && gameState === 'playing') {
+            setGameState('paused');
+          }
+        };
+        
+        const handleKeyUp = (e) => {
+          gameRef.current.keys[e.code] = false;
+        };
+        
+        window.addEventListener('keydown', handleKeyDown);
+        window.addEventListener('keyup', handleKeyUp);
+        
+        return () => {
+          window.removeEventListener('keydown', handleKeyDown);
+          window.removeEventListener('keyup', handleKeyUp);
+        };
+      }, [gameState]);
+
+      const startGame = () => {
+        const game = gameRef.current;
+        game.player.x = 100;
+        game.player.y = 300;
+        game.player.velocityX = 0;
+        game.player.velocityY = 0;
+        game.scrollOffset = 0;
+        game.level = 1;
+        game.jellyfishCaught = 0;
+        
+        setScore(0);
+        setLives(3);
+        generateLevel(1);
+        setGameState('playing');
+      };
+
+      const resumeGame = () => {
+        setGameState('playing');
+      };
+
+      const returnToMenu = () => {
+        setGameState('menu');
+      };
+
+      return (
+        <div style={{
+          width: '100vw',
+          height: '100vh',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: 'linear-gradient(180deg, #0a3a5c 0%, #1a5f7a 100%)',
+          fontFamily: 'Arial, sans-serif',
+          position: 'relative',
+          overflow: 'hidden'
+        }}>
+          
+          {[...Array(20)].map((_, i) => (
+            <div
+              key={i}
+              style={{
+                position: 'absolute',
+                width: `${10 + Math.random() * 30}px`,
+                height: `${10 + Math.random() * 30}px`,
+                borderRadius: '50%',
+                background: 'rgba(255, 255, 255, 0.1)',
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                animation: `float ${5 + Math.random() * 10}s ease-in-out infinite`,
+                animationDelay: `${Math.random() * 5}s`
+              }}
+            />
+          ))}
+
+          <style>{`
+            @keyframes float {
+              0%, 100% { transform: translateY(0px); }
+              50% { transform: translateY(-20px); }
+            }
+          `}</style>
+
+          {gameState === 'menu' && (
+            <div style={{
+              textAlign: 'center',
+              color: '#fff',
+              zIndex: 10,
+              background: 'rgba(0, 0, 0, 0.7)',
+              padding: '50px',
+              borderRadius: '20px',
+              border: '4px solid #FFEB3B'
+            }}>
+              <h1 style={{
+                fontSize: '48px',
+                color: '#FFEB3B',
+                textShadow: '4px 4px 0 #FF6B9D',
+                marginBottom: '20px'
+              }}>
+                🧽 BIKINI BOTTOM ADVENTURE 🧽
+              </h1>
+              <p style={{ fontSize: '20px', marginBottom: '30px' }}>
+                Help SpongeBob collect jellyfish and avoid Plankton!
+              </p>
+              <div style={{ marginBottom: '30px', fontSize: '16px', lineHeight: '1.8' }}>
+                <p>⬅️➡️ or A/D: Move</p>
+                <p>⬆️ or W or SPACE: Jump</p>
+                <p>ESC: Pause</p>
+              </div>
+              <p style={{ fontSize: '24px', marginBottom: '20px' }}>
+                High Score: {highScore}
+              </p>
+              <button
+                onClick={startGame}
+                style={{
+                  background: 'linear-gradient(135deg, #FF6B9D, #FF8FB3)',
+                  border: '4px solid #FFEB3B',
+                  color: '#fff',
+                  padding: '20px 40px',
+                  fontSize: '28px',
+                  fontWeight: 'bold',
+                  borderRadius: '15px',
+                  cursor: 'pointer',
+                  boxShadow: '0 5px 20px rgba(0, 0, 0, 0.3)',
+                  transition: 'all 0.3s'
+                }}
+                onMouseOver={(e) => {
+                  e.target.style.transform = 'scale(1.1)';
+                }}
+                onMouseOut={(e) => {
+                  e.target.style.transform = 'scale(1)';
+                }}
+              >
+                START GAME
+              </button>
+              <br />
+              <a href="index.html" style={{
+                display: 'inline-block',
+                marginTop: '20px',
+                color: '#8BC34A',
+                textDecoration: 'none',
+                fontSize: '18px',
+                padding: '10px 20px',
+                border: '2px solid #8BC34A',
+                borderRadius: '10px',
+                transition: 'all 0.3s'
+              }}
+              onMouseOver={(e) => {
+                e.target.style.background = 'rgba(139, 195, 74, 0.2)';
+              }}
+              onMouseOut={(e) => {
+                e.target.style.background = 'transparent';
+              }}>
+                ← Back to Main Menu
+              </a>
+            </div>
+          )}
+
+          {gameState === 'paused' && (
+            <div style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: 'rgba(0, 0, 0, 0.8)',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 100
+            }}>
+              <h2 style={{ color: '#FFEB3B', fontSize: '48px', marginBottom: '30px' }}>
+                PAUSED
+              </h2>
+              <div style={{ display: 'flex', gap: '20px' }}>
+                <button
+                  onClick={resumeGame}
+                  style={{
+                    background: 'linear-gradient(135deg, #4CAF50, #2E7D32)',
+                    border: '3px solid #8BC34A',
+                    color: '#fff',
+                    padding: '15px 30px',
+                    fontSize: '24px',
+                    borderRadius: '10px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  RESUME
+                </button>
+                <button
+                  onClick={returnToMenu}
+                  style={{
+                    background: 'linear-gradient(135deg, #f44336, #c62828)',
+                    border: '3px solid #ef5350',
+                    color: '#fff',
+                    padding: '15px 30px',
+                    fontSize: '24px',
+                    borderRadius: '10px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  QUIT
+                </button>
+              </div>
+            </div>
+          )}
+
+          {gameState === 'gameover' && (
+            <div style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: 'rgba(0, 0, 0, 0.9)',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 100
+            }}>
+              <h2 style={{ 
+                color: '#FF6B9D', 
+                fontSize: '48px', 
+                marginBottom: '20px',
+                textShadow: '3px 3px 0 #000'
+              }}>
+                GAME OVER!
+              </h2>
+              <p style={{ color: '#fff', fontSize: '32px', marginBottom: '20px' }}>
+                Final Score: {score}
+              </p>
+              {score > highScore && score > 0 && (
+                <p style={{ color: '#FFEB3B', fontSize: '24px', marginBottom: '20px' }}>
+                  🎉 NEW HIGH SCORE! 🎉
+                </p>
+              )}
+              <button
+                onClick={startGame}
+                style={{
+                  background: 'linear-gradient(135deg, #FF6B9D, #FF8FB3)',
+                  border: '4px solid #FFEB3B',
+                  color: '#fff',
+                  padding: '15px 30px',
+                  fontSize: '24px',
+                  borderRadius: '10px',
+                  cursor: 'pointer',
+                  marginTop: '20px'
+                }}
+              >
+                PLAY AGAIN
+              </button>
+              <button
+                onClick={returnToMenu}
+                style={{
+                  background: 'linear-gradient(135deg, #999, #666)',
+                  border: '3px solid #ccc',
+                  color: '#fff',
+                  padding: '12px 25px',
+                  fontSize: '20px',
+                  borderRadius: '10px',
+                  cursor: 'pointer',
+                  marginTop: '15px'
+                }}
+              >
+                MAIN MENU
+              </button>
+            </div>
+          )}
+
+          <canvas
+            ref={canvasRef}
+            width={800}
+            height={600}
+            style={{
+              border: '5px solid #FFEB3B',
+              borderRadius: '10px',
+              boxShadow: '0 10px 50px rgba(0, 0, 0, 0.5)',
+              display: gameState === 'playing' ? 'block' : 'none',
+              maxWidth: '95vw',
+              maxHeight: '80vh'
+            }}
+          />
+        </div>
+      );
+    }
+
+    ReactDOM.render(<BikiniBottomPlatformer />, document.getElementById('root'));
+  </script>
+</body>
+</html>
