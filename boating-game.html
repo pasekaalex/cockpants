@@ -220,6 +220,14 @@
     <button class="btn" id="pauseBtn">Pause</button>
   </div>
   
+  <!-- Mobile Controls -->
+  <div id="mobileControls" style="display: none;">
+    <div style="position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 15px; z-index: 1000;">
+      <button id="leftBtn" style="width: 80px; height: 80px; background: rgba(139, 69, 19, 0.9); border: 3px solid #ffcc00; border-radius: 10px; color: #ffcc00; font-size: 36px; cursor: pointer;">⬅️</button>
+      <button id="rightBtn" style="width: 80px; height: 80px; background: rgba(139, 69, 19, 0.9); border: 3px solid #ffcc00; border-radius: 10px; color: #ffcc00; font-size: 36px; cursor: pointer;">➡️</button>
+    </div>
+  </div>
+  
   <script>
     let scene, camera, renderer, boat;
     let obstacles = [];
@@ -231,7 +239,9 @@
       distance: 0,
       isGameOver: false,
       isPaused: false,
-      speed: 0.15
+      speed: 0.15,
+      startTime: 0,
+      difficulty: 1
     };
     let lastCollisionTime = 0;
 
@@ -309,6 +319,39 @@
       // Setup music
       const music = document.getElementById('bgMusic');
       music.volume = 0.3;
+      
+      // Mobile controls
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
+      if (isMobile) {
+        document.getElementById('mobileControls').style.display = 'block';
+        
+        const leftBtn = document.getElementById('leftBtn');
+        const rightBtn = document.getElementById('rightBtn');
+        
+        leftBtn.addEventListener('touchstart', (e) => {
+          e.preventDefault();
+          keys['a'] = true;
+        });
+        leftBtn.addEventListener('touchend', (e) => {
+          e.preventDefault();
+          keys['a'] = false;
+        });
+        
+        rightBtn.addEventListener('touchstart', (e) => {
+          e.preventDefault();
+          keys['d'] = true;
+        });
+        rightBtn.addEventListener('touchend', (e) => {
+          e.preventDefault();
+          keys['d'] = false;
+        });
+        
+        // Also support mouse for testing
+        leftBtn.addEventListener('mousedown', () => keys['a'] = true);
+        leftBtn.addEventListener('mouseup', () => keys['a'] = false);
+        rightBtn.addEventListener('mousedown', () => keys['d'] = true);
+        rightBtn.addEventListener('mouseup', () => keys['d'] = false);
+      }
 
       animate();
     }
@@ -350,7 +393,10 @@
       const types = [
         { name: 'rock', color: 0x808080, size: 1.5 },
         { name: 'coral', color: 0xFF69B4, size: 1.8 },
-        { name: 'anchor', color: 0x404040, size: 1.3 }
+        { name: 'anchor', color: 0x404040, size: 1.3 },
+        { name: 'barrel', color: 0x8B4513, size: 1.4 },
+        { name: 'buoy', color: 0xFF4500, size: 1.2 },
+        { name: 'jellyfish', color: 0xFF00FF, size: 1.6 }
       ];
       
       const type = types[Math.floor(Math.random() * types.length)];
@@ -360,6 +406,12 @@
         geometry = new THREE.DodecahedronGeometry(type.size);
       } else if (type.name === 'coral') {
         geometry = new THREE.ConeGeometry(type.size, type.size * 2, 5);
+      } else if (type.name === 'barrel') {
+        geometry = new THREE.CylinderGeometry(type.size * 0.7, type.size * 0.8, type.size * 1.5);
+      } else if (type.name === 'buoy') {
+        geometry = new THREE.SphereGeometry(type.size, 8, 8);
+      } else if (type.name === 'jellyfish') {
+        geometry = new THREE.SphereGeometry(type.size, 12, 12);
       } else {
         geometry = new THREE.BoxGeometry(type.size, type.size * 2, type.size);
       }
@@ -367,13 +419,20 @@
       const material = new THREE.MeshLambertMaterial({ color: type.color });
       const obstacle = new THREE.Mesh(geometry, material);
       
+      // Vary spawn distance for more randomness
+      const spawnDistance = -60 - Math.random() * 50;
+      
       obstacle.position.set(
         (Math.random() - 0.5) * 16, // Keep in visible range
-        1.5,
-        -80 - Math.random() * 20
+        type.name === 'jellyfish' ? 2.5 : 1.5,
+        spawnDistance
       );
       obstacle.castShadow = true;
-      obstacle.userData = { type: type.name };
+      obstacle.userData = { 
+        type: type.name,
+        bobSpeed: Math.random() * 0.02 + 0.01,
+        bobOffset: Math.random() * Math.PI * 2
+      };
       
       scene.add(obstacle);
       obstacles.push(obstacle);
@@ -395,6 +454,78 @@
       scene.add(collectible);
       collectibles.push(collectible);
     }
+    
+    function spawnObstaclePattern() {
+      // Sometimes spawn patterns of obstacles
+      const patterns = [
+        'line',    // Line of obstacles
+        'zigzag',  // Zigzag pattern
+        'wall'     // Wall with gap
+      ];
+      
+      const pattern = patterns[Math.floor(Math.random() * patterns.length)];
+      const baseZ = -70 - Math.random() * 30;
+      
+      if (pattern === 'line') {
+        // 3-4 obstacles in a line
+        const count = 3 + Math.floor(Math.random() * 2);
+        const x = (Math.random() - 0.5) * 12;
+        for (let i = 0; i < count; i++) {
+          spawnObstacleAt(x, baseZ - i * 8);
+        }
+      } else if (pattern === 'zigzag') {
+        // Zigzag pattern
+        for (let i = 0; i < 4; i++) {
+          const x = (i % 2 === 0 ? -6 : 6);
+          spawnObstacleAt(x, baseZ - i * 10);
+        }
+      } else if (pattern === 'wall') {
+        // Wall with a gap
+        const gapPosition = Math.floor(Math.random() * 3);
+        for (let i = 0; i < 4; i++) {
+          if (i !== gapPosition) {
+            const x = -8 + i * 5.5;
+            spawnObstacleAt(x, baseZ);
+          }
+        }
+      }
+    }
+    
+    function spawnObstacleAt(x, z) {
+      const types = [
+        { name: 'rock', color: 0x808080, size: 1.5 },
+        { name: 'coral', color: 0xFF69B4, size: 1.8 },
+        { name: 'anchor', color: 0x404040, size: 1.3 },
+        { name: 'barrel', color: 0x8B4513, size: 1.4 }
+      ];
+      
+      const type = types[Math.floor(Math.random() * types.length)];
+      let geometry;
+      
+      if (type.name === 'rock') {
+        geometry = new THREE.DodecahedronGeometry(type.size);
+      } else if (type.name === 'coral') {
+        geometry = new THREE.ConeGeometry(type.size, type.size * 2, 5);
+      } else if (type.name === 'barrel') {
+        geometry = new THREE.CylinderGeometry(type.size * 0.7, type.size * 0.8, type.size * 1.5);
+      } else {
+        geometry = new THREE.BoxGeometry(type.size, type.size * 2, type.size);
+      }
+      
+      const material = new THREE.MeshLambertMaterial({ color: type.color });
+      const obstacle = new THREE.Mesh(geometry, material);
+      
+      obstacle.position.set(x, 1.5, z);
+      obstacle.castShadow = true;
+      obstacle.userData = { 
+        type: type.name,
+        bobSpeed: Math.random() * 0.02 + 0.01,
+        bobOffset: Math.random() * Math.PI * 2
+      };
+      
+      scene.add(obstacle);
+      obstacles.push(obstacle);
+    }
 
     function startGame() {
       gameState = {
@@ -403,7 +534,9 @@
         distance: 0,
         isGameOver: false,
         isPaused: false,
-        speed: 0.15
+        speed: 0.15,
+        startTime: Date.now(),
+        difficulty: 1
       };
       
       // Clear everything
@@ -501,13 +634,24 @@
           }
         });
 
-        // Spawn obstacles
-        if (obstacles.length < 4 && Math.random() < 0.02) {
+        // Progressive difficulty
+        const timeElapsed = (Date.now() - gameState.startTime) / 1000;
+        gameState.difficulty = 1 + Math.min(timeElapsed / 30, 2); // Max 3x difficulty
+        const maxObstacles = Math.floor(8 * gameState.difficulty);
+        const spawnChance = 0.08 * gameState.difficulty;
+        
+        // Spawn obstacles - MUCH MORE FREQUENT + PROGRESSIVE
+        if (obstacles.length < maxObstacles && Math.random() < spawnChance) {
           spawnObstacle();
         }
+        
+        // Spawn obstacle patterns occasionally
+        if (obstacles.length < maxObstacles - 3 && Math.random() < 0.01 * gameState.difficulty) {
+          spawnObstaclePattern();
+        }
 
-        // Spawn collectibles
-        if (collectibles.length < 2 && Math.random() < 0.015) {
+        // Spawn collectibles - MORE STARS
+        if (collectibles.length < 4 && Math.random() < 0.04) {
           spawnCollectible();
         }
 
@@ -516,6 +660,17 @@
         obstacles = obstacles.filter(obs => {
           obs.position.z += gameState.speed;
           obs.rotation.y += 0.02;
+          
+          // Bobbing animation for floating objects
+          if (obs.userData.type === 'jellyfish' || obs.userData.type === 'buoy') {
+            obs.position.y = 2.5 + Math.sin(now * obs.userData.bobSpeed + obs.userData.bobOffset) * 0.5;
+            obs.rotation.x = Math.sin(now * obs.userData.bobSpeed * 0.5) * 0.1;
+          }
+          
+          // Spin barrels
+          if (obs.userData.type === 'barrel') {
+            obs.rotation.x += 0.03;
+          }
 
           // Remove if behind boat
           if (obs.position.z > 20) {

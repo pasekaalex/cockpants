@@ -87,8 +87,8 @@
         // Ground platform
         game.platforms.push({ x: -100, y: 550, width: 3000, height: 50, type: 'ground' });
         
-        // Generate more playable platform layout
-        const platformCount = 12 + level * 3;
+        // Generate more playable platform layout - LOCKED AT LEVEL 1
+        const platformCount = 12; // Was: 12 + level * 3 - NOW ALWAYS 12!
         let lastPlatformY = 450; // Start higher
         
         for (let i = 0; i < platformCount; i++) {
@@ -132,8 +132,8 @@
           }
         }
         
-        // Fewer but smarter enemies - SPEED LOCKED AT 0.75 (50% slower)
-        const enemyCount = 2 + Math.floor(level * 0.8);
+        // Fewer but smarter enemies - LOCKED AT LEVEL 1 COUNT
+        const enemyCount = 2; // Was: 2 + Math.floor(level * 0.8) - NOW ALWAYS 2!
         for (let i = 0; i < enemyCount; i++) {
           game.enemies.push({
             x: 400 + i * 350 + Math.random() * 100,
@@ -997,6 +997,85 @@
               maxHeight: '80vh'
             }}
           />
+          
+          {/* Mobile Controls */}
+          {gameState === 'playing' && (
+            <div style={{
+              position: 'fixed',
+              bottom: '20px',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              display: 'flex',
+              gap: '15px',
+              zIndex: 1000
+            }}>
+              {/* Left Button */}
+              <button
+                onTouchStart={() => gameRef.current.keys['a'] = true}
+                onTouchEnd={() => gameRef.current.keys['a'] = false}
+                onMouseDown={() => gameRef.current.keys['a'] = true}
+                onMouseUp={() => gameRef.current.keys['a'] = false}
+                style={{
+                  width: '70px',
+                  height: '70px',
+                  background: 'rgba(139, 69, 19, 0.9)',
+                  border: '3px solid #ffcc00',
+                  borderRadius: '10px',
+                  color: '#ffcc00',
+                  fontSize: '32px',
+                  cursor: 'pointer',
+                  userSelect: 'none',
+                  WebkitTouchCallout: 'none'
+                }}
+              >
+                ⬅️
+              </button>
+              
+              {/* Jump Button */}
+              <button
+                onTouchStart={() => gameRef.current.keys['Space'] = true}
+                onTouchEnd={() => gameRef.current.keys['Space'] = false}
+                onMouseDown={() => gameRef.current.keys['Space'] = true}
+                onMouseUp={() => gameRef.current.keys['Space'] = false}
+                style={{
+                  width: '70px',
+                  height: '70px',
+                  background: 'rgba(76, 175, 80, 0.9)',
+                  border: '3px solid #8BC34A',
+                  borderRadius: '50%',
+                  color: '#fff',
+                  fontSize: '32px',
+                  cursor: 'pointer',
+                  userSelect: 'none',
+                  WebkitTouchCallout: 'none'
+                }}
+              >
+                ⬆️
+              </button>
+              
+              {/* Right Button */}
+              <button
+                onTouchStart={() => gameRef.current.keys['d'] = true}
+                onTouchEnd={() => gameRef.current.keys['d'] = false}
+                onMouseDown={() => gameRef.current.keys['d'] = true}
+                onMouseUp={() => gameRef.current.keys['d'] = false}
+                style={{
+                  width: '70px',
+                  height: '70px',
+                  background: 'rgba(139, 69, 19, 0.9)',
+                  border: '3px solid #ffcc00',
+                  borderRadius: '10px',
+                  color: '#ffcc00',
+                  fontSize: '32px',
+                  cursor: 'pointer',
+                  userSelect: 'none',
+                  WebkitTouchCallout: 'none'
+                }}
+              >
+                ➡️
+              </button>
+            </div>
+          )}
         </div>
       );
     }
