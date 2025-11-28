@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Jellyfish Fields | $COCKPANTS</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="leaderboard.js"></script>
   <style>
     @font-face {
       font-family: 'Krabby Patty';
@@ -566,6 +568,9 @@
       clearInterval(gameTimer);
       
       document.getElementById('finalScore').textContent = `Jellyfish Caught: ${gameState.score}`;
+      
+      // Show leaderboard modal
+      showLeaderboardModal('jellyfish-fields', 'Jellyfish Fields', gameState.score);
       
       if (gameState.score > gameState.highScore) {
         gameState.highScore = gameState.score;

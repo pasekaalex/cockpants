@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Boating School Chaos | $COCKPANTS</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="leaderboard.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <style>
     @font-face {
@@ -784,6 +786,8 @@
                 gameState.isGameOver = true;
                 document.getElementById('finalScore').textContent = 'Final Score: ' + gameState.score;
                 document.getElementById('gameOverScreen').classList.add('show');
+                // Show leaderboard with distance traveled
+                setTimeout(() => showLeaderboardModal('boating-school', 'Boating School Chaos', Math.floor(gameState.distance)), 800);
               }
 
               updateUI();

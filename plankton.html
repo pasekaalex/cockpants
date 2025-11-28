@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Plankton's Formula Heist | $COCKPANTS</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="leaderboard.js"></script>
   <style>
     @font-face {
       font-family: 'Krabby Patty';
@@ -1179,6 +1181,10 @@
       document.getElementById('finalAlerts').textContent = alertCount;
       document.getElementById('finalStealth').textContent = Math.floor(stealthScore) + '%';
       document.getElementById('rankDisplay').textContent = rank;
+      
+      // Show leaderboard modal with time in seconds
+      const finalTimeInSeconds = Math.floor(gameTime);
+      showLeaderboardModal('plankton-heist', "Plankton's Formula Heist", finalTimeInSeconds);
       
       document.getElementById('victoryScreen').classList.add('show');
       completeObjective(objectives.length - 1);

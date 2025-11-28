@@ -4,6 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SpongeBob's House Hoarder | $COCKPANTS</title>
+  
+  <!-- Leaderboard System -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="leaderboard.js"></script>
+  
   <style>
     @font-face {
       font-family: 'Krabby Patty';
@@ -844,7 +849,9 @@
       
       setTimeout(() => {
         document.getElementById('gameOverScreen').classList.add('show');
-      }, 500);
+        // Auto-show leaderboard
+        showLeaderboardModal('house-hoarder', 'House Hoarder', score);
+      }, 1500);
     }
     
     // Toggle pause
