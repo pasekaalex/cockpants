@@ -31,241 +31,317 @@
       height: 100vh;
       display: flex;
       flex-direction: column;
-      position: relative;
     }
 
-    /* Top Stats Bar */
+    /* Stats Bar */
     .stats-bar {
       background: linear-gradient(180deg, #8B4513 0%, #654321 100%);
       border-bottom: 4px solid #FFD700;
-      padding: 15px 20px;
+      padding: 12px 20px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       box-shadow: 0 4px 8px rgba(0,0,0,0.3);
       z-index: 100;
+      gap: 10px;
+      flex-wrap: wrap;
     }
 
     .stat-box {
       background: rgba(255, 215, 0, 0.2);
       border: 3px solid #FFD700;
       border-radius: 10px;
-      padding: 10px 20px;
+      padding: 8px 15px;
       text-align: center;
-      min-width: 150px;
+      min-width: 140px;
+      flex: 1;
     }
 
     .stat-label {
-      font-size: 14px;
+      font-size: 13px;
       color: #FFD700;
       text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
     }
 
     .stat-value {
-      font-size: 24px;
+      font-size: 22px;
       color: #FFF;
       text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
       font-weight: bold;
     }
 
-    /* Main Game Area */
+    /* Game Area */
     .game-area {
       flex: 1;
       display: flex;
-      flex-direction: column;
+      flex-direction: row;
       position: relative;
-      overflow-y: auto;
-      overflow-x: hidden;
+      overflow: hidden;
+      gap: 10px;
+      padding: 10px;
     }
 
     /* Restaurant View */
     .restaurant-view {
-      min-height: 50vh;
+      flex: 1;
       background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)),
                   url('https://i.imgur.com/T5FSp2E.jpeg');
       background-size: cover;
       background-position: center;
       position: relative;
-      border-bottom: 6px solid #8B4513;
-    }
-
-    .restaurant-view.active {
-      display: block;
+      border: 6px solid #8B4513;
+      border-radius: 20px;
+      box-shadow: inset 0 0 30px rgba(0,0,0,0.5), 0 8px 20px rgba(0,0,0,0.4);
+      display: flex;
+      flex-direction: column;
     }
 
     .view-label {
-      position: sticky;
-      top: 0;
-      left: 50%;
-      transform: translateX(-50%);
       background: rgba(139, 69, 19, 0.95);
       border: 3px solid #FFD700;
-      border-radius: 20px;
-      padding: 10px 30px;
-      font-size: 28px;
-      color: #FFD700;
-      text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
-      z-index: 10;
-      margin: 20px auto;
-      width: fit-content;
-      backdrop-filter: blur(5px);
-    }
-
-    /* Tables and Customers */
-    .restaurant-interior {
-      width: 100%;
-      min-height: 50vh;
-      position: relative;
-      padding: 20px 40px 40px 40px;
-    }
-
-    .table-row {
-      display: flex;
-      justify-content: space-around;
-      margin-bottom: 60px;
-    }
-
-    .table {
-      width: 80px;
-      height: 80px;
-      background: rgba(139, 69, 19, 0.9);
-      border: 4px solid #654321;
-      border-radius: 50%;
-      position: relative;
-      cursor: pointer;
-      transition: all 0.3s;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.5);
-      backdrop-filter: blur(2px);
-    }
-
-    .table:hover {
-      transform: scale(1.1);
-      box-shadow: 0 6px 12px rgba(255,215,0,0.8);
-      background: rgba(205, 133, 63, 0.95);
-    }
-
-    .table.occupied {
-      background: rgba(205, 133, 63, 0.95);
-      border-color: #FFD700;
-      animation: customerWaiting 2s infinite;
-    }
-
-    @keyframes customerWaiting {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.05); }
-    }
-
-    .table-number {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
+      border-radius: 15px;
+      padding: 10px 25px;
       font-size: 24px;
       color: #FFD700;
-      text-shadow: 2px 2px 3px rgba(0,0,0,0.9);
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
+      margin: 20px auto 10px;
+      backdrop-filter: blur(5px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
     }
 
-    .customer-icon {
+    .restaurant-interior {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 30px;
+      padding: 20px;
+    }
+
+    /* Big Serve Button */
+    .serve-button {
+      background: linear-gradient(180deg, #FFD700 0%, #FFA500 100%);
+      border: 8px solid #FF8C00;
+      border-radius: 30px;
+      padding: 40px 60px;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 12px 30px rgba(255,140,0,0.6);
+      text-align: center;
+      max-width: 450px;
+      width: 90%;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .serve-button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 16px 40px rgba(255,140,0,0.8);
+      background: linear-gradient(180deg, #FFC700 0%, #FF9500 100%);
+    }
+
+    .serve-button:active {
+      transform: scale(0.98);
+    }
+
+    .serve-button::before {
+      content: '';
       position: absolute;
-      top: -40px;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 40px;
-      animation: customerBounce 1s infinite;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
+      animation: shimmer 3s infinite;
+    }
+
+    @keyframes shimmer {
+      0% { transform: translate(-50%, -50%) rotate(0deg); }
+      100% { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+
+    .serve-icon {
+      font-size: 100px;
+      margin-bottom: 15px;
+      animation: burgerFloat 2s infinite;
+      filter: drop-shadow(3px 3px 6px rgba(0,0,0,0.5));
+    }
+
+    @keyframes burgerFloat {
+      0%, 100% { transform: translateY(0) rotate(-3deg); }
+      50% { transform: translateY(-12px) rotate(3deg); }
+    }
+
+    .serve-text {
+      font-size: 38px;
+      color: #8B4513;
+      font-weight: bold;
+      text-shadow: 2px 2px 4px rgba(255,255,255,0.5);
+      margin-bottom: 10px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .serve-value {
+      font-size: 30px;
+      color: #2E7D32;
+      font-weight: bold;
+      text-shadow: 2px 2px 4px rgba(255,255,255,0.7);
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Customer Queue */
+    .customer-queue {
+      background: rgba(139, 69, 19, 0.95);
+      border: 4px solid #FFD700;
+      border-radius: 20px;
+      padding: 20px 30px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+      max-width: 500px;
+      width: 90%;
+    }
+
+    .queue-title {
+      font-size: 22px;
+      color: #FFD700;
+      text-align: center;
+      margin-bottom: 15px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
+    }
+
+    .queue-display {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      min-height: 60px;
+      align-items: center;
+    }
+
+    .queue-customer {
+      font-size: 45px;
+      animation: customerWiggle 1.5s infinite;
       filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.7));
     }
 
-    @keyframes customerBounce {
-      0%, 100% { transform: translateX(-50%) translateY(0); }
-      50% { transform: translateX(-50%) translateY(-5px); }
+    @keyframes customerWiggle {
+      0%, 100% { transform: rotate(-8deg) scale(1); }
+      50% { transform: rotate(8deg) scale(1.1); }
     }
 
-    .order-bubble {
-      position: absolute;
-      top: -80px;
-      right: -20px;
-      background: white;
-      border: 3px solid #FFD700;
-      border-radius: 20px;
-      padding: 5px 10px;
-      font-size: 24px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+    .queue-empty {
+      color: #FFD700;
+      font-size: 18px;
+      text-align: center;
+      opacity: 0.7;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
     }
 
+    /* Money Popup */
     .money-popup {
-      position: absolute;
-      font-size: 28px;
+      position: fixed;
+      font-size: 52px;
       color: #00FF00;
-      text-shadow: 2px 2px 4px rgba(0,0,0,0.9);
+      text-shadow: 3px 3px 8px rgba(0,0,0,1), 0 0 20px rgba(0,255,0,0.8);
       font-weight: bold;
-      animation: moneyFloat 1s ease-out forwards;
+      animation: moneyFloat 1.8s ease-out forwards;
       pointer-events: none;
-      z-index: 100;
+      z-index: 9999;
     }
 
     @keyframes moneyFloat {
       0% {
         opacity: 1;
-        transform: translateY(0);
+        transform: translateY(0) scale(0.5);
+      }
+      20% {
+        transform: translateY(-30px) scale(1.2);
       }
       100% {
         opacity: 0;
-        transform: translateY(-50px);
+        transform: translateY(-120px) scale(1);
       }
     }
 
     /* Kitchen View */
     .kitchen-view {
-      min-height: 50vh;
+      flex: 1;
       background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)),
                   url('https://i.imgur.com/kLV39FM.jpeg');
       background-size: cover;
       background-position: center;
       position: relative;
-      padding-bottom: 100px;
+      border: 6px solid #8B4513;
+      border-radius: 20px;
+      box-shadow: inset 0 0 30px rgba(0,0,0,0.5), 0 8px 20px rgba(0,0,0,0.4);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
     }
 
-    .kitchen-view.active {
-      display: block;
+    .kitchen-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+      padding-right: 15px;
+    }
+
+    .kitchen-scroll::-webkit-scrollbar {
+      width: 12px;
+    }
+
+    .kitchen-scroll::-webkit-scrollbar-track {
+      background: rgba(139, 69, 19, 0.3);
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .kitchen-scroll::-webkit-scrollbar-thumb {
+      background: rgba(255, 215, 0, 0.7);
+      border-radius: 10px;
+      border: 2px solid rgba(139, 69, 19, 0.3);
+    }
+
+    .kitchen-scroll::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 215, 0, 0.9);
     }
 
     .kitchen-interior {
-      width: 100%;
-      min-height: 50vh;
-      padding: 20px 40px 40px 40px;
       display: flex;
       flex-direction: column;
-      gap: 20px;
-      max-width: 1200px;
-      margin: 0 auto;
+      gap: 15px;
     }
 
+    /* Kitchen Station */
     .kitchen-station {
-      background: rgba(139, 69, 19, 0.85);
+      background: rgba(139, 69, 19, 0.92);
       border: 4px solid #FFD700;
-      border-radius: 20px;
-      padding: 20px;
+      border-radius: 15px;
+      padding: 18px 20px;
       display: flex;
       align-items: center;
       gap: 20px;
       cursor: pointer;
       transition: all 0.3s;
-      position: relative;
-      backdrop-filter: blur(5px);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.6);
     }
 
     .kitchen-station:hover {
-      background: rgba(139, 69, 19, 0.95);
-      transform: translateX(5px);
-      box-shadow: 0 6px 16px rgba(255,215,0,0.6);
+      background: rgba(139, 69, 19, 1);
+      transform: translateX(8px);
+      box-shadow: 0 6px 25px rgba(255,215,0,0.6);
+      border-color: #FFA500;
     }
 
     .station-icon {
-      font-size: 60px;
-      min-width: 80px;
+      font-size: 55px;
+      min-width: 75px;
       text-align: center;
-      filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));
+      filter: drop-shadow(3px 3px 6px rgba(0,0,0,0.7));
     }
 
     .station-info {
@@ -273,141 +349,215 @@
     }
 
     .station-name {
-      font-size: 24px;
+      font-size: 21px;
       color: #FFD700;
       margin-bottom: 5px;
-      text-shadow: 2px 2px 3px rgba(0,0,0,0.9);
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.9);
     }
 
     .station-level {
-      font-size: 18px;
+      font-size: 16px;
       color: #FFF;
-      margin-bottom: 10px;
+      margin-bottom: 6px;
       text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
     }
 
     .station-income {
-      font-size: 16px;
+      font-size: 17px;
       color: #90EE90;
       font-weight: bold;
-      text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
+      text-shadow: 2px 2px 3px rgba(0,0,0,0.8);
     }
 
     .upgrade-btn {
       background: linear-gradient(180deg, #FFD700 0%, #FFA500 100%);
       border: 3px solid #FF8C00;
-      border-radius: 10px;
-      padding: 15px 30px;
-      font-size: 20px;
+      border-radius: 12px;
+      padding: 14px 28px;
+      font-size: 17px;
       color: #8B4513;
       font-family: 'Krabby Patty', cursive;
       font-weight: bold;
       cursor: pointer;
       transition: all 0.3s;
       text-shadow: 1px 1px 2px rgba(255,255,255,0.5);
-      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+      min-width: 130px;
+      white-space: nowrap;
     }
 
     .upgrade-btn:hover {
-      transform: scale(1.05);
-      box-shadow: 0 6px 12px rgba(255,140,0,0.6);
+      transform: scale(1.08);
+      box-shadow: 0 6px 15px rgba(255,140,0,0.7);
     }
 
     .upgrade-btn:active {
-      transform: scale(0.98);
+      transform: scale(0.95);
     }
 
     .upgrade-btn.locked {
-      background: linear-gradient(180deg, #999 0%, #666 100%);
-      border-color: #444;
-      color: #CCC;
+      background: linear-gradient(180deg, #666 0%, #444 100%);
+      border-color: #333;
+      color: #999;
       cursor: not-allowed;
+    }
+
+    .upgrade-btn.locked:hover {
+      transform: none;
     }
 
     .cost-display {
       display: block;
-      font-size: 16px;
-      margin-top: 5px;
+      font-size: 13px;
+      margin-top: 4px;
     }
 
-    /* Side Panel for Employees */
-    .employee-panel {
-      position: fixed;
-      right: 20px;
-      top: 50%;
-      transform: translateY(-50%);
-      background: rgba(139, 69, 19, 0.95);
+    /* Employee Section */
+    .employee-section {
+      background: rgba(139, 69, 19, 0.92);
       border: 4px solid #FFD700;
-      border-radius: 20px;
+      border-radius: 15px;
       padding: 20px;
-      width: 280px;
-      max-height: 70vh;
-      overflow-y: auto;
-      box-shadow: 0 8px 16px rgba(0,0,0,0.6);
+      margin-top: 15px;
       backdrop-filter: blur(10px);
-      z-index: 50;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.6);
     }
 
-    .panel-title {
+    .section-title {
       font-size: 24px;
       color: #FFD700;
       text-align: center;
-      margin-bottom: 20px;
+      margin-bottom: 18px;
       text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
     }
 
+    .employee-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
     .employee-item {
-      background: rgba(255, 215, 0, 0.2);
+      background: rgba(255, 215, 0, 0.18);
       border: 2px solid #FFD700;
-      border-radius: 10px;
-      padding: 15px;
-      margin-bottom: 15px;
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      transition: all 0.3s;
+    }
+
+    .employee-item:hover {
+      background: rgba(255, 215, 0, 0.25);
+      border-color: #FFA500;
+    }
+
+    .employee-icon {
+      font-size: 42px;
+      filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));
+    }
+
+    .employee-info {
+      flex: 1;
     }
 
     .employee-name {
       font-size: 18px;
       color: #FFF;
-      margin-bottom: 5px;
+      margin-bottom: 6px;
       text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
     }
 
     .employee-effect {
       font-size: 14px;
       color: #90EE90;
-      margin-bottom: 10px;
       text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
     }
 
     .hire-btn {
-      width: 100%;
       background: linear-gradient(180deg, #4CAF50 0%, #45a049 100%);
       border: 2px solid #2E7D32;
-      border-radius: 8px;
-      padding: 10px;
-      font-size: 16px;
+      border-radius: 10px;
+      padding: 11px 22px;
+      font-size: 15px;
       color: white;
       font-family: 'Krabby Patty', cursive;
       cursor: pointer;
       transition: all 0.3s;
+      white-space: nowrap;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.4);
     }
 
     .hire-btn:hover {
-      transform: scale(1.05);
+      transform: scale(1.08);
+      box-shadow: 0 5px 12px rgba(46,125,50,0.6);
     }
 
     .hire-btn.hired {
       background: linear-gradient(180deg, #999 0%, #666 100%);
       cursor: default;
+      border-color: #555;
+    }
+
+    .hire-btn.hired:hover {
+      transform: none;
+    }
+
+    .hire-btn.locked {
+      background: linear-gradient(180deg, #666 0%, #444 100%);
+      cursor: not-allowed;
+      border-color: #333;
+      color: #999;
+    }
+
+    .hire-btn.locked:hover {
+      transform: none;
+    }
+
+    /* Prestige Button */
+    .prestige-btn {
+      position: fixed;
+      bottom: 25px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(180deg, #9C27B0 0%, #7B1FA2 100%);
+      border: 5px solid #E1BEE7;
+      border-radius: 25px;
+      padding: 16px 45px;
+      font-size: 26px;
+      color: #FFF;
+      font-family: 'Krabby Patty', cursive;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 8px 20px rgba(156,39,176,0.6);
+      z-index: 200;
+      font-weight: bold;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    }
+
+    .prestige-btn:hover {
+      transform: translateX(-50%) scale(1.1);
+      box-shadow: 0 12px 30px rgba(156,39,176,0.8);
+    }
+
+    .prestige-btn.locked {
+      background: linear-gradient(180deg, #666 0%, #444 100%);
+      border-color: #888;
+      color: #AAA;
+      cursor: not-allowed;
+    }
+
+    .prestige-btn.locked:hover {
+      transform: translateX(-50%);
     }
 
     /* Mobile Tabs */
     .mobile-tabs {
       display: none;
       background: #8B4513;
-      border-top: 4px solid #FFD700;
-      position: sticky;
-      bottom: 0;
-      z-index: 100;
+      border-top: 5px solid #FFD700;
+      box-shadow: 0 -4px 10px rgba(0,0,0,0.3);
     }
 
     .tab-buttons {
@@ -416,50 +566,20 @@
 
     .tab-btn {
       flex: 1;
-      padding: 15px;
+      padding: 16px;
       font-size: 20px;
-      background: rgba(139, 69, 19, 0.5);
+      background: rgba(139, 69, 19, 0.6);
       border: none;
       color: #FFD700;
       font-family: 'Krabby Patty', cursive;
       cursor: pointer;
       transition: all 0.3s;
+      font-weight: bold;
     }
 
     .tab-btn.active {
-      background: rgba(255, 215, 0, 0.3);
-      border-top: 4px solid #FFD700;
-    }
-
-    /* Prestige Button */
-    .prestige-btn {
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: linear-gradient(180deg, #9C27B0 0%, #7B1FA2 100%);
-      border: 4px solid #E1BEE7;
-      border-radius: 20px;
-      padding: 15px 40px;
-      font-size: 24px;
-      color: #FFF;
-      font-family: 'Krabby Patty', cursive;
-      cursor: pointer;
-      transition: all 0.3s;
-      box-shadow: 0 6px 12px rgba(156,39,176,0.5);
-      z-index: 150;
-    }
-
-    .prestige-btn:hover {
-      transform: translateX(-50%) scale(1.1);
-      box-shadow: 0 8px 16px rgba(156,39,176,0.7);
-    }
-
-    .prestige-btn.locked {
-      background: linear-gradient(180deg, #666 0%, #444 100%);
-      border-color: #888;
-      color: #AAA;
-      cursor: not-allowed;
+      background: rgba(255, 215, 0, 0.35);
+      border-top: 5px solid #FFD700;
     }
 
     /* Menu Screen */
@@ -474,7 +594,8 @@
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      z-index: 1000;
+      z-index: 2000;
+      padding: 20px;
     }
 
     .menu-screen.hidden {
@@ -482,134 +603,134 @@
     }
 
     .game-title {
-      font-size: 72px;
+      font-size: 68px;
       color: #FFD700;
-      text-shadow: 4px 4px 8px rgba(0,0,0,0.7);
-      margin-bottom: 20px;
-      animation: titleBounce 2s infinite;
+      text-shadow: 5px 5px 10px rgba(0,0,0,0.8);
+      margin-bottom: 25px;
+      animation: titleBounce 2.5s infinite;
+      text-align: center;
     }
 
     @keyframes titleBounce {
       0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-10px); }
+      50% { transform: translateY(-12px); }
     }
 
     .game-subtitle {
-      font-size: 28px;
+      font-size: 30px;
       color: #FFF;
-      text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
+      text-shadow: 3px 3px 6px rgba(0,0,0,0.7);
       margin-bottom: 50px;
+      text-align: center;
     }
 
     .start-btn {
       background: linear-gradient(180deg, #FFD700 0%, #FFA500 100%);
-      border: 4px solid #FF8C00;
-      border-radius: 20px;
-      padding: 20px 60px;
-      font-size: 36px;
+      border: 5px solid #FF8C00;
+      border-radius: 25px;
+      padding: 22px 65px;
+      font-size: 38px;
       color: #8B4513;
       font-family: 'Krabby Patty', cursive;
       font-weight: bold;
       cursor: pointer;
       transition: all 0.3s;
-      text-shadow: 2px 2px 4px rgba(255,255,255,0.5);
-      box-shadow: 0 8px 16px rgba(0,0,0,0.4);
+      text-shadow: 2px 2px 5px rgba(255,255,255,0.5);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
     }
 
     .start-btn:hover {
-      transform: scale(1.1);
-      box-shadow: 0 12px 24px rgba(255,165,0,0.6);
+      transform: scale(1.12);
+      box-shadow: 0 15px 35px rgba(255,165,0,0.7);
     }
 
-    @media (max-width: 768px) {
+    .start-btn:active {
+      transform: scale(1.05);
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 968px) {
       .game-area {
+        flex-direction: column;
         overflow-y: auto;
+        padding: 5px;
       }
 
       .restaurant-view,
       .kitchen-view {
         display: none;
-        min-height: calc(100vh - 200px);
+        min-height: 65vh;
       }
 
       .restaurant-view.active,
       .kitchen-view.active {
-        display: block;
+        display: flex;
       }
 
       .mobile-tabs {
         display: block;
       }
 
-      .employee-panel {
-        position: relative;
-        right: auto;
-        top: auto;
-        transform: none;
-        margin: 20px;
-        width: calc(100% - 40px);
-        max-height: none;
-      }
-
-      .stats-bar {
-        flex-wrap: wrap;
-        gap: 10px;
-        padding: 10px;
-      }
-
       .stat-box {
-        min-width: 120px;
-        flex: 1 1 calc(50% - 10px);
-      }
-
-      .stat-value {
-        font-size: 20px;
+        min-width: 110px;
+        padding: 6px 10px;
       }
 
       .stat-label {
-        font-size: 12px;
+        font-size: 11px;
       }
 
-      .game-title {
-        font-size: 48px;
-      }
-
-      .restaurant-interior,
-      .kitchen-interior {
-        padding: 20px;
-      }
-
-      .table {
-        width: 60px;
-        height: 60px;
-      }
-
-      .table-number {
+      .stat-value {
         font-size: 18px;
       }
 
-      .customer-icon {
+      .serve-button {
+        padding: 30px 40px;
+      }
+
+      .serve-icon {
+        font-size: 75px;
+      }
+
+      .serve-text {
         font-size: 30px;
+      }
+
+      .serve-value {
+        font-size: 24px;
+      }
+
+      .queue-customer {
+        font-size: 38px;
+      }
+
+      .prestige-btn {
+        font-size: 20px;
+        padding: 14px 35px;
+        bottom: 85px;
+      }
+
+      .game-title {
+        font-size: 42px;
+      }
+
+      .game-subtitle {
+        font-size: 22px;
+      }
+
+      .start-btn {
+        font-size: 30px;
+        padding: 18px 50px;
       }
 
       .kitchen-station {
         flex-direction: column;
         text-align: center;
+        padding: 15px;
       }
 
       .station-icon {
         min-width: auto;
-      }
-
-      .prestige-btn {
-        font-size: 18px;
-        padding: 12px 30px;
-        bottom: 70px;
-      }
-
-      .view-label {
-        font-size: 20px;
-        padding: 8px 20px;
       }
     }
   </style>
@@ -635,11 +756,11 @@
         <div class="stat-value" id="incomeDisplay">$0/s</div>
       </div>
       <div class="stat-box">
-        <div class="stat-label">👥 CUSTOMERS SERVED</div>
+        <div class="stat-label">👥 SERVED</div>
         <div class="stat-value" id="customersDisplay">0</div>
       </div>
       <div class="stat-box">
-        <div class="stat-label">⭐ PRESTIGE LEVEL</div>
+        <div class="stat-label">⭐ PRESTIGE</div>
         <div class="stat-value" id="prestigeDisplay">0</div>
       </div>
     </div>
@@ -648,24 +769,39 @@
     <div class="game-area">
       <!-- Restaurant View -->
       <div class="restaurant-view active" id="restaurantView">
-        <div class="view-label">🏪 KRUSTY KRAB DINING AREA</div>
-        <div class="restaurant-interior" id="restaurantInterior">
-          <!-- Tables will be generated here -->
+        <div class="view-label">🏪 KRUSTY KRAB</div>
+        <div class="restaurant-interior">
+          <!-- Big Serve Button -->
+          <div class="serve-button" onclick="serveCustomers()" id="serveButton">
+            <div class="serve-icon">🍔</div>
+            <div class="serve-text">SERVE!</div>
+            <div class="serve-value" id="serveValue">+$15 per click</div>
+          </div>
+          
+          <!-- Customer Queue -->
+          <div class="customer-queue">
+            <div class="queue-title">👥 WAITING CUSTOMERS</div>
+            <div class="queue-display" id="customerQueue">
+              <div class="queue-empty">No customers yet...</div>
+            </div>
+          </div>
         </div>
       </div>
 
       <!-- Kitchen View -->
       <div class="kitchen-view" id="kitchenView">
-        <div class="view-label">👨‍🍳 KITCHEN & UPGRADES</div>
-        <div class="kitchen-interior" id="kitchenInterior">
-          <!-- Kitchen stations will be generated here -->
-        </div>
-        
-        <!-- Employee Panel -->
-        <div class="employee-panel">
-          <div class="panel-title">💼 HIRE STAFF</div>
-          <div id="employeeList">
-            <!-- Employees will be generated here -->
+        <div class="view-label">👨‍🍳 KITCHEN</div>
+        <div class="kitchen-scroll">
+          <div class="kitchen-interior" id="kitchenInterior">
+            <!-- Kitchen stations rendered here -->
+          </div>
+          
+          <!-- Employee Section -->
+          <div class="employee-section">
+            <div class="section-title">💼 HIRE STAFF</div>
+            <div class="employee-grid" id="employeeList">
+              <!-- Employees rendered here -->
+            </div>
           </div>
         </div>
       </div>
@@ -681,7 +817,7 @@
 
     <!-- Prestige Button -->
     <button class="prestige-btn locked" id="prestigeBtn" onclick="attemptPrestige()">
-      ⚡ PRESTIGE (Requires $1M)
+      ⚡ PRESTIGE ($50K)
     </button>
   </div>
 
@@ -691,13 +827,15 @@
       money: 0,
       moneyPerSecond: 0,
       customersServed: 0,
+      totalClicks: 0,
       prestigeLevel: 0,
       prestigeMultiplier: 1,
-      clickPower: 10,
+      clickPower: 15,
       
-      tables: [],
+      customerQueue: [],
       upgrades: [],
       employees: [],
+      milestones: {},
       
       lastUpdate: Date.now()
     };
@@ -708,8 +846,8 @@
         id: 'grill',
         name: '🔥 Grill Station',
         icon: '🔥',
-        baseIncome: 5,
-        baseCost: 50,
+        baseIncome: 3,
+        baseCost: 100,
         level: 0,
         costMultiplier: 1.15
       },
@@ -717,8 +855,8 @@
         id: 'fryer',
         name: '🍟 Fryer Station',
         icon: '🍟',
-        baseIncome: 15,
-        baseCost: 300,
+        baseIncome: 12,
+        baseCost: 500,
         level: 0,
         costMultiplier: 1.15
       },
@@ -727,25 +865,25 @@
         name: '❄️ Walk-in Freezer',
         icon: '❄️',
         baseIncome: 50,
-        baseCost: 1500,
+        baseCost: 2500,
         level: 0,
         costMultiplier: 1.15
       },
       {
         id: 'oven',
-        name: '🔥 Industrial Oven',
+        name: '🧑‍🍳 Industrial Oven',
         icon: '🧑‍🍳',
         baseIncome: 200,
-        baseCost: 8000,
+        baseCost: 12000,
         level: 0,
         costMultiplier: 1.15
       },
       {
         id: 'formula',
-        name: '🧪 Secret Formula Safe',
+        name: '🧪 Secret Formula',
         icon: '🧪',
         baseIncome: 1000,
-        baseCost: 50000,
+        baseCost: 75000,
         level: 0,
         costMultiplier: 1.15
       }
@@ -756,66 +894,67 @@
       {
         id: 'spongebob',
         name: '🧽 SpongeBob',
-        effect: '+50% income from Grill',
-        cost: 1000,
+        icon: '🧽',
+        effect: '+75% Grill income',
+        cost: 1500,
         hired: false,
-        multiplier: 1.5,
-        target: 'grill'
+        multiplier: 1.75,
+        target: 'grill',
+        sound: 'ready'
       },
       {
         id: 'squidward',
         name: '🦑 Squidward',
-        effect: '+25% all income',
-        cost: 5000,
+        icon: '🦑',
+        effect: '+30% ALL income',
+        cost: 7500,
         hired: false,
-        multiplier: 1.25,
-        target: 'all'
+        multiplier: 1.3,
+        target: 'all',
+        sound: 'wawawa'
       },
       {
         id: 'krabs',
         name: '🦀 Mr. Krabs',
+        icon: '🦀',
         effect: '+100% click power',
-        cost: 10000,
+        cost: 15000,
         hired: false,
         multiplier: 2,
-        target: 'click'
+        target: 'click',
+        sound: 'money'
       },
       {
         id: 'pearl',
         name: '🐋 Pearl',
+        icon: '🐋',
         effect: 'Customers pay 2x',
-        cost: 25000,
+        cost: 40000,
         hired: false,
         multiplier: 2,
-        target: 'customer'
+        target: 'customer',
+        sound: 'ily'
       },
       {
         id: 'sandy',
         name: '🐿️ Sandy',
-        effect: '+200% all income',
-        cost: 100000,
+        icon: '🐿️',
+        effect: '+150% ALL income',
+        cost: 150000,
         hired: false,
-        multiplier: 3,
-        target: 'all'
+        multiplier: 2.5,
+        target: 'all',
+        sound: 'gary'
       }
     ];
 
-    // Initialize game
+    const customerIcons = ['🧑', '👩', '👨', '🧒', '👴', '👵', '🧔', '👱'];
+
+    // Initialize Game
     function initGame() {
       gameState.upgrades = upgradeDefinitions.map(u => ({...u}));
       gameState.employees = employeeDefinitions.map(e => ({...e}));
       
-      // Create tables (12 tables)
-      for (let i = 0; i < 12; i++) {
-        gameState.tables.push({
-          id: i,
-          occupied: false,
-          customer: null,
-          timer: 0
-        });
-      }
-      
-      renderRestaurant();
       renderKitchen();
       renderEmployees();
       updateUI();
@@ -823,8 +962,11 @@
       // Start game loop
       setInterval(gameLoop, 100);
       
-      // Spawn customers
-      setInterval(spawnCustomer, 3000);
+      // Spawn customers every 2 seconds
+      setInterval(spawnCustomer, 2000);
+      
+      // Check milestones
+      setInterval(checkMilestones, 1000);
     }
 
     // Game Loop
@@ -836,84 +978,98 @@
       // Passive income
       gameState.money += gameState.moneyPerSecond * delta;
       
-      // Update customer timers
-      gameState.tables.forEach(table => {
-        if (table.occupied && table.customer) {
-          table.customer.patience -= delta;
-          if (table.customer.patience <= 0) {
-            // Customer leaves
-            table.occupied = false;
-            table.customer = null;
-            soundManager.play('wawawa');
-          }
-        }
-      });
-      
       updateUI();
       updatePrestigeButton();
     }
 
     // Spawn Customer
     function spawnCustomer() {
-      const emptyTables = gameState.tables.filter(t => !t.occupied);
-      if (emptyTables.length === 0) return;
-      
-      const table = emptyTables[Math.floor(Math.random() * emptyTables.length)];
-      const customerValue = 20 + (gameState.prestigeLevel * 10);
-      
-      // Apply Pearl's multiplier if hired
-      const pearlEmployee = gameState.employees.find(e => e.id === 'pearl');
-      const finalValue = pearlEmployee && pearlEmployee.hired ? 
-        customerValue * pearlEmployee.multiplier : customerValue;
-      
-      table.occupied = true;
-      table.customer = {
-        value: finalValue,
-        patience: 15 + (gameState.prestigeLevel * 2),
-        icon: ['🧑', '👩', '👨', '🧒', '👴', '👵'][Math.floor(Math.random() * 6)]
-      };
-      
-      renderRestaurant();
+      if (gameState.customerQueue.length < 8) {
+        const icon = customerIcons[Math.floor(Math.random() * customerIcons.length)];
+        gameState.customerQueue.push({
+          icon: icon,
+          value: 8 + (gameState.prestigeLevel * 3)
+        });
+        
+        // Play subtle sound
+        if (Math.random() < 0.3) {
+          soundManager.play('gary');
+        }
+        
+        renderCustomerQueue();
+      }
     }
 
-    // Serve Customer (click table)
-    function serveCustomer(tableId) {
-      const table = gameState.tables[tableId];
-      if (!table.occupied || !table.customer) return;
+    // Serve Customers (MAIN ACTION - NO SOFTLOCK!)
+    function serveCustomers() {
+      if (gameState.customerQueue.length === 0) {
+        soundManager.play('dolphin');
+        return;
+      }
       
       const krabs = gameState.employees.find(e => e.id === 'krabs');
-      const clickValue = gameState.clickPower * (krabs && krabs.hired ? krabs.multiplier : 1);
+      const pearl = gameState.employees.find(e => e.id === 'pearl');
       
-      gameState.money += table.customer.value + clickValue;
-      gameState.customersServed++;
+      let clickValue = gameState.clickPower;
+      if (krabs && krabs.hired) {
+        clickValue *= krabs.multiplier;
+      }
       
-      // Show money popup
-      showMoneyPopup(table.customer.value + clickValue, tableId);
+      let totalEarned = clickValue;
       
-      // Play sound
+      // Serve ALL customers in queue
+      gameState.customerQueue.forEach(customer => {
+        let customerValue = customer.value;
+        if (pearl && pearl.hired) {
+          customerValue *= pearl.multiplier;
+        }
+        totalEarned += customerValue;
+      });
+      
+      gameState.money += totalEarned;
+      gameState.customersServed += gameState.customerQueue.length;
+      gameState.totalClicks++;
+      
+      // Sound effects
       soundManager.play('cash', { allowOverlap: true });
       
-      table.occupied = false;
-      table.customer = null;
+      // 10% chance for "Order Up!"
+      if (Math.random() < 0.1) {
+        setTimeout(() => soundManager.play('order'), 150);
+      }
       
-      renderRestaurant();
+      // Big serve bonus sound
+      if (gameState.customerQueue.length >= 5) {
+        setTimeout(() => soundManager.play('ohyeah'), 300);
+      }
+      
+      // Show money popup
+      showMoneyPopup(totalEarned);
+      
+      // Clear queue
+      gameState.customerQueue = [];
+      renderCustomerQueue();
       updateUI();
+      
+      // Update click value display
+      updateClickValue();
     }
 
     // Show Money Popup
-    function showMoneyPopup(amount, tableId) {
-      const tableEl = document.querySelector(`[data-table="${tableId}"]`);
-      if (!tableEl) return;
-      
+    function showMoneyPopup(amount) {
       const popup = document.createElement('div');
       popup.className = 'money-popup';
       popup.textContent = `+$${Math.round(amount)}`;
-      popup.style.left = tableEl.offsetLeft + 40 + 'px';
-      popup.style.top = tableEl.offsetTop + 'px';
       
-      document.getElementById('restaurantInterior').appendChild(popup);
+      // Random position near center
+      const centerX = window.innerWidth / 2;
+      const centerY = window.innerHeight / 2;
+      popup.style.left = (centerX + (Math.random() - 0.5) * 200) + 'px';
+      popup.style.top = (centerY + (Math.random() - 0.5) * 100) + 'px';
       
-      setTimeout(() => popup.remove(), 1000);
+      document.body.appendChild(popup);
+      
+      setTimeout(() => popup.remove(), 1800);
     }
 
     // Calculate Income Per Second
@@ -928,8 +1084,10 @@
           const squidward = gameState.employees.find(e => e.id === 'squidward');
           const sandy = gameState.employees.find(e => e.id === 'sandy');
           
-          // Specific upgrade bonus
-          const specificEmployee = gameState.employees.find(e => e.target === upgrade.id && e.hired);
+          // Specific upgrade bonus (e.g., SpongeBob for grill)
+          const specificEmployee = gameState.employees.find(e => 
+            e.target === upgrade.id && e.hired
+          );
           if (specificEmployee) {
             upgradeIncome *= specificEmployee.multiplier;
           }
@@ -950,6 +1108,18 @@
       income *= gameState.prestigeMultiplier;
       
       gameState.moneyPerSecond = income;
+    }
+
+    // Update Click Value Display
+    function updateClickValue() {
+      const krabs = gameState.employees.find(e => e.id === 'krabs');
+      let clickValue = gameState.clickPower;
+      if (krabs && krabs.hired) {
+        clickValue *= krabs.multiplier;
+      }
+      
+      document.getElementById('serveValue').textContent = 
+        `+$${Math.round(clickValue)} per click`;
     }
 
     // Buy Upgrade
@@ -981,8 +1151,11 @@
         gameState.money -= employee.cost;
         employee.hired = true;
         
-        soundManager.play('ready');
+        // Play character-specific sound
+        soundManager.play(employee.sound);
+        
         calculateIncome();
+        updateClickValue();
         renderEmployees();
         updateUI();
       } else {
@@ -992,13 +1165,18 @@
 
     // Prestige
     function attemptPrestige() {
-      if (gameState.money >= 1000000) {
-        if (confirm('🌟 PRESTIGE RESET 🌟\n\nReset your restaurant but gain:\n• +50% permanent income boost\n• Higher customer payments\n• Better upgrades\n\nContinue?')) {
+      const prestigeCost = 50000;
+      
+      if (gameState.money >= prestigeCost) {
+        if (confirm('🌟 PRESTIGE RESET 🌟\n\nReset everything but gain:\n• +50% permanent income\n• Better click power\n• Faster progression\n\nContinue?')) {
           gameState.prestigeLevel++;
           gameState.prestigeMultiplier = 1 + (gameState.prestigeLevel * 0.5);
           gameState.money = 0;
           gameState.customersServed = 0;
-          gameState.clickPower = 10 + (gameState.prestigeLevel * 5);
+          gameState.totalClicks = 0;
+          gameState.clickPower = 15 + (gameState.prestigeLevel * 8);
+          gameState.customerQueue = [];
+          gameState.milestones = {};
           
           // Reset upgrades and employees
           gameState.upgrades = upgradeDefinitions.map(u => ({...u}));
@@ -1009,6 +1187,8 @@
           calculateIncome();
           renderKitchen();
           renderEmployees();
+          renderCustomerQueue();
+          updateClickValue();
           updateUI();
         }
       }
@@ -1016,58 +1196,43 @@
 
     function updatePrestigeButton() {
       const btn = document.getElementById('prestigeBtn');
-      if (gameState.money >= 1000000) {
+      const prestigeCost = 50000;
+      
+      if (gameState.money >= prestigeCost) {
         btn.classList.remove('locked');
         btn.textContent = `⚡ PRESTIGE NOW! (Level ${gameState.prestigeLevel + 1})`;
       } else {
         btn.classList.add('locked');
-        const needed = 1000000 - gameState.money;
-        btn.textContent = `⚡ PRESTIGE ($${formatNumber(needed)} more needed)`;
+        const needed = prestigeCost - gameState.money;
+        btn.textContent = `⚡ PRESTIGE ($${formatNumber(needed)} more)`;
       }
     }
 
-    // Render Restaurant
-    function renderRestaurant() {
-      const container = document.getElementById('restaurantInterior');
-      container.innerHTML = '';
+    // Check Milestones
+    function checkMilestones() {
+      const money = gameState.money;
       
-      // Create 3 rows of 4 tables
-      for (let row = 0; row < 3; row++) {
-        const rowDiv = document.createElement('div');
-        rowDiv.className = 'table-row';
-        
-        for (let col = 0; col < 4; col++) {
-          const tableIndex = row * 4 + col;
-          const table = gameState.tables[tableIndex];
-          
-          const tableDiv = document.createElement('div');
-          tableDiv.className = 'table';
-          tableDiv.setAttribute('data-table', tableIndex);
-          tableDiv.onclick = () => serveCustomer(tableIndex);
-          
-          if (table.occupied && table.customer) {
-            tableDiv.classList.add('occupied');
-            
-            const customerIcon = document.createElement('div');
-            customerIcon.className = 'customer-icon';
-            customerIcon.textContent = table.customer.icon;
-            tableDiv.appendChild(customerIcon);
-            
-            const orderBubble = document.createElement('div');
-            orderBubble.className = 'order-bubble';
-            orderBubble.textContent = '🍔';
-            tableDiv.appendChild(orderBubble);
-          }
-          
-          const tableNumber = document.createElement('div');
-          tableNumber.className = 'table-number';
-          tableNumber.textContent = tableIndex + 1;
-          tableDiv.appendChild(tableNumber);
-          
-          rowDiv.appendChild(tableDiv);
-        }
-        
-        container.appendChild(rowDiv);
+      if (money >= 1000 && !gameState.milestones.reached1K) {
+        gameState.milestones.reached1K = true;
+        soundManager.play('feelit');
+      }
+      
+      if (money >= 10000 && !gameState.milestones.reached10K) {
+        gameState.milestones.reached10K = true;
+        soundManager.play('ohyeah');
+      }
+    }
+
+    // Render Customer Queue
+    function renderCustomerQueue() {
+      const container = document.getElementById('customerQueue');
+      
+      if (gameState.customerQueue.length === 0) {
+        container.innerHTML = '<div class="queue-empty">No customers yet...</div>';
+      } else {
+        container.innerHTML = gameState.customerQueue.map(c => 
+          `<div class="queue-customer">${c.icon}</div>`
+        ).join('');
       }
     }
 
@@ -1078,7 +1243,9 @@
       
       gameState.upgrades.forEach(upgrade => {
         const cost = Math.floor(upgrade.baseCost * Math.pow(upgrade.costMultiplier, upgrade.level));
-        const income = upgrade.baseIncome * upgrade.level;
+        const income = upgrade.baseIncome * upgrade.level * gameState.prestigeMultiplier;
+        
+        const canAfford = gameState.money >= cost;
         
         const stationDiv = document.createElement('div');
         stationDiv.className = 'kitchen-station';
@@ -1091,7 +1258,7 @@
             <div class="station-level">Level ${upgrade.level}</div>
             <div class="station-income">+$${formatNumber(income)}/s</div>
           </div>
-          <button class="upgrade-btn ${gameState.money >= cost ? '' : 'locked'}">
+          <button class="upgrade-btn ${canAfford ? '' : 'locked'}">
             UPGRADE
             <span class="cost-display">$${formatNumber(cost)}</span>
           </button>
@@ -1107,18 +1274,37 @@
       container.innerHTML = '';
       
       gameState.employees.forEach(employee => {
+        const canAfford = gameState.money >= employee.cost;
+        
         const employeeDiv = document.createElement('div');
         employeeDiv.className = 'employee-item';
         
-        const canAfford = gameState.money >= employee.cost;
+        let btnClass = '';
+        let btnText = '';
+        let btnDisabled = '';
+        
+        if (employee.hired) {
+          btnClass = 'hired';
+          btnText = '✅ HIRED';
+          btnDisabled = 'disabled';
+        } else if (canAfford) {
+          btnClass = '';
+          btnText = `HIRE - $${formatNumber(employee.cost)}`;
+        } else {
+          btnClass = 'locked';
+          btnText = `HIRE - $${formatNumber(employee.cost)}`;
+        }
         
         employeeDiv.innerHTML = `
-          <div class="employee-name">${employee.name}</div>
-          <div class="employee-effect">${employee.effect}</div>
-          <button class="hire-btn ${employee.hired ? 'hired' : (canAfford ? '' : 'locked')}" 
+          <div class="employee-icon">${employee.icon}</div>
+          <div class="employee-info">
+            <div class="employee-name">${employee.name}</div>
+            <div class="employee-effect">${employee.effect}</div>
+          </div>
+          <button class="hire-btn ${btnClass}" 
                   onclick="hireEmployee('${employee.id}')"
-                  ${employee.hired ? 'disabled' : ''}>
-            ${employee.hired ? '✅ HIRED' : `HIRE - $${formatNumber(employee.cost)}`}
+                  ${btnDisabled}>
+            ${btnText}
           </button>
         `;
         
@@ -1130,7 +1316,7 @@
     function updateUI() {
       document.getElementById('moneyDisplay').textContent = '$' + formatNumber(Math.floor(gameState.money));
       document.getElementById('incomeDisplay').textContent = '$' + formatNumber(Math.floor(gameState.moneyPerSecond)) + '/s';
-      document.getElementById('customersServed').textContent = formatNumber(gameState.customersServed);
+      document.getElementById('customersDisplay').textContent = formatNumber(gameState.customersServed);
       document.getElementById('prestigeDisplay').textContent = gameState.prestigeLevel;
     }
 
@@ -1138,7 +1324,7 @@
     function formatNumber(num) {
       if (num >= 1000000000) return (num / 1000000000).toFixed(2) + 'B';
       if (num >= 1000000) return (num / 1000000).toFixed(2) + 'M';
-      if (num >= 1000) return (num / 1000).toFixed(2) + 'K';
+      if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
       return Math.floor(num).toString();
     }
 
@@ -1154,45 +1340,55 @@
       const tabs = document.querySelectorAll('.tab-btn');
       tabs.forEach(t => t.classList.remove('active'));
       
+      const restaurantView = document.getElementById('restaurantView');
+      const kitchenView = document.getElementById('kitchenView');
+      
       if (tab === 'restaurant') {
-        document.getElementById('restaurantView').classList.add('active');
-        document.getElementById('kitchenView').classList.remove('active');
+        restaurantView.classList.add('active');
+        kitchenView.classList.remove('active');
         tabs[0].classList.add('active');
       } else {
-        document.getElementById('restaurantView').classList.remove('active');
-        document.getElementById('kitchenView').classList.add('active');
+        restaurantView.classList.remove('active');
+        kitchenView.classList.add('active');
         tabs[1].classList.add('active');
       }
     }
 
-    // Save game periodically
+    // Save/Load
     setInterval(() => {
-      if (gameState.money > 0) {
-        localStorage.setItem('krustyKrabTycoonSave', JSON.stringify(gameState));
+      if (gameState.money > 0 || gameState.totalClicks > 0) {
+        const saveData = {...gameState};
+        saveData.lastUpdate = Date.now();
+        localStorage.setItem('krustyTycoonSave', JSON.stringify(saveData));
       }
     }, 10000);
 
-    // Load save on start
     window.addEventListener('load', () => {
-      const save = localStorage.getItem('krustyKrabTycoonSave');
+      const save = localStorage.getItem('krustyTycoonSave');
       if (save) {
         try {
           const loaded = JSON.parse(save);
           Object.assign(gameState, loaded);
           gameState.lastUpdate = Date.now();
+          
+          // Recalculate income
+          setTimeout(() => {
+            calculateIncome();
+            updateClickValue();
+          }, 100);
         } catch(e) {
           console.log('Could not load save');
         }
       }
     });
 
-    // Submit to leaderboard when reaching milestones
+    // Submit to leaderboard
     setInterval(() => {
-      if (gameState.money >= 10000 && gameState.customersServed > 0) {
-        const score = gameState.customersServed + (gameState.prestigeLevel * 1000);
+      if (gameState.customersServed >= 20) {
+        const score = gameState.customersServed + (gameState.prestigeLevel * 500);
         showLeaderboardModal('krusty-tycoon', 'Krusty Krab Tycoon', score);
       }
-    }, 60000); // Check every minute
+    }, 60000);
   </script>
 </body>
 </html>
