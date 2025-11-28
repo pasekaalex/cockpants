@@ -21,9 +21,32 @@
 
     body {
       font-family: 'Krabby Patty', 'Comic Sans MS', cursive;
-      background: linear-gradient(135deg, #1e3a5f 0%, #2c5f7f 100%);
+      background: linear-gradient(180deg, #87CEEB 0%, #4682B4 50%, #F4E4C1 100%);
+      background-size: 100% 200%;
+      animation: oceanWave 20s ease-in-out infinite;
       overflow: hidden;
       height: 100vh;
+      position: relative;
+    }
+
+    /* Bikini Bottom Background Pattern */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: 
+        radial-gradient(circle at 20% 30%, rgba(255,255,255,0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 70%, rgba(255,255,255,0.1) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    @keyframes oceanWave {
+      0%, 100% { background-position: 0% 0%; }
+      50% { background-position: 0% 100%; }
     }
 
     .game-container {
@@ -31,6 +54,8 @@
       height: 100vh;
       display: flex;
       flex-direction: column;
+      position: relative;
+      z-index: 1;
     }
 
     /* Stats Bar */
@@ -70,21 +95,21 @@
       font-weight: bold;
     }
 
-    /* Game Area */
+    /* Game Area with Padding */
     .game-area {
       flex: 1;
       display: flex;
       flex-direction: row;
       position: relative;
       overflow: hidden;
-      gap: 10px;
-      padding: 10px;
+      gap: 20px;
+      padding: 20px;
     }
 
     /* Restaurant View */
     .restaurant-view {
       flex: 1;
-      background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)),
+      background: linear-gradient(rgba(0,0,0,0.25), rgba(0,0,0,0.25)),
                   url('https://i.imgur.com/T5FSp2E.jpeg');
       background-size: cover;
       background-position: center;
@@ -117,9 +142,10 @@
       align-items: center;
       gap: 30px;
       padding: 20px;
+      padding-top: 0;
     }
 
-    /* Big Serve Button */
+    /* Big Serve Button - Moved up 5% */
     .serve-button {
       background: linear-gradient(180deg, #FFD700 0%, #FFA500 100%);
       border: 8px solid #FF8C00;
@@ -133,16 +159,17 @@
       width: 90%;
       position: relative;
       overflow: hidden;
+      transform: translateY(-5%);
     }
 
     .serve-button:hover {
-      transform: scale(1.05);
+      transform: translateY(-5%) scale(1.05);
       box-shadow: 0 16px 40px rgba(255,140,0,0.8);
       background: linear-gradient(180deg, #FFC700 0%, #FF9500 100%);
     }
 
     .serve-button:active {
-      transform: scale(0.98);
+      transform: translateY(-5%) scale(0.98);
     }
 
     .serve-button::before {
@@ -269,7 +296,7 @@
     /* Kitchen View */
     .kitchen-view {
       flex: 1;
-      background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)),
+      background: linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)),
                   url('https://i.imgur.com/kLV39FM.jpeg');
       background-size: cover;
       background-position: center;
@@ -324,7 +351,6 @@
       display: flex;
       align-items: center;
       gap: 20px;
-      cursor: pointer;
       transition: all 0.3s;
       backdrop-filter: blur(10px);
       box-shadow: 0 4px 15px rgba(0,0,0,0.6);
@@ -332,7 +358,6 @@
 
     .kitchen-station:hover {
       background: rgba(139, 69, 19, 1);
-      transform: translateX(8px);
       box-shadow: 0 6px 25px rgba(255,215,0,0.6);
       border-color: #FFA500;
     }
@@ -653,7 +678,7 @@
       .game-area {
         flex-direction: column;
         overflow-y: auto;
-        padding: 5px;
+        padding: 10px;
       }
 
       .restaurant-view,
@@ -889,7 +914,7 @@
       }
     ];
 
-    // Employee Definitions
+    // Employee Definitions - FIXED SOUNDS
     const employeeDefinitions = [
       {
         id: 'spongebob',
@@ -900,7 +925,7 @@
         hired: false,
         multiplier: 1.75,
         target: 'grill',
-        sound: 'ready'
+        sound: 'ready'  // "I'M READY" - perfect!
       },
       {
         id: 'squidward',
@@ -911,7 +936,7 @@
         hired: false,
         multiplier: 1.3,
         target: 'all',
-        sound: 'wawawa'
+        sound: 'wawawa'  // Squidward complaining - perfect!
       },
       {
         id: 'krabs',
@@ -922,7 +947,7 @@
         hired: false,
         multiplier: 2,
         target: 'click',
-        sound: 'money'
+        sound: 'money'  // "Money money money" - perfect!
       },
       {
         id: 'pearl',
@@ -933,7 +958,7 @@
         hired: false,
         multiplier: 2,
         target: 'customer',
-        sound: 'ily'
+        sound: 'ily'  // "I love you" Patrick - sweet!
       },
       {
         id: 'sandy',
@@ -944,7 +969,7 @@
         hired: false,
         multiplier: 2.5,
         target: 'all',
-        sound: 'gary'
+        sound: 'ohyeah'  // SpongeBob "Oh yeah" - excited!
       }
     ];
 
@@ -991,16 +1016,11 @@
           value: 8 + (gameState.prestigeLevel * 3)
         });
         
-        // Play subtle sound
-        if (Math.random() < 0.3) {
-          soundManager.play('gary');
-        }
-        
         renderCustomerQueue();
       }
     }
 
-    // Serve Customers (MAIN ACTION - NO SOFTLOCK!)
+    // Serve Customers (MAIN ACTION)
     function serveCustomers() {
       if (gameState.customerQueue.length === 0) {
         soundManager.play('dolphin');
@@ -1030,17 +1050,12 @@
       gameState.customersServed += gameState.customerQueue.length;
       gameState.totalClicks++;
       
-      // Sound effects
+      // Sound effects - BETTER LOGIC
       soundManager.play('cash', { allowOverlap: true });
       
-      // 10% chance for "Order Up!"
-      if (Math.random() < 0.1) {
-        setTimeout(() => soundManager.play('order'), 150);
-      }
-      
-      // Big serve bonus sound
+      // Big serve bonus (5+ customers)
       if (gameState.customerQueue.length >= 5) {
-        setTimeout(() => soundManager.play('ohyeah'), 300);
+        setTimeout(() => soundManager.play('feelit'), 200);  // "Are you feeling it now Mr. Krabs"
       }
       
       // Show money popup
@@ -1050,8 +1065,6 @@
       gameState.customerQueue = [];
       renderCustomerQueue();
       updateUI();
-      
-      // Update click value display
       updateClickValue();
     }
 
@@ -1061,7 +1074,6 @@
       popup.className = 'money-popup';
       popup.textContent = `+$${Math.round(amount)}`;
       
-      // Random position near center
       const centerX = window.innerWidth / 2;
       const centerY = window.innerHeight / 2;
       popup.style.left = (centerX + (Math.random() - 0.5) * 200) + 'px';
@@ -1080,11 +1092,10 @@
         if (upgrade.level > 0) {
           let upgradeIncome = upgrade.baseIncome * upgrade.level;
           
-          // Apply employee bonuses
           const squidward = gameState.employees.find(e => e.id === 'squidward');
           const sandy = gameState.employees.find(e => e.id === 'sandy');
           
-          // Specific upgrade bonus (e.g., SpongeBob for grill)
+          // Specific upgrade bonus
           const specificEmployee = gameState.employees.find(e => 
             e.target === upgrade.id && e.hired
           );
@@ -1122,8 +1133,13 @@
         `+$${Math.round(clickValue)} per click`;
     }
 
-    // Buy Upgrade
-    function buyUpgrade(upgradeId) {
+    // Buy Upgrade - FIXED CLICK HANDLING
+    function buyUpgrade(upgradeId, event) {
+      // Stop event propagation so button click works
+      if (event) {
+        event.stopPropagation();
+      }
+      
       const upgrade = gameState.upgrades.find(u => u.id === upgradeId);
       if (!upgrade) return;
       
@@ -1142,8 +1158,13 @@
       }
     }
 
-    // Hire Employee
-    function hireEmployee(employeeId) {
+    // Hire Employee - FIXED CLICK HANDLING
+    function hireEmployee(employeeId, event) {
+      // Stop event propagation
+      if (event) {
+        event.stopPropagation();
+      }
+      
       const employee = gameState.employees.find(e => e.id === employeeId);
       if (!employee || employee.hired) return;
       
@@ -1214,12 +1235,12 @@
       
       if (money >= 1000 && !gameState.milestones.reached1K) {
         gameState.milestones.reached1K = true;
-        soundManager.play('feelit');
+        soundManager.play('order');  // "Order Up!" - milestone achievement
       }
       
       if (money >= 10000 && !gameState.milestones.reached10K) {
         gameState.milestones.reached10K = true;
-        soundManager.play('ohyeah');
+        soundManager.play('ohyeah');  // "Oh yeah" - bigger milestone
       }
     }
 
@@ -1236,7 +1257,7 @@
       }
     }
 
-    // Render Kitchen
+    // Render Kitchen - FIXED BUTTON CLICKS
     function renderKitchen() {
       const container = document.getElementById('kitchenInterior');
       container.innerHTML = '';
@@ -1249,7 +1270,6 @@
         
         const stationDiv = document.createElement('div');
         stationDiv.className = 'kitchen-station';
-        stationDiv.onclick = () => buyUpgrade(upgrade.id);
         
         stationDiv.innerHTML = `
           <div class="station-icon">${upgrade.icon}</div>
@@ -1258,17 +1278,21 @@
             <div class="station-level">Level ${upgrade.level}</div>
             <div class="station-income">+$${formatNumber(income)}/s</div>
           </div>
-          <button class="upgrade-btn ${canAfford ? '' : 'locked'}">
+          <button class="upgrade-btn ${canAfford ? '' : 'locked'}" data-upgrade-id="${upgrade.id}">
             UPGRADE
             <span class="cost-display">$${formatNumber(cost)}</span>
           </button>
         `;
         
+        // Add click handler to button
+        const btn = stationDiv.querySelector('.upgrade-btn');
+        btn.addEventListener('click', (e) => buyUpgrade(upgrade.id, e));
+        
         container.appendChild(stationDiv);
       });
     }
 
-    // Render Employees
+    // Render Employees - FIXED BUTTON CLICKS
     function renderEmployees() {
       const container = document.getElementById('employeeList');
       container.innerHTML = '';
@@ -1281,12 +1305,10 @@
         
         let btnClass = '';
         let btnText = '';
-        let btnDisabled = '';
         
         if (employee.hired) {
           btnClass = 'hired';
           btnText = '✅ HIRED';
-          btnDisabled = 'disabled';
         } else if (canAfford) {
           btnClass = '';
           btnText = `HIRE - $${formatNumber(employee.cost)}`;
@@ -1301,12 +1323,16 @@
             <div class="employee-name">${employee.name}</div>
             <div class="employee-effect">${employee.effect}</div>
           </div>
-          <button class="hire-btn ${btnClass}" 
-                  onclick="hireEmployee('${employee.id}')"
-                  ${btnDisabled}>
+          <button class="hire-btn ${btnClass}" data-employee-id="${employee.id}">
             ${btnText}
           </button>
         `;
+        
+        // Add click handler to button
+        if (!employee.hired) {
+          const btn = employeeDiv.querySelector('.hire-btn');
+          btn.addEventListener('click', (e) => hireEmployee(employee.id, e));
+        }
         
         container.appendChild(employeeDiv);
       });
@@ -1371,7 +1397,6 @@
           Object.assign(gameState, loaded);
           gameState.lastUpdate = Date.now();
           
-          // Recalculate income
           setTimeout(() => {
             calculateIncome();
             updateClickValue();
