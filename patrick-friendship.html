@@ -84,8 +84,8 @@
     }
     
     .patrick {
-      width: 200px;
-      height: 200px;
+      width: 300px;
+      height: 300px;
       margin: 0 auto 20px;
       position: relative;
       animation: float 3s ease-in-out infinite;
@@ -96,16 +96,11 @@
       50% { transform: translateY(-15px); }
     }
     
-    .patrick-body {
-      width: 180px;
-      height: 180px;
-      background: #FF69B4;
-      border-radius: 50% 50% 45% 45%;
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      border: 4px solid #000;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    .patrick-image {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      border-radius: 20px;
     }
     
     .patrick-spots {
@@ -605,28 +600,7 @@
     
     <div class="patrick-container">
       <div class="patrick">
-        <div class="patrick-body">
-          <div class="patrick-spots">
-            <div class="spot spot1"></div>
-            <div class="spot spot2"></div>
-            <div class="spot spot3"></div>
-            <div class="spot spot4"></div>
-          </div>
-          <div class="patrick-eyes">
-            <div class="eye">
-              <div class="pupil" id="pupil1"></div>
-            </div>
-            <div class="eye">
-              <div class="pupil" id="pupil2"></div>
-            </div>
-          </div>
-          <div class="patrick-mouth" id="patrickMouth"></div>
-        </div>
-        <div class="patrick-hand">
-          <div class="rock-hand" id="rockHand">
-            <div class="rock-fingers"></div>
-          </div>
-        </div>
+        <img src="https://i.imgur.com/qYfis9A.jpeg" alt="Patrick" class="patrick-image">
       </div>
       
       <div id="comboDisplay" class="combo-display" style="display: none;"></div>
@@ -755,25 +729,11 @@
     }
     
     function animatePupils(direction) {
-      const pupil1 = document.getElementById('pupil1');
-      const pupil2 = document.getElementById('pupil2');
-      
-      if (direction === 'happy') {
-        pupil1.style.bottom = '15px';
-        pupil2.style.bottom = '15px';
-      } else if (direction === 'sad') {
-        pupil1.style.bottom = '5px';
-        pupil2.style.bottom = '5px';
-      } else {
-        pupil1.style.bottom = '5px';
-        pupil2.style.bottom = '5px';
-      }
+      // Removed - using image now
     }
     
     function shakeHand() {
-      const hand = document.getElementById('rockHand');
-      hand.classList.add('shake');
-      setTimeout(() => hand.classList.remove('shake'), 500);
+      // Removed - using image now
     }
     
     function showCombo(streak) {
@@ -796,7 +756,6 @@
       const speech = document.getElementById('patrickSpeech');
       const result = document.getElementById('resultMessage');
       const hint = document.getElementById('hint');
-      const mouth = document.getElementById('patrickMouth');
       
       setTimeout(() => {
         result.style.display = 'block';
@@ -806,7 +765,6 @@
           speech.textContent = getRandomQuote('rockRock');
           result.className = 'result-message tie-message';
           result.textContent = "It's a tie! Try something else to make Patrick happy! 🤝";
-          mouth.className = 'patrick-mouth';
           animatePupils('normal');
           currentStreak = 0;
           hint.textContent = "💡 Patrick threw rock... what loses to rock?";
@@ -827,7 +785,6 @@
           }
           
           result.textContent = `Patrick wins! He's so happy! 🎉 (+20% Friendship!)${bonusText}`;
-          mouth.className = 'patrick-mouth happy';
           animatePupils('happy');
           
           friendship += 20;
@@ -844,7 +801,6 @@
           speech.textContent = getRandomQuote('youWin');
           result.className = 'result-message lose-message';
           result.textContent = "You won, but Patrick is sad... 😢 (-10% Friendship)";
-          mouth.className = 'patrick-mouth sad';
           animatePupils('sad');
           currentStreak = 0;
           
@@ -911,7 +867,6 @@
       document.getElementById('patrickSpeech').textContent = "Let's play again! I LOVE rock! 🪨";
       document.getElementById('resultMessage').style.display = 'none';
       document.getElementById('hint').textContent = "💡 Tip: Patrick always throws rock. How can you make him happy?";
-      document.getElementById('patrickMouth').className = 'patrick-mouth';
       document.getElementById('comboDisplay').style.display = 'none';
       
       animatePupils('normal');
