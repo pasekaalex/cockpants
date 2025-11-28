@@ -608,6 +608,9 @@
     // Hiding spots
     let hidingSpots = [];
     
+    // Walls
+    let walls = [];
+    
     // Formula location
     let formula = null;
     
@@ -622,13 +625,22 @@
           { x: 400, y: 200, speed: 1, patrolPoints: [{x: 300, y: 200}, {x: 500, y: 200}], viewDistance: 150, viewAngle: 60 },
           { x: 200, y: 400, speed: 1.2, patrolPoints: [{x: 200, y: 300}, {x: 200, y: 500}], viewDistance: 140, viewAngle: 70 }
         ],
-        hidingSpots: [
-          { x: 150, y: 150, width: 60, height: 60, type: 'table' },
-          { x: 600, y: 150, width: 60, height: 60, type: 'table' },
-          { x: 150, y: 500, width: 60, height: 60, type: 'table' },
-          { x: 600, y: 500, width: 60, height: 60, type: 'table' }
+        walls: [
+          { x: 0, y: 0, width: 800, height: 20 }, // Top wall
+          { x: 0, y: 580, width: 800, height: 20 }, // Bottom wall
+          { x: 0, y: 0, width: 20, height: 600 }, // Left wall
+          { x: 780, y: 0, width: 20, height: 600 }, // Right wall
+          { x: 350, y: 250, width: 100, height: 20 }, // Center divider
+          { x: 250, y: 100, width: 20, height: 100 }, // Interior wall
+          { x: 530, y: 350, width: 20, height: 100 } // Interior wall
         ],
-        formula: { x: 700, y: 100 },
+        hidingSpots: [
+          { x: 100, y: 100, width: 60, height: 60, type: 'table' },
+          { x: 650, y: 100, width: 60, height: 60, type: 'table' },
+          { x: 100, y: 450, width: 60, height: 60, type: 'table' },
+          { x: 650, y: 450, width: 60, height: 60, type: 'table' }
+        ],
+        formula: { x: 720, y: 80 },
         exit: { x: 50, y: 550 },
         objectives: ['Avoid SpongeBob', 'Reach the formula', 'Escape to exit']
       },
@@ -639,13 +651,24 @@
           { x: 500, y: 400, speed: 1.1, patrolPoints: [{x: 500, y: 300}, {x: 600, y: 400}, {x: 500, y: 500}], viewDistance: 150, viewAngle: 60 },
           { x: 350, y: 150, speed: 0.9, patrolPoints: [{x: 250, y: 150}, {x: 450, y: 150}], viewDistance: 130, viewAngle: 80 }
         ],
-        hidingSpots: [
-          { x: 100, y: 100, width: 70, height: 70, type: 'counter' },
-          { x: 650, y: 100, width: 70, height: 70, type: 'counter' },
-          { x: 100, y: 500, width: 70, height: 70, type: 'shelf' },
-          { x: 650, y: 500, width: 70, height: 70, type: 'shelf' }
+        walls: [
+          { x: 0, y: 0, width: 800, height: 20 }, // Top
+          { x: 0, y: 580, width: 800, height: 20 }, // Bottom
+          { x: 0, y: 0, width: 20, height: 600 }, // Left
+          { x: 780, y: 0, width: 20, height: 600 }, // Right
+          { x: 300, y: 200, width: 20, height: 150 }, // Kitchen island
+          { x: 480, y: 200, width: 20, height: 150 }, // Kitchen island
+          { x: 300, y: 200, width: 200, height: 20 }, // Counter top
+          { x: 150, y: 450, width: 150, height: 20 }, // Kitchen counter
+          { x: 550, y: 100, width: 20, height: 100 } // Wall
         ],
-        formula: { x: 750, y: 80 },
+        hidingSpots: [
+          { x: 80, y: 80, width: 70, height: 70, type: 'counter' },
+          { x: 680, y: 80, width: 70, height: 70, type: 'counter' },
+          { x: 80, y: 480, width: 70, height: 70, type: 'shelf' },
+          { x: 680, y: 480, width: 70, height: 70, type: 'shelf' }
+        ],
+        formula: { x: 740, y: 60 },
         exit: { x: 50, y: 550 },
         objectives: ['Avoid Squidward & SpongeBob', 'Navigate kitchen obstacles', 'Steal the formula', 'Escape']
       },
@@ -657,13 +680,25 @@
           { x: 200, y: 450, speed: 1.2, patrolPoints: [{x: 150, y: 400}, {x: 250, y: 500}], viewDistance: 160, viewAngle: 75 },
           { x: 550, y: 450, speed: 1.4, patrolPoints: [{x: 500, y: 450}, {x: 600, y: 450}], viewDistance: 175, viewAngle: 60 }
         ],
+        walls: [
+          { x: 0, y: 0, width: 800, height: 20 }, // Top
+          { x: 0, y: 580, width: 800, height: 20 }, // Bottom
+          { x: 0, y: 0, width: 20, height: 600 }, // Left
+          { x: 780, y: 0, width: 20, height: 600 }, // Right
+          { x: 250, y: 150, width: 20, height: 200 }, // Office divider
+          { x: 530, y: 150, width: 20, height: 200 }, // Office divider
+          { x: 250, y: 330, width: 300, height: 20 }, // Desk wall
+          { x: 350, y: 80, width: 100, height: 20 }, // Upper wall
+          { x: 100, y: 250, width: 20, height: 100 }, // Side wall
+          { x: 680, y: 350, width: 20, height: 100 } // Side wall
+        ],
         hidingSpots: [
-          { x: 120, y: 120, width: 65, height: 65, type: 'desk' },
-          { x: 680, y: 120, width: 65, height: 65, type: 'desk' },
-          { x: 120, y: 480, width: 65, height: 65, type: 'safe' },
+          { x: 100, y: 100, width: 65, height: 65, type: 'desk' },
+          { x: 700, y: 100, width: 65, height: 65, type: 'desk' },
+          { x: 100, y: 500, width: 65, height: 65, type: 'safe' },
           { x: 400, y: 520, width: 65, height: 65, type: 'box' }
         ],
-        formula: { x: 750, y: 550 },
+        formula: { x: 740, y: 540 },
         exit: { x: 50, y: 50 },
         objectives: ['Avoid all staff + Mr. Krabs', 'Crack the safe', 'Steal the formula', 'Escape office']
       }
@@ -700,6 +735,9 @@
       
       // Load hiding spots
       hidingSpots = [...config.hidingSpots];
+      
+      // Load walls
+      walls = config.walls ? [...config.walls] : [];
       
       // Load formula
       formula = { ...config.formula, collected: false };
@@ -766,40 +804,30 @@
     
     // Draw functions
     function drawPlayer() {
+      ctx.save();
+      
       if (player.hiding) {
         ctx.globalAlpha = 0.3;
       }
       
-      ctx.fillStyle = player.color;
-      ctx.beginPath();
-      ctx.arc(player.x, player.y, player.size, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.strokeStyle = '#000';
-      ctx.lineWidth = 2;
-      ctx.stroke();
+      // Draw Plankton emoji
+      ctx.font = `${player.size * 2}px Arial`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
       
-      // Plankton eye
-      ctx.fillStyle = '#ff0000';
-      ctx.beginPath();
-      ctx.arc(player.x, player.y - 3, 5, 0, Math.PI * 2);
-      ctx.fill();
+      // Shadow for depth
+      ctx.shadowColor = 'rgba(0, 255, 0, 0.5)';
+      ctx.shadowBlur = 10;
+      ctx.fillText('🦠', player.x, player.y);
       
-      ctx.globalAlpha = 1;
+      ctx.restore();
     }
     
     function drawGuard(guard) {
-      // Body
-      ctx.fillStyle = guard.alertLevel > 50 ? '#ff6b6b' : '#4ECDC4';
-      ctx.beginPath();
-      ctx.arc(guard.x, guard.y, 25, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.strokeStyle = '#000';
-      ctx.lineWidth = 3;
-      ctx.stroke();
-      
-      // Vision cone
       ctx.save();
-      ctx.globalAlpha = 0.2;
+      
+      // Vision cone (behind guard)
+      ctx.globalAlpha = 0.15;
       ctx.fillStyle = guard.alertLevel > 50 ? '#ff0000' : '#ffff00';
       ctx.translate(guard.x, guard.y);
       ctx.rotate(guard.angle);
@@ -810,39 +838,110 @@
       ctx.fill();
       ctx.restore();
       
+      // Draw guard emoji
+      ctx.font = '50px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      
+      // Character based on alert level
+      if (guard.alertLevel > 50) {
+        ctx.fillText('😡', guard.x, guard.y);
+      } else {
+        ctx.fillText('🧽', guard.x, guard.y);
+      }
+      
       // Alert indicator
       if (guard.alertLevel > 30) {
         ctx.fillStyle = '#ff0000';
-        ctx.font = 'bold 24px Arial';
-        ctx.fillText('!', guard.x - 6, guard.y - 35);
+        ctx.font = 'bold 30px Arial';
+        ctx.shadowColor = '#ff0000';
+        ctx.shadowBlur = 10;
+        ctx.fillText('!', guard.x + 20, guard.y - 30);
+        ctx.shadowBlur = 0;
       }
+      
+      ctx.restore();
     }
     
     function drawHidingSpot(spot) {
+      // Shadow
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+      ctx.fillRect(spot.x + 5, spot.y + 5, spot.width, spot.height);
+      
+      // Main object
       ctx.fillStyle = '#8B4513';
       ctx.fillRect(spot.x, spot.y, spot.width, spot.height);
+      
+      // Border
       ctx.strokeStyle = '#654321';
       ctx.lineWidth = 3;
       ctx.strokeRect(spot.x, spot.y, spot.width, spot.height);
       
+      // Highlight on top
+      ctx.fillStyle = 'rgba(139, 101, 83, 0.5)';
+      ctx.fillRect(spot.x, spot.y, spot.width, 10);
+      
       // Icon based on type
-      ctx.fillStyle = '#fff';
-      ctx.font = '20px Arial';
+      ctx.font = '32px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
       const icons = { table: '🪑', counter: '🍳', shelf: '📦', desk: '🗄️', safe: '🔒', box: '📦' };
-      ctx.fillText(icons[spot.type] || '📦', spot.x + spot.width/2 - 10, spot.y + spot.height/2 + 7);
+      ctx.fillText(icons[spot.type] || '📦', spot.x + spot.width/2, spot.y + spot.height/2);
       
       // Highlight if player near
       const dist = Math.hypot(player.x - (spot.x + spot.width/2), player.y - (spot.y + spot.height/2));
       if (dist < 60 && !player.hiding) {
         ctx.strokeStyle = '#00ff00';
-        ctx.lineWidth = 3;
+        ctx.lineWidth = 4;
+        ctx.shadowColor = '#00ff00';
+        ctx.shadowBlur = 15;
         ctx.strokeRect(spot.x - 5, spot.y - 5, spot.width + 10, spot.height + 10);
+        ctx.shadowBlur = 0;
         
-        // "Press SPACE" text
+        // "Press SPACE" text with background
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+        ctx.fillRect(spot.x + spot.width/2 - 40, spot.y - 30, 80, 25);
         ctx.fillStyle = '#00ff00';
-        ctx.font = 'bold 14px Arial';
-        ctx.fillText('SPACE', spot.x + spot.width/2 - 25, spot.y - 10);
+        ctx.font = 'bold 16px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('SPACE', spot.x + spot.width/2, spot.y - 17);
       }
+    }
+    
+    function drawWalls() {
+      if (!walls || walls.length === 0) return;
+      
+      walls.forEach(wall => {
+        // Shadow
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+        ctx.fillRect(wall.x + 3, wall.y + 3, wall.width, wall.height);
+        
+        // Wall body
+        ctx.fillStyle = '#4A4A4A';
+        ctx.fillRect(wall.x, wall.y, wall.width, wall.height);
+        
+        // Border
+        ctx.strokeStyle = '#2A2A2A';
+        ctx.lineWidth = 3;
+        ctx.strokeRect(wall.x, wall.y, wall.width, wall.height);
+        
+        // Brick pattern
+        ctx.strokeStyle = '#3A3A3A';
+        ctx.lineWidth = 1;
+        const brickHeight = 20;
+        const brickWidth = 40;
+        
+        for (let y = wall.y; y < wall.y + wall.height; y += brickHeight) {
+          const offset = (Math.floor((y - wall.y) / brickHeight) % 2) * (brickWidth / 2);
+          for (let x = wall.x + offset; x < wall.x + wall.width; x += brickWidth) {
+            ctx.strokeRect(x, y, brickWidth, brickHeight);
+          }
+        }
+        
+        // Highlight
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+        ctx.fillRect(wall.x, wall.y, wall.width, 5);
+      });
     }
     
     function drawFormula() {
@@ -937,10 +1036,30 @@
       
       const speed = keys['Shift'] ? player.sprintSpeed : player.speed;
       
+      const oldX = player.x;
+      const oldY = player.y;
+      
       if (keys['w'] || keys['ArrowUp']) player.y -= speed;
       if (keys['s'] || keys['ArrowDown']) player.y += speed;
       if (keys['a'] || keys['ArrowLeft']) player.x -= speed;
       if (keys['d'] || keys['ArrowRight']) player.x += speed;
+      
+      // Wall collision detection
+      let collided = false;
+      for (const wall of walls) {
+        if (player.x + player.size > wall.x &&
+            player.x - player.size < wall.x + wall.width &&
+            player.y + player.size > wall.y &&
+            player.y - player.size < wall.y + wall.height) {
+          collided = true;
+          break;
+        }
+      }
+      
+      if (collided) {
+        player.x = oldX;
+        player.y = oldY;
+      }
       
       // Bounds
       player.x = Math.max(player.size, Math.min(canvas.width - player.size, player.x));
@@ -1008,7 +1127,8 @@
       guards.forEach(updateGuard);
       updatePlayer();
       
-      // Draw
+      // Draw (order matters for layering)
+      drawWalls();
       hidingSpots.forEach(drawHidingSpot);
       drawFormula();
       drawExit();
