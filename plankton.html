@@ -474,6 +474,11 @@
 <body>
   <a href="index.html" class="back-btn">◀ MENU</a>
   
+  <audio id="bgMusic" preload="auto" loop>
+    <source src="bob.mp3" type="audio/mpeg">
+  </audio>
+  <button class="music-toggle" id="musicToggle" onclick="toggleMusic()" style="position: fixed; bottom: 20px; left: 20px; width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, rgba(0, 255, 0, 0.9), rgba(0, 200, 0, 0.9)); border: 3px solid #00ff00; color: #000; font-size: 24px; cursor: pointer; z-index: 10000; box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);">🎵</button>
+  
   <!-- Menu Screen -->
   <div class="menu-screen" id="menuScreen">
     <div class="menu-title">🦠 PLANKTON'S FORMULA HEIST 🦠</div>
@@ -1240,6 +1245,19 @@
         resizeCanvas();
       }
     });
+    
+    // Music toggle
+    function toggleMusic() {
+      const music = document.getElementById('bgMusic');
+      const btn = document.getElementById('musicToggle');
+      if (music.paused) {
+        music.play();
+        btn.textContent = '🎵';
+      } else {
+        music.pause();
+        btn.textContent = '🔇';
+      }
+    }
   </script>
 </body>
 </html>

@@ -576,6 +576,11 @@
 <body>
   <a href="index.html" class="back-btn">◀ MENU</a>
   
+  <audio id="bgMusic" preload="auto" loop>
+    <source src="bob.mp3" type="audio/mpeg">
+  </audio>
+  <button class="music-toggle" id="musicToggle" onclick="toggleMusic()" style="position: fixed; bottom: 20px; left: 20px; width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, rgba(255, 105, 180, 0.9), rgba(255, 182, 193, 0.9)); border: 3px solid #FFB6C1; color: #fff; font-size: 24px; cursor: pointer; z-index: 10000; box-shadow: 0 0 20px rgba(255, 105, 180, 0.5);">🎵</button>
+  
   <div class="game-container">
     <h1 class="title">🪨 Patrick's Friendship Game 💖</h1>
     
@@ -884,6 +889,19 @@
     updateStats();
     updateFriendship();
     animatePupils('normal');
+    
+    // Music toggle
+    function toggleMusic() {
+      const music = document.getElementById('bgMusic');
+      const btn = document.getElementById('musicToggle');
+      if (music.paused) {
+        music.play();
+        btn.textContent = '🎵';
+      } else {
+        music.pause();
+        btn.textContent = '🔇';
+      }
+    }
   </script>
 </body>
 </html>
