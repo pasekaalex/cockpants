@@ -221,6 +221,7 @@
   <div class="controls">
     <button class="btn" id="musicBtn">🎵</button>
     <button class="btn" id="pauseBtn">Pause</button>
+    <button class="btn" id="boostBtn" style="background: #FF4500; border-color: #FF6347;">🚀 BOOST</button>
   </div>
   
   <!-- Mobile Controls -->
@@ -244,9 +245,14 @@
       isPaused: false,
       speed: 0.08,
       startTime: 0,
-      difficulty: 1
+      difficulty: 1,
+      isBoosting: false,
+      boostCooldown: 0
     };
     let lastCollisionTime = 0;
+    const BOOST_DURATION = 2000; // 2 seconds
+    const BOOST_COOLDOWN = 5000; // 5 seconds cooldown
+    const BOOST_MULTIPLIER = 2.5; // 2.5x speed
 
     function init() {
       // Scene
@@ -391,6 +397,7 @@
       
       document.getElementById('pauseBtn').addEventListener('click', togglePause);
       document.getElementById('musicBtn').addEventListener('click', toggleMusic);
+      document.getElementById('boostBtn').addEventListener('click', activateBoost);
 
       // Setup music
       const music = document.getElementById('bgMusic');
@@ -658,6 +665,61 @@
         btn.textContent = '🔇';
       }
     }
+    
+    function activateBoost() {
+      // Check if boost is on cooldown
+      if (gameState.boostCooldown > 0) {
+        return; // Can't boost yet
+      }
+      
+      if (gameState.isGameOver || gameState.isPaused) {
+        return; // Can't boost when game over or paused
+      }
+      
+      // Activate boost
+      gameState.isBoosting = true;
+      gameState.boostCooldown = BOOST_COOLDOWN;
+      
+      // Update button to show it's active
+      const btn = document.getElementById('boostBtn');
+      btn.textContent = '🚀 BOOSTING!';
+      btn.style.background = '#00FF00';
+      btn.disabled = true;
+      
+      // Play "Floor it!" sound (we can use drive sound again)
+      soundManager.play('drive');
+      
+      // Visual effects - make boat glow
+      if (boat.material) {
+        boat.material.emissive = new THREE.Color(0xff4500);
+        boat.material.emissiveIntensity = 0.5;
+      }
+      
+      // End boost after duration
+      setTimeout(() => {
+        gameState.isBoosting = false;
+        btn.textContent = '🚀 BOOST';
+        btn.style.background = '#FF4500';
+        
+        // Remove glow
+        if (boat.material) {
+          boat.material.emissive = new THREE.Color(0x000000);
+          boat.material.emissiveIntensity = 0;
+        }
+      }, BOOST_DURATION);
+      
+      // Start cooldown countdown
+      const updateCooldown = setInterval(() => {
+        if (gameState.boostCooldown <= 0) {
+          btn.disabled = false;
+          btn.textContent = '🚀 BOOST';
+          clearInterval(updateCooldown);
+        } else {
+          const secondsLeft = Math.ceil(gameState.boostCooldown / 1000);
+          btn.textContent = `⏳ ${secondsLeft}s`;
+        }
+      }, 100);
+    }
 
     function updateUI() {
       document.getElementById('scoreDisplay').textContent = gameState.score;
@@ -676,6 +738,14 @@
       requestAnimationFrame(animate);
 
       if (!gameState.isGameOver && !gameState.isPaused) {
+        // Update boost cooldown
+        if (gameState.boostCooldown > 0) {
+          gameState.boostCooldown = Math.max(0, gameState.boostCooldown - 16); // Decrease by ~16ms per frame
+        }
+        
+        // Determine current speed (boosted or normal)
+        const currentSpeed = gameState.isBoosting ? gameState.speed * BOOST_MULTIPLIER : gameState.speed;
+        
         // Boat movement - SMOOTH
         if (keys['a'] || keys['arrowleft']) {
           boat.position.x -= 0.25;
@@ -687,11 +757,11 @@
         // Keep boat in bounds
         boat.position.x = Math.max(-10, Math.min(10, boat.position.x));
         
-        // Boat tilt for steering feedback
-        boat.rotation.z = boat.position.x * -0.05;
+        // Boat tilt for steering feedback (more tilt when boosting)
+        boat.rotation.z = boat.position.x * -0.05 * (gameState.isBoosting ? 1.5 : 1);
 
-        // Move boat forward
-        boat.position.z -= gameState.speed;
+        // Move boat forward (use boosted speed if active)
+        boat.position.z -= currentSpeed;
         gameState.distance = -boat.position.z;
 
         // Camera follows boat

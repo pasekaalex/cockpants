@@ -538,6 +538,10 @@
         if (!jelly.caught && jelly.checkCatch(gameState.mouseX, gameState.mouseY, 80)) {
           jelly.caught = true;
           gameState.score++;
+          
+          // Play cash register sound for catching jellyfish
+          soundManager.play('cash', { allowOverlap: true });
+          
           updateUI();
           showCatchEffect(jelly.x, jelly.y);
         }
@@ -829,6 +833,9 @@
       
       document.getElementById('menuScreen').classList.add('hidden');
       document.getElementById('gameOverScreen').classList.remove('show');
+      
+      // Play "I'M READY" sound
+      soundManager.play('ready');
       
       updateUI();
       

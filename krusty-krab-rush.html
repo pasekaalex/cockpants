@@ -1358,6 +1358,9 @@
       document.getElementById('gameOverScreen').classList.remove('show');
       document.getElementById('gameContainer').style.display = 'flex';
       
+      // Play "I'M READY" sound
+      soundManager.play('ready');
+      
       // Update displays
       updateStats();
       clearBurger();

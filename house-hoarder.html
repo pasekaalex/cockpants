@@ -897,6 +897,9 @@
       dropCounter = 0;
       isPaused = false;
       
+      // Play "I'M READY" sound
+      soundManager.play('ready');
+      
       currentPiece = createPiece();
       nextPiece = createPiece();
       
