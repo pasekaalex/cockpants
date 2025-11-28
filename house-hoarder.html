@@ -450,6 +450,14 @@
         <div class="pause-overlay" id="pauseOverlay">
           <div class="pause-text">⏸️ PAUSED</div>
         </div>
+        
+        <!-- Mobile Controls -->
+        <div id="mobileControls" style="display: none; position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); gap: 10px; z-index: 1000; flex-wrap: wrap; justify-content: center; max-width: 90vw;">
+          <button id="mobileLeft" style="width: 70px; height: 70px; background: linear-gradient(135deg, #4CAF50, #45a049); border: 3px solid #fff; border-radius: 10px; color: #fff; font-size: 28px; cursor: pointer; box-shadow: 0 4px 8px rgba(0,0,0,0.3);">⬅️</button>
+          <button id="mobileRotate" style="width: 70px; height: 70px; background: linear-gradient(135deg, #FF9800, #F57C00); border: 3px solid #fff; border-radius: 50%; color: #fff; font-size: 28px; cursor: pointer; box-shadow: 0 4px 8px rgba(0,0,0,0.3);">🔄</button>
+          <button id="mobileRight" style="width: 70px; height: 70px; background: linear-gradient(135deg, #4CAF50, #45a049); border: 3px solid #fff; border-radius: 10px; color: #fff; font-size: 28px; cursor: pointer; box-shadow: 0 4px 8px rgba(0,0,0,0.3);">➡️</button>
+          <button id="mobileDown" style="width: 160px; height: 70px; background: linear-gradient(135deg, #f44336, #da190b); border: 3px solid #fff; border-radius: 10px; color: #fff; font-size: 28px; cursor: pointer; box-shadow: 0 4px 8px rgba(0,0,0,0.3); margin-top: 10px;">⬇️ DROP</button>
+        </div>
       </div>
     </div>
     
@@ -993,6 +1001,42 @@
       if (!gameRunning || isPaused) return;
       rotate();
       drawBoard();
+    });
+    
+    // Mobile control buttons
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    const mobileControls = document.getElementById('mobileControls');
+    
+    if (isMobile) {
+      mobileControls.style.display = 'flex';
+    }
+    
+    document.getElementById('mobileLeft').addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      if (!gameRunning || isPaused) return;
+      movePiece(-1);
+    });
+    
+    document.getElementById('mobileRight').addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      if (!gameRunning || isPaused) return;
+      movePiece(1);
+    });
+    
+    document.getElementById('mobileRotate').addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      if (!gameRunning || isPaused) return;
+      rotate();
+      drawBoard();
+    });
+    
+    document.getElementById('mobileDown').addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      if (!gameRunning || isPaused) return;
+      while (canMove(currentPiece.x, currentPiece.y + 1)) {
+        currentPiece.y++;
+      }
+      lockPiece();
     });
     
     // Music toggle

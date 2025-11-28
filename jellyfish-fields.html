@@ -245,6 +245,7 @@
     // Game state
     let gameState = {
       jellyfish: [],
+      powerUps: [],
       score: 0,
       escaped: 0,
       timeLeft: 60,
@@ -257,6 +258,7 @@
     };
     
     let lastSpawnTime = 0;
+    let lastPowerUpSpawn = 0;
     let gameTimer = null;
     
     // Load high score
@@ -358,6 +360,78 @@
       }
     }
     
+    // PowerUp class for time-adding jam
+    class PowerUp {
+      constructor() {
+        this.x = Math.random() * (canvas.width - 60) + 30;
+        this.y = -50;
+        this.size = 40;
+        this.speed = 2 + Math.random();
+        this.rotation = 0;
+        this.collected = false;
+      }
+      
+      update() {
+        this.y += this.speed;
+        this.rotation += 0.05;
+      }
+      
+      draw() {
+        if (this.collected) return;
+        
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.rotate(this.rotation);
+        
+        // Jar body
+        ctx.fillStyle = '#FFE4B5';
+        ctx.strokeStyle = '#8B4513';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.roundRect(-this.size/2, -this.size/2, this.size, this.size * 0.8, 5);
+        ctx.fill();
+        ctx.stroke();
+        
+        // Jam inside
+        ctx.fillStyle = '#FF1493';
+        ctx.beginPath();
+        ctx.roundRect(-this.size/2 + 4, -this.size/2 + 10, this.size - 8, this.size * 0.6, 3);
+        ctx.fill();
+        
+        // Lid
+        ctx.fillStyle = '#FFD700';
+        ctx.strokeStyle = '#B8860B';
+        ctx.beginPath();
+        ctx.roundRect(-this.size/2 - 2, -this.size/2 - 8, this.size + 4, 12, 2);
+        ctx.fill();
+        ctx.stroke();
+        
+        // Shine
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+        ctx.beginPath();
+        ctx.ellipse(-this.size/4, -this.size/4, this.size/4, this.size/3, 0, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // "+10s" label
+        ctx.fillStyle = '#fff';
+        ctx.strokeStyle = '#000';
+        ctx.lineWidth = 2;
+        ctx.font = 'bold 12px Arial';
+        ctx.textAlign = 'center';
+        ctx.strokeText('+10s', 0, this.size/2 + 15);
+        ctx.fillText('+10s', 0, this.size/2 + 15);
+        
+        ctx.restore();
+      }
+      
+      checkCatch(netX, netY, netSize) {
+        const dx = this.x - netX;
+        const dy = this.y - netY;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        return distance < (this.size + netSize) / 2;
+      }
+    }
+    
     // Mouse/touch controls
     canvas.addEventListener('mousemove', (e) => {
       gameState.mouseX = e.clientX;
@@ -391,7 +465,7 @@
       gameState.netActive = true;
       gameState.netSwing = 1;
       
-      // Check for catches
+      // Check for jellyfish catches
       gameState.jellyfish.forEach(jelly => {
         if (!jelly.caught && jelly.checkCatch(gameState.mouseX, gameState.mouseY, 80)) {
           jelly.caught = true;
@@ -401,9 +475,36 @@
         }
       });
       
+      // Check for power-up catches
+      gameState.powerUps.forEach(powerUp => {
+        if (!powerUp.collected && powerUp.checkCatch(gameState.mouseX, gameState.mouseY, 80)) {
+          powerUp.collected = true;
+          gameState.timeLeft += 10; // Add 10 seconds
+          updateUI();
+          showPowerUpEffect(powerUp.x, powerUp.y);
+        }
+      });
+      
       setTimeout(() => {
         gameState.netActive = false;
       }, 200);
+    }
+    
+    function showPowerUpEffect(x, y) {
+      const effect = document.createElement('div');
+      effect.style.position = 'fixed';
+      effect.style.left = x + 'px';
+      effect.style.top = y + 'px';
+      effect.style.color = '#FFD700';
+      effect.style.fontSize = '32px';
+      effect.style.fontWeight = 'bold';
+      effect.style.textShadow = '2px 2px 4px #000';
+      effect.style.pointerEvents = 'none';
+      effect.style.zIndex = '1000';
+      effect.style.animation = 'floatUp 1s ease-out';
+      effect.textContent = '+10 SECONDS!';
+      document.body.appendChild(effect);
+      setTimeout(() => effect.remove(), 1000);
     }
     
     function showCatchEffect(x, y) {
@@ -425,6 +526,17 @@
       if (now - lastSpawnTime > spawnDelay) {
         gameState.jellyfish.push(new Jellyfish());
         lastSpawnTime = now;
+      }
+    }
+    
+    function spawnPowerUp() {
+      if (!gameState.isPlaying) return;
+      
+      const now = Date.now();
+      // Spawn power-up every 15-20 seconds
+      if (now - lastPowerUpSpawn > 15000 + Math.random() * 5000) {
+        gameState.powerUps.push(new PowerUp());
+        lastPowerUpSpawn = now;
       }
     }
     
@@ -512,6 +624,9 @@
       // Spawn jellyfish
       spawnJellyfish();
       
+      // Spawn power-ups
+      spawnPowerUp();
+      
       // Update and draw jellyfish
       gameState.jellyfish = gameState.jellyfish.filter(jelly => {
         const shouldRemove = jelly.update();
@@ -519,6 +634,15 @@
           jelly.draw();
         }
         return !shouldRemove;
+      });
+      
+      // Update and draw power-ups
+      gameState.powerUps = gameState.powerUps.filter(powerUp => {
+        if (powerUp.collected) return false;
+        powerUp.update();
+        powerUp.draw();
+        // Remove if off screen
+        return powerUp.y < canvas.height + 50;
       });
       
       // Draw net on top
@@ -530,6 +654,7 @@
     function startGame() {
       gameState = {
         jellyfish: [],
+        powerUps: [],
         score: 0,
         escaped: 0,
         timeLeft: 60,
@@ -542,6 +667,7 @@
       };
       
       lastSpawnTime = Date.now();
+      lastPowerUpSpawn = Date.now();
       
       document.getElementById('menuScreen').classList.add('hidden');
       document.getElementById('gameOverScreen').classList.remove('show');

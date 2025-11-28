@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Leaderboard Cleanup</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="leaderboard.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #1a1a2e;
+      color: #fff;
+    }
+    h1 {
+      color: #FFD700;
+      text-align: center;
+    }
+    button {
+      background: #4CAF50;
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      font-size: 18px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: block;
+      margin: 20px auto;
+    }
+    button:hover {
+      background: #45a049;
+    }
+    #status {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 20px;
+      border-radius: 10px;
+      margin-top: 20px;
+      min-height: 100px;
+    }
+    .success {
+      color: #4CAF50;
+    }
+    .error {
+      color: #f44336;
+    }
+  </style>
+</head>
+<body>
+  <h1>🔧 Leaderboard Cleanup Tool</h1>
+  <p style="text-align: center;">This will remove duplicate player names from all leaderboards,<br>keeping only the HIGHEST score for each player.</p>
+  
+  <button onclick="cleanupDuplicates()">CLEAN UP DUPLICATES</button>
+  
+  <div id="status"></div>
+
+  <script>
+    async function cleanupDuplicates() {
+      const statusDiv = document.getElementById('status');
+      statusDiv.innerHTML = '<p>Starting cleanup...</p>';
+      
+      try {
+        const client = initSupabase();
+        if (!client) {
+          statusDiv.innerHTML = '<p class="error">❌ Failed to connect to database</p>';
+          return;
+        }
+
+        // Get all games
+        const games = [
+          'pump-clicker',
+          'plankton-heist-level-1',
+          'plankton-heist-level-2',
+          'plankton-heist-level-3',
+          'boating-school',
+          'bikini-adventure',
+          'jellyfish-fields',
+          'patrick-friendship',
+          'house-hoarder',
+          'krusty-krab-rush'
+        ];
+
+        let totalRemoved = 0;
+
+        for (const game of games) {
+          statusDiv.innerHTML += `<p>Processing ${game}...</p>`;
+          
+          // Get all scores for this game
+          const { data: scores, error } = await client
+            .from('leaderboards')
+            .select('*')
+            .eq('game_name', game);
+
+          if (error) {
+            statusDiv.innerHTML += `<p class="error">Error: ${error.message}</p>`;
+            continue;
+          }
+
+          // Group by player name
+          const playerScores = {};
+          scores.forEach(score => {
+            if (!playerScores[score.player_name]) {
+              playerScores[score.player_name] = [];
+            }
+            playerScores[score.player_name].push(score);
+          });
+
+          // For each player with multiple scores
+          for (const [playerName, playerScoreList] of Object.entries(playerScores)) {
+            if (playerScoreList.length > 1) {
+              // Sort by score descending
+              playerScoreList.sort((a, b) => b.score - a.score);
+              
+              // Keep the first (highest), delete the rest
+              const toDelete = playerScoreList.slice(1);
+              
+              for (const scoreToDelete of toDelete) {
+                const { error: deleteError } = await client
+                  .from('leaderboards')
+                  .delete()
+                  .eq('id', scoreToDelete.id);
+
+                if (!deleteError) {
+                  totalRemoved++;
+                  statusDiv.innerHTML += `<p class="success">✓ Removed duplicate for ${playerName} (score: ${scoreToDelete.score})</p>`;
+                }
+              }
+            }
+          }
+        }
+
+        statusDiv.innerHTML += `<h2 class="success">✅ Cleanup Complete!</h2>`;
+        statusDiv.innerHTML += `<p class="success">Removed ${totalRemoved} duplicate entries.</p>`;
+        
+      } catch (error) {
+        statusDiv.innerHTML += `<p class="error">❌ Error: ${error.message}</p>`;
+      }
+    }
+  </script>
+</body>
+</html>
