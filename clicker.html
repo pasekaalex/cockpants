@@ -1139,6 +1139,16 @@
         });
         
         recalculateStats();
+        
+        // Auto-update leaderboard if username saved
+        const savedUsername = localStorage.getItem('clickerUsername');
+        if (savedUsername && gameState.totalPumps > 0) {
+          // Wait a bit then auto-submit
+          setTimeout(async () => {
+            await submitScore('pump-clicker', savedUsername, gameState.totalPumps);
+            console.log('Auto-updated leaderboard for', savedUsername);
+          }, 2000);
+        }
       }
     }
     

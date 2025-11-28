@@ -192,6 +192,7 @@ function showLeaderboardModal(gameName, gameTitle, playerScore = null) {
               id="playerNameInput" 
               placeholder="Enter your name" 
               maxlength="20"
+              value="${gameName === 'pump-clicker' ? (localStorage.getItem('clickerUsername') || '') : ''}"
               style="
                 width: 100%;
                 padding: 12px;
@@ -319,6 +320,11 @@ window.submitLeaderboardScore = async function(gameName, score) {
   const result = await submitScore(gameName, playerName, score);
   
   if (result.success) {
+    // Save username for pump clicker auto-update
+    if (gameName === 'pump-clicker') {
+      localStorage.setItem('clickerUsername', playerName);
+    }
+    
     // Hide name input section with appropriate message
     const message = result.isNewBest !== false 
       ? '✓ Score submitted successfully!' 

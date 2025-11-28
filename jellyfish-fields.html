@@ -183,6 +183,73 @@
       animation: catchEffect 0.5s ease-out;
       z-index: 1000;
     }
+    
+    /* Mobile styles */
+    @media (max-width: 768px) {
+      .hud {
+        top: 10px;
+        gap: 15px;
+        transform: translateX(-50%) scale(0.85);
+      }
+      
+      .stat-box {
+        padding: 6px 12px;
+        font-size: 14px;
+      }
+      
+      .stat-box div:first-child {
+        font-size: 11px !important;
+      }
+      
+      .stat-box div:last-child {
+        font-size: 18px;
+      }
+      
+      .controls {
+        bottom: 10px;
+        right: 10px;
+      }
+      
+      .btn {
+        width: 45px;
+        height: 45px;
+        font-size: 20px;
+      }
+      
+      .menu-screen, .game-over-screen {
+        padding: 30px 20px;
+      }
+      
+      .menu-title {
+        font-size: 36px;
+      }
+      
+      .menu-subtitle {
+        font-size: 16px;
+      }
+      
+      .start-btn {
+        font-size: 20px;
+        padding: 15px 40px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .hud {
+        gap: 8px;
+        transform: translateX(-50%) scale(0.7);
+        top: 5px;
+      }
+      
+      .stat-box {
+        padding: 4px 8px;
+        font-size: 12px;
+      }
+      
+      .stat-box div:last-child {
+        font-size: 16px;
+      }
+    }
   </style>
 </head>
 <body>
