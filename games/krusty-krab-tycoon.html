@@ -72,28 +72,30 @@
     .game-area {
       flex: 1;
       display: flex;
+      flex-direction: column;
       position: relative;
-      overflow: hidden;
+      overflow-y: auto;
+      overflow-x: hidden;
     }
 
     /* Restaurant View */
     .restaurant-view {
-      flex: 1;
-      background: linear-gradient(180deg, #87CEEB 0%, #4682B4 100%);
+      min-height: 50vh;
+      background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)),
+                  url('https://i.imgur.com/T5FSp2E.jpeg');
+      background-size: cover;
+      background-position: center;
       position: relative;
-      background-image: 
-        repeating-linear-gradient(
-          0deg,
-          transparent,
-          transparent 50px,
-          rgba(255,255,255,0.05) 50px,
-          rgba(255,255,255,0.05) 100px
-        );
+      border-bottom: 6px solid #8B4513;
+    }
+
+    .restaurant-view.active {
+      display: block;
     }
 
     .view-label {
-      position: absolute;
-      top: 20px;
+      position: sticky;
+      top: 0;
       left: 50%;
       transform: translateX(-50%);
       background: rgba(139, 69, 19, 0.95);
@@ -104,14 +106,17 @@
       color: #FFD700;
       text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
       z-index: 10;
+      margin: 20px auto;
+      width: fit-content;
+      backdrop-filter: blur(5px);
     }
 
     /* Tables and Customers */
     .restaurant-interior {
       width: 100%;
-      height: 100%;
+      min-height: 50vh;
       position: relative;
-      padding: 80px 40px 40px 40px;
+      padding: 20px 40px 40px 40px;
     }
 
     .table-row {
@@ -123,22 +128,24 @@
     .table {
       width: 80px;
       height: 80px;
-      background: #8B4513;
+      background: rgba(139, 69, 19, 0.9);
       border: 4px solid #654321;
       border-radius: 50%;
       position: relative;
       cursor: pointer;
       transition: all 0.3s;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+      backdrop-filter: blur(2px);
     }
 
     .table:hover {
       transform: scale(1.1);
-      box-shadow: 0 6px 12px rgba(255,215,0,0.5);
+      box-shadow: 0 6px 12px rgba(255,215,0,0.8);
+      background: rgba(205, 133, 63, 0.95);
     }
 
     .table.occupied {
-      background: #CD853F;
+      background: rgba(205, 133, 63, 0.95);
       border-color: #FFD700;
       animation: customerWaiting 2s infinite;
     }
@@ -155,7 +162,7 @@
       transform: translate(-50%, -50%);
       font-size: 24px;
       color: #FFD700;
-      text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
+      text-shadow: 2px 2px 3px rgba(0,0,0,0.9);
     }
 
     .customer-icon {
@@ -165,6 +172,7 @@
       transform: translateX(-50%);
       font-size: 40px;
       animation: customerBounce 1s infinite;
+      filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.7));
     }
 
     @keyframes customerBounce {
@@ -181,17 +189,18 @@
       border-radius: 20px;
       padding: 5px 10px;
       font-size: 24px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.5);
     }
 
     .money-popup {
       position: absolute;
       font-size: 28px;
       color: #00FF00;
-      text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.9);
       font-weight: bold;
       animation: moneyFloat 1s ease-out forwards;
       pointer-events: none;
+      z-index: 100;
     }
 
     @keyframes moneyFloat {
@@ -207,24 +216,33 @@
 
     /* Kitchen View */
     .kitchen-view {
-      flex: 1;
-      background: linear-gradient(180deg, #E6E6FA 0%, #C4C4D6 100%);
+      min-height: 50vh;
+      background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)),
+                  url('https://i.imgur.com/kLV39FM.jpeg');
+      background-size: cover;
+      background-position: center;
       position: relative;
-      border-left: 4px solid #8B4513;
+      padding-bottom: 100px;
+    }
+
+    .kitchen-view.active {
+      display: block;
     }
 
     .kitchen-interior {
       width: 100%;
-      height: 100%;
-      padding: 80px 40px 40px 40px;
+      min-height: 50vh;
+      padding: 20px 40px 40px 40px;
       display: flex;
       flex-direction: column;
-      gap: 40px;
+      gap: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
     }
 
     .kitchen-station {
-      background: rgba(139, 69, 19, 0.3);
-      border: 4px solid #8B4513;
+      background: rgba(139, 69, 19, 0.85);
+      border: 4px solid #FFD700;
       border-radius: 20px;
       padding: 20px;
       display: flex;
@@ -233,18 +251,21 @@
       cursor: pointer;
       transition: all 0.3s;
       position: relative;
+      backdrop-filter: blur(5px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
     }
 
     .kitchen-station:hover {
-      background: rgba(139, 69, 19, 0.5);
+      background: rgba(139, 69, 19, 0.95);
       transform: translateX(5px);
-      box-shadow: 0 4px 12px rgba(255,215,0,0.5);
+      box-shadow: 0 6px 16px rgba(255,215,0,0.6);
     }
 
     .station-icon {
       font-size: 60px;
       min-width: 80px;
       text-align: center;
+      filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));
     }
 
     .station-info {
@@ -253,21 +274,23 @@
 
     .station-name {
       font-size: 24px;
-      color: #8B4513;
+      color: #FFD700;
       margin-bottom: 5px;
-      text-shadow: 1px 1px 2px rgba(255,255,255,0.5);
+      text-shadow: 2px 2px 3px rgba(0,0,0,0.9);
     }
 
     .station-level {
       font-size: 18px;
-      color: #FFD700;
+      color: #FFF;
       margin-bottom: 10px;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
     }
 
     .station-income {
       font-size: 16px;
-      color: #4CAF50;
+      color: #90EE90;
       font-weight: bold;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
     }
 
     .upgrade-btn {
@@ -309,7 +332,7 @@
 
     /* Side Panel for Employees */
     .employee-panel {
-      position: absolute;
+      position: fixed;
       right: 20px;
       top: 50%;
       transform: translateY(-50%);
@@ -320,7 +343,9 @@
       width: 280px;
       max-height: 70vh;
       overflow-y: auto;
-      box-shadow: 0 8px 16px rgba(0,0,0,0.4);
+      box-shadow: 0 8px 16px rgba(0,0,0,0.6);
+      backdrop-filter: blur(10px);
+      z-index: 50;
     }
 
     .panel-title {
@@ -343,12 +368,14 @@
       font-size: 18px;
       color: #FFF;
       margin-bottom: 5px;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
     }
 
     .employee-effect {
       font-size: 14px;
       color: #90EE90;
       margin-bottom: 10px;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
     }
 
     .hire-btn {
@@ -378,6 +405,9 @@
       display: none;
       background: #8B4513;
       border-top: 4px solid #FFD700;
+      position: sticky;
+      bottom: 0;
+      z-index: 100;
     }
 
     .tab-buttons {
@@ -493,19 +523,18 @@
 
     @media (max-width: 768px) {
       .game-area {
-        flex-direction: column;
+        overflow-y: auto;
       }
 
       .restaurant-view,
       .kitchen-view {
         display: none;
+        min-height: calc(100vh - 200px);
       }
 
       .restaurant-view.active,
       .kitchen-view.active {
         display: block;
-        flex: none;
-        height: calc(100vh - 140px);
       }
 
       .mobile-tabs {
@@ -519,19 +548,68 @@
         transform: none;
         margin: 20px;
         width: calc(100% - 40px);
+        max-height: none;
       }
 
       .stats-bar {
         flex-wrap: wrap;
         gap: 10px;
+        padding: 10px;
       }
 
       .stat-box {
         min-width: 120px;
+        flex: 1 1 calc(50% - 10px);
+      }
+
+      .stat-value {
+        font-size: 20px;
+      }
+
+      .stat-label {
+        font-size: 12px;
       }
 
       .game-title {
         font-size: 48px;
+      }
+
+      .restaurant-interior,
+      .kitchen-interior {
+        padding: 20px;
+      }
+
+      .table {
+        width: 60px;
+        height: 60px;
+      }
+
+      .table-number {
+        font-size: 18px;
+      }
+
+      .customer-icon {
+        font-size: 30px;
+      }
+
+      .kitchen-station {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .station-icon {
+        min-width: auto;
+      }
+
+      .prestige-btn {
+        font-size: 18px;
+        padding: 12px 30px;
+        bottom: 70px;
+      }
+
+      .view-label {
+        font-size: 20px;
+        padding: 8px 20px;
       }
     }
   </style>
