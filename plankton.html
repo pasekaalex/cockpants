@@ -858,9 +858,10 @@
     
     // Initialize canvas size
     function resizeCanvas() {
-      const container = canvas.parentElement;
-      canvas.width = container.clientWidth;
-      canvas.height = container.clientHeight;
+      // Keep canvas at fixed game resolution (800x600)
+      // CSS will handle the scaling to fit container
+      canvas.width = 800;
+      canvas.height = 600;
     }
     
     // Load level
