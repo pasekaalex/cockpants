@@ -6,6 +6,7 @@
   <title>Boating School Chaos | $COCKPANTS</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="leaderboard.js"></script>
+  <script src="sounds.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <style>
     @font-face {
@@ -628,6 +629,9 @@
       document.getElementById('menuScreen').classList.add('hidden');
       document.getElementById('gameOverScreen').classList.remove('show');
       
+      // Play "How about we just go for a drive?" sound
+      soundManager.play('drive');
+      
       // Start music
       const music = document.getElementById('bgMusic');
       music.play().catch(err => console.log('Music autoplay blocked'));
@@ -771,6 +775,9 @@
             if (dist < 2.5) {
               lastCollisionTime = now;
               gameState.lives--;
+              
+              // Play Mrs. Puff scream
+              soundManager.play('puffscream');
 
               // Damage flash
               const flash = document.createElement('div');

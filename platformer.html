@@ -6,6 +6,7 @@
   <title>Bikini Bottom Adventure | $COCKPANTS</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="leaderboard.js"></script>
+  <script src="sounds.js"></script>
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -151,6 +152,9 @@
       // Show leaderboard when game ends
       useEffect(() => {
         if (gameState === 'gameover' && score > 0) {
+          // Play "wah wah wah" sound
+          soundManager.play('wawawa');
+          
           const timer = setTimeout(() => {
             showLeaderboardModal('bikini-adventure', 'Bikini Bottom Adventure', score);
           }, 800);
@@ -486,6 +490,9 @@
           }
           
           if (game.player.y > canvas.height + 100) {
+            // Play "MY LEG!" sound
+            soundManager.play('myleg');
+            
             setLives(prev => {
               const newLives = prev - 1;
               if (newLives <= 0) {
@@ -711,6 +718,9 @@
         setLives(3);
         generateLevel(1);
         setGameState('playing');
+        
+        // Play "I'M READY" sound
+        soundManager.play('ready');
         
         // Start background music
         const music = document.getElementById('bgMusic');

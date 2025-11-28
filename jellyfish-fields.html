@@ -6,6 +6,7 @@
   <title>Jellyfish Fields | $COCKPANTS</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="leaderboard.js"></script>
+  <script src="sounds.js"></script>
   <style>
     @font-face {
       font-family: 'Krabby Patty';
@@ -547,6 +548,10 @@
         if (!powerUp.collected && powerUp.checkCatch(gameState.mouseX, gameState.mouseY, 80)) {
           powerUp.collected = true;
           gameState.timeLeft += 10; // Add 10 seconds
+          
+          // Play Gary meow for power-up
+          soundManager.play('gary');
+          
           updateUI();
           showPowerUpEffect(powerUp.x, powerUp.y);
         }

@@ -7,6 +7,7 @@
   <meta name="description" content="Click to pump $COCKPANTS! The ultimate SpongeBob clicker game.">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="leaderboard.js"></script>
+  <script src="sounds.js"></script>
   <style>
     @font-face {
       font-family: 'Krabby Patty';
@@ -1234,6 +1235,9 @@
       gameState.dollars -= cost;
       gameState.upgrades[upgrade.id] = (gameState.upgrades[upgrade.id] || 0) + 1;
       
+      // Play money sound for purchases
+      soundManager.play('money');
+      
       recalculateStats();
       renderUpgrades();
       checkAchievements();
@@ -1455,6 +1459,9 @@
       colorFlash.classList.add('active');
       document.body.classList.add('shake');
       
+      // Play "Are you feeling it now Mr. Krabs" sound
+      soundManager.play('feelit');
+      
       triggerFeelingIt();
       
       strokeParticleInterval = setInterval(() => {
@@ -1471,6 +1478,9 @@
       colorFlash.classList.remove('active');
       document.body.classList.remove('shake');
       if (strokeParticleInterval) clearInterval(strokeParticleInterval);
+      
+      // Play "Oh yeah" sound when stroke mode ends
+      soundManager.play('ohyeah');
     }
     
     // =====================

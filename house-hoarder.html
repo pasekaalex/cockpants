@@ -8,6 +8,7 @@
   <!-- Leaderboard System -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="leaderboard.js"></script>
+  <script src="sounds.js"></script>
   
   <style>
     @font-face {
@@ -768,7 +769,13 @@
         
         // Scoring (Tetris scoring system)
         const points = [0, 100, 300, 500, 800];
+        const oldScore = score;
         score += points[linesCleared] * level;
+        
+        // Play cash sound at 1000-point milestones
+        if (Math.floor(oldScore / 1000) < Math.floor(score / 1000)) {
+          soundManager.play('cash');
+        }
         
         // Level up every 10 lines
         level = Math.floor(lines / 10) + 1;
@@ -905,6 +912,9 @@
     // Game over
     function gameOver() {
       gameRunning = false;
+      
+      // Play "wah wah wah" sound
+      soundManager.play('wawawa');
       
       document.getElementById('finalScore').textContent = score;
       document.getElementById('finalLevel').textContent = level;
