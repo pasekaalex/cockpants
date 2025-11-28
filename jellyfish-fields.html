@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Jellyfish Fields | $COCKPANTS</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="leaderboard.js"></script>
@@ -608,25 +608,111 @@
     }
     
     function drawBackground() {
-      // Sky gradient
+      const time = Date.now() * 0.0005; // For animation
+      
+      // Sky gradient with more depth
       const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
       gradient.addColorStop(0, '#87CEEB');
-      gradient.addColorStop(1, '#B0E0E6');
+      gradient.addColorStop(0.5, '#B0E0E6');
+      gradient.addColorStop(1, '#98D8C8');
       ctx.fillStyle = gradient;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       
-      // Grass/flowers at bottom
-      ctx.fillStyle = '#90EE90';
-      for (let i = 0; i < canvas.width; i += 30) {
-        const height = 50 + Math.sin(i * 0.1) * 20;
-        ctx.fillRect(i, canvas.height - height, 25, height);
+      // Animated clouds
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+      for (let i = 0; i < 5; i++) {
+        const cloudX = ((time * 20 + i * 200) % (canvas.width + 200)) - 100;
+        const cloudY = 50 + i * 40;
+        
+        // Cloud puffs
+        ctx.beginPath();
+        ctx.arc(cloudX, cloudY, 30, 0, Math.PI * 2);
+        ctx.arc(cloudX + 25, cloudY - 10, 35, 0, Math.PI * 2);
+        ctx.arc(cloudX + 50, cloudY, 30, 0, Math.PI * 2);
+        ctx.arc(cloudX + 35, cloudY + 10, 25, 0, Math.PI * 2);
+        ctx.fill();
       }
       
-      // Flowers
-      ctx.fillStyle = '#FF69B4';
-      for (let i = 0; i < canvas.width; i += 60) {
+      // Flying butterflies
+      ctx.save();
+      for (let i = 0; i < 3; i++) {
+        const butterflyX = ((time * 30 + i * 300) % (canvas.width + 100)) - 50;
+        const butterflyY = 150 + Math.sin(time * 3 + i) * 50;
+        const wingFlap = Math.sin(time * 10 + i) * 5;
+        
+        ctx.translate(butterflyX, butterflyY);
+        
+        // Left wing
+        ctx.fillStyle = '#FFD700';
         ctx.beginPath();
-        ctx.arc(i + 12, canvas.height - 60 - Math.sin(i * 0.1) * 10, 8, 0, Math.PI * 2);
+        ctx.ellipse(-8 + wingFlap, 0, 8, 12, -0.3, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Right wing  
+        ctx.beginPath();
+        ctx.ellipse(8 - wingFlap, 0, 8, 12, 0.3, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Body
+        ctx.fillStyle = '#8B4513';
+        ctx.beginPath();
+        ctx.ellipse(0, 0, 3, 8, 0, 0, Math.PI * 2);
+        ctx.fill();
+        
+        ctx.translate(-butterflyX, -butterflyY);
+      }
+      ctx.restore();
+      
+      // Distant hills
+      ctx.fillStyle = '#7CB342';
+      ctx.beginPath();
+      ctx.moveTo(0, canvas.height - 150);
+      for (let i = 0; i <= canvas.width; i += 50) {
+        ctx.lineTo(i, canvas.height - 150 - Math.sin(i * 0.01) * 30);
+      }
+      ctx.lineTo(canvas.width, canvas.height);
+      ctx.lineTo(0, canvas.height);
+      ctx.closePath();
+      ctx.fill();
+      
+      // Grass/flowers at bottom with variety
+      for (let i = 0; i < canvas.width; i += 25) {
+        const height = 50 + Math.sin(i * 0.1 + time) * 15;
+        const grassShade = i % 2 === 0 ? '#90EE90' : '#98FB98';
+        ctx.fillStyle = grassShade;
+        ctx.fillRect(i, canvas.height - height, 20, height);
+      }
+      
+      // Colorful flowers
+      const flowerColors = ['#FF69B4', '#FFD700', '#FF6347', '#9370DB'];
+      for (let i = 0; i < canvas.width; i += 80) {
+        const flowerX = i + 12;
+        const flowerY = canvas.height - 60 - Math.sin(i * 0.1) * 10;
+        const color = flowerColors[Math.floor(i / 80) % flowerColors.length];
+        
+        // Stem
+        ctx.strokeStyle = '#228B22';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(flowerX, flowerY);
+        ctx.lineTo(flowerX, canvas.height - 30);
+        ctx.stroke();
+        
+        // Petals
+        ctx.fillStyle = color;
+        for (let p = 0; p < 5; p++) {
+          const angle = (p / 5) * Math.PI * 2;
+          const px = flowerX + Math.cos(angle) * 8;
+          const py = flowerY + Math.sin(angle) * 8;
+          ctx.beginPath();
+          ctx.arc(px, py, 6, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        
+        // Center
+        ctx.fillStyle = '#FFD700';
+        ctx.beginPath();
+        ctx.arc(flowerX, flowerY, 5, 0, Math.PI * 2);
         ctx.fill();
       }
     }

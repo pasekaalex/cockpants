@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Plankton's Formula Heist | $COCKPANTS</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="leaderboard.js"></script>
@@ -456,72 +456,107 @@
     @media (max-width: 1200px) {
       body {
         overflow-y: auto;
+        height: auto;
       }
       
       .game-container {
         flex-direction: column;
         height: auto;
         min-height: 100vh;
-        overflow-y: visible;
-        padding: 10px;
+        padding: 5px;
       }
       
       .left-panel, .right-panel {
         flex: none;
         width: 100%;
-        order: 2;
+        order: 3;
+        display: none; /* Hide info panels on mobile to save space */
       }
       
       .center-panel {
         order: 1;
+        width: 100%;
       }
       
       .game-canvas-container {
-        height: 60vh;
-        max-height: 500px;
+        height: 70vh !important;
+        max-height: none !important;
         min-height: 400px;
+        width: 100%;
+        position: relative;
       }
       
       #gameCanvas {
+        width: 100% !important;
+        height: 100% !important;
         max-width: 100%;
       }
       
-      .info-box {
-        font-size: 14px;
-        padding: 12px;
+      .panel {
+        display: none; /* Hide controls panel on mobile */
       }
       
-      .stat-item {
-        font-size: 13px;
+      #mobileControls {
+        display: block !important;
+      }
+      
+      .menu-screen, .victory-screen, .game-over-screen {
+        width: 95%;
+        max-width: 400px;
+        padding: 20px;
       }
       
       .level-btn {
         font-size: 14px;
-        padding: 12px;
+        padding: 10px;
       }
     }
     
     @media (max-width: 768px) {
       .game-canvas-container {
-        height: 50vh;
-        min-height: 300px;
-      }
-      
-      .left-panel, .right-panel {
-        margin-bottom: 15px;
-      }
-      
-      .info-box {
-        font-size: 12px;
-        padding: 10px;
+        height: 65vh !important;
+        min-height: 350px;
       }
       
       .menu-title {
-        font-size: 32px;
+        font-size: 28px;
       }
       
       .menu-subtitle {
-        font-size: 16px;
+        font-size: 14px;
+      }
+      
+      .start-btn {
+        font-size: 18px;
+        padding: 12px 30px;
+      }
+      
+      .level-select {
+        gap: 8px;
+      }
+      
+      #mobileControls {
+        bottom: 10px !important;
+        left: 10px !important;
+      }
+      
+      #mobileControls button {
+        width: 50px !important;
+        height: 50px !important;
+        font-size: 20px !important;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .game-canvas-container {
+        height: 60vh !important;
+        min-height: 300px;
+      }
+      
+      #mobileControls button {
+        width: 45px !important;
+        height: 45px !important;
+        font-size: 18px !important;
       }
     }
   </style>
