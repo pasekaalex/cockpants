@@ -19,15 +19,34 @@
     body {
       font-family: 'Krabby Patty', Arial, sans-serif;
       overflow-x: hidden;
-      background: linear-gradient(180deg, #87CEEB 0%, #FFE4B5 100%);
+      background-image: url('https://i.imgur.com/qYfis9A.jpeg');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      background-repeat: no-repeat;
       min-height: 100vh;
       padding: 20px;
+      position: relative;
+    }
+    
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(135, 206, 235, 0.3);
+      pointer-events: none;
+      z-index: 0;
     }
     
     .game-container {
       text-align: center;
       max-width: 900px;
       margin: 0 auto;
+      position: relative;
+      z-index: 1;
     }
     
     .title {
