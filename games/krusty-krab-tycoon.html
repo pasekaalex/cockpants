@@ -1,0 +1,1120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Krusty Krab Tycoon | $COCKPANTS</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../leaderboard.js"></script>
+  <script src="../sounds.js"></script>
+  <style>
+    @font-face {
+      font-family: 'Krabby Patty';
+      src: url('../Krabby Patty.ttf') format('truetype');
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Krabby Patty', 'Comic Sans MS', cursive;
+      background: linear-gradient(135deg, #1e3a5f 0%, #2c5f7f 100%);
+      overflow: hidden;
+      height: 100vh;
+    }
+
+    .game-container {
+      width: 100%;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    /* Top Stats Bar */
+    .stats-bar {
+      background: linear-gradient(180deg, #8B4513 0%, #654321 100%);
+      border-bottom: 4px solid #FFD700;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+      z-index: 100;
+    }
+
+    .stat-box {
+      background: rgba(255, 215, 0, 0.2);
+      border: 3px solid #FFD700;
+      border-radius: 10px;
+      padding: 10px 20px;
+      text-align: center;
+      min-width: 150px;
+    }
+
+    .stat-label {
+      font-size: 14px;
+      color: #FFD700;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    }
+
+    .stat-value {
+      font-size: 24px;
+      color: #FFF;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
+      font-weight: bold;
+    }
+
+    /* Main Game Area */
+    .game-area {
+      flex: 1;
+      display: flex;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Restaurant View */
+    .restaurant-view {
+      flex: 1;
+      background: linear-gradient(180deg, #87CEEB 0%, #4682B4 100%);
+      position: relative;
+      background-image: 
+        repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 50px,
+          rgba(255,255,255,0.05) 50px,
+          rgba(255,255,255,0.05) 100px
+        );
+    }
+
+    .view-label {
+      position: absolute;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(139, 69, 19, 0.95);
+      border: 3px solid #FFD700;
+      border-radius: 20px;
+      padding: 10px 30px;
+      font-size: 28px;
+      color: #FFD700;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
+      z-index: 10;
+    }
+
+    /* Tables and Customers */
+    .restaurant-interior {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      padding: 80px 40px 40px 40px;
+    }
+
+    .table-row {
+      display: flex;
+      justify-content: space-around;
+      margin-bottom: 60px;
+    }
+
+    .table {
+      width: 80px;
+      height: 80px;
+      background: #8B4513;
+      border: 4px solid #654321;
+      border-radius: 50%;
+      position: relative;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    }
+
+    .table:hover {
+      transform: scale(1.1);
+      box-shadow: 0 6px 12px rgba(255,215,0,0.5);
+    }
+
+    .table.occupied {
+      background: #CD853F;
+      border-color: #FFD700;
+      animation: customerWaiting 2s infinite;
+    }
+
+    @keyframes customerWaiting {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    .table-number {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 24px;
+      color: #FFD700;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
+    }
+
+    .customer-icon {
+      position: absolute;
+      top: -40px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 40px;
+      animation: customerBounce 1s infinite;
+    }
+
+    @keyframes customerBounce {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-50%) translateY(-5px); }
+    }
+
+    .order-bubble {
+      position: absolute;
+      top: -80px;
+      right: -20px;
+      background: white;
+      border: 3px solid #FFD700;
+      border-radius: 20px;
+      padding: 5px 10px;
+      font-size: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+
+    .money-popup {
+      position: absolute;
+      font-size: 28px;
+      color: #00FF00;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
+      font-weight: bold;
+      animation: moneyFloat 1s ease-out forwards;
+      pointer-events: none;
+    }
+
+    @keyframes moneyFloat {
+      0% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      100% {
+        opacity: 0;
+        transform: translateY(-50px);
+      }
+    }
+
+    /* Kitchen View */
+    .kitchen-view {
+      flex: 1;
+      background: linear-gradient(180deg, #E6E6FA 0%, #C4C4D6 100%);
+      position: relative;
+      border-left: 4px solid #8B4513;
+    }
+
+    .kitchen-interior {
+      width: 100%;
+      height: 100%;
+      padding: 80px 40px 40px 40px;
+      display: flex;
+      flex-direction: column;
+      gap: 40px;
+    }
+
+    .kitchen-station {
+      background: rgba(139, 69, 19, 0.3);
+      border: 4px solid #8B4513;
+      border-radius: 20px;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      cursor: pointer;
+      transition: all 0.3s;
+      position: relative;
+    }
+
+    .kitchen-station:hover {
+      background: rgba(139, 69, 19, 0.5);
+      transform: translateX(5px);
+      box-shadow: 0 4px 12px rgba(255,215,0,0.5);
+    }
+
+    .station-icon {
+      font-size: 60px;
+      min-width: 80px;
+      text-align: center;
+    }
+
+    .station-info {
+      flex: 1;
+    }
+
+    .station-name {
+      font-size: 24px;
+      color: #8B4513;
+      margin-bottom: 5px;
+      text-shadow: 1px 1px 2px rgba(255,255,255,0.5);
+    }
+
+    .station-level {
+      font-size: 18px;
+      color: #FFD700;
+      margin-bottom: 10px;
+    }
+
+    .station-income {
+      font-size: 16px;
+      color: #4CAF50;
+      font-weight: bold;
+    }
+
+    .upgrade-btn {
+      background: linear-gradient(180deg, #FFD700 0%, #FFA500 100%);
+      border: 3px solid #FF8C00;
+      border-radius: 10px;
+      padding: 15px 30px;
+      font-size: 20px;
+      color: #8B4513;
+      font-family: 'Krabby Patty', cursive;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-shadow: 1px 1px 2px rgba(255,255,255,0.5);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    }
+
+    .upgrade-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 12px rgba(255,140,0,0.6);
+    }
+
+    .upgrade-btn:active {
+      transform: scale(0.98);
+    }
+
+    .upgrade-btn.locked {
+      background: linear-gradient(180deg, #999 0%, #666 100%);
+      border-color: #444;
+      color: #CCC;
+      cursor: not-allowed;
+    }
+
+    .cost-display {
+      display: block;
+      font-size: 16px;
+      margin-top: 5px;
+    }
+
+    /* Side Panel for Employees */
+    .employee-panel {
+      position: absolute;
+      right: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(139, 69, 19, 0.95);
+      border: 4px solid #FFD700;
+      border-radius: 20px;
+      padding: 20px;
+      width: 280px;
+      max-height: 70vh;
+      overflow-y: auto;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.4);
+    }
+
+    .panel-title {
+      font-size: 24px;
+      color: #FFD700;
+      text-align: center;
+      margin-bottom: 20px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
+    }
+
+    .employee-item {
+      background: rgba(255, 215, 0, 0.2);
+      border: 2px solid #FFD700;
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 15px;
+    }
+
+    .employee-name {
+      font-size: 18px;
+      color: #FFF;
+      margin-bottom: 5px;
+    }
+
+    .employee-effect {
+      font-size: 14px;
+      color: #90EE90;
+      margin-bottom: 10px;
+    }
+
+    .hire-btn {
+      width: 100%;
+      background: linear-gradient(180deg, #4CAF50 0%, #45a049 100%);
+      border: 2px solid #2E7D32;
+      border-radius: 8px;
+      padding: 10px;
+      font-size: 16px;
+      color: white;
+      font-family: 'Krabby Patty', cursive;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .hire-btn:hover {
+      transform: scale(1.05);
+    }
+
+    .hire-btn.hired {
+      background: linear-gradient(180deg, #999 0%, #666 100%);
+      cursor: default;
+    }
+
+    /* Mobile Tabs */
+    .mobile-tabs {
+      display: none;
+      background: #8B4513;
+      border-top: 4px solid #FFD700;
+    }
+
+    .tab-buttons {
+      display: flex;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 15px;
+      font-size: 20px;
+      background: rgba(139, 69, 19, 0.5);
+      border: none;
+      color: #FFD700;
+      font-family: 'Krabby Patty', cursive;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .tab-btn.active {
+      background: rgba(255, 215, 0, 0.3);
+      border-top: 4px solid #FFD700;
+    }
+
+    /* Prestige Button */
+    .prestige-btn {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(180deg, #9C27B0 0%, #7B1FA2 100%);
+      border: 4px solid #E1BEE7;
+      border-radius: 20px;
+      padding: 15px 40px;
+      font-size: 24px;
+      color: #FFF;
+      font-family: 'Krabby Patty', cursive;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 6px 12px rgba(156,39,176,0.5);
+      z-index: 150;
+    }
+
+    .prestige-btn:hover {
+      transform: translateX(-50%) scale(1.1);
+      box-shadow: 0 8px 16px rgba(156,39,176,0.7);
+    }
+
+    .prestige-btn.locked {
+      background: linear-gradient(180deg, #666 0%, #444 100%);
+      border-color: #888;
+      color: #AAA;
+      cursor: not-allowed;
+    }
+
+    /* Menu Screen */
+    .menu-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #1e3a5f 0%, #2c5f7f 100%);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .menu-screen.hidden {
+      display: none;
+    }
+
+    .game-title {
+      font-size: 72px;
+      color: #FFD700;
+      text-shadow: 4px 4px 8px rgba(0,0,0,0.7);
+      margin-bottom: 20px;
+      animation: titleBounce 2s infinite;
+    }
+
+    @keyframes titleBounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .game-subtitle {
+      font-size: 28px;
+      color: #FFF;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
+      margin-bottom: 50px;
+    }
+
+    .start-btn {
+      background: linear-gradient(180deg, #FFD700 0%, #FFA500 100%);
+      border: 4px solid #FF8C00;
+      border-radius: 20px;
+      padding: 20px 60px;
+      font-size: 36px;
+      color: #8B4513;
+      font-family: 'Krabby Patty', cursive;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-shadow: 2px 2px 4px rgba(255,255,255,0.5);
+      box-shadow: 0 8px 16px rgba(0,0,0,0.4);
+    }
+
+    .start-btn:hover {
+      transform: scale(1.1);
+      box-shadow: 0 12px 24px rgba(255,165,0,0.6);
+    }
+
+    @media (max-width: 768px) {
+      .game-area {
+        flex-direction: column;
+      }
+
+      .restaurant-view,
+      .kitchen-view {
+        display: none;
+      }
+
+      .restaurant-view.active,
+      .kitchen-view.active {
+        display: block;
+        flex: none;
+        height: calc(100vh - 140px);
+      }
+
+      .mobile-tabs {
+        display: block;
+      }
+
+      .employee-panel {
+        position: relative;
+        right: auto;
+        top: auto;
+        transform: none;
+        margin: 20px;
+        width: calc(100% - 40px);
+      }
+
+      .stats-bar {
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .stat-box {
+        min-width: 120px;
+      }
+
+      .game-title {
+        font-size: 48px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Menu Screen -->
+  <div class="menu-screen" id="menuScreen">
+    <div class="game-title">🍔 KRUSTY KRAB TYCOON 🦀</div>
+    <div class="game-subtitle">Build Your Fast Food Empire!</div>
+    <button class="start-btn" onclick="startGame()">START GAME</button>
+  </div>
+
+  <!-- Main Game -->
+  <div class="game-container">
+    <!-- Stats Bar -->
+    <div class="stats-bar">
+      <div class="stat-box">
+        <div class="stat-label">💰 MONEY</div>
+        <div class="stat-value" id="moneyDisplay">$0</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">💵 PER SECOND</div>
+        <div class="stat-value" id="incomeDisplay">$0/s</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">👥 CUSTOMERS SERVED</div>
+        <div class="stat-value" id="customersDisplay">0</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">⭐ PRESTIGE LEVEL</div>
+        <div class="stat-value" id="prestigeDisplay">0</div>
+      </div>
+    </div>
+
+    <!-- Main Game Area -->
+    <div class="game-area">
+      <!-- Restaurant View -->
+      <div class="restaurant-view active" id="restaurantView">
+        <div class="view-label">🏪 KRUSTY KRAB DINING AREA</div>
+        <div class="restaurant-interior" id="restaurantInterior">
+          <!-- Tables will be generated here -->
+        </div>
+      </div>
+
+      <!-- Kitchen View -->
+      <div class="kitchen-view" id="kitchenView">
+        <div class="view-label">👨‍🍳 KITCHEN & UPGRADES</div>
+        <div class="kitchen-interior" id="kitchenInterior">
+          <!-- Kitchen stations will be generated here -->
+        </div>
+        
+        <!-- Employee Panel -->
+        <div class="employee-panel">
+          <div class="panel-title">💼 HIRE STAFF</div>
+          <div id="employeeList">
+            <!-- Employees will be generated here -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile Tabs -->
+    <div class="mobile-tabs">
+      <div class="tab-buttons">
+        <button class="tab-btn active" onclick="switchTab('restaurant')">🏪 Restaurant</button>
+        <button class="tab-btn" onclick="switchTab('kitchen')">👨‍🍳 Kitchen</button>
+      </div>
+    </div>
+
+    <!-- Prestige Button -->
+    <button class="prestige-btn locked" id="prestigeBtn" onclick="attemptPrestige()">
+      ⚡ PRESTIGE (Requires $1M)
+    </button>
+  </div>
+
+  <script>
+    // Game State
+    let gameState = {
+      money: 0,
+      moneyPerSecond: 0,
+      customersServed: 0,
+      prestigeLevel: 0,
+      prestigeMultiplier: 1,
+      clickPower: 10,
+      
+      tables: [],
+      upgrades: [],
+      employees: [],
+      
+      lastUpdate: Date.now()
+    };
+
+    // Upgrade Definitions
+    const upgradeDefinitions = [
+      {
+        id: 'grill',
+        name: '🔥 Grill Station',
+        icon: '🔥',
+        baseIncome: 5,
+        baseCost: 50,
+        level: 0,
+        costMultiplier: 1.15
+      },
+      {
+        id: 'fryer',
+        name: '🍟 Fryer Station',
+        icon: '🍟',
+        baseIncome: 15,
+        baseCost: 300,
+        level: 0,
+        costMultiplier: 1.15
+      },
+      {
+        id: 'freezer',
+        name: '❄️ Walk-in Freezer',
+        icon: '❄️',
+        baseIncome: 50,
+        baseCost: 1500,
+        level: 0,
+        costMultiplier: 1.15
+      },
+      {
+        id: 'oven',
+        name: '🔥 Industrial Oven',
+        icon: '🧑‍🍳',
+        baseIncome: 200,
+        baseCost: 8000,
+        level: 0,
+        costMultiplier: 1.15
+      },
+      {
+        id: 'formula',
+        name: '🧪 Secret Formula Safe',
+        icon: '🧪',
+        baseIncome: 1000,
+        baseCost: 50000,
+        level: 0,
+        costMultiplier: 1.15
+      }
+    ];
+
+    // Employee Definitions
+    const employeeDefinitions = [
+      {
+        id: 'spongebob',
+        name: '🧽 SpongeBob',
+        effect: '+50% income from Grill',
+        cost: 1000,
+        hired: false,
+        multiplier: 1.5,
+        target: 'grill'
+      },
+      {
+        id: 'squidward',
+        name: '🦑 Squidward',
+        effect: '+25% all income',
+        cost: 5000,
+        hired: false,
+        multiplier: 1.25,
+        target: 'all'
+      },
+      {
+        id: 'krabs',
+        name: '🦀 Mr. Krabs',
+        effect: '+100% click power',
+        cost: 10000,
+        hired: false,
+        multiplier: 2,
+        target: 'click'
+      },
+      {
+        id: 'pearl',
+        name: '🐋 Pearl',
+        effect: 'Customers pay 2x',
+        cost: 25000,
+        hired: false,
+        multiplier: 2,
+        target: 'customer'
+      },
+      {
+        id: 'sandy',
+        name: '🐿️ Sandy',
+        effect: '+200% all income',
+        cost: 100000,
+        hired: false,
+        multiplier: 3,
+        target: 'all'
+      }
+    ];
+
+    // Initialize game
+    function initGame() {
+      gameState.upgrades = upgradeDefinitions.map(u => ({...u}));
+      gameState.employees = employeeDefinitions.map(e => ({...e}));
+      
+      // Create tables (12 tables)
+      for (let i = 0; i < 12; i++) {
+        gameState.tables.push({
+          id: i,
+          occupied: false,
+          customer: null,
+          timer: 0
+        });
+      }
+      
+      renderRestaurant();
+      renderKitchen();
+      renderEmployees();
+      updateUI();
+      
+      // Start game loop
+      setInterval(gameLoop, 100);
+      
+      // Spawn customers
+      setInterval(spawnCustomer, 3000);
+    }
+
+    // Game Loop
+    function gameLoop() {
+      const now = Date.now();
+      const delta = (now - gameState.lastUpdate) / 1000;
+      gameState.lastUpdate = now;
+      
+      // Passive income
+      gameState.money += gameState.moneyPerSecond * delta;
+      
+      // Update customer timers
+      gameState.tables.forEach(table => {
+        if (table.occupied && table.customer) {
+          table.customer.patience -= delta;
+          if (table.customer.patience <= 0) {
+            // Customer leaves
+            table.occupied = false;
+            table.customer = null;
+            soundManager.play('wawawa');
+          }
+        }
+      });
+      
+      updateUI();
+      updatePrestigeButton();
+    }
+
+    // Spawn Customer
+    function spawnCustomer() {
+      const emptyTables = gameState.tables.filter(t => !t.occupied);
+      if (emptyTables.length === 0) return;
+      
+      const table = emptyTables[Math.floor(Math.random() * emptyTables.length)];
+      const customerValue = 20 + (gameState.prestigeLevel * 10);
+      
+      // Apply Pearl's multiplier if hired
+      const pearlEmployee = gameState.employees.find(e => e.id === 'pearl');
+      const finalValue = pearlEmployee && pearlEmployee.hired ? 
+        customerValue * pearlEmployee.multiplier : customerValue;
+      
+      table.occupied = true;
+      table.customer = {
+        value: finalValue,
+        patience: 15 + (gameState.prestigeLevel * 2),
+        icon: ['🧑', '👩', '👨', '🧒', '👴', '👵'][Math.floor(Math.random() * 6)]
+      };
+      
+      renderRestaurant();
+    }
+
+    // Serve Customer (click table)
+    function serveCustomer(tableId) {
+      const table = gameState.tables[tableId];
+      if (!table.occupied || !table.customer) return;
+      
+      const krabs = gameState.employees.find(e => e.id === 'krabs');
+      const clickValue = gameState.clickPower * (krabs && krabs.hired ? krabs.multiplier : 1);
+      
+      gameState.money += table.customer.value + clickValue;
+      gameState.customersServed++;
+      
+      // Show money popup
+      showMoneyPopup(table.customer.value + clickValue, tableId);
+      
+      // Play sound
+      soundManager.play('cash', { allowOverlap: true });
+      
+      table.occupied = false;
+      table.customer = null;
+      
+      renderRestaurant();
+      updateUI();
+    }
+
+    // Show Money Popup
+    function showMoneyPopup(amount, tableId) {
+      const tableEl = document.querySelector(`[data-table="${tableId}"]`);
+      if (!tableEl) return;
+      
+      const popup = document.createElement('div');
+      popup.className = 'money-popup';
+      popup.textContent = `+$${Math.round(amount)}`;
+      popup.style.left = tableEl.offsetLeft + 40 + 'px';
+      popup.style.top = tableEl.offsetTop + 'px';
+      
+      document.getElementById('restaurantInterior').appendChild(popup);
+      
+      setTimeout(() => popup.remove(), 1000);
+    }
+
+    // Calculate Income Per Second
+    function calculateIncome() {
+      let income = 0;
+      
+      gameState.upgrades.forEach(upgrade => {
+        if (upgrade.level > 0) {
+          let upgradeIncome = upgrade.baseIncome * upgrade.level;
+          
+          // Apply employee bonuses
+          const squidward = gameState.employees.find(e => e.id === 'squidward');
+          const sandy = gameState.employees.find(e => e.id === 'sandy');
+          
+          // Specific upgrade bonus
+          const specificEmployee = gameState.employees.find(e => e.target === upgrade.id && e.hired);
+          if (specificEmployee) {
+            upgradeIncome *= specificEmployee.multiplier;
+          }
+          
+          // All income bonuses
+          if (squidward && squidward.hired) {
+            upgradeIncome *= squidward.multiplier;
+          }
+          if (sandy && sandy.hired) {
+            upgradeIncome *= sandy.multiplier;
+          }
+          
+          income += upgradeIncome;
+        }
+      });
+      
+      // Apply prestige multiplier
+      income *= gameState.prestigeMultiplier;
+      
+      gameState.moneyPerSecond = income;
+    }
+
+    // Buy Upgrade
+    function buyUpgrade(upgradeId) {
+      const upgrade = gameState.upgrades.find(u => u.id === upgradeId);
+      if (!upgrade) return;
+      
+      const cost = Math.floor(upgrade.baseCost * Math.pow(upgrade.costMultiplier, upgrade.level));
+      
+      if (gameState.money >= cost) {
+        gameState.money -= cost;
+        upgrade.level++;
+        
+        soundManager.play('money');
+        calculateIncome();
+        renderKitchen();
+        updateUI();
+      } else {
+        soundManager.play('dolphin');
+      }
+    }
+
+    // Hire Employee
+    function hireEmployee(employeeId) {
+      const employee = gameState.employees.find(e => e.id === employeeId);
+      if (!employee || employee.hired) return;
+      
+      if (gameState.money >= employee.cost) {
+        gameState.money -= employee.cost;
+        employee.hired = true;
+        
+        soundManager.play('ready');
+        calculateIncome();
+        renderEmployees();
+        updateUI();
+      } else {
+        soundManager.play('dolphin');
+      }
+    }
+
+    // Prestige
+    function attemptPrestige() {
+      if (gameState.money >= 1000000) {
+        if (confirm('🌟 PRESTIGE RESET 🌟\n\nReset your restaurant but gain:\n• +50% permanent income boost\n• Higher customer payments\n• Better upgrades\n\nContinue?')) {
+          gameState.prestigeLevel++;
+          gameState.prestigeMultiplier = 1 + (gameState.prestigeLevel * 0.5);
+          gameState.money = 0;
+          gameState.customersServed = 0;
+          gameState.clickPower = 10 + (gameState.prestigeLevel * 5);
+          
+          // Reset upgrades and employees
+          gameState.upgrades = upgradeDefinitions.map(u => ({...u}));
+          gameState.employees = employeeDefinitions.map(e => ({...e}));
+          
+          soundManager.play('victory');
+          
+          calculateIncome();
+          renderKitchen();
+          renderEmployees();
+          updateUI();
+        }
+      }
+    }
+
+    function updatePrestigeButton() {
+      const btn = document.getElementById('prestigeBtn');
+      if (gameState.money >= 1000000) {
+        btn.classList.remove('locked');
+        btn.textContent = `⚡ PRESTIGE NOW! (Level ${gameState.prestigeLevel + 1})`;
+      } else {
+        btn.classList.add('locked');
+        const needed = 1000000 - gameState.money;
+        btn.textContent = `⚡ PRESTIGE ($${formatNumber(needed)} more needed)`;
+      }
+    }
+
+    // Render Restaurant
+    function renderRestaurant() {
+      const container = document.getElementById('restaurantInterior');
+      container.innerHTML = '';
+      
+      // Create 3 rows of 4 tables
+      for (let row = 0; row < 3; row++) {
+        const rowDiv = document.createElement('div');
+        rowDiv.className = 'table-row';
+        
+        for (let col = 0; col < 4; col++) {
+          const tableIndex = row * 4 + col;
+          const table = gameState.tables[tableIndex];
+          
+          const tableDiv = document.createElement('div');
+          tableDiv.className = 'table';
+          tableDiv.setAttribute('data-table', tableIndex);
+          tableDiv.onclick = () => serveCustomer(tableIndex);
+          
+          if (table.occupied && table.customer) {
+            tableDiv.classList.add('occupied');
+            
+            const customerIcon = document.createElement('div');
+            customerIcon.className = 'customer-icon';
+            customerIcon.textContent = table.customer.icon;
+            tableDiv.appendChild(customerIcon);
+            
+            const orderBubble = document.createElement('div');
+            orderBubble.className = 'order-bubble';
+            orderBubble.textContent = '🍔';
+            tableDiv.appendChild(orderBubble);
+          }
+          
+          const tableNumber = document.createElement('div');
+          tableNumber.className = 'table-number';
+          tableNumber.textContent = tableIndex + 1;
+          tableDiv.appendChild(tableNumber);
+          
+          rowDiv.appendChild(tableDiv);
+        }
+        
+        container.appendChild(rowDiv);
+      }
+    }
+
+    // Render Kitchen
+    function renderKitchen() {
+      const container = document.getElementById('kitchenInterior');
+      container.innerHTML = '';
+      
+      gameState.upgrades.forEach(upgrade => {
+        const cost = Math.floor(upgrade.baseCost * Math.pow(upgrade.costMultiplier, upgrade.level));
+        const income = upgrade.baseIncome * upgrade.level;
+        
+        const stationDiv = document.createElement('div');
+        stationDiv.className = 'kitchen-station';
+        stationDiv.onclick = () => buyUpgrade(upgrade.id);
+        
+        stationDiv.innerHTML = `
+          <div class="station-icon">${upgrade.icon}</div>
+          <div class="station-info">
+            <div class="station-name">${upgrade.name}</div>
+            <div class="station-level">Level ${upgrade.level}</div>
+            <div class="station-income">+$${formatNumber(income)}/s</div>
+          </div>
+          <button class="upgrade-btn ${gameState.money >= cost ? '' : 'locked'}">
+            UPGRADE
+            <span class="cost-display">$${formatNumber(cost)}</span>
+          </button>
+        `;
+        
+        container.appendChild(stationDiv);
+      });
+    }
+
+    // Render Employees
+    function renderEmployees() {
+      const container = document.getElementById('employeeList');
+      container.innerHTML = '';
+      
+      gameState.employees.forEach(employee => {
+        const employeeDiv = document.createElement('div');
+        employeeDiv.className = 'employee-item';
+        
+        const canAfford = gameState.money >= employee.cost;
+        
+        employeeDiv.innerHTML = `
+          <div class="employee-name">${employee.name}</div>
+          <div class="employee-effect">${employee.effect}</div>
+          <button class="hire-btn ${employee.hired ? 'hired' : (canAfford ? '' : 'locked')}" 
+                  onclick="hireEmployee('${employee.id}')"
+                  ${employee.hired ? 'disabled' : ''}>
+            ${employee.hired ? '✅ HIRED' : `HIRE - $${formatNumber(employee.cost)}`}
+          </button>
+        `;
+        
+        container.appendChild(employeeDiv);
+      });
+    }
+
+    // Update UI
+    function updateUI() {
+      document.getElementById('moneyDisplay').textContent = '$' + formatNumber(Math.floor(gameState.money));
+      document.getElementById('incomeDisplay').textContent = '$' + formatNumber(Math.floor(gameState.moneyPerSecond)) + '/s';
+      document.getElementById('customersServed').textContent = formatNumber(gameState.customersServed);
+      document.getElementById('prestigeDisplay').textContent = gameState.prestigeLevel;
+    }
+
+    // Format Number
+    function formatNumber(num) {
+      if (num >= 1000000000) return (num / 1000000000).toFixed(2) + 'B';
+      if (num >= 1000000) return (num / 1000000).toFixed(2) + 'M';
+      if (num >= 1000) return (num / 1000).toFixed(2) + 'K';
+      return Math.floor(num).toString();
+    }
+
+    // Start Game
+    function startGame() {
+      document.getElementById('menuScreen').classList.add('hidden');
+      soundManager.play('ready');
+      initGame();
+    }
+
+    // Switch Tab (Mobile)
+    function switchTab(tab) {
+      const tabs = document.querySelectorAll('.tab-btn');
+      tabs.forEach(t => t.classList.remove('active'));
+      
+      if (tab === 'restaurant') {
+        document.getElementById('restaurantView').classList.add('active');
+        document.getElementById('kitchenView').classList.remove('active');
+        tabs[0].classList.add('active');
+      } else {
+        document.getElementById('restaurantView').classList.remove('active');
+        document.getElementById('kitchenView').classList.add('active');
+        tabs[1].classList.add('active');
+      }
+    }
+
+    // Save game periodically
+    setInterval(() => {
+      if (gameState.money > 0) {
+        localStorage.setItem('krustyKrabTycoonSave', JSON.stringify(gameState));
+      }
+    }, 10000);
+
+    // Load save on start
+    window.addEventListener('load', () => {
+      const save = localStorage.getItem('krustyKrabTycoonSave');
+      if (save) {
+        try {
+          const loaded = JSON.parse(save);
+          Object.assign(gameState, loaded);
+          gameState.lastUpdate = Date.now();
+        } catch(e) {
+          console.log('Could not load save');
+        }
+      }
+    });
+
+    // Submit to leaderboard when reaching milestones
+    setInterval(() => {
+      if (gameState.money >= 10000 && gameState.customersServed > 0) {
+        const score = gameState.customersServed + (gameState.prestigeLevel * 1000);
+        showLeaderboardModal('krusty-tycoon', 'Krusty Krab Tycoon', score);
+      }
+    }, 60000); // Check every minute
+  </script>
+</body>
+</html>
