@@ -4,10 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Boating School Chaos | $COCKPANTS</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="../leaderboard.js"></script>
   <script src="../sounds.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <style>
     @font-face {
       font-family: 'Krabby Patty';
@@ -32,29 +31,47 @@
       height: 100vh;
     }
     
+    /* HUD */
     .hud {
       position: fixed;
       top: 20px;
       left: 50%;
       transform: translateX(-50%);
       display: flex;
-      gap: 30px;
+      gap: 20px;
       z-index: 100;
       pointer-events: none;
+      flex-wrap: wrap;
+      justify-content: center;
+      max-width: 90vw;
     }
     
     .stat-box {
-      background: rgba(0, 0, 0, 0.8);
-      border: 3px solid #ffcc00;
-      border-radius: 10px;
+      background: rgba(0, 0, 0, 0.85);
+      border: 3px solid #FFD700;
+      border-radius: 12px;
       padding: 10px 20px;
-      color: #ffcc00;
-      font-size: 24px;
-      text-shadow: 2px 2px 0 #000;
-      min-width: 120px;
+      color: #FFD700;
+      font-size: 22px;
+      text-shadow: 2px 2px 4px #000;
+      min-width: 100px;
       text-align: center;
+      backdrop-filter: blur(5px);
+    }
+
+    .stat-label {
+      font-size: 14px;
+      opacity: 0.8;
+      display: block;
+    }
+
+    .stat-value {
+      font-size: 28px;
+      font-weight: bold;
+      display: block;
     }
     
+    /* Controls */
     .controls {
       position: fixed;
       top: 20px;
@@ -62,23 +79,31 @@
       display: flex;
       gap: 10px;
       z-index: 100;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      max-width: 300px;
     }
     
     .btn {
       background: linear-gradient(135deg, rgba(139, 69, 19, 0.95), rgba(101, 67, 33, 0.95));
-      border: 3px solid #ffcc00;
-      color: #ffcc00;
+      border: 3px solid #FFD700;
+      color: #FFD700;
       padding: 10px 20px;
       font-family: 'Krabby Patty', Arial, sans-serif;
-      font-size: 18px;
+      font-size: 16px;
       cursor: pointer;
       border-radius: 10px;
       transition: all 0.3s;
+      backdrop-filter: blur(5px);
     }
     
     .btn:hover {
-      transform: scale(1.05);
-      box-shadow: 0 0 20px rgba(255, 200, 50, 0.6);
+      transform: scale(1.08);
+      box-shadow: 0 0 25px rgba(255, 215, 0, 0.6);
+    }
+
+    .btn:active {
+      transform: scale(0.95);
     }
     
     .back-btn {
@@ -87,14 +112,79 @@
       left: 20px;
       z-index: 100;
     }
+
+    /* Combo Display */
+    .combo-display {
+      position: fixed;
+      top: 120px;
+      right: 20px;
+      background: rgba(255, 140, 0, 0.9);
+      border: 4px solid #FFD700;
+      border-radius: 15px;
+      padding: 15px 25px;
+      color: #FFF;
+      font-size: 32px;
+      text-shadow: 3px 3px 6px #000;
+      z-index: 100;
+      animation: comboPulse 0.5s infinite;
+      display: none;
+    }
+
+    @keyframes comboPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+
+    .combo-display.active {
+      display: block;
+    }
+
+    /* Power-up Display */
+    .powerup-display {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 15px;
+      z-index: 100;
+    }
+
+    .powerup-item {
+      background: rgba(0, 0, 0, 0.85);
+      border: 3px solid #00FF00;
+      border-radius: 12px;
+      padding: 10px 20px;
+      color: #00FF00;
+      font-size: 24px;
+      text-shadow: 2px 2px 4px #000;
+      backdrop-filter: blur(5px);
+      animation: powerupGlow 1s infinite;
+    }
+
+    @keyframes powerupGlow {
+      0%, 100% { box-shadow: 0 0 10px rgba(0, 255, 0, 0.5); }
+      50% { box-shadow: 0 0 25px rgba(0, 255, 0, 0.9); }
+    }
+
+    .powerup-item.inactive {
+      opacity: 0.3;
+      border-color: #666;
+      color: #666;
+      animation: none;
+    }
     
+    /* Menu Screen - ENTRANCE IMAGE */
     .menu-screen {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background: linear-gradient(180deg, rgba(10, 58, 92, 0.95), rgba(26, 95, 138, 0.95));
+      background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)),
+                  url('https://i.imgur.com/VLydvTc.png');
+      background-size: cover;
+      background-position: center;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -106,38 +196,59 @@
       display: none;
     }
     
-    .menu-screen h1 {
-      font-size: 64px;
-      color: #ffeb3b;
-      text-shadow: 4px 4px 0 #8B4513;
+    .game-title {
+      font-size: 72px;
+      color: #FFD700;
+      text-shadow: 5px 5px 10px rgba(0,0,0,0.8);
       margin-bottom: 20px;
+      animation: titleFloat 3s infinite;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 20px 40px;
+      border-radius: 20px;
+      border: 4px solid #FFD700;
+    }
+
+    @keyframes titleFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-15px); }
     }
     
-    .menu-screen p {
-      font-size: 24px;
-      color: #fff;
+    .menu-subtitle {
+      font-size: 28px;
+      color: #FFF;
+      text-shadow: 3px 3px 6px rgba(0,0,0,0.8);
       margin-bottom: 40px;
-      text-shadow: 2px 2px 0 #000;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 15px 30px;
+      border-radius: 15px;
     }
     
     .start-btn {
-      background: linear-gradient(135deg, #4CAF50, #2E7D32);
-      border: 4px solid #8BC34A;
-      color: #fff;
-      padding: 20px 50px;
-      font-size: 32px;
-      cursor: pointer;
-      border-radius: 15px;
+      background: linear-gradient(135deg, #FFD700, #FFA500);
+      border: 5px solid #FF8C00;
+      color: #8B4513;
+      padding: 20px 60px;
       font-family: 'Krabby Patty', Arial, sans-serif;
+      font-size: 36px;
+      cursor: pointer;
+      border-radius: 20px;
       transition: all 0.3s;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      font-weight: bold;
+      text-shadow: 2px 2px 4px rgba(255,255,255,0.5);
     }
     
     .start-btn:hover {
-      transform: scale(1.1);
-      box-shadow: 0 0 30px rgba(76, 175, 80, 0.8);
+      transform: scale(1.12);
+      box-shadow: 0 15px 40px rgba(255,165,0,0.8);
+    }
+
+    .start-btn:active {
+      transform: scale(1.05);
     }
     
-    .game-over-screen {
+    /* Game Over Screen */
+    .game-over {
       position: fixed;
       top: 0;
       left: 0;
@@ -148,777 +259,884 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      z-index: 200;
+      z-index: 300;
     }
     
-    .game-over-screen.show {
+    .game-over.active {
       display: flex;
     }
     
-    .game-over-screen h2 {
-      font-size: 56px;
-      color: #ff6b6b;
+    .game-over-title {
+      font-size: 64px;
+      color: #FF4444;
+      text-shadow: 4px 4px 8px #000;
       margin-bottom: 30px;
-      text-shadow: 3px 3px 0 #000;
+      animation: gameOverShake 0.5s;
+    }
+
+    @keyframes gameOverShake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-20px); }
+      75% { transform: translateX(20px); }
     }
     
-    .game-over-screen p {
-      font-size: 32px;
-      color: #fff;
-      margin-bottom: 40px;
+    .final-stats {
+      background: rgba(255, 255, 255, 0.1);
+      border: 3px solid #FFD700;
+      border-radius: 15px;
+      padding: 30px;
+      margin-bottom: 30px;
     }
     
+    .final-stat {
+      font-size: 28px;
+      color: #FFD700;
+      margin: 10px 0;
+      text-shadow: 2px 2px 4px #000;
+    }
+
+    /* Score Popup */
+    .score-popup {
+      position: fixed;
+      font-size: 36px;
+      color: #FFD700;
+      text-shadow: 3px 3px 6px #000;
+      font-weight: bold;
+      animation: scoreFloat 1.5s ease-out forwards;
+      pointer-events: none;
+      z-index: 150;
+    }
+
     @keyframes scoreFloat {
-      0% { opacity: 1; transform: translate(-50%, -50%) scale(0.5); }
-      50% { transform: translate(-50%, -80%) scale(1.2); }
-      100% { opacity: 0; transform: translate(-50%, -120%); }
+      0% {
+        opacity: 1;
+        transform: translateY(0) scale(0.5);
+      }
+      20% {
+        transform: translateY(-20px) scale(1.2);
+      }
+      100% {
+        opacity: 0;
+        transform: translateY(-80px) scale(1);
+      }
     }
-    
-    @keyframes damageFlash {
-      0%, 100% { opacity: 0; }
-      50% { opacity: 1; }
+
+    /* Milestone Banner */
+    .milestone-banner {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(255, 215, 0, 0.95);
+      border: 6px solid #FF8C00;
+      border-radius: 20px;
+      padding: 30px 60px;
+      font-size: 48px;
+      color: #8B4513;
+      text-shadow: 3px 3px 6px rgba(255,255,255,0.5);
+      z-index: 250;
+      animation: milestoneBounce 0.8s;
+      display: none;
+      font-weight: bold;
+    }
+
+    @keyframes milestoneBounce {
+      0%, 100% { transform: translate(-50%, -50%) scale(1); }
+      50% { transform: translate(-50%, -50%) scale(1.2); }
+    }
+
+    .milestone-banner.active {
+      display: block;
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+      .game-title {
+        font-size: 42px;
+        padding: 15px 25px;
+      }
+
+      .menu-subtitle {
+        font-size: 20px;
+        padding: 10px 20px;
+      }
+
+      .start-btn {
+        font-size: 28px;
+        padding: 15px 40px;
+      }
+
+      .stat-box {
+        font-size: 16px;
+        padding: 8px 12px;
+        min-width: 80px;
+      }
+
+      .stat-value {
+        font-size: 22px;
+      }
+
+      .combo-display {
+        font-size: 24px;
+        padding: 10px 15px;
+      }
+
+      .powerup-item {
+        font-size: 18px;
+        padding: 8px 15px;
+      }
     }
   </style>
 </head>
 <body>
-  <!-- Background Music -->
-  <audio id="bgMusic" loop>
-    <source src="../bob.mp3" type="audio/mpeg">
-  </audio>
-  
-  <a href="../index.html" class="btn back-btn">◀ MENU</a>
-  
+  <!-- Menu Screen with Mrs. Puff's Boating School -->
   <div class="menu-screen" id="menuScreen">
-    <h1>🛥️ MRS. PUFF'S BOATING SCHOOL</h1>
-    <p>Pass your boating test • Avoid obstacles • Collect points!</p>
-    <p style="font-size: 18px; color: #ccc; margin-top: -20px;">Use A/D or Arrow Keys to steer</p>
-    <p style="font-size: 16px; color: #ffeb3b; margin-top: 10px;">⭐ Don't crash or Mrs. Puff will fail you! ⭐</p>
-    <button class="start-btn" onclick="startGame()">START TEST</button>
+    <h1 class="game-title">⛵ BOATING SCHOOL CHAOS ⛵</h1>
+    <p class="menu-subtitle">Pass Mrs. Puff's Driving Test!</p>
+    <button class="start-btn" onclick="startGame()">START TEST!</button>
   </div>
-  
-  <div class="game-over-screen" id="gameOverScreen">
-    <h2>TEST FAILED!</h2>
-    <p style="color: #ff6b6b;">Mrs. Puff says: "Oh, SpongeBob..."</p>
-    <p id="finalScore">Final Score: 0</p>
-    <button class="start-btn" onclick="startGame()">RETRY TEST</button>
+
+  <!-- Game Over Screen -->
+  <div class="game-over" id="gameOver">
+    <h1 class="game-over-title">FAILED! 💥</h1>
+    <div class="final-stats">
+      <div class="final-stat">Distance: <span id="finalDistance">0</span>m</div>
+      <div class="final-stat">Score: <span id="finalScore">0</span></div>
+      <div class="final-stat">Stars: <span id="finalStars">0</span> ⭐</div>
+      <div class="final-stat">Max Combo: <span id="finalCombo">0</span>x</div>
+    </div>
+    <button class="btn" onclick="restartGame()">TRY AGAIN</button>
+    <button class="btn" onclick="backToMenu()">MAIN MENU</button>
   </div>
-  
+
+  <!-- Canvas -->
+  <canvas id="canvas"></canvas>
+
+  <!-- HUD -->
   <div class="hud">
     <div class="stat-box">
-      <div style="font-size: 14px; color: #ccc;">TEST POINTS</div>
-      <div id="scoreDisplay">0</div>
+      <span class="stat-label">SCORE</span>
+      <span class="stat-value" id="score">0</span>
     </div>
     <div class="stat-box">
-      <div style="font-size: 14px; color: #ccc;">MISTAKES</div>
-      <div id="livesDisplay">0/3</div>
+      <span class="stat-label">DISTANCE</span>
+      <span class="stat-value" id="distance">0m</span>
     </div>
     <div class="stat-box">
-      <div style="font-size: 14px; color: #ccc;">DISTANCE</div>
-      <div id="distanceDisplay">0m</div>
+      <span class="stat-label">LIVES</span>
+      <span class="stat-value" id="lives">❤️❤️❤️</span>
+    </div>
+    <div class="stat-box">
+      <span class="stat-label">STARS</span>
+      <span class="stat-value" id="starsCollected">0 ⭐</span>
     </div>
   </div>
-  
-  <div class="controls">
-    <button class="btn" id="musicBtn">🎵</button>
-    <button class="btn" id="pauseBtn">Pause</button>
-    <button class="btn" id="boostBtn" style="background: #FF4500; border-color: #FF6347;">🚀 BOOST</button>
+
+  <!-- Combo Display -->
+  <div class="combo-display" id="comboDisplay">
+    COMBO: <span id="comboValue">0</span>x
   </div>
-  
-  <!-- Mobile Controls -->
-  <div id="mobileControls" style="display: none;">
-    <div style="position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 15px; z-index: 1000;">
-      <button id="leftBtn" style="width: 80px; height: 80px; background: rgba(139, 69, 19, 0.9); border: 3px solid #ffcc00; border-radius: 10px; color: #ffcc00; font-size: 36px; cursor: pointer;">⬅️</button>
-      <button id="rightBtn" style="width: 80px; height: 80px; background: rgba(139, 69, 19, 0.9); border: 3px solid #ffcc00; border-radius: 10px; color: #ffcc00; font-size: 36px; cursor: pointer;">➡️</button>
-    </div>
+
+  <!-- Power-ups Display -->
+  <div class="powerup-display">
+    <div class="powerup-item inactive" id="shieldDisplay">🛡️ SHIELD</div>
+    <div class="powerup-item inactive" id="speedDisplay">⚡ BOOST</div>
+    <div class="powerup-item inactive" id="magnetDisplay">🧲 MAGNET</div>
   </div>
-  
+
+  <!-- Milestone Banner -->
+  <div class="milestone-banner" id="milestoneBanner"></div>
+
+  <!-- Back Button -->
+  <button class="btn back-btn" onclick="window.location.href='../index.html'">← BACK</button>
+
   <script>
-    let scene, camera, renderer, boat;
-    let obstacles = [];
-    let collectibles = [];
-    let keys = {};
+    // Game State
     let gameState = {
+      playing: false,
       score: 0,
-      lives: 3,
       distance: 0,
-      isGameOver: false,
-      isPaused: false,
-      speed: 0.08,
-      startTime: 0,
-      difficulty: 1,
-      isBoosting: false,
-      boostCooldown: 0
+      lives: 3,
+      stars: 0,
+      combo: 0,
+      maxCombo: 0,
+      speed: 0.15,
+      baseSpeed: 0.15,
+      
+      // Power-ups
+      shield: { active: false, duration: 0 },
+      speedBoost: { active: false, duration: 0 },
+      magnet: { active: false, duration: 0 },
+      
+      // Milestones
+      milestones: {
+        distance100: false,
+        distance500: false,
+        distance1000: false,
+        perfectRun: false,
+        combo10: false
+      },
+      
+      perfectRunTimer: 0,
+      lastHitTime: 0
     };
-    let lastCollisionTime = 0;
-    const BOOST_DURATION = 2000; // 2 seconds
-    const BOOST_COOLDOWN = 5000; // 5 seconds cooldown
-    const BOOST_MULTIPLIER = 2.5; // 2.5x speed
 
-    function init() {
-      // Scene
-      scene = new THREE.Scene();
-      scene.background = new THREE.Color(0x87CEEB); // Sky blue
-      scene.fog = new THREE.Fog(0x87CEEB, 50, 150);
+    // THREE.js Setup
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('canvas'), antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setClearColor(0x87CEEB);
 
-      // Camera - MUCH closer and better angle
-      camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-      camera.position.set(0, 8, 15);
-      camera.lookAt(0, 0, 0);
+    camera.position.set(0, 3, 5);
+    camera.lookAt(0, 0, 0);
 
-      // Renderer
-      renderer = new THREE.WebGLRenderer({ antialias: true });
-      renderer.setSize(window.innerWidth, window.innerHeight);
-      renderer.shadowMap.enabled = true;
-      document.body.appendChild(renderer.domElement);
+    // Lighting
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+    scene.add(ambientLight);
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    directionalLight.position.set(5, 10, 5);
+    scene.add(directionalLight);
 
-      // Lighting - MUCH BRIGHTER
-      const ambientLight = new THREE.AmbientLight(0xffffff, 0.9);
-      scene.add(ambientLight);
+    // Player Boat - Better looking boat shape
+    const boatGroup = new THREE.Group();
+    
+    // Main hull (rounded box)
+    const hullGeometry = new THREE.BoxGeometry(0.8, 0.4, 1.2);
+    const hullMaterial = new THREE.MeshPhongMaterial({ color: 0xFF6B6B });
+    const hull = new THREE.Mesh(hullGeometry, hullMaterial);
+    hull.position.y = 0;
+    boatGroup.add(hull);
+    
+    // Front point (cone for bow)
+    const bowGeometry = new THREE.ConeGeometry(0.4, 0.6, 8);
+    const bowMaterial = new THREE.MeshPhongMaterial({ color: 0xFF6B6B });
+    const bow = new THREE.Mesh(bowGeometry, bowMaterial);
+    bow.rotation.z = -Math.PI / 2;
+    bow.position.z = -0.9;
+    boatGroup.add(bow);
+    
+    // Small cabin/mast
+    const cabinGeometry = new THREE.BoxGeometry(0.3, 0.6, 0.4);
+    const cabinMaterial = new THREE.MeshPhongMaterial({ color: 0xFFFFFF });
+    const cabin = new THREE.Mesh(cabinGeometry, cabinMaterial);
+    cabin.position.y = 0.5;
+    cabin.position.z = 0.2;
+    boatGroup.add(cabin);
+    
+    const boat = boatGroup;
+    boat.position.y = 0.5;
+    scene.add(boat);
 
-      const sunLight = new THREE.DirectionalLight(0xffff99, 0.8);
-      sunLight.position.set(20, 50, 20);
-      sunLight.castShadow = true;
-      scene.add(sunLight);
+    // Road/Ocean
+    const roadGeometry = new THREE.PlaneGeometry(10, 100);
+    const roadMaterial = new THREE.MeshPhongMaterial({ color: 0x4682B4 });
+    const road = new THREE.Mesh(roadGeometry, roadMaterial);
+    road.rotation.x = -Math.PI / 2;
+    road.position.z = -45;
+    scene.add(road);
 
-      // Endless ocean floor system
-      window.oceanTiles = [];
-      const tileSize = 100;
-      const tileCount = 5;
+    // Lane markers
+    const laneMarkers = [];
+    for (let i = 0; i < 20; i++) {
+      const markerGeometry = new THREE.BoxGeometry(0.2, 0.1, 2);
+      const markerMaterial = new THREE.MeshBasicMaterial({ color: 0xFFFFFF });
+      const marker = new THREE.Mesh(markerGeometry, markerMaterial);
+      marker.position.set(-2.5, 0.05, -i * 5);
+      scene.add(marker);
+      laneMarkers.push(marker);
       
-      for (let i = 0; i < tileCount; i++) {
-        const oceanGeom = new THREE.PlaneGeometry(40, tileSize);
-        const oceanMat = new THREE.MeshLambertMaterial({ 
-          color: 0x4169E1,
-          side: THREE.DoubleSide
-        });
-        const ocean = new THREE.Mesh(oceanGeom, oceanMat);
-        ocean.rotation.x = -Math.PI / 2;
-        ocean.position.y = -1;
-        ocean.position.z = -i * tileSize;
-        scene.add(ocean);
-        window.oceanTiles.push(ocean);
-      }
-
-      // Endless lane markers
-      window.laneMarkers = [];
-      const laneGeom = new THREE.PlaneGeometry(0.5, tileSize);
-      const laneMat = new THREE.MeshBasicMaterial({ color: 0xFFFFFF, transparent: true, opacity: 0.3 });
-      
-      for (let tile = 0; tile < tileCount; tile++) {
-        for (let i = -15; i <= 15; i += 5) {
-          const lane = new THREE.Mesh(laneGeom, laneMat);
-          lane.rotation.x = -Math.PI / 2;
-          lane.position.set(i, -0.9, -tile * tileSize);
-          scene.add(lane);
-          window.laneMarkers.push(lane);
-        }
-      }
-
-      // Add coral reef decorations on the sides
-      window.coralReefs = [];
-      const coralColors = [0xFF69B4, 0xFF1493, 0xDA70D6, 0xFF6347];
-      
-      for (let tile = 0; tile < tileCount * 2; tile++) {
-        // Left side coral
-        for (let i = 0; i < 3; i++) {
-          const coralType = Math.floor(Math.random() * 3);
-          let coral;
-          
-          if (coralType === 0) {
-            // Tall coral
-            const geom = new THREE.ConeGeometry(0.8, 2.5, 6);
-            coral = new THREE.Mesh(geom, new THREE.MeshLambertMaterial({ 
-              color: coralColors[Math.floor(Math.random() * coralColors.length)] 
-            }));
-          } else if (coralType === 1) {
-            // Round coral
-            const geom = new THREE.SphereGeometry(0.7, 8, 8);
-            coral = new THREE.Mesh(geom, new THREE.MeshLambertMaterial({ 
-              color: coralColors[Math.floor(Math.random() * coralColors.length)] 
-            }));
-          } else {
-            // Fan coral
-            const geom = new THREE.BoxGeometry(1.2, 2, 0.2);
-            coral = new THREE.Mesh(geom, new THREE.MeshLambertMaterial({ 
-              color: coralColors[Math.floor(Math.random() * coralColors.length)] 
-            }));
-          }
-          
-          coral.position.set(
-            -12 - Math.random() * 3,
-            1,
-            -tile * 50 - Math.random() * 30
-          );
-          coral.rotation.y = Math.random() * Math.PI;
-          scene.add(coral);
-          window.coralReefs.push(coral);
-        }
-        
-        // Right side coral
-        for (let i = 0; i < 3; i++) {
-          const coralType = Math.floor(Math.random() * 3);
-          let coral;
-          
-          if (coralType === 0) {
-            const geom = new THREE.ConeGeometry(0.8, 2.5, 6);
-            coral = new THREE.Mesh(geom, new THREE.MeshLambertMaterial({ 
-              color: coralColors[Math.floor(Math.random() * coralColors.length)] 
-            }));
-          } else if (coralType === 1) {
-            const geom = new THREE.SphereGeometry(0.7, 8, 8);
-            coral = new THREE.Mesh(geom, new THREE.MeshLambertMaterial({ 
-              color: coralColors[Math.floor(Math.random() * coralColors.length)] 
-            }));
-          } else {
-            const geom = new THREE.BoxGeometry(1.2, 2, 0.2);
-            coral = new THREE.Mesh(geom, new THREE.MeshLambertMaterial({ 
-              color: coralColors[Math.floor(Math.random() * coralColors.length)] 
-            }));
-          }
-          
-          coral.position.set(
-            12 + Math.random() * 3,
-            1,
-            -tile * 50 - Math.random() * 30
-          );
-          coral.rotation.y = Math.random() * Math.PI;
-          scene.add(coral);
-          window.coralReefs.push(coral);
-        }
-      }
-
-      // Create boat
-      createBoat();
-
-      // Event listeners
-      window.addEventListener('keydown', (e) => keys[e.key.toLowerCase()] = true);
-      window.addEventListener('keyup', (e) => keys[e.key.toLowerCase()] = false);
-      window.addEventListener('resize', handleResize);
-      
-      document.getElementById('pauseBtn').addEventListener('click', togglePause);
-      document.getElementById('musicBtn').addEventListener('click', toggleMusic);
-      document.getElementById('boostBtn').addEventListener('click', activateBoost);
-
-      // Setup music
-      const music = document.getElementById('bgMusic');
-      music.volume = 0.3;
-      
-      // Mobile controls
-      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
-      if (isMobile) {
-        document.getElementById('mobileControls').style.display = 'block';
-        
-        const leftBtn = document.getElementById('leftBtn');
-        const rightBtn = document.getElementById('rightBtn');
-        
-        leftBtn.addEventListener('touchstart', (e) => {
-          e.preventDefault();
-          keys['a'] = true;
-        });
-        leftBtn.addEventListener('touchend', (e) => {
-          e.preventDefault();
-          keys['a'] = false;
-        });
-        
-        rightBtn.addEventListener('touchstart', (e) => {
-          e.preventDefault();
-          keys['d'] = true;
-        });
-        rightBtn.addEventListener('touchend', (e) => {
-          e.preventDefault();
-          keys['d'] = false;
-        });
-        
-        // Also support mouse for testing
-        leftBtn.addEventListener('mousedown', () => keys['a'] = true);
-        leftBtn.addEventListener('mouseup', () => keys['a'] = false);
-        rightBtn.addEventListener('mousedown', () => keys['d'] = true);
-        rightBtn.addEventListener('mouseup', () => keys['d'] = false);
-      }
-
-      animate();
+      const marker2 = marker.clone();
+      marker2.position.x = 2.5;
+      scene.add(marker2);
+      laneMarkers.push(marker2);
     }
 
-    function createBoat() {
-      boat = new THREE.Group();
+    // Game Objects
+    const obstacles = [];
+    const collectibles = [];
+    const powerups = [];
+    const particles = [];
 
-      // Hull - BRIGHT YELLOW
-      const hullGeom = new THREE.BoxGeometry(2, 1, 3.5);
-      const hullMat = new THREE.MeshLambertMaterial({ color: 0xFFFF00 });
-      const hull = new THREE.Mesh(hullGeom, hullMat);
-      hull.castShadow = true;
-      boat.add(hull);
+    // Obstacle Types
+    const obstacleTypes = [
+      { color: 0x8B4513, size: 0.8, points: -50, name: 'rock' },
+      { color: 0xFF0000, size: 0.7, points: -75, name: 'barrel' },
+      { color: 0x00FF00, size: 0.6, points: -60, name: 'buoy' },
+      { color: 0x0000FF, size: 1.0, points: -100, name: 'boat' },
+      { color: 0x000000, size: 0.9, points: -150, name: 'mine' }
+    ];
 
-      // Cabin - WHITE
-      const cabinGeom = new THREE.BoxGeometry(1.5, 0.8, 1.2);
-      const cabinMat = new THREE.MeshLambertMaterial({ color: 0xFFFFFF });
-      const cabin = new THREE.Mesh(cabinGeom, cabinMat);
-      cabin.position.y = 0.9;
-      cabin.castShadow = true;
-      boat.add(cabin);
+    // Input Handling
+    const keys = {};
+    window.addEventListener('keydown', (e) => keys[e.key] = true);
+    window.addEventListener('keyup', (e) => keys[e.key] = false);
 
-      // Bow accent - RED
-      const bowGeom = new THREE.ConeGeometry(0.8, 0.6, 4);
-      const bowMat = new THREE.MeshLambertMaterial({ color: 0xFF0000 });
-      const bow = new THREE.Mesh(bowGeom, bowMat);
-      bow.position.z = 1.9;
-      bow.position.y = 0.3;
-      bow.rotation.x = Math.PI / 2;
-      bow.castShadow = true;
-      boat.add(bow);
+    // Touch controls for mobile
+    let touchStartX = 0;
+    window.addEventListener('touchstart', (e) => {
+      touchStartX = e.touches[0].clientX;
+    });
+    window.addEventListener('touchmove', (e) => {
+      e.preventDefault();
+      const touchX = e.touches[0].clientX;
+      const diff = touchX - touchStartX;
+      
+      if (diff > 20) {
+        keys['ArrowRight'] = true;
+        keys['ArrowLeft'] = false;
+      } else if (diff < -20) {
+        keys['ArrowLeft'] = true;
+        keys['ArrowRight'] = false;
+      }
+      
+      touchStartX = touchX;
+    });
+    window.addEventListener('touchend', () => {
+      keys['ArrowLeft'] = false;
+      keys['ArrowRight'] = false;
+    });
 
-      boat.position.y = 1;
-      boat.position.z = 0;
-      scene.add(boat);
-    }
-
+    // Spawn Obstacle
     function spawnObstacle() {
-      const types = [
-        { name: 'rock', color: 0x808080, size: 1.5 },
-        { name: 'coral', color: 0xFF69B4, size: 1.8 },
-        { name: 'shell', color: 0xFFE4B5, size: 1.3 },
-        { name: 'starfish', color: 0xFF8C00, size: 1.2 },
-        { name: 'buoy', color: 0xFF4500, size: 1.2 }
-      ];
+      if (!gameState.playing) return;
       
-      const type = types[Math.floor(Math.random() * types.length)];
+      const difficultyLevel = Math.floor(gameState.distance / 100);
+      const availableTypes = obstacleTypes.slice(0, Math.min(difficultyLevel + 1, obstacleTypes.length));
       
-      let geometry;
-      if (type.name === 'rock') {
-        geometry = new THREE.DodecahedronGeometry(type.size);
-      } else if (type.name === 'coral') {
-        geometry = new THREE.ConeGeometry(type.size, type.size * 2, 5);
-      } else if (type.name === 'shell') {
-        // Shell - flattened sphere
-        geometry = new THREE.SphereGeometry(type.size, 12, 8);
-        geometry.scale(1, 0.5, 1.2);
-      } else if (type.name === 'starfish') {
-        // Starfish - star shape
-        geometry = new THREE.CylinderGeometry(type.size, type.size, 0.3, 5);
-      } else if (type.name === 'buoy') {
-        geometry = new THREE.SphereGeometry(type.size, 8, 8);
-      } else {
-        geometry = new THREE.BoxGeometry(type.size, type.size * 2, type.size);
-      }
+      const type = availableTypes[Math.floor(Math.random() * availableTypes.length)];
       
-      const material = new THREE.MeshLambertMaterial({ color: type.color });
+      const geometry = type.name === 'boat' 
+        ? new THREE.BoxGeometry(1.2, 0.8, type.size)
+        : new THREE.SphereGeometry(type.size, 8, 8);
+      
+      const material = new THREE.MeshPhongMaterial({ color: type.color });
       const obstacle = new THREE.Mesh(geometry, material);
       
-      // Spawn MUCH farther ahead - was -60 to -110, now -150 to -250
-      const spawnDistance = -150 - Math.random() * 100;
-      
+      const lanes = [-3, 0, 3];
       obstacle.position.set(
-        (Math.random() - 0.5) * 16,
-        1.5,
-        spawnDistance
+        lanes[Math.floor(Math.random() * lanes.length)],
+        type.size,
+        -50
       );
-      obstacle.castShadow = true;
-      obstacle.userData = { 
-        type: type.name,
-        bobSpeed: Math.random() * 0.02 + 0.01,
-        bobOffset: Math.random() * Math.PI * 2
-      };
       
+      obstacle.userData = { type: type, hit: false };
       scene.add(obstacle);
       obstacles.push(obstacle);
     }
 
-    function spawnCollectible() {
-      // Gold star for test points
-      const geometry = new THREE.OctahedronGeometry(0.8);
-      const material = new THREE.MeshLambertMaterial({ color: 0xFFD700, emissive: 0xFFD700, emissiveIntensity: 0.3 });
-      const collectible = new THREE.Mesh(geometry, material);
+    // Spawn Star (Collectible)
+    function spawnStar() {
+      if (!gameState.playing) return;
       
-      collectible.position.set(
-        (Math.random() - 0.5) * 16,
-        2,
-        -150 - Math.random() * 80
+      const starGeometry = new THREE.OctahedronGeometry(0.4, 0);
+      const starMaterial = new THREE.MeshPhongMaterial({ 
+        color: 0xFFD700,
+        emissive: 0xFFD700,
+        emissiveIntensity: 0.5
+      });
+      const star = new THREE.Mesh(starGeometry, starMaterial);
+      
+      const lanes = [-3, 0, 3];
+      star.position.set(
+        lanes[Math.floor(Math.random() * lanes.length)],
+        1,
+        -50
       );
-      collectible.castShadow = true;
       
-      scene.add(collectible);
-      collectibles.push(collectible);
+      star.userData = { collected: false, points: 100 };
+      scene.add(star);
+      collectibles.push(star);
     }
-    
-    function spawnObstaclePattern() {
-      // Sometimes spawn patterns of obstacles
-      const patterns = [
-        'line',    // Line of obstacles
-        'zigzag',  // Zigzag pattern
-        'wall'     // Wall with gap
-      ];
+
+    // Spawn Power-up
+    function spawnPowerup() {
+      if (!gameState.playing) return;
       
-      const pattern = patterns[Math.floor(Math.random() * patterns.length)];
-      const baseZ = -70 - Math.random() * 30;
-      
-      if (pattern === 'line') {
-        // 3-4 obstacles in a line
-        const count = 3 + Math.floor(Math.random() * 2);
-        const x = (Math.random() - 0.5) * 12;
-        for (let i = 0; i < count; i++) {
-          spawnObstacleAt(x, baseZ - i * 8);
-        }
-      } else if (pattern === 'zigzag') {
-        // Zigzag pattern
-        for (let i = 0; i < 4; i++) {
-          const x = (i % 2 === 0 ? -6 : 6);
-          spawnObstacleAt(x, baseZ - i * 10);
-        }
-      } else if (pattern === 'wall') {
-        // Wall with a gap
-        const gapPosition = Math.floor(Math.random() * 3);
-        for (let i = 0; i < 4; i++) {
-          if (i !== gapPosition) {
-            const x = -8 + i * 5.5;
-            spawnObstacleAt(x, baseZ);
-          }
-        }
-      }
-    }
-    
-    function spawnObstacleAt(x, z) {
       const types = [
-        { name: 'rock', color: 0x808080, size: 1.5 },
-        { name: 'coral', color: 0xFF69B4, size: 1.8 },
-        { name: 'anchor', color: 0x404040, size: 1.3 },
-        { name: 'barrel', color: 0x8B4513, size: 1.4 }
+        { color: 0x00FFFF, type: 'shield' },
+        { color: 0xFFFF00, type: 'speed' },
+        { color: 0xFF00FF, type: 'magnet' }
       ];
       
-      const type = types[Math.floor(Math.random() * types.length)];
-      let geometry;
+      const powerupType = types[Math.floor(Math.random() * types.length)];
       
-      if (type.name === 'rock') {
-        geometry = new THREE.DodecahedronGeometry(type.size);
-      } else if (type.name === 'coral') {
-        geometry = new THREE.ConeGeometry(type.size, type.size * 2, 5);
-      } else if (type.name === 'barrel') {
-        geometry = new THREE.CylinderGeometry(type.size * 0.7, type.size * 0.8, type.size * 1.5);
-      } else {
-        geometry = new THREE.BoxGeometry(type.size, type.size * 2, type.size);
-      }
+      const geometry = new THREE.BoxGeometry(0.6, 0.6, 0.6);
+      const material = new THREE.MeshPhongMaterial({ 
+        color: powerupType.color,
+        emissive: powerupType.color,
+        emissiveIntensity: 0.3
+      });
+      const powerup = new THREE.Mesh(geometry, material);
       
-      const material = new THREE.MeshLambertMaterial({ color: type.color });
-      const obstacle = new THREE.Mesh(geometry, material);
+      const lanes = [-3, 0, 3];
+      powerup.position.set(
+        lanes[Math.floor(Math.random() * lanes.length)],
+        1,
+        -50
+      );
       
-      obstacle.position.set(x, 1.5, z);
-      obstacle.castShadow = true;
-      obstacle.userData = { 
-        type: type.name,
-        bobSpeed: Math.random() * 0.02 + 0.01,
-        bobOffset: Math.random() * Math.PI * 2
-      };
-      
-      scene.add(obstacle);
-      obstacles.push(obstacle);
+      powerup.userData = { type: powerupType.type, collected: false };
+      scene.add(powerup);
+      powerups.push(powerup);
     }
 
-    function startGame() {
-      gameState = {
-        score: 0,
-        lives: 3,
-        distance: 0,
-        isGameOver: false,
-        isPaused: false,
-        speed: 0.08,
-        startTime: Date.now(),
-        difficulty: 1
-      };
-      
-      // Clear everything
-      obstacles.forEach(obs => scene.remove(obs));
-      collectibles.forEach(col => scene.remove(col));
-      obstacles = [];
-      collectibles = [];
-      
-      boat.position.set(0, 1, 0);
-      lastCollisionTime = 0;
-      
-      document.getElementById('menuScreen').classList.add('hidden');
-      document.getElementById('gameOverScreen').classList.remove('show');
-      
-      // Play "How about we just go for a drive?" sound
-      soundManager.play('drive');
-      
-      // Start music
-      const music = document.getElementById('bgMusic');
-      music.play().catch(err => console.log('Music autoplay blocked'));
-      document.getElementById('musicBtn').textContent = '🎵';
-      
-      updateUI();
-    }
-
-    function togglePause() {
-      if (!gameState.isGameOver) {
-        gameState.isPaused = !gameState.isPaused;
-        document.getElementById('pauseBtn').textContent = gameState.isPaused ? 'Resume' : 'Pause';
+    // Create Particle Effect
+    function createParticles(position, color, count = 15) {
+      for (let i = 0; i < count; i++) {
+        const geometry = new THREE.SphereGeometry(0.1, 4, 4);
+        const material = new THREE.MeshBasicMaterial({ color: color });
+        const particle = new THREE.Mesh(geometry, material);
+        
+        particle.position.copy(position);
+        particle.velocity = new THREE.Vector3(
+          (Math.random() - 0.5) * 0.3,
+          Math.random() * 0.3,
+          (Math.random() - 0.5) * 0.3
+        );
+        particle.life = 1.0;
+        
+        scene.add(particle);
+        particles.push(particle);
       }
     }
 
-    function toggleMusic() {
-      const music = document.getElementById('bgMusic');
-      const btn = document.getElementById('musicBtn');
-      if (music.paused) {
-        music.play();
-        btn.textContent = '🎵';
-      } else {
-        music.pause();
-        btn.textContent = '🔇';
-      }
+    // Show Score Popup
+    function showScorePopup(points) {
+      const popup = document.createElement('div');
+      popup.className = 'score-popup';
+      popup.textContent = `+${points}`;
+      popup.style.left = (window.innerWidth / 2 + (Math.random() - 0.5) * 100) + 'px';
+      popup.style.top = (window.innerHeight / 3) + 'px';
+      document.body.appendChild(popup);
+      
+      setTimeout(() => popup.remove(), 1500);
     }
-    
-    function activateBoost() {
-      // Check if boost is on cooldown
-      if (gameState.boostCooldown > 0) {
-        return; // Can't boost yet
-      }
+
+    // Show Milestone
+    function showMilestone(text) {
+      const banner = document.getElementById('milestoneBanner');
+      banner.textContent = text;
+      banner.classList.add('active');
       
-      if (gameState.isGameOver || gameState.isPaused) {
-        return; // Can't boost when game over or paused
-      }
+      soundManager.play('victory');
       
-      // Activate boost
-      gameState.isBoosting = true;
-      gameState.boostCooldown = BOOST_COOLDOWN;
-      
-      // Update button to show it's active
-      const btn = document.getElementById('boostBtn');
-      btn.textContent = '🚀 BOOSTING!';
-      btn.style.background = '#00FF00';
-      btn.disabled = true;
-      
-      // Play "Floor it!" sound (we can use drive sound again)
-      soundManager.play('drive');
-      
-      // Visual effects - make boat glow
-      if (boat.material) {
-        boat.material.emissive = new THREE.Color(0xff4500);
-        boat.material.emissiveIntensity = 0.5;
-      }
-      
-      // End boost after duration
       setTimeout(() => {
-        gameState.isBoosting = false;
-        btn.textContent = '🚀 BOOST';
-        btn.style.background = '#FF4500';
-        
-        // Remove glow
-        if (boat.material) {
-          boat.material.emissive = new THREE.Color(0x000000);
-          boat.material.emissiveIntensity = 0;
-        }
-      }, BOOST_DURATION);
+        banner.classList.remove('active');
+      }, 2000);
+    }
+
+    // Check Milestones
+    function checkMilestones() {
+      if (gameState.distance >= 100 && !gameState.milestones.distance100) {
+        gameState.milestones.distance100 = true;
+        showMilestone('🎉 100 METERS! 🎉');
+        gameState.score += 500;
+      }
       
-      // Start cooldown countdown
-      const updateCooldown = setInterval(() => {
-        if (gameState.boostCooldown <= 0) {
-          btn.disabled = false;
-          btn.textContent = '🚀 BOOST';
-          clearInterval(updateCooldown);
-        } else {
-          const secondsLeft = Math.ceil(gameState.boostCooldown / 1000);
-          btn.textContent = `⏳ ${secondsLeft}s`;
-        }
-      }, 100);
+      if (gameState.distance >= 500 && !gameState.milestones.distance500) {
+        gameState.milestones.distance500 = true;
+        showMilestone('🏆 500 METERS! 🏆');
+        gameState.score += 1000;
+      }
+      
+      if (gameState.distance >= 1000 && !gameState.milestones.distance1000) {
+        gameState.milestones.distance1000 = true;
+        showMilestone('🌟 1 KILOMETER! 🌟');
+        gameState.score += 2000;
+      }
+      
+      if (gameState.combo >= 10 && !gameState.milestones.combo10) {
+        gameState.milestones.combo10 = true;
+        showMilestone('🔥 COMBO x10! 🔥');
+        gameState.score += 500;
+      }
+      
+      if (Date.now() - gameState.lastHitTime > 30000 && !gameState.milestones.perfectRun) {
+        gameState.milestones.perfectRun = true;
+        showMilestone('✨ PERFECT RUN! ✨');
+        gameState.score += 1500;
+        soundManager.play('ohyeah');
+      }
     }
 
-    function updateUI() {
-      document.getElementById('scoreDisplay').textContent = gameState.score;
-      const mistakes = 3 - gameState.lives;
-      document.getElementById('livesDisplay').textContent = mistakes + '/3';
-      document.getElementById('distanceDisplay').textContent = Math.floor(gameState.distance) + 'm';
-    }
-
-    function handleResize() {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
-    }
-
-    function animate() {
-      requestAnimationFrame(animate);
-
-      if (!gameState.isGameOver && !gameState.isPaused) {
-        // Update boost cooldown
-        if (gameState.boostCooldown > 0) {
-          gameState.boostCooldown = Math.max(0, gameState.boostCooldown - 16); // Decrease by ~16ms per frame
+    // Update Power-ups
+    function updatePowerups(delta) {
+      if (gameState.shield.active) {
+        gameState.shield.duration -= delta;
+        if (gameState.shield.duration <= 0) {
+          gameState.shield.active = false;
+          document.getElementById('shieldDisplay').classList.add('inactive');
         }
-        
-        // Determine current speed (boosted or normal)
-        const currentSpeed = gameState.isBoosting ? gameState.speed * BOOST_MULTIPLIER : gameState.speed;
-        
-        // Boat movement - SMOOTH
-        if (keys['a'] || keys['arrowleft']) {
-          boat.position.x -= 0.25;
-        }
-        if (keys['d'] || keys['arrowright']) {
-          boat.position.x += 0.25;
-        }
-        
-        // Keep boat in bounds
-        boat.position.x = Math.max(-10, Math.min(10, boat.position.x));
-        
-        // Boat tilt for steering feedback (more tilt when boosting)
-        boat.rotation.z = boat.position.x * -0.05 * (gameState.isBoosting ? 1.5 : 1);
-
-        // Move boat forward (use boosted speed if active)
-        boat.position.z -= currentSpeed;
-        gameState.distance = -boat.position.z;
-
-        // Camera follows boat
-        camera.position.x = boat.position.x * 0.3;
-        camera.position.z = boat.position.z + 15;
-        camera.lookAt(boat.position.x, 0, boat.position.z - 10);
-
-        // Endless ocean tiles loop
-        const tileSize = 100;
-        window.oceanTiles.forEach(tile => {
-          // When tile passes behind camera, move it to the front
-          if (tile.position.z - boat.position.z > tileSize / 2) {
-            tile.position.z -= tileSize * window.oceanTiles.length;
+        // Shield visual effect on all boat parts
+        boat.children.forEach(part => {
+          if (part.material) {
+            part.material.emissive.setHex(0x00FFFF);
+            part.material.emissiveIntensity = 0.5;
           }
         });
-        
-        // Endless lane markers loop
-        window.laneMarkers.forEach(marker => {
-          if (marker.position.z - boat.position.z > tileSize / 2) {
-            marker.position.z -= tileSize * (window.oceanTiles.length);
-          }
-        });
-        
-        // Endless coral reef loop
-        window.coralReefs.forEach(coral => {
-          if (coral.position.z - boat.position.z > 100) {
-            coral.position.z -= 1000; // Move far back
-          }
-        });
-
-        // Progressive difficulty
-        const timeElapsed = (Date.now() - gameState.startTime) / 1000;
-        gameState.difficulty = 1 + Math.min(timeElapsed / 45, 2); // Max 3x difficulty over 45s
-        const maxObstacles = Math.floor(6 * gameState.difficulty); // More obstacles
-        const spawnChance = 0.05 * gameState.difficulty; // Increased spawn rate
-        
-        // Spawn obstacles
-        if (obstacles.length < maxObstacles && Math.random() < spawnChance) {
-          spawnObstacle();
+      }
+      
+      if (gameState.speedBoost.active) {
+        gameState.speedBoost.duration -= delta;
+        if (gameState.speedBoost.duration <= 0) {
+          gameState.speedBoost.active = false;
+          gameState.speed = gameState.baseSpeed;
+          document.getElementById('speedDisplay').classList.add('inactive');
+        }
+      }
+      
+      if (gameState.magnet.active) {
+        gameState.magnet.duration -= delta;
+        if (gameState.magnet.duration <= 0) {
+          gameState.magnet.active = false;
+          document.getElementById('magnetDisplay').classList.add('inactive');
         }
         
-        // Spawn obstacle patterns
-        if (obstacles.length < maxObstacles - 2 && Math.random() < 0.008 * gameState.difficulty) {
-          spawnObstaclePattern();
-        }
-
-        // Spawn collectibles
-        if (collectibles.length < 3 && Math.random() < 0.02) {
-          spawnCollectible();
-        }
-
-        // Update obstacles
-        const now = Date.now();
-        obstacles = obstacles.filter(obs => {
-          obs.position.z += gameState.speed;
-          obs.rotation.y += 0.02;
-          
-          // Bobbing animation for floating objects
-          if (obs.userData.type === 'buoy') {
-            obs.position.y = 2.5 + Math.sin(now * obs.userData.bobSpeed + obs.userData.bobOffset) * 0.5;
-            obs.rotation.x = Math.sin(now * obs.userData.bobSpeed * 0.5) * 0.1;
-          }
-          
-          // Spin starfish slowly
-          if (obs.userData.type === 'starfish') {
-            obs.rotation.y += 0.02;
-          }
-
-          // Remove if behind boat
-          if (obs.position.z > 20) {
-            scene.remove(obs);
-            return false;
-          }
-
-          // Collision detection
-          if (now - lastCollisionTime > 1500) {
-            const dx = obs.position.x - boat.position.x;
-            const dz = obs.position.z - boat.position.z;
-            const dist = Math.sqrt(dx * dx + dz * dz);
-
-            if (dist < 2.5) {
-              lastCollisionTime = now;
-              gameState.lives--;
-              
-              // Play Mrs. Puff scream
-              soundManager.play('puffscream');
-
-              // Damage flash
-              const flash = document.createElement('div');
-              flash.style.cssText = `
-                position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-                background: rgba(255, 0, 0, 0.5); pointer-events: none; z-index: 999;
-                animation: damageFlash 0.3s;
-              `;
-              document.body.appendChild(flash);
-              setTimeout(() => flash.remove(), 300);
-
-              if (gameState.lives <= 0) {
-                gameState.isGameOver = true;
-                document.getElementById('finalScore').textContent = 'Final Score: ' + gameState.score;
-                document.getElementById('gameOverScreen').classList.add('show');
-                // Show leaderboard with distance traveled
-                setTimeout(() => showLeaderboardModal('boating-school', 'Boating School Chaos', Math.floor(gameState.distance)), 800);
-              }
-
-              updateUI();
-              scene.remove(obs);
-              return false;
+        collectibles.forEach(star => {
+          if (!star.userData.collected) {
+            const distance = boat.position.distanceTo(star.position);
+            if (distance < 5) {
+              const direction = boat.position.clone().sub(star.position).normalize();
+              star.position.add(direction.multiplyScalar(0.2));
             }
           }
-
-          return true;
-        });
-
-        // Update collectibles
-        collectibles = collectibles.filter(col => {
-          col.position.z += gameState.speed;
-          col.rotation.y += 0.1;
-
-          if (col.position.z > 20) {
-            scene.remove(col);
-            return false;
-          }
-
-          const dx = col.position.x - boat.position.x;
-          const dz = col.position.z - boat.position.z;
-          const dist = Math.sqrt(dx * dx + dz * dz);
-
-          if (dist < 2) {
-            gameState.score += 50;
-
-            // Score popup
-            const popup = document.createElement('div');
-            popup.textContent = '⭐ GOOD DRIVING! +50';
-            popup.style.cssText = `
-              position: fixed; left: 50%; top: 50%;
-              transform: translate(-50%, -50%);
-              color: #FFD700; font-size: 40px; font-weight: bold;
-              text-shadow: 3px 3px 0 #000; pointer-events: none; z-index: 1000;
-              animation: scoreFloat 1s ease-out forwards;
-            `;
-            document.body.appendChild(popup);
-            setTimeout(() => popup.remove(), 1000);
-
-            updateUI();
-            scene.remove(col);
-            return false;
-          }
-
-          return true;
         });
       }
+      
+      if (!gameState.shield.active) {
+        boat.children.forEach(part => {
+          if (part.material) {
+            part.material.emissive.setHex(0x000000);
+            part.material.emissiveIntensity = 0;
+          }
+        });
+      }
+    }
 
+    // Collision Detection
+    function checkCollisions() {
+      const boatBox = new THREE.Box3().setFromObject(boat);
+      
+      obstacles.forEach(obstacle => {
+        if (!obstacle.userData.hit) {
+          const obstacleBox = new THREE.Box3().setFromObject(obstacle);
+          
+          if (boatBox.intersectsBox(obstacleBox)) {
+            obstacle.userData.hit = true;
+            
+            if (gameState.shield.active) {
+              createParticles(obstacle.position, 0x00FFFF, 20);
+              soundManager.play('dolphin');
+            } else {
+              gameState.lives--;
+              gameState.combo = 0;
+              gameState.lastHitTime = Date.now();
+              gameState.milestones.perfectRun = false;
+              
+              updateLivesDisplay();
+              createParticles(boat.position, 0xFF0000, 25);
+              shakeScreen();
+              soundManager.play('puffscream');
+              
+              if (gameState.lives <= 0) {
+                endGame();
+              }
+            }
+            
+            gameState.score += obstacle.userData.type.points;
+            scene.remove(obstacle);
+          }
+        }
+      });
+      
+      collectibles.forEach(star => {
+        if (!star.userData.collected) {
+          const starBox = new THREE.Box3().setFromObject(star);
+          
+          if (boatBox.intersectsBox(starBox)) {
+            star.userData.collected = true;
+            gameState.stars++;
+            gameState.combo++;
+            gameState.maxCombo = Math.max(gameState.maxCombo, gameState.combo);
+            
+            const comboBonus = gameState.combo * 10;
+            const totalPoints = star.userData.points + comboBonus;
+            
+            gameState.score += totalPoints;
+            
+            createParticles(star.position, 0xFFD700, 12);
+            showScorePopup(totalPoints);
+            soundManager.play('cash');
+            
+            scene.remove(star);
+            
+            if (gameState.combo >= 3) {
+              document.getElementById('comboDisplay').classList.add('active');
+              document.getElementById('comboValue').textContent = gameState.combo;
+            } else {
+              document.getElementById('comboDisplay').classList.remove('active');
+            }
+          }
+        }
+      });
+      
+      powerups.forEach(powerup => {
+        if (!powerup.userData.collected) {
+          const powerupBox = new THREE.Box3().setFromObject(powerup);
+          
+          if (boatBox.intersectsBox(powerupBox)) {
+            powerup.userData.collected = true;
+            
+            createParticles(powerup.position, powerup.material.color.getHex(), 15);
+            soundManager.play('ready');
+            
+            const type = powerup.userData.type;
+            if (type === 'shield') {
+              gameState.shield.active = true;
+              gameState.shield.duration = 5;
+              document.getElementById('shieldDisplay').classList.remove('inactive');
+            } else if (type === 'speed') {
+              gameState.speedBoost.active = true;
+              gameState.speedBoost.duration = 5;
+              gameState.speed = gameState.baseSpeed * 1.5;
+              document.getElementById('speedDisplay').classList.remove('inactive');
+            } else if (type === 'magnet') {
+              gameState.magnet.active = true;
+              gameState.magnet.duration = 8;
+              document.getElementById('magnetDisplay').classList.remove('inactive');
+            }
+            
+            scene.remove(powerup);
+          }
+        }
+      });
+    }
+
+    // Screen Shake
+    function shakeScreen() {
+      const originalY = camera.position.y;
+      let shakeCount = 0;
+      const shakeInterval = setInterval(() => {
+        camera.position.y = originalY + (Math.random() - 0.5) * 0.5;
+        shakeCount++;
+        if (shakeCount > 10) {
+          camera.position.y = originalY;
+          clearInterval(shakeInterval);
+        }
+      }, 50);
+    }
+
+    // Update Lives Display
+    function updateLivesDisplay() {
+      const hearts = '❤️'.repeat(gameState.lives);
+      document.getElementById('lives').textContent = hearts || '💀';
+    }
+
+    // Update UI
+    function updateUI() {
+      document.getElementById('score').textContent = gameState.score;
+      document.getElementById('distance').textContent = Math.floor(gameState.distance) + 'm';
+      document.getElementById('starsCollected').textContent = gameState.stars + ' ⭐';
+    }
+
+    // Game Loop
+    let lastTime = Date.now();
+    let obstacleTimer = 0;
+    let starTimer = 0;
+    let powerupTimer = 0;
+
+    function gameLoop() {
+      requestAnimationFrame(gameLoop);
+      
+      if (!gameState.playing) {
+        renderer.render(scene, camera);
+        return;
+      }
+      
+      const now = Date.now();
+      const delta = (now - lastTime) / 1000;
+      lastTime = now;
+      
+      const moveSpeed = 0.15;
+      if (keys['ArrowLeft'] || keys['a']) {
+        boat.position.x = Math.max(-4.5, boat.position.x - moveSpeed);
+      }
+      if (keys['ArrowRight'] || keys['d']) {
+        boat.position.x = Math.min(4.5, boat.position.x + moveSpeed);
+      }
+      
+      gameState.distance += gameState.speed * 10;
+      gameState.baseSpeed = 0.15 + (gameState.distance * 0.00001);
+      if (!gameState.speedBoost.active) {
+        gameState.speed = gameState.baseSpeed;
+      }
+      
+      obstacles.forEach((obstacle, index) => {
+        obstacle.position.z += gameState.speed;
+        obstacle.rotation.y += 0.02;
+        
+        if (obstacle.position.z > 5) {
+          scene.remove(obstacle);
+          obstacles.splice(index, 1);
+        }
+      });
+      
+      collectibles.forEach((star, index) => {
+        star.position.z += gameState.speed;
+        star.rotation.y += 0.05;
+        star.rotation.x += 0.03;
+        
+        if (star.position.z > 5) {
+          scene.remove(star);
+          collectibles.splice(index, 1);
+          gameState.combo = 0;
+          document.getElementById('comboDisplay').classList.remove('active');
+        }
+      });
+      
+      powerups.forEach((powerup, index) => {
+        powerup.position.z += gameState.speed;
+        powerup.rotation.y += 0.08;
+        
+        if (powerup.position.z > 5) {
+          scene.remove(powerup);
+          powerups.splice(index, 1);
+        }
+      });
+      
+      particles.forEach((particle, index) => {
+        particle.position.add(particle.velocity);
+        particle.velocity.y -= 0.01;
+        particle.life -= delta * 1.5;
+        particle.material.opacity = particle.life;
+        
+        if (particle.life <= 0) {
+          scene.remove(particle);
+          particles.splice(index, 1);
+        }
+      });
+      
+      laneMarkers.forEach(marker => {
+        marker.position.z += gameState.speed;
+        if (marker.position.z > 5) {
+          marker.position.z -= 100;
+        }
+      });
+      
+      obstacleTimer += delta;
+      const obstacleSpawnRate = Math.max(0.8, 1.5 - (gameState.distance * 0.0005));
+      if (obstacleTimer > obstacleSpawnRate) {
+        spawnObstacle();
+        obstacleTimer = 0;
+      }
+      
+      starTimer += delta;
+      if (starTimer > 2.5) {
+        spawnStar();
+        starTimer = 0;
+      }
+      
+      powerupTimer += delta;
+      if (powerupTimer > 8) {
+        spawnPowerup();
+        powerupTimer = 0;
+      }
+      
+      updatePowerups(delta);
+      checkCollisions();
+      checkMilestones();
+      updateUI();
+      
       renderer.render(scene, camera);
     }
 
-    window.addEventListener('load', init);
+    // Start Game
+    function startGame() {
+      document.getElementById('menuScreen').classList.add('hidden');
+      soundManager.play('drive');
+      
+      gameState = {
+        playing: true,
+        score: 0,
+        distance: 0,
+        lives: 3,
+        stars: 0,
+        combo: 0,
+        maxCombo: 0,
+        speed: 0.15,
+        baseSpeed: 0.15,
+        shield: { active: false, duration: 0 },
+        speedBoost: { active: false, duration: 0 },
+        magnet: { active: false, duration: 0 },
+        milestones: {
+          distance100: false,
+          distance500: false,
+          distance1000: false,
+          perfectRun: false,
+          combo10: false
+        },
+        perfectRunTimer: 0,
+        lastHitTime: Date.now()
+      };
+      
+      obstacles.forEach(o => scene.remove(o));
+      obstacles.length = 0;
+      collectibles.forEach(c => scene.remove(c));
+      collectibles.length = 0;
+      powerups.forEach(p => scene.remove(p));
+      powerups.length = 0;
+      particles.forEach(p => scene.remove(p));
+      particles.length = 0;
+      
+      boat.position.set(0, 0.5, 0);
+      
+      updateLivesDisplay();
+      updateUI();
+      document.getElementById('comboDisplay').classList.remove('active');
+      document.getElementById('shieldDisplay').classList.add('inactive');
+      document.getElementById('speedDisplay').classList.add('inactive');
+      document.getElementById('magnetDisplay').classList.add('inactive');
+      
+      lastTime = Date.now();
+    }
+
+    // End Game
+    function endGame() {
+      gameState.playing = false;
+      soundManager.play('wawawa');
+      
+      document.getElementById('finalDistance').textContent = Math.floor(gameState.distance);
+      document.getElementById('finalScore').textContent = gameState.score;
+      document.getElementById('finalStars').textContent = gameState.stars;
+      document.getElementById('finalCombo').textContent = gameState.maxCombo;
+      document.getElementById('gameOver').classList.add('active');
+      
+      if (gameState.score > 0) {
+        showLeaderboardModal('boating-school', 'Boating School Chaos', gameState.score);
+      }
+    }
+
+    // Restart Game
+    function restartGame() {
+      document.getElementById('gameOver').classList.remove('active');
+      startGame();
+    }
+
+    // Back to Menu
+    function backToMenu() {
+      document.getElementById('gameOver').classList.remove('active');
+      document.getElementById('menuScreen').classList.remove('hidden');
+    }
+
+    // Window Resize
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    gameLoop();
   </script>
 </body>
 </html>
