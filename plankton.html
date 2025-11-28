@@ -1188,8 +1188,11 @@
       document.getElementById('rankDisplay').textContent = rank;
       
       // Show leaderboard modal with time in seconds
-      const finalTimeInSeconds = Math.floor(gameTime);
-      showLeaderboardModal('plankton-heist', "Plankton's Formula Heist", finalTimeInSeconds);
+      // INVERT time so faster times rank higher (e.g., 30s becomes 9970 points)
+      const invertedScore = 10000 - Math.floor(gameTime);
+      const gameName = `plankton-heist-level-${currentLevel}`;
+      const gameTitle = `Plankton's Formula Heist - Level ${currentLevel}`;
+      showLeaderboardModal(gameName, gameTitle, invertedScore);
       
       document.getElementById('victoryScreen').classList.add('show');
       completeObjective(objectives.length - 1);

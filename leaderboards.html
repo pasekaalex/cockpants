@@ -184,7 +184,9 @@
   <script>
     const gamesList = [
       { id: 'pump-clicker', name: 'Pump Clicker', icon: '🩲' },
-      { id: 'plankton-heist', name: "Plankton's Formula Heist", icon: '🦠' },
+      { id: 'plankton-heist-level-1', name: "Plankton's Heist - Level 1", icon: '🦠' },
+      { id: 'plankton-heist-level-2', name: "Plankton's Heist - Level 2", icon: '🦠' },
+      { id: 'plankton-heist-level-3', name: "Plankton's Heist - Level 3", icon: '🦠' },
       { id: 'boating-school', name: 'Boating School Chaos', icon: '⛵' },
       { id: 'bikini-adventure', name: 'Bikini Bottom Adventure', icon: '🧽' },
       { id: 'jellyfish-fields', name: 'Jellyfish Fields', icon: '🪼' },
@@ -214,11 +216,18 @@
             const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}.`;
             const topClass = index === 0 ? 'top-1' : index === 1 ? 'top-2' : index === 2 ? 'top-3' : '';
             
+            // For Plankton levels, convert inverted score back to time
+            let displayScore = entry.score.toLocaleString();
+            if (game.id.startsWith('plankton-heist-level')) {
+              const timeInSeconds = 10000 - entry.score;
+              displayScore = `${timeInSeconds}s`;
+            }
+            
             entriesHTML += `
               <div class="leaderboard-entry ${topClass}">
                 <span class="entry-rank">${medal}</span>
                 <span class="entry-name">${entry.player_name}</span>
-                <span class="entry-score">${entry.score.toLocaleString()}</span>
+                <span class="entry-score">${displayScore}</span>
               </div>
             `;
           });

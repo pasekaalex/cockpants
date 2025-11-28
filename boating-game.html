@@ -718,24 +718,24 @@
           }
         });
 
-        // Progressive difficulty - MUCH SLOWER
+        // Progressive difficulty
         const timeElapsed = (Date.now() - gameState.startTime) / 1000;
-        gameState.difficulty = 1 + Math.min(timeElapsed / 60, 1); // Max 2x difficulty over 60s
-        const maxObstacles = Math.floor(4 * gameState.difficulty); // Was 8
-        const spawnChance = 0.02 * gameState.difficulty; // Was 0.08
+        gameState.difficulty = 1 + Math.min(timeElapsed / 45, 2); // Max 3x difficulty over 45s
+        const maxObstacles = Math.floor(6 * gameState.difficulty); // More obstacles
+        const spawnChance = 0.05 * gameState.difficulty; // Increased spawn rate
         
-        // Spawn obstacles - LESS FREQUENT
+        // Spawn obstacles
         if (obstacles.length < maxObstacles && Math.random() < spawnChance) {
           spawnObstacle();
         }
         
-        // Spawn obstacle patterns rarely
-        if (obstacles.length < maxObstacles - 2 && Math.random() < 0.003 * gameState.difficulty) {
+        // Spawn obstacle patterns
+        if (obstacles.length < maxObstacles - 2 && Math.random() < 0.008 * gameState.difficulty) {
           spawnObstaclePattern();
         }
 
-        // Spawn collectibles - LESS STARS
-        if (collectibles.length < 2 && Math.random() < 0.015) {
+        // Spawn collectibles
+        if (collectibles.length < 3 && Math.random() < 0.02) {
           spawnCollectible();
         }
 

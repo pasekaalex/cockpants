@@ -23,6 +23,44 @@ async function submitScore(gameName, playerName, score) {
       return { success: false, error: 'Supabase not initialized' };
     }
 
+    // First check if this player already has a score for this game
+    const { data: existingScores, error: fetchError } = await client
+      .from('leaderboards')
+      .select('*')
+      .eq('game_name', gameName)
+      .eq('player_name', playerName);
+
+    if (fetchError) {
+      console.error('Error checking existing scores:', fetchError);
+    }
+
+    // If player has existing score(s), check if new score is better
+    if (existingScores && existingScores.length > 0) {
+      const bestExisting = Math.max(...existingScores.map(s => s.score));
+      
+      if (score > bestExisting) {
+        // New score is better! Delete old scores and insert new one
+        const { error: deleteError } = await client
+          .from('leaderboards')
+          .delete()
+          .eq('game_name', gameName)
+          .eq('player_name', playerName);
+        
+        if (deleteError) {
+          console.error('Error deleting old scores:', deleteError);
+          return { success: false, error: deleteError };
+        }
+      } else {
+        // Existing score is better, don't submit
+        return { 
+          success: true, 
+          message: 'Existing score is higher',
+          isNewBest: false 
+        };
+      }
+    }
+
+    // Insert the new score
     const { data, error } = await client
       .from('leaderboards')
       .insert([
@@ -38,7 +76,7 @@ async function submitScore(gameName, playerName, score) {
       return { success: false, error };
     }
 
-    return { success: true, data };
+    return { success: true, data, isNewBest: true };
   } catch (err) {
     console.error('Exception submitting score:', err);
     return { success: false, error: err };
@@ -147,7 +185,7 @@ function showLeaderboardModal(gameName, gameTitle, playerScore = null) {
         ${playerScore !== null ? `
           <div id="nameSubmitSection" style="margin-bottom: 20px;">
             <p style="color: #FFD700; text-align: center; font-size: 18px; margin-bottom: 15px;">
-              Your Score: <strong>${playerScore}</strong>
+              Your Score: <strong>${gameName && gameName.startsWith('plankton-heist-level') ? `${10000 - playerScore}s` : playerScore}</strong>
             </p>
             <input 
               type="text" 
@@ -233,6 +271,13 @@ async function loadLeaderboardData(gameName) {
       const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}.`;
       const bgColor = index < 3 ? 'rgba(255, 215, 0, 0.2)' : 'transparent';
       
+      // Format score display (convert inverted scores back to time for Plankton)
+      let displayScore = entry.score.toLocaleString();
+      if (gameName && gameName.startsWith('plankton-heist-level')) {
+        const timeInSeconds = 10000 - entry.score;
+        displayScore = `${timeInSeconds}s`;
+      }
+      
       html += `
         <div style="
           display: flex;
@@ -243,7 +288,7 @@ async function loadLeaderboardData(gameName) {
           border-radius: 5px;
         ">
           <span style="font-weight: bold;">${medal} ${entry.player_name}</span>
-          <span style="color: #FFD700;">${entry.score.toLocaleString()}</span>
+          <span style="color: #FFD700;">${displayScore}</span>
         </div>
       `;
     });
@@ -274,10 +319,15 @@ window.submitLeaderboardScore = async function(gameName, score) {
   const result = await submitScore(gameName, playerName, score);
   
   if (result.success) {
-    // Hide name input section
+    // Hide name input section with appropriate message
+    const message = result.isNewBest !== false 
+      ? '✓ Score submitted successfully!' 
+      : '✓ Your previous score was higher!';
+    const color = result.isNewBest !== false ? '#00ff00' : '#FFD700';
+    
     document.getElementById('nameSubmitSection').innerHTML = `
-      <p style="color: #00ff00; text-align: center; font-size: 18px;">
-        ✓ Score submitted successfully!
+      <p style="color: ${color}; text-align: center; font-size: 18px;">
+        ${message}
       </p>
     `;
     

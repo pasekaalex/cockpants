@@ -148,6 +148,16 @@
         }
       };
 
+      // Show leaderboard when game ends
+      useEffect(() => {
+        if (gameState === 'gameover' && score > 0) {
+          const timer = setTimeout(() => {
+            showLeaderboardModal('bikini-adventure', 'Bikini Bottom Adventure', score);
+          }, 800);
+          return () => clearTimeout(timer);
+        }
+      }, [gameState, score]);
+
       useEffect(() => {
         if (gameState !== 'playing') return;
 
@@ -158,8 +168,18 @@
         const game = gameRef.current;
         
         let animationId;
+        let lastTime = 0;
+        const targetFPS = 60;
+        const frameDelay = 1000 / targetFPS;
         
-        const gameLoop = () => {
+        const gameLoop = (currentTime = 0) => {
+          // Limit to target FPS
+          if (currentTime - lastTime < frameDelay) {
+            animationId = requestAnimationFrame(gameLoop);
+            return;
+          }
+          lastTime = currentTime;
+          
           ctx.clearRect(0, 0, canvas.width, canvas.height);
           
           const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
@@ -474,8 +494,6 @@
                   setHighScore(score);
                   localStorage.setItem('platformerHighScore', score.toString());
                 }
-                // Show leaderboard modal
-                setTimeout(() => showLeaderboardModal('bikini-adventure', 'Bikini Bottom Adventure', score), 500);
               }
               return newLives;
             });
@@ -1015,10 +1033,10 @@
             }}>
               {/* Left Button */}
               <button
-                onTouchStart={() => gameRef.current.keys['a'] = true}
-                onTouchEnd={() => gameRef.current.keys['a'] = false}
-                onMouseDown={() => gameRef.current.keys['a'] = true}
-                onMouseUp={() => gameRef.current.keys['a'] = false}
+                onTouchStart={() => gameRef.current.keys['ArrowLeft'] = true}
+                onTouchEnd={() => gameRef.current.keys['ArrowLeft'] = false}
+                onMouseDown={() => gameRef.current.keys['ArrowLeft'] = true}
+                onMouseUp={() => gameRef.current.keys['ArrowLeft'] = false}
                 style={{
                   width: '70px',
                   height: '70px',
@@ -1059,10 +1077,10 @@
               
               {/* Right Button */}
               <button
-                onTouchStart={() => gameRef.current.keys['d'] = true}
-                onTouchEnd={() => gameRef.current.keys['d'] = false}
-                onMouseDown={() => gameRef.current.keys['d'] = true}
-                onMouseUp={() => gameRef.current.keys['d'] = false}
+                onTouchStart={() => gameRef.current.keys['ArrowRight'] = true}
+                onTouchEnd={() => gameRef.current.keys['ArrowRight'] = false}
+                onMouseDown={() => gameRef.current.keys['ArrowRight'] = true}
+                onMouseUp={() => gameRef.current.keys['ArrowRight'] = false}
                 style={{
                   width: '70px',
                   height: '70px',

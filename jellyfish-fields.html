@@ -420,7 +420,9 @@
       if (!gameState.isPlaying) return;
       
       const now = Date.now();
-      if (now - lastSpawnTime > 1500) { // Spawn every 1.5 seconds
+      // Progressive difficulty - starts at 1000ms, gets faster
+      const spawnDelay = Math.max(600, 1000 - (gameState.score * 10)); // Gets faster with score
+      if (now - lastSpawnTime > spawnDelay) {
         gameState.jellyfish.push(new Jellyfish());
         lastSpawnTime = now;
       }

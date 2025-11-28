@@ -1075,6 +1075,17 @@
     }
     
     @media (max-width: 480px) {
+      body {
+        overflow-y: auto;
+      }
+      
+      .game-container {
+        flex-direction: column;
+        height: auto;
+        min-height: 100vh;
+        overflow-y: visible;
+      }
+      
       .panel-title {
         font-size: 16px;
         margin-bottom: 10px;
@@ -1082,8 +1093,20 @@
       }
       
       .customer-queue {
-        max-height: 400px;
-        overflow-y: auto;
+        max-height: none; /* Remove height restriction */
+        min-height: 200px;
+        overflow-y: visible;
+        order: -1; /* Move to top on mobile */
+      }
+      
+      .cooking-station {
+        order: 0;
+      }
+      
+      .customer-card {
+        font-size: 14px;
+        padding: 15px;
+        margin-bottom: 15px;
       }
       
       .ingredient-btn {
