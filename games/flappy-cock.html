@@ -270,7 +270,7 @@
       <div class="stat-item">SCORE: <span id="finalScore">0</span></div>
       <div class="stat-item">BEST: <span id="displayBest">0</span></div>
     </div>
-    <button class="btn" onclick="submitScore()">🏆 SUBMIT SCORE</button>
+    <button class="btn" id="submitBtn" onclick="submitScore()">🏆 SUBMIT SCORE</button>
     <button class="btn" onclick="restartGame()">PLAY AGAIN</button>
     <button class="btn secondary" onclick="backToMenu()">MAIN MENU</button>
   </div>
@@ -685,20 +685,19 @@
     }
 
     function submitScore() {
-      const btn = document.querySelector('.btn');
+      const btn = document.getElementById('submitBtn');
+      if (!btn) {
+        console.error('Submit button not found');
+        alert('Error: Submit button not found');
+        return;
+      }
+      
       const originalText = btn.textContent;
       btn.textContent = '⏳ SUBMITTING...';
       btn.disabled = true;
       
       if (typeof showLeaderboardModal === 'function') {
         showLeaderboardModal('flappy-cock', 'Flappy Cock', gameState.score);
-        setTimeout(() => {
-          btn.textContent = '✅ SUBMITTED!';
-          setTimeout(() => {
-            btn.textContent = originalText;
-            btn.disabled = false;
-          }, 2000);
-        }, 1000);
       } else {
         alert('Leaderboard is loading... try again in a moment');
         btn.textContent = originalText;
