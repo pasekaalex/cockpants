@@ -23,11 +23,11 @@
       width: 100%;
       height: 100%;
       overflow: hidden;
+      font-family: 'Krabby Patty', Arial, sans-serif;
     }
     
     body {
-      font-family: 'Krabby Patty', Arial, sans-serif;
-      background: #87CEEB;
+      background: linear-gradient(180deg, #87CEEB 0%, #5DADE2 100%);
       display: flex;
       justify-content: center;
       align-items: center;
@@ -38,30 +38,31 @@
     .game-container {
       position: relative;
       width: 100%;
-      max-width: 500px;
+      max-width: 450px;
       height: 100vh;
-      max-height: 800px;
+      max-height: 700px;
       display: flex;
       justify-content: center;
       align-items: center;
     }
 
     #gameCanvas {
-      border: 5px solid #FFD700;
-      border-radius: 12px;
-      box-shadow: 0 12px 40px rgba(0,0,0,0.6);
-      background: #87CEEB;
+      border: 6px solid #FFD700;
+      border-radius: 15px;
+      box-shadow: 0 15px 50px rgba(0,0,0,0.7), 
+                  0 0 30px rgba(255,215,0,0.4),
+                  inset 0 0 20px rgba(255,255,255,0.1);
+      background: linear-gradient(180deg, #87CEEB 0%, #5DADE2 100%);
       display: block;
     }
 
-    /* Menu Screen */
-    .menu-screen {
+    .menu-screen, .game-over-screen {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)),
+      background: linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.85)),
                   url('https://i.imgur.com/VLydvTc.png');
       background-size: cover;
       background-position: center;
@@ -73,67 +74,75 @@
       padding: 20px;
     }
 
-    .menu-screen.hidden {
+    .menu-screen.hidden, .game-over-screen.hidden {
       display: none;
     }
 
     .game-title {
-      font-size: 68px;
+      font-size: 72px;
       color: #FFD700;
-      text-shadow: 6px 6px 15px rgba(0,0,0,0.9), 0 0 50px rgba(255,215,0,0.7);
-      margin-bottom: 25px;
-      animation: titlePulse 2.5s infinite;
-      background: rgba(0,0,0,0.85);
-      padding: 25px 55px;
-      border-radius: 25px;
-      border: 5px solid #FFD700;
+      text-shadow: 6px 6px 0 #FF8C00, 8px 8px 20px rgba(0,0,0,0.8);
+      margin-bottom: 30px;
+      animation: titleFloat 3s ease-in-out infinite;
+      background: linear-gradient(135deg, rgba(0,0,0,0.9), rgba(20,20,20,0.9));
+      padding: 30px 60px;
+      border-radius: 30px;
+      border: 6px solid #FFD700;
       text-align: center;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.8);
     }
 
-    @keyframes titlePulse {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.08); }
+    @keyframes titleFloat {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-20px); }
     }
 
     .subtitle {
-      font-size: 26px;
+      font-size: 28px;
       color: #FFF;
-      text-shadow: 3px 3px 8px rgba(0,0,0,0.9);
+      text-shadow: 3px 3px 10px rgba(0,0,0,0.9);
       margin-bottom: 20px;
-      background: rgba(0,0,0,0.85);
-      padding: 18px 38px;
-      border-radius: 18px;
+      background: rgba(0,0,0,0.8);
+      padding: 20px 40px;
+      border-radius: 20px;
       text-align: center;
     }
 
     .instructions {
-      font-size: 20px;
+      font-size: 24px;
       color: #FFD700;
-      text-shadow: 2px 2px 6px rgba(0,0,0,0.9);
-      margin-bottom: 35px;
-      background: rgba(0,0,0,0.75);
-      padding: 15px 30px;
-      border-radius: 15px;
+      text-shadow: 2px 2px 8px rgba(0,0,0,0.9);
+      margin-bottom: 40px;
+      background: rgba(255,140,0,0.3);
+      padding: 18px 40px;
+      border-radius: 18px;
+      border: 3px solid #FFD700;
       text-align: center;
+      animation: instructionPulse 2s infinite;
+    }
+
+    @keyframes instructionPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
     }
 
     .start-btn {
       background: linear-gradient(135deg, #FFD700, #FFA500);
       border: 6px solid #FF8C00;
       color: #8B4513;
-      padding: 24px 75px;
+      padding: 25px 80px;
       font-family: 'Krabby Patty', Arial, sans-serif;
-      font-size: 40px;
+      font-size: 42px;
       cursor: pointer;
-      border-radius: 28px;
+      border-radius: 30px;
       transition: all 0.3s;
-      box-shadow: 0 14px 40px rgba(0,0,0,0.7);
+      box-shadow: 0 15px 40px rgba(255,140,0,0.6);
       font-weight: bold;
-      text-shadow: 2px 2px 5px rgba(255,255,255,0.6);
+      text-shadow: 2px 2px 5px rgba(255,255,255,0.7);
     }
 
     .start-btn:hover {
-      transform: scale(1.15);
+      transform: scale(1.15) translateY(-5px);
       box-shadow: 0 20px 50px rgba(255,165,0,1);
     }
 
@@ -141,85 +150,65 @@
       transform: scale(1.08);
     }
 
-    /* Game Over Screen */
-    .game-over-screen {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.95);
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-      padding: 20px;
-    }
-
-    .game-over-screen.active {
-      display: flex;
-    }
-
     .game-over-title {
-      font-size: 72px;
+      font-size: 76px;
       color: #FF4444;
-      text-shadow: 6px 6px 14px #000, 0 0 40px rgba(255,70,70,1);
-      margin-bottom: 35px;
+      text-shadow: 6px 6px 0 #8B0000, 8px 8px 20px rgba(0,0,0,0.9);
+      margin-bottom: 40px;
       animation: gameOverShake 0.6s;
     }
 
     @keyframes gameOverShake {
-      0%, 100% { transform: translateX(0) rotate(0deg); }
-      25% { transform: translateX(-30px) rotate(-5deg); }
-      75% { transform: translateX(30px) rotate(5deg); }
+      0%, 100% { transform: rotate(0deg); }
+      25% { transform: rotate(-8deg); }
+      75% { transform: rotate(8deg); }
     }
 
     .stats-container {
-      background: linear-gradient(135deg, rgba(60,60,60,0.95), rgba(30,30,30,0.95));
-      border: 5px solid #FFD700;
-      border-radius: 25px;
-      padding: 35px 50px;
-      margin-bottom: 35px;
-      box-shadow: 0 12px 45px rgba(0,0,0,0.8);
+      background: linear-gradient(135deg, rgba(70,70,70,0.95), rgba(30,30,30,0.95));
+      border: 6px solid #FFD700;
+      border-radius: 28px;
+      padding: 40px 60px;
+      margin-bottom: 40px;
+      box-shadow: 0 15px 50px rgba(0,0,0,0.9);
     }
 
     .stat-item {
-      font-size: 32px;
+      font-size: 36px;
       color: #FFD700;
-      text-shadow: 3px 3px 8px #000;
-      margin: 15px 0;
+      text-shadow: 3px 3px 10px #000;
+      margin: 18px 0;
       text-align: center;
     }
 
     .stat-label {
-      color: #AAA;
-      font-size: 22px;
-      margin-right: 10px;
+      color: #CCC;
+      font-size: 24px;
+      margin-right: 12px;
     }
 
     .btn {
       background: linear-gradient(135deg, #FFD700, #FFA500);
       border: 5px solid #FF8C00;
       color: #8B4513;
-      padding: 20px 55px;
+      padding: 22px 60px;
       font-family: 'Krabby Patty', Arial, sans-serif;
-      font-size: 30px;
+      font-size: 32px;
       cursor: pointer;
-      border-radius: 22px;
+      border-radius: 25px;
       transition: all 0.3s;
-      margin: 10px;
-      box-shadow: 0 10px 30px rgba(255,140,0,0.7);
+      margin: 12px;
+      box-shadow: 0 12px 35px rgba(255,140,0,0.7);
       font-weight: bold;
     }
 
     .btn:hover {
-      transform: scale(1.12);
-      box-shadow: 0 14px 40px rgba(255,165,0,1);
+      transform: scale(1.12) translateY(-3px);
+      box-shadow: 0 16px 45px rgba(255,165,0,1);
     }
 
     .btn:active {
-      transform: scale(1.05);
+      transform: scale(1.06);
     }
 
     .btn.secondary {
@@ -228,7 +217,6 @@
       color: #FFD700;
     }
 
-    /* Back Button */
     .back-btn {
       position: fixed;
       top: 20px;
@@ -236,126 +224,76 @@
       background: linear-gradient(135deg, rgba(139,69,19,0.95), rgba(101,67,33,0.95));
       border: 4px solid #FFD700;
       color: #FFD700;
-      padding: 14px 30px;
+      padding: 15px 32px;
       font-family: 'Krabby Patty', Arial, sans-serif;
-      font-size: 20px;
+      font-size: 22px;
       cursor: pointer;
-      border-radius: 16px;
+      border-radius: 18px;
       transition: all 0.3s;
       z-index: 500;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.6);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.6);
       text-decoration: none;
       display: inline-block;
     }
 
     .back-btn:hover {
-      transform: scale(1.14);
-      box-shadow: 0 10px 32px rgba(255,215,0,0.8);
+      transform: scale(1.15) translateY(-3px);
+      box-shadow: 0 12px 35px rgba(255,215,0,0.8);
     }
 
-    /* Score Display */
     .score-display {
       position: fixed;
-      top: 35px;
+      top: 40px;
       left: 50%;
       transform: translateX(-50%);
-      font-size: 60px;
+      font-size: 68px;
       color: #FFD700;
-      text-shadow: 5px 5px 12px #000, 0 0 30px rgba(255,215,0,0.9);
+      text-shadow: 5px 5px 0 #FF8C00, 7px 7px 20px rgba(0,0,0,0.8);
       font-weight: bold;
       z-index: 100;
-      background: rgba(0,0,0,0.8);
-      padding: 18px 45px;
-      border-radius: 22px;
+      background: linear-gradient(135deg, rgba(0,0,0,0.9), rgba(30,30,30,0.9));
+      padding: 20px 50px;
+      border-radius: 25px;
       border: 5px solid #FFD700;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.7);
     }
 
     .best-score {
       position: fixed;
-      top: 120px;
+      top: 135px;
       left: 50%;
       transform: translateX(-50%);
-      font-size: 24px;
-      color: #AAA;
-      text-shadow: 2px 2px 6px #000;
+      font-size: 26px;
+      color: #CCC;
+      text-shadow: 2px 2px 8px #000;
       z-index: 100;
-      background: rgba(0,0,0,0.7);
-      padding: 10px 25px;
-      border-radius: 15px;
+      background: rgba(0,0,0,0.8);
+      padding: 12px 30px;
+      border-radius: 18px;
     }
 
-    /* Mobile Responsive */
     @media (max-width: 768px) {
-      .game-title {
-        font-size: 52px;
-        padding: 20px 40px;
-      }
-
-      .subtitle {
-        font-size: 22px;
-        padding: 15px 30px;
-      }
-
-      .instructions {
-        font-size: 18px;
-      }
-
-      .start-btn {
-        font-size: 34px;
-        padding: 20px 60px;
-      }
-
-      .game-over-title {
-        font-size: 56px;
-      }
-
-      .stat-item {
-        font-size: 26px;
-      }
-
-      .btn {
-        font-size: 26px;
-        padding: 18px 45px;
-      }
-
-      .score-display {
-        font-size: 48px;
-        padding: 15px 35px;
-        top: 25px;
-      }
-
-      .best-score {
-        font-size: 20px;
-        top: 100px;
-      }
-
-      .back-btn {
-        font-size: 18px;
-        padding: 12px 24px;
-        top: 15px;
-        left: 15px;
-      }
+      .game-title { font-size: 56px; padding: 25px 45px; }
+      .subtitle { font-size: 24px; padding: 16px 32px; }
+      .instructions { font-size: 20px; padding: 14px 30px; }
+      .start-btn { font-size: 36px; padding: 20px 65px; }
+      .game-over-title { font-size: 62px; }
+      .stat-item { font-size: 30px; }
+      .btn { font-size: 28px; padding: 18px 50px; }
+      .score-display { font-size: 56px; padding: 16px 40px; top: 30px; }
+      .best-score { font-size: 22px; top: 115px; }
+      .back-btn { font-size: 20px; padding: 12px 26px; }
     }
 
     @media (max-width: 480px) {
-      .game-title {
-        font-size: 42px;
-        padding: 18px 32px;
-      }
-
-      .subtitle {
-        font-size: 20px;
-      }
-
-      .start-btn {
-        font-size: 30px;
-        padding: 18px 50px;
-      }
+      .game-title { font-size: 46px; padding: 20px 35px; }
+      .subtitle { font-size: 20px; }
+      .instructions { font-size: 18px; }
+      .start-btn { font-size: 32px; padding: 18px 55px; }
     }
   </style>
 </head>
 <body>
-  <!-- Menu Screen -->
   <div class="menu-screen" id="menuScreen">
     <h1 class="game-title">🐓 FLAPPY COCK 🐓</h1>
     <p class="subtitle">Navigate Through Bikini Bottom!</p>
@@ -363,8 +301,7 @@
     <button class="start-btn" onclick="startGame()">START FLYING!</button>
   </div>
 
-  <!-- Game Over Screen -->
-  <div class="game-over-screen" id="gameOverScreen">
+  <div class="game-over-screen hidden" id="gameOverScreen">
     <h1 class="game-over-title">CRASHED! 💥</h1>
     <div class="stats-container">
       <div class="stat-item">
@@ -376,19 +313,16 @@
         <span id="displayBest">0</span>
       </div>
     </div>
-    <button class="btn" onclick="submitScore()">🏆 SUBMIT SCORE</button>
+    <button class="btn" onclick="submitScore()">🏆 SUBMIT TO LEADERBOARD</button>
     <button class="btn" onclick="restartGame()">PLAY AGAIN</button>
     <button class="btn secondary" onclick="backToMenu()">MAIN MENU</button>
   </div>
 
-  <!-- Score Displays -->
   <div class="score-display" id="scoreDisplay" style="display: none;">0</div>
   <div class="best-score" id="bestScoreDisplay" style="display: none;">BEST: 0</div>
 
-  <!-- Back Button -->
   <a href="../index.html" class="back-btn">← BACK</a>
 
-  <!-- Game Container -->
   <div class="game-container">
     <canvas id="gameCanvas"></canvas>
   </div>
@@ -397,19 +331,14 @@
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
 
-    // Set canvas size
     function resizeCanvas() {
       const container = document.querySelector('.game-container');
-      const maxWidth = 500;
-      const maxHeight = 800;
+      const maxWidth = 450;
+      const maxHeight = 700;
       
-      const containerWidth = container.clientWidth;
-      const containerHeight = container.clientHeight;
+      let width = Math.min(container.clientWidth, maxWidth);
+      let height = Math.min(container.clientHeight, maxHeight);
       
-      let width = Math.min(containerWidth, maxWidth);
-      let height = Math.min(containerHeight, maxHeight);
-      
-      // Maintain aspect ratio
       const aspectRatio = maxWidth / maxHeight;
       if (width / height > aspectRatio) {
         width = height * aspectRatio;
@@ -424,65 +353,110 @@
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
 
-    // Game state
     let gameState = {
       playing: false,
       score: 0,
-      bestScore: parseInt(localStorage.getItem('flappyCockBest')) || 0,
-      frameCount: 0
+      bestScore: parseInt(localStorage.getItem('flappyCockBest')) || 0
     };
 
-    // Player
+    // BALANCED PLAYER PHYSICS
     const player = {
       x: 100,
       y: 200,
-      width: 50,
-      height: 50,
+      width: 55,
+      height: 55,
       velocity: 0,
-      gravity: 0.6,
-      jumpPower: -11,
-      rotation: 0,
-      image: new Image()
+      gravity: 0.45, // REDUCED from 0.6 - much easier!
+      jumpPower: -8.5, // REDUCED from -11 - gentler
+      rotation: 0
     };
 
-    player.image.src = '../hung.png';
-
-    // Pipes
-    const pipes = [];
-    const pipeWidth = 70;
-    const pipeGap = 160;
-    let pipeTimer = 0;
-    const pipeInterval = 75;
-
-    // Particles
-    const particles = [];
-
-    // Background
-    const clouds = [];
-    for (let i = 0; i < 5; i++) {
-      clouds.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height * 0.4,
-        width: Math.random() * 80 + 60,
-        height: 40,
-        speed: Math.random() * 0.3 + 0.2
-      });
+    // Create player visual (colored circle - no image issues!)
+    function drawPlayer() {
+      ctx.save();
+      
+      const targetRotation = Math.min(Math.max(player.velocity * 3, -30), 60) * Math.PI / 180;
+      player.rotation += (targetRotation - player.rotation) * 0.15;
+      
+      ctx.translate(player.x + player.width / 2, player.y + player.height / 2);
+      ctx.rotate(player.rotation);
+      
+      // Shadow
+      ctx.globalAlpha = 0.4;
+      ctx.fillStyle = '#000';
+      ctx.beginPath();
+      ctx.ellipse(3, 3, player.width / 2, player.height / 2, 0, 0, Math.PI * 2);
+      ctx.fill();
+      
+      // Main body (gradient)
+      ctx.globalAlpha = 1;
+      const gradient = ctx.createRadialGradient(-10, -10, 5, 0, 0, player.width / 2);
+      gradient.addColorStop(0, '#FFE4B5');
+      gradient.addColorStop(0.6, '#FFA500');
+      gradient.addColorStop(1, '#FF8C00');
+      ctx.fillStyle = gradient;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, player.width / 2, player.height / 2, 0, 0, Math.PI * 2);
+      ctx.fill();
+      
+      // Beak
+      ctx.fillStyle = '#FF6347';
+      ctx.beginPath();
+      ctx.moveTo(player.width / 2 - 5, -5);
+      ctx.lineTo(player.width / 2 + 15, 0);
+      ctx.lineTo(player.width / 2 - 5, 5);
+      ctx.closePath();
+      ctx.fill();
+      
+      // Eye white
+      ctx.fillStyle = '#FFF';
+      ctx.beginPath();
+      ctx.arc(player.width / 4, -player.height / 6, 8, 0, Math.PI * 2);
+      ctx.fill();
+      
+      // Eye pupil
+      ctx.fillStyle = '#000';
+      ctx.beginPath();
+      ctx.arc(player.width / 4 + 2, -player.height / 6, 4, 0, Math.PI * 2);
+      ctx.fill();
+      
+      // Wing
+      ctx.fillStyle = '#FF8C00';
+      ctx.beginPath();
+      ctx.ellipse(-5, 5, 15, 8, Math.PI / 4, 0, Math.PI * 2);
+      ctx.fill();
+      
+      ctx.restore();
     }
 
+    const pipes = [];
+    const pipeWidth = 75;
+    const pipeGap = 190; // INCREASED from 160 - much easier!
+    let pipeTimer = 0;
+    const pipeInterval = 85; // INCREASED - more time between pipes
+
+    const particles = [];
     const bubbles = [];
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < 25; i++) {
       bubbles.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
-        size: Math.random() * 6 + 4,
-        speed: Math.random() * 0.8 + 0.4
+        size: Math.random() * 7 + 5,
+        speed: Math.random() * 1 + 0.5
       });
     }
 
-    // Ocean floor
+    const seaweed = [];
+    for (let i = 0; i < 8; i++) {
+      seaweed.push({
+        x: Math.random() * canvas.width,
+        height: Math.random() * 100 + 80,
+        sway: Math.random() * Math.PI * 2
+      });
+    }
+
     let floorOffset = 0;
 
-    // Input handling
     function handleInput(e) {
       e.preventDefault();
       if (!gameState.playing) return;
@@ -495,29 +469,24 @@
     canvas.addEventListener('mousedown', handleInput);
     canvas.addEventListener('touchstart', handleInput);
     document.addEventListener('keydown', (e) => {
-      if (e.code === 'Space' || e.code === 'ArrowUp') {
-        handleInput(e);
-      }
+      if (e.code === 'Space' || e.code === 'ArrowUp') handleInput(e);
     });
 
-    // Create particles
     function createParticles(x, y, color) {
-      for (let i = 0; i < 8; i++) {
+      for (let i = 0; i < 10; i++) {
         particles.push({
-          x: x,
-          y: y,
-          vx: (Math.random() - 0.5) * 5,
-          vy: Math.random() * -3 - 2,
+          x, y,
+          vx: (Math.random() - 0.5) * 6,
+          vy: Math.random() * -4 - 2,
           life: 1,
-          size: Math.random() * 5 + 3,
-          color: color
+          size: Math.random() * 6 + 4,
+          color
         });
       }
     }
 
-    // Spawn pipe
     function spawnPipe() {
-      const minHeight = 100;
+      const minHeight = 120;
       const maxHeight = canvas.height - pipeGap - minHeight - 100;
       const height = Math.random() * (maxHeight - minHeight) + minHeight;
       
@@ -526,157 +495,133 @@
         topHeight: height,
         bottomY: height + pipeGap,
         scored: false,
-        highlighted: false
+        glow: 0
       });
     }
 
-    // Draw cloud
-    function drawCloud(cloud) {
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
-      ctx.beginPath();
-      ctx.ellipse(cloud.x, cloud.y, cloud.width / 2, cloud.height / 2, 0, 0, Math.PI * 2);
-      ctx.fill();
-      
-      ctx.beginPath();
-      ctx.ellipse(cloud.x - cloud.width / 3, cloud.y, cloud.width / 3, cloud.height / 3, 0, 0, Math.PI * 2);
-      ctx.fill();
-      
-      ctx.beginPath();
-      ctx.ellipse(cloud.x + cloud.width / 3, cloud.y, cloud.width / 3, cloud.height / 3, 0, 0, Math.PI * 2);
-      ctx.fill();
-    }
-
-    // Draw bubbles
     function drawBubbles() {
       bubbles.forEach(bubble => {
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+        const gradient = ctx.createRadialGradient(
+          bubble.x - bubble.size * 0.3, bubble.y - bubble.size * 0.3, 0,
+          bubble.x, bubble.y, bubble.size
+        );
+        gradient.addColorStop(0, 'rgba(255, 255, 255, 0.8)');
+        gradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.4)');
+        gradient.addColorStop(1, 'rgba(255, 255, 255, 0.1)');
+        
+        ctx.fillStyle = gradient;
         ctx.beginPath();
         ctx.arc(bubble.x, bubble.y, bubble.size, 0, Math.PI * 2);
         ctx.fill();
         
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
         ctx.beginPath();
-        ctx.arc(bubble.x - bubble.size * 0.3, bubble.y - bubble.size * 0.3, bubble.size * 0.35, 0, Math.PI * 2);
+        ctx.arc(bubble.x - bubble.size * 0.35, bubble.y - bubble.size * 0.35, bubble.size * 0.35, 0, Math.PI * 2);
         ctx.fill();
       });
     }
 
-    // Draw ocean floor
-    function drawOceanFloor() {
-      const floorHeight = 80;
-      const floorY = canvas.height - floorHeight;
+    function drawSeaweed(sw) {
+      ctx.save();
+      ctx.translate(sw.x, canvas.height - 80);
       
-      // Sand
-      ctx.fillStyle = '#C2B280';
-      ctx.fillRect(0, floorY, canvas.width, floorHeight);
+      const segments = 10;
+      const segmentHeight = sw.height / segments;
       
-      // Sand texture
-      ctx.fillStyle = 'rgba(139, 119, 101, 0.3)';
-      for (let i = 0; i < canvas.width + 30; i += 30) {
-        const x = (i + floorOffset) % canvas.width;
-        ctx.fillRect(x, floorY, 15, floorHeight);
-      }
-      
-      // Coral decorations
-      ctx.fillStyle = '#FF6B9D';
-      for (let i = 0; i < canvas.width + 80; i += 80) {
-        const x = (i + floorOffset * 0.5) % canvas.width;
+      for (let i = 0; i < segments; i++) {
+        const sway = Math.sin(sw.sway + i * 0.5) * (i * 2);
+        const y = -i * segmentHeight;
+        
+        ctx.fillStyle = i % 2 === 0 ? '#2d5016' : '#3d7027';
         ctx.beginPath();
-        ctx.ellipse(x, floorY + 10, 8, 15, 0, 0, Math.PI * 2);
+        ctx.ellipse(sway, y, 8, segmentHeight / 1.5, 0, 0, Math.PI * 2);
         ctx.fill();
       }
-    }
-
-    // Draw kelp pipe
-    function drawPipe(pipe) {
-      const kelpDark = '#2d5016';
-      const kelpLight = '#3d7027';
-      
-      // Top kelp
-      const topGradient = ctx.createLinearGradient(pipe.x, 0, pipe.x + pipeWidth, 0);
-      topGradient.addColorStop(0, kelpDark);
-      topGradient.addColorStop(0.5, kelpLight);
-      topGradient.addColorStop(1, kelpDark);
-      
-      ctx.fillStyle = topGradient;
-      ctx.fillRect(pipe.x, 0, pipeWidth, pipe.topHeight);
-      
-      // Top cap
-      ctx.fillStyle = kelpLight;
-      ctx.beginPath();
-      ctx.ellipse(pipe.x + pipeWidth / 2, pipe.topHeight, pipeWidth / 2 + 8, 22, 0, 0, Math.PI * 2);
-      ctx.fill();
-      
-      // Bottom kelp
-      ctx.fillStyle = topGradient;
-      ctx.fillRect(pipe.x, pipe.bottomY, pipeWidth, canvas.height - pipe.bottomY);
-      
-      // Bottom cap
-      ctx.fillStyle = kelpLight;
-      ctx.beginPath();
-      ctx.ellipse(pipe.x + pipeWidth / 2, pipe.bottomY, pipeWidth / 2 + 8, 22, 0, 0, Math.PI * 2);
-      ctx.fill();
-      
-      // Texture lines
-      ctx.strokeStyle = 'rgba(61, 112, 39, 0.4)';
-      ctx.lineWidth = 2;
-      for (let y = 0; y < pipe.topHeight; y += 20) {
-        ctx.beginPath();
-        ctx.moveTo(pipe.x + 5, y);
-        ctx.lineTo(pipe.x + pipeWidth - 5, y);
-        ctx.stroke();
-      }
-      for (let y = pipe.bottomY; y < canvas.height; y += 20) {
-        ctx.beginPath();
-        ctx.moveTo(pipe.x + 5, y);
-        ctx.lineTo(pipe.x + pipeWidth - 5, y);
-        ctx.stroke();
-      }
-      
-      // Score highlight
-      if (pipe.highlighted) {
-        ctx.strokeStyle = 'rgba(255, 215, 0, 0.6)';
-        ctx.lineWidth = 4;
-        ctx.strokeRect(pipe.x - 2, 0, pipeWidth + 4, pipe.topHeight);
-        ctx.strokeRect(pipe.x - 2, pipe.bottomY, pipeWidth + 4, canvas.height - pipe.bottomY);
-      }
-    }
-
-    // Draw player
-    function drawPlayer() {
-      ctx.save();
-      
-      // Smooth rotation
-      const targetRotation = Math.min(Math.max(player.velocity * 4, -40), 90) * Math.PI / 180;
-      player.rotation += (targetRotation - player.rotation) * 0.2;
-      
-      ctx.translate(player.x + player.width / 2, player.y + player.height / 2);
-      ctx.rotate(player.rotation + Math.PI / 2);
-      
-      // Shadow
-      ctx.globalAlpha = 0.3;
-      ctx.fillStyle = '#000';
-      ctx.fillRect(-player.width / 2 + 2, -player.height / 2 + 2, player.width, player.height);
-      
-      ctx.globalAlpha = 1;
-      ctx.drawImage(
-        player.image,
-        -player.width / 2,
-        -player.height / 2,
-        player.width,
-        player.height
-      );
       
       ctx.restore();
     }
 
-    // Draw particles
+    function drawOceanFloor() {
+      const floorHeight = 80;
+      const floorY = canvas.height - floorHeight;
+      
+      const gradient = ctx.createLinearGradient(0, floorY, 0, canvas.height);
+      gradient.addColorStop(0, '#D2B48C');
+      gradient.addColorStop(1, '#A0826D');
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, floorY, canvas.width, floorHeight);
+      
+      ctx.fillStyle = 'rgba(139, 119, 101, 0.4)';
+      for (let i = 0; i < canvas.width + 40; i += 40) {
+        const x = (i + floorOffset) % canvas.width;
+        ctx.fillRect(x, floorY, 20, floorHeight);
+      }
+      
+      // Shells and coral
+      ctx.fillStyle = '#FF69B4';
+      for (let i = 0; i < canvas.width + 100; i += 100) {
+        const x = (i + floorOffset * 0.5) % canvas.width;
+        ctx.beginPath();
+        ctx.arc(x, floorY + 15, 6, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    function drawPipe(pipe) {
+      const gradient = ctx.createLinearGradient(pipe.x, 0, pipe.x + pipeWidth, 0);
+      gradient.addColorStop(0, '#1a5f1a');
+      gradient.addColorStop(0.3, '#2d7a2d');
+      gradient.addColorStop(0.7, '#2d7a2d');
+      gradient.addColorStop(1, '#1a5f1a');
+      
+      if (pipe.glow > 0) {
+        ctx.shadowColor = '#FFD700';
+        ctx.shadowBlur = pipe.glow;
+      }
+      
+      // Top pipe
+      ctx.fillStyle = gradient;
+      ctx.fillRect(pipe.x, 0, pipeWidth, pipe.topHeight);
+      
+      ctx.fillStyle = '#3d8a3d';
+      ctx.beginPath();
+      ctx.ellipse(pipe.x + pipeWidth / 2, pipe.topHeight, pipeWidth / 2 + 10, 25, 0, 0, Math.PI * 2);
+      ctx.fill();
+      
+      // Bottom pipe
+      ctx.fillStyle = gradient;
+      ctx.fillRect(pipe.x, pipe.bottomY, pipeWidth, canvas.height - pipe.bottomY);
+      
+      ctx.fillStyle = '#3d8a3d';
+      ctx.beginPath();
+      ctx.ellipse(pipe.x + pipeWidth / 2, pipe.bottomY, pipeWidth / 2 + 10, 25, 0, 0, Math.PI * 2);
+      ctx.fill();
+      
+      ctx.shadowBlur = 0;
+      
+      // Texture
+      ctx.strokeStyle = 'rgba(61, 138, 61, 0.5)';
+      ctx.lineWidth = 3;
+      for (let y = 0; y < pipe.topHeight; y += 25) {
+        ctx.beginPath();
+        ctx.moveTo(pipe.x + 8, y);
+        ctx.lineTo(pipe.x + pipeWidth - 8, y);
+        ctx.stroke();
+      }
+      for (let y = pipe.bottomY; y < canvas.height; y += 25) {
+        ctx.beginPath();
+        ctx.moveTo(pipe.x + 8, y);
+        ctx.lineTo(pipe.x + pipeWidth - 8, y);
+        ctx.stroke();
+      }
+    }
+
     function drawParticles() {
       particles.forEach((p, index) => {
         p.x += p.vx;
         p.y += p.vy;
-        p.vy += 0.3;
-        p.life -= 0.025;
+        p.vy += 0.35;
+        p.life -= 0.022;
         
         if (p.life <= 0) {
           particles.splice(index, 1);
@@ -692,29 +637,19 @@
       });
     }
 
-    // Update game
     function update() {
       if (!gameState.playing) return;
       
-      gameState.frameCount++;
-      
-      // Update player
       player.velocity += player.gravity;
       player.y += player.velocity;
       
-      // Floor scroll
-      floorOffset += 2;
-      if (floorOffset >= 30) floorOffset = 0;
+      floorOffset += 3;
+      if (floorOffset >= 40) floorOffset = 0;
       
-      // Clouds move
-      clouds.forEach(cloud => {
-        cloud.x -= cloud.speed;
-        if (cloud.x + cloud.width < 0) {
-          cloud.x = canvas.width + cloud.width;
-        }
+      seaweed.forEach(sw => {
+        sw.sway += 0.02;
       });
       
-      // Bubbles rise
       bubbles.forEach(bubble => {
         bubble.y -= bubble.speed;
         if (bubble.y + bubble.size < 0) {
@@ -723,93 +658,69 @@
         }
       });
       
-      // Check boundaries
       if (player.y + player.height > canvas.height - 80 || player.y < 0) {
         gameOver();
         return;
       }
       
-      // Update pipes
       pipeTimer++;
       if (pipeTimer > pipeInterval) {
         spawnPipe();
         pipeTimer = 0;
       }
       
-      const pipeSpeed = 4;
+      const pipeSpeed = 3.5; // REDUCED from 4
       pipes.forEach((pipe, index) => {
         pipe.x -= pipeSpeed;
         
-        // Score
+        if (pipe.glow > 0) pipe.glow -= 2;
+        
         if (!pipe.scored && pipe.x + pipeWidth < player.x) {
           pipe.scored = true;
-          pipe.highlighted = true;
+          pipe.glow = 30;
           gameState.score++;
           document.getElementById('scoreDisplay').textContent = gameState.score;
           soundManager.play('ready');
-          createParticles(player.x + player.width / 2, player.y + player.height / 2, '#00FF00');
-          
-          setTimeout(() => {
-            pipe.highlighted = false;
-          }, 200);
+          createParticles(player.x + player.width / 2, player.y + player.height / 2, '#00FF88');
         }
         
-        // Remove off-screen pipes
         if (pipe.x + pipeWidth < 0) {
           pipes.splice(index, 1);
         }
         
-        // Collision detection
-        const hitboxPadding = 5;
+        const padding = 8; // INCREASED hitbox padding - more forgiving!
         if (
-          player.x + hitboxPadding < pipe.x + pipeWidth &&
-          player.x + player.width - hitboxPadding > pipe.x &&
-          (player.y + hitboxPadding < pipe.topHeight || player.y + player.height - hitboxPadding > pipe.bottomY)
+          player.x + padding < pipe.x + pipeWidth &&
+          player.x + player.width - padding > pipe.x &&
+          (player.y + padding < pipe.topHeight || player.y + player.height - padding > pipe.bottomY)
         ) {
           gameOver();
         }
       });
     }
 
-    // Draw game
     function draw() {
-      // Background gradient
       const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
       gradient.addColorStop(0, '#87CEEB');
-      gradient.addColorStop(0.6, '#5DADE2');
+      gradient.addColorStop(0.5, '#5DADE2');
       gradient.addColorStop(1, '#3498DB');
       ctx.fillStyle = gradient;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       
-      // Clouds
-      clouds.forEach(cloud => drawCloud(cloud));
-      
-      // Bubbles
       drawBubbles();
-      
-      // Pipes
+      seaweed.forEach(sw => drawSeaweed(sw));
       pipes.forEach(pipe => drawPipe(pipe));
-      
-      // Ocean floor
       drawOceanFloor();
-      
-      // Particles
       drawParticles();
-      
-      // Player
-      if (player.image.complete) {
-        drawPlayer();
-      }
+      drawPlayer();
     }
 
-    // Game loop
     function gameLoop() {
       update();
       draw();
       requestAnimationFrame(gameLoop);
     }
 
-    // Start game
     function startGame() {
       document.getElementById('menuScreen').classList.add('hidden');
       document.getElementById('scoreDisplay').style.display = 'block';
@@ -818,7 +729,6 @@
       
       gameState.playing = true;
       gameState.score = 0;
-      gameState.frameCount = 0;
       
       player.y = canvas.height / 2;
       player.velocity = 0;
@@ -829,22 +739,17 @@
       pipeTimer = 0;
       
       document.getElementById('scoreDisplay').textContent = '0';
-      
       soundManager.play('drive');
     }
 
-    // Game over
     function gameOver() {
       if (!gameState.playing) return;
       gameState.playing = false;
       
       soundManager.play('puffscream');
-      
-      // Explosion effect
       createParticles(player.x + player.width / 2, player.y + player.height / 2, '#FF0000');
       createParticles(player.x + player.width / 2, player.y + player.height / 2, '#FFA500');
       
-      // Save best score
       if (gameState.score > gameState.bestScore) {
         gameState.bestScore = gameState.score;
         localStorage.setItem('flappyCockBest', gameState.bestScore);
@@ -855,33 +760,32 @@
       document.getElementById('displayBest').textContent = gameState.bestScore;
       
       setTimeout(() => {
-        document.getElementById('gameOverScreen').classList.add('active');
+        document.getElementById('gameOverScreen').classList.remove('hidden');
         document.getElementById('scoreDisplay').style.display = 'none';
         document.getElementById('bestScoreDisplay').style.display = 'none';
-      }, 500);
+      }, 600);
     }
 
-    // Submit score
     function submitScore() {
-      document.getElementById('gameOverScreen').classList.remove('active');
-      showLeaderboardModal('flappy-cock', 'Flappy Cock', gameState.score);
+      if (typeof showLeaderboardModal === 'function') {
+        showLeaderboardModal('flappy-cock', 'Flappy Cock', gameState.score);
+      } else {
+        alert('Leaderboard system is loading... Please try again in a moment!');
+      }
     }
 
-    // Restart game
     function restartGame() {
-      document.getElementById('gameOverScreen').classList.remove('active');
+      document.getElementById('gameOverScreen').classList.add('hidden');
       setTimeout(() => startGame(), 100);
     }
 
-    // Back to menu
     function backToMenu() {
-      document.getElementById('gameOverScreen').classList.remove('active');
+      document.getElementById('gameOverScreen').classList.add('hidden');
       document.getElementById('menuScreen').classList.remove('hidden');
       document.getElementById('scoreDisplay').style.display = 'none';
       document.getElementById('bestScoreDisplay').style.display = 'none';
     }
 
-    // Start game loop
     gameLoop();
   </script>
 </body>
