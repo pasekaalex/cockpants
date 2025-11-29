@@ -59,8 +59,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.85)),
-                  url('https://i.imgur.com/VLydvTc.png');
+      background: linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.85));
       background-size: cover;
       background-position: center;
       display: flex;
@@ -302,8 +301,8 @@
       width: 55,
       height: 55,
       velocity: 0,
-      gravity: 0.35,  // VERY EASY - barely falls!
-      jumpPower: -7.5, // Gentle jump
+      gravity: 0.08,  // Barely falls!
+      jumpPower: -5.5, // Gentler jump
       rotation: 0,
       image: new Image()
     };
@@ -317,7 +316,7 @@
     const pipeWidth = 75;
     const pipeGap = 200; // HUGE gap - very easy!
     let pipeTimer = 0;
-    const pipeInterval = 90; // Slow spawn
+    const pipeInterval = 140; // Much slower spawn
 
     const particles = [];
     const bubbles = [];
@@ -493,7 +492,7 @@
         pipeTimer = 0;
       }
       
-      const pipeSpeed = 3;
+      const pipeSpeed = 1.5;
       pipes.forEach((pipe, index) => {
         pipe.x -= pipeSpeed;
         
@@ -559,14 +558,11 @@
       pipeTimer = 0;
       
       document.getElementById('scoreDisplay').textContent = '0';
-      soundManager.play('drive');
     }
 
     function gameOver() {
       if (!gameState.playing) return;
       gameState.playing = false;
-      
-      soundManager.play('puffscream');
       
       if (gameState.score > gameState.bestScore) {
         gameState.bestScore = gameState.score;
