@@ -303,18 +303,15 @@
       bestScore: parseInt(localStorage.getItem('flappyCockBest')) || 0
     };
 
-    let lastFrameTime = Date.now();
-    let deltaTime = 0;
-
-    // EASY PHYSICS - NOT FALLING TOO MUCH! (now per-second normalized)
+    // EASY PHYSICS - NOT FALLING TOO MUCH!
     const player = {
       x: 100,
       y: 200,
       width: 55,
       height: 55,
       velocity: 0,
-      gravity: 0.5,  // Per second
-      jumpPower: -3.5, // Per second
+      gravity: 0.08,  // Barely falls!
+      jumpPower: -3.5, // Lower jumps
       rotation: 0,
       image: new Image()
     };
@@ -469,10 +466,10 @@
 
     function drawParticles() {
       particles.forEach((p, index) => {
-        p.x += p.vx * deltaTime;
-        p.y += p.vy * deltaTime;
-        p.vy += 3.5 * deltaTime;
-        p.life -= 0.22 * deltaTime;
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.35;
+        p.life -= 0.022;
         
         if (p.life <= 0) {
           particles.splice(index, 1);
@@ -489,14 +486,14 @@
     function update() {
       if (!gameState.playing) return;
       
-      player.velocity += player.gravity * deltaTime;
-      player.y += player.velocity * deltaTime;
+      player.velocity += player.gravity;
+      player.y += player.velocity;
       
-      floorOffset += 150 * deltaTime;
+      floorOffset += 3;
       if (floorOffset >= 40) floorOffset = 0;
       
       bubbles.forEach(bubble => {
-        bubble.y -= bubble.speed * deltaTime;
+        bubble.y -= bubble.speed;
         if (bubble.y + bubble.size < 0) {
           bubble.y = canvas.height + bubble.size;
           bubble.x = Math.random() * canvas.width;
@@ -508,15 +505,15 @@
         return;
       }
       
-      pipeTimer += deltaTime;
-      if (pipeTimer > pipeInterval / 60) {
+      pipeTimer++;
+      if (pipeTimer > pipeInterval) {
         spawnPipe();
         pipeTimer = 0;
       }
       
-      const pipeSpeed = 90; // pixels per second
+      const pipeSpeed = 1.5;
       pipes.forEach((pipe, index) => {
-        pipe.x -= pipeSpeed * deltaTime;
+        pipe.x -= pipeSpeed;
         
         if (!pipe.scored && pipe.x + pipeWidth < player.x) {
           pipe.scored = true;
@@ -568,10 +565,6 @@
     }
 
     function gameLoop() {
-      const now = Date.now();
-      deltaTime = Math.min((now - lastFrameTime) / 1000, 0.016); // Cap at ~60fps delta
-      lastFrameTime = now;
-      
       update();
       draw();
       requestAnimationFrame(gameLoop);
