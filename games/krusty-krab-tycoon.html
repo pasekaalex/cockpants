@@ -704,17 +704,30 @@
 
     /* Mobile Responsive */
     @media (max-width: 968px) {
+      body {
+        overflow-y: auto;
+        height: auto;
+      }
+      
+      .game-container {
+        height: auto;
+        min-height: 100vh;
+      }
+
       .game-area {
         flex-direction: column;
-        overflow-y: auto;
-        padding: 10px;
-        margin-bottom: 80px;
+        overflow-y: visible;
+        padding: 8px;
+        margin-bottom: 100px;
+        gap: 5px;
       }
 
       .restaurant-view,
       .kitchen-view {
         display: none;
-        min-height: 65vh;
+        min-height: 50vh;
+        border: 4px solid #8B4513 !important;
+        padding: 8px !important;
       }
 
       .restaurant-view.active,
@@ -723,82 +736,137 @@
       }
 
       .mobile-tabs {
-        display: block;
-        position: sticky;
+        display: flex;
+        position: fixed;
         bottom: 0;
+        left: 0;
+        right: 0;
         z-index: 150;
+        width: 100%;
+        background: linear-gradient(180deg, #8B4513 0%, #654321 100%);
+        border-top: 3px solid #FFD700;
+      }
+      
+      .tab-btn {
+        flex: 1;
+        padding: 12px !important;
+        font-size: 16px !important;
+      }
+
+      .stats-bar {
+        flex-wrap: wrap;
+        padding: 8px;
+        gap: 4px;
       }
 
       .stat-box {
-        min-width: 110px;
-        padding: 6px 10px;
+        min-width: 90px;
+        padding: 5px 8px;
+        flex: 0 1 auto;
       }
 
       .stat-label {
-        font-size: 11px;
+        font-size: 10px;
       }
 
       .stat-value {
+        font-size: 14px;
+      }
+
+      .view-label {
         font-size: 18px;
+        padding: 8px 15px;
+        margin: 8px auto 5px;
       }
 
       .serve-button {
-        padding: 30px 40px;
+        padding: 20px 30px;
+        max-width: 100%;
       }
 
       .serve-icon {
-        font-size: 75px;
+        font-size: 50px;
+        margin-bottom: 8px;
       }
 
       .serve-text {
-        font-size: 30px;
+        font-size: 20px;
       }
 
       .serve-value {
-        font-size: 24px;
+        font-size: 16px;
       }
 
       .queue-customer {
-        font-size: 38px;
+        font-size: 24px;
       }
 
       .prestige-btn {
-        font-size: 18px;
-        padding: 12px 28px;
-        bottom: 80px;
-        left: 10px;
+        font-size: 14px;
+        padding: 10px 20px;
+        bottom: 65px;
+        left: 8px;
         right: auto;
         transform: none;
       }
 
       .leaderboard-btn {
-        font-size: 18px;
-        padding: 12px 25px;
-        bottom: 80px;
-        right: 10px;
+        font-size: 14px;
+        padding: 10px 20px;
+        bottom: 65px;
+        right: 8px;
       }
 
       .game-title {
-        font-size: 42px;
+        font-size: 36px;
       }
 
       .game-subtitle {
-        font-size: 22px;
+        font-size: 18px;
       }
 
       .start-btn {
-        font-size: 30px;
-        padding: 18px 50px;
+        font-size: 24px;
+        padding: 15px 40px;
       }
 
       .kitchen-station {
         flex-direction: column;
         text-align: center;
-        padding: 15px;
+        padding: 12px;
       }
 
       .station-icon {
         min-width: auto;
+        font-size: 28px;
+      }
+      
+      .station-name {
+        font-size: 14px;
+      }
+      
+      .station-level,
+      .station-income {
+        font-size: 12px;
+      }
+      
+      .upgrade-btn {
+        font-size: 12px;
+        padding: 8px;
+      }
+      
+      .employee-item {
+        flex-direction: column;
+        gap: 8px;
+      }
+      
+      .employee-icon {
+        font-size: 28px;
+      }
+      
+      .hire-btn {
+        font-size: 12px;
+        padding: 8px;
       }
     }
   </style>
