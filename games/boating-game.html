@@ -1190,6 +1190,11 @@
         gameState.targetSpeed = gameState.baseSpeed;
       }
       
+      // Move camera forward to show boat moving through the world
+      const cameraZ = gameState.distance * 0.15;
+      camera.position.z = 10 + cameraZ;
+      camera.lookAt(boat.position.x, 1, boat.position.z + cameraZ - 10);
+      
       obstacles.forEach((obstacle, index) => {
         obstacle.position.z += gameState.speed;
         obstacle.rotation.y += 0.02;
