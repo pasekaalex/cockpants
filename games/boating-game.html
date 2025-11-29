@@ -1087,6 +1087,62 @@
     let obstacleTimer = 0;
     let jellyTimer = 0;
     let powerupTimer = 0;
+    let touchX = null;
+    
+    // Mobile touch/pointer controls
+    window.addEventListener('touchstart', (e) => {
+      touchX = e.touches[0].clientX;
+    }, false);
+    
+    window.addEventListener('touchmove', (e) => {
+      if (!gameState.playing || !touchX) return;
+      const currentX = e.touches[0].clientX;
+      const diff = currentX - touchX;
+      
+      if (Math.abs(diff) > 5) {
+        if (diff < 0) {
+          keys['ArrowLeft'] = true;
+          keys['ArrowRight'] = false;
+        } else {
+          keys['ArrowRight'] = true;
+          keys['ArrowLeft'] = false;
+        }
+      }
+    }, false);
+    
+    window.addEventListener('touchend', () => {
+      touchX = null;
+      keys['ArrowLeft'] = false;
+      keys['ArrowRight'] = false;
+    }, false);
+    
+    window.addEventListener('pointerdown', (e) => {
+      if (e.pointerType === 'touch' && gameState.playing) {
+        touchX = e.clientX;
+      }
+    }, false);
+    
+    window.addEventListener('pointermove', (e) => {
+      if (!gameState.playing || !touchX || e.pointerType !== 'touch') return;
+      const currentX = e.clientX;
+      const diff = currentX - touchX;
+      
+      if (Math.abs(diff) > 5) {
+        if (diff < 0) {
+          keys['ArrowLeft'] = true;
+          keys['ArrowRight'] = false;
+        } else {
+          keys['ArrowRight'] = true;
+          keys['ArrowLeft'] = false;
+        }
+      }
+    }, false);
+    
+    window.addEventListener('pointerup', () => {
+      touchX = null;
+      keys['ArrowLeft'] = false;
+      keys['ArrowRight'] = false;
+    }, false);
 
     function gameLoop() {
       requestAnimationFrame(gameLoop);
@@ -1128,8 +1184,8 @@
       
       updateAcceleration(delta);
       
-      gameState.distance += gameState.speed * 5;
-      gameState.baseSpeed = 0.1 + (gameState.distance * 0.00001);
+      gameState.distance += gameState.speed * 1.2;
+      gameState.baseSpeed = 0.08 + (gameState.distance * 0.000004);
       if (!gameState.speedBoost.active && !gameState.accelerating) {
         gameState.targetSpeed = gameState.baseSpeed;
       }
@@ -1184,7 +1240,7 @@
       });
       
       obstacleTimer += delta;
-      const obstacleSpawnRate = Math.max(0.9, 2.2 - (gameState.distance * 0.0009));
+      const obstacleSpawnRate = Math.max(1.2, 2.8 - (gameState.distance * 0.0008));
       if (obstacleTimer > obstacleSpawnRate) {
         spawnObstacle();
         obstacleTimer = 0;
@@ -1212,7 +1268,6 @@
 
     function startGame() {
       document.getElementById('menuScreen').classList.add('hidden');
-      soundManager.play('drive');
       
       gameState = {
         playing: true,
@@ -1245,6 +1300,11 @@
       
       boat.position.set(0, 1, 0);
       boat.rotation.z = 0;
+      
+      // Prime timers for immediate spawning
+      obstacleTimer = 1.8;
+      jellyTimer = 2.5;
+      powerupTimer = 12;
       
       updateLivesDisplay();
       updateUI();
