@@ -1551,12 +1551,10 @@
       }
     });
 
-    // Submit to leaderboard
+    // Auto-update leaderboard score
     setInterval(() => {
-      if (gameState.customersServed >= 20) {
-        const score = gameState.customersServed + (gameState.prestigeLevel * 500);
-        showLeaderboardModal('krusty-tycoon', 'Krusty Krab Tycoon', score);
-      }
+      const score = gameState.customersServed + (gameState.prestigeLevel * 500);
+      showLeaderboardModal('krusty-tycoon', 'Krusty Krab Tycoon', score);
     }, 60000);
   </script>
 </body>
