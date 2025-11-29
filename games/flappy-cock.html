@@ -41,19 +41,16 @@
       max-width: 450px;
       height: 100vh;
       max-height: 700px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
     }
 
     #gameCanvas {
       border: 6px solid #FFD700;
       border-radius: 15px;
-      box-shadow: 0 15px 50px rgba(0,0,0,0.7), 
-                  0 0 30px rgba(255,215,0,0.4),
-                  inset 0 0 20px rgba(255,255,255,0.1);
+      box-shadow: 0 15px 50px rgba(0,0,0,0.7);
       background: linear-gradient(180deg, #87CEEB 0%, #5DADE2 100%);
       display: block;
+      width: 100%;
+      height: 100%;
     }
 
     .menu-screen, .game-over-screen {
@@ -89,7 +86,6 @@
       border-radius: 30px;
       border: 6px solid #FFD700;
       text-align: center;
-      box-shadow: 0 15px 40px rgba(0,0,0,0.8);
     }
 
     @keyframes titleFloat {
@@ -105,7 +101,6 @@
       background: rgba(0,0,0,0.8);
       padding: 20px 40px;
       border-radius: 20px;
-      text-align: center;
     }
 
     .instructions {
@@ -117,11 +112,10 @@
       padding: 18px 40px;
       border-radius: 18px;
       border: 3px solid #FFD700;
-      text-align: center;
-      animation: instructionPulse 2s infinite;
+      animation: pulse 2s infinite;
     }
 
-    @keyframes instructionPulse {
+    @keyframes pulse {
       0%, 100% { transform: scale(1); }
       50% { transform: scale(1.05); }
     }
@@ -138,16 +132,10 @@
       transition: all 0.3s;
       box-shadow: 0 15px 40px rgba(255,140,0,0.6);
       font-weight: bold;
-      text-shadow: 2px 2px 5px rgba(255,255,255,0.7);
     }
 
     .start-btn:hover {
       transform: scale(1.15) translateY(-5px);
-      box-shadow: 0 20px 50px rgba(255,165,0,1);
-    }
-
-    .start-btn:active {
-      transform: scale(1.08);
     }
 
     .game-over-title {
@@ -155,10 +143,10 @@
       color: #FF4444;
       text-shadow: 6px 6px 0 #8B0000, 8px 8px 20px rgba(0,0,0,0.9);
       margin-bottom: 40px;
-      animation: gameOverShake 0.6s;
+      animation: shake 0.6s;
     }
 
-    @keyframes gameOverShake {
+    @keyframes shake {
       0%, 100% { transform: rotate(0deg); }
       25% { transform: rotate(-8deg); }
       75% { transform: rotate(8deg); }
@@ -170,7 +158,6 @@
       border-radius: 28px;
       padding: 40px 60px;
       margin-bottom: 40px;
-      box-shadow: 0 15px 50px rgba(0,0,0,0.9);
     }
 
     .stat-item {
@@ -179,12 +166,6 @@
       text-shadow: 3px 3px 10px #000;
       margin: 18px 0;
       text-align: center;
-    }
-
-    .stat-label {
-      color: #CCC;
-      font-size: 24px;
-      margin-right: 12px;
     }
 
     .btn {
@@ -198,17 +179,11 @@
       border-radius: 25px;
       transition: all 0.3s;
       margin: 12px;
-      box-shadow: 0 12px 35px rgba(255,140,0,0.7);
       font-weight: bold;
     }
 
     .btn:hover {
       transform: scale(1.12) translateY(-3px);
-      box-shadow: 0 16px 45px rgba(255,165,0,1);
-    }
-
-    .btn:active {
-      transform: scale(1.06);
     }
 
     .btn.secondary {
@@ -229,16 +204,8 @@
       font-size: 22px;
       cursor: pointer;
       border-radius: 18px;
-      transition: all 0.3s;
       z-index: 500;
-      box-shadow: 0 8px 25px rgba(0,0,0,0.6);
       text-decoration: none;
-      display: inline-block;
-    }
-
-    .back-btn:hover {
-      transform: scale(1.15) translateY(-3px);
-      box-shadow: 0 12px 35px rgba(255,215,0,0.8);
     }
 
     .score-display {
@@ -255,7 +222,6 @@
       padding: 20px 50px;
       border-radius: 25px;
       border: 5px solid #FFD700;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.7);
     }
 
     .best-score {
@@ -274,22 +240,11 @@
 
     @media (max-width: 768px) {
       .game-title { font-size: 56px; padding: 25px 45px; }
-      .subtitle { font-size: 24px; padding: 16px 32px; }
-      .instructions { font-size: 20px; padding: 14px 30px; }
+      .subtitle { font-size: 24px; }
+      .instructions { font-size: 20px; }
       .start-btn { font-size: 36px; padding: 20px 65px; }
-      .game-over-title { font-size: 62px; }
-      .stat-item { font-size: 30px; }
-      .btn { font-size: 28px; padding: 18px 50px; }
-      .score-display { font-size: 56px; padding: 16px 40px; top: 30px; }
-      .best-score { font-size: 22px; top: 115px; }
-      .back-btn { font-size: 20px; padding: 12px 26px; }
-    }
-
-    @media (max-width: 480px) {
-      .game-title { font-size: 46px; padding: 20px 35px; }
-      .subtitle { font-size: 20px; }
-      .instructions { font-size: 18px; }
-      .start-btn { font-size: 32px; padding: 18px 55px; }
+      .score-display { font-size: 56px; padding: 16px 40px; }
+      .best-score { font-size: 22px; }
     }
   </style>
 </head>
@@ -304,16 +259,10 @@
   <div class="game-over-screen hidden" id="gameOverScreen">
     <h1 class="game-over-title">CRASHED! 💥</h1>
     <div class="stats-container">
-      <div class="stat-item">
-        <span class="stat-label">SCORE:</span>
-        <span id="finalScore">0</span>
-      </div>
-      <div class="stat-item">
-        <span class="stat-label">BEST:</span>
-        <span id="displayBest">0</span>
-      </div>
+      <div class="stat-item">SCORE: <span id="finalScore">0</span></div>
+      <div class="stat-item">BEST: <span id="displayBest">0</span></div>
     </div>
-    <button class="btn" onclick="submitScore()">🏆 SUBMIT TO LEADERBOARD</button>
+    <button class="btn" onclick="submitScore()">🏆 SUBMIT SCORE</button>
     <button class="btn" onclick="restartGame()">PLAY AGAIN</button>
     <button class="btn secondary" onclick="backToMenu()">MAIN MENU</button>
   </div>
@@ -333,21 +282,8 @@
 
     function resizeCanvas() {
       const container = document.querySelector('.game-container');
-      const maxWidth = 450;
-      const maxHeight = 700;
-      
-      let width = Math.min(container.clientWidth, maxWidth);
-      let height = Math.min(container.clientHeight, maxHeight);
-      
-      const aspectRatio = maxWidth / maxHeight;
-      if (width / height > aspectRatio) {
-        width = height * aspectRatio;
-      } else {
-        height = width / aspectRatio;
-      }
-      
-      canvas.width = width;
-      canvas.height = height;
+      canvas.width = container.clientWidth;
+      canvas.height = container.clientHeight;
     }
 
     resizeCanvas();
@@ -359,99 +295,38 @@
       bestScore: parseInt(localStorage.getItem('flappyCockBest')) || 0
     };
 
-    // BALANCED PLAYER PHYSICS
+    // EASY PHYSICS - NOT FALLING TOO MUCH!
     const player = {
       x: 100,
       y: 200,
       width: 55,
       height: 55,
       velocity: 0,
-      gravity: 0.45, // REDUCED from 0.6 - much easier!
-      jumpPower: -8.5, // REDUCED from -11 - gentler
-      rotation: 0
+      gravity: 0.35,  // VERY EASY - barely falls!
+      jumpPower: -7.5, // Gentle jump
+      rotation: 0,
+      image: new Image()
     };
 
-    // Create player visual (colored circle - no image issues!)
-    function drawPlayer() {
-      ctx.save();
-      
-      const targetRotation = Math.min(Math.max(player.velocity * 3, -30), 60) * Math.PI / 180;
-      player.rotation += (targetRotation - player.rotation) * 0.15;
-      
-      ctx.translate(player.x + player.width / 2, player.y + player.height / 2);
-      ctx.rotate(player.rotation);
-      
-      // Shadow
-      ctx.globalAlpha = 0.4;
-      ctx.fillStyle = '#000';
-      ctx.beginPath();
-      ctx.ellipse(3, 3, player.width / 2, player.height / 2, 0, 0, Math.PI * 2);
-      ctx.fill();
-      
-      // Main body (gradient)
-      ctx.globalAlpha = 1;
-      const gradient = ctx.createRadialGradient(-10, -10, 5, 0, 0, player.width / 2);
-      gradient.addColorStop(0, '#FFE4B5');
-      gradient.addColorStop(0.6, '#FFA500');
-      gradient.addColorStop(1, '#FF8C00');
-      ctx.fillStyle = gradient;
-      ctx.beginPath();
-      ctx.ellipse(0, 0, player.width / 2, player.height / 2, 0, 0, Math.PI * 2);
-      ctx.fill();
-      
-      // Beak
-      ctx.fillStyle = '#FF6347';
-      ctx.beginPath();
-      ctx.moveTo(player.width / 2 - 5, -5);
-      ctx.lineTo(player.width / 2 + 15, 0);
-      ctx.lineTo(player.width / 2 - 5, 5);
-      ctx.closePath();
-      ctx.fill();
-      
-      // Eye white
-      ctx.fillStyle = '#FFF';
-      ctx.beginPath();
-      ctx.arc(player.width / 4, -player.height / 6, 8, 0, Math.PI * 2);
-      ctx.fill();
-      
-      // Eye pupil
-      ctx.fillStyle = '#000';
-      ctx.beginPath();
-      ctx.arc(player.width / 4 + 2, -player.height / 6, 4, 0, Math.PI * 2);
-      ctx.fill();
-      
-      // Wing
-      ctx.fillStyle = '#FF8C00';
-      ctx.beginPath();
-      ctx.ellipse(-5, 5, 15, 8, Math.PI / 4, 0, Math.PI * 2);
-      ctx.fill();
-      
-      ctx.restore();
-    }
+    player.image.src = '../hung.png';
+    player.image.onerror = () => {
+      console.error('Could not load hung.png');
+    };
 
     const pipes = [];
     const pipeWidth = 75;
-    const pipeGap = 190; // INCREASED from 160 - much easier!
+    const pipeGap = 200; // HUGE gap - very easy!
     let pipeTimer = 0;
-    const pipeInterval = 85; // INCREASED - more time between pipes
+    const pipeInterval = 90; // Slow spawn
 
     const particles = [];
     const bubbles = [];
     for (let i = 0; i < 25; i++) {
       bubbles.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
+        x: Math.random() * 450,
+        y: Math.random() * 700,
         size: Math.random() * 7 + 5,
         speed: Math.random() * 1 + 0.5
-      });
-    }
-
-    const seaweed = [];
-    for (let i = 0; i < 8; i++) {
-      seaweed.push({
-        x: Math.random() * canvas.width,
-        height: Math.random() * 100 + 80,
-        sway: Math.random() * Math.PI * 2
       });
     }
 
@@ -463,7 +338,7 @@
       
       player.velocity = player.jumpPower;
       soundManager.play('cash');
-      createParticles(player.x + player.width / 2, player.y + player.height / 2, '#FFD700');
+      createParticles(player.x + player.width / 2, player.y + player.height / 2);
     }
 
     canvas.addEventListener('mousedown', handleInput);
@@ -472,15 +347,14 @@
       if (e.code === 'Space' || e.code === 'ArrowUp') handleInput(e);
     });
 
-    function createParticles(x, y, color) {
+    function createParticles(x, y) {
       for (let i = 0; i < 10; i++) {
         particles.push({
           x, y,
           vx: (Math.random() - 0.5) * 6,
           vy: Math.random() * -4 - 2,
           life: 1,
-          size: Math.random() * 6 + 4,
-          color
+          size: Math.random() * 6 + 4
         });
       }
     }
@@ -494,8 +368,7 @@
         x: canvas.width,
         topHeight: height,
         bottomY: height + pipeGap,
-        scored: false,
-        glow: 0
+        scored: false
       });
     }
 
@@ -506,114 +379,71 @@
           bubble.x, bubble.y, bubble.size
         );
         gradient.addColorStop(0, 'rgba(255, 255, 255, 0.8)');
-        gradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.4)');
         gradient.addColorStop(1, 'rgba(255, 255, 255, 0.1)');
         
         ctx.fillStyle = gradient;
         ctx.beginPath();
         ctx.arc(bubble.x, bubble.y, bubble.size, 0, Math.PI * 2);
         ctx.fill();
-        
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-        ctx.beginPath();
-        ctx.arc(bubble.x - bubble.size * 0.35, bubble.y - bubble.size * 0.35, bubble.size * 0.35, 0, Math.PI * 2);
-        ctx.fill();
       });
     }
 
-    function drawSeaweed(sw) {
-      ctx.save();
-      ctx.translate(sw.x, canvas.height - 80);
-      
-      const segments = 10;
-      const segmentHeight = sw.height / segments;
-      
-      for (let i = 0; i < segments; i++) {
-        const sway = Math.sin(sw.sway + i * 0.5) * (i * 2);
-        const y = -i * segmentHeight;
-        
-        ctx.fillStyle = i % 2 === 0 ? '#2d5016' : '#3d7027';
-        ctx.beginPath();
-        ctx.ellipse(sway, y, 8, segmentHeight / 1.5, 0, 0, Math.PI * 2);
-        ctx.fill();
-      }
-      
-      ctx.restore();
-    }
-
     function drawOceanFloor() {
-      const floorHeight = 80;
-      const floorY = canvas.height - floorHeight;
+      const floorY = canvas.height - 80;
       
       const gradient = ctx.createLinearGradient(0, floorY, 0, canvas.height);
       gradient.addColorStop(0, '#D2B48C');
       gradient.addColorStop(1, '#A0826D');
       ctx.fillStyle = gradient;
-      ctx.fillRect(0, floorY, canvas.width, floorHeight);
+      ctx.fillRect(0, floorY, canvas.width, 80);
       
       ctx.fillStyle = 'rgba(139, 119, 101, 0.4)';
       for (let i = 0; i < canvas.width + 40; i += 40) {
         const x = (i + floorOffset) % canvas.width;
-        ctx.fillRect(x, floorY, 20, floorHeight);
-      }
-      
-      // Shells and coral
-      ctx.fillStyle = '#FF69B4';
-      for (let i = 0; i < canvas.width + 100; i += 100) {
-        const x = (i + floorOffset * 0.5) % canvas.width;
-        ctx.beginPath();
-        ctx.arc(x, floorY + 15, 6, 0, Math.PI * 2);
-        ctx.fill();
+        ctx.fillRect(x, floorY, 20, 80);
       }
     }
 
     function drawPipe(pipe) {
       const gradient = ctx.createLinearGradient(pipe.x, 0, pipe.x + pipeWidth, 0);
       gradient.addColorStop(0, '#1a5f1a');
-      gradient.addColorStop(0.3, '#2d7a2d');
-      gradient.addColorStop(0.7, '#2d7a2d');
+      gradient.addColorStop(0.5, '#2d7a2d');
       gradient.addColorStop(1, '#1a5f1a');
       
-      if (pipe.glow > 0) {
-        ctx.shadowColor = '#FFD700';
-        ctx.shadowBlur = pipe.glow;
-      }
-      
-      // Top pipe
       ctx.fillStyle = gradient;
       ctx.fillRect(pipe.x, 0, pipeWidth, pipe.topHeight);
+      ctx.fillRect(pipe.x, pipe.bottomY, pipeWidth, canvas.height - pipe.bottomY);
       
       ctx.fillStyle = '#3d8a3d';
       ctx.beginPath();
       ctx.ellipse(pipe.x + pipeWidth / 2, pipe.topHeight, pipeWidth / 2 + 10, 25, 0, 0, Math.PI * 2);
       ctx.fill();
       
-      // Bottom pipe
-      ctx.fillStyle = gradient;
-      ctx.fillRect(pipe.x, pipe.bottomY, pipeWidth, canvas.height - pipe.bottomY);
-      
-      ctx.fillStyle = '#3d8a3d';
       ctx.beginPath();
       ctx.ellipse(pipe.x + pipeWidth / 2, pipe.bottomY, pipeWidth / 2 + 10, 25, 0, 0, Math.PI * 2);
       ctx.fill();
+    }
+
+    function drawPlayer() {
+      ctx.save();
       
-      ctx.shadowBlur = 0;
+      const targetRotation = Math.min(Math.max(player.velocity * 3, -30), 60) * Math.PI / 180;
+      player.rotation += (targetRotation - player.rotation) * 0.15;
       
-      // Texture
-      ctx.strokeStyle = 'rgba(61, 138, 61, 0.5)';
-      ctx.lineWidth = 3;
-      for (let y = 0; y < pipe.topHeight; y += 25) {
-        ctx.beginPath();
-        ctx.moveTo(pipe.x + 8, y);
-        ctx.lineTo(pipe.x + pipeWidth - 8, y);
-        ctx.stroke();
+      ctx.translate(player.x + player.width / 2, player.y + player.height / 2);
+      ctx.rotate(player.rotation + Math.PI / 2); // Rotate 90° clockwise
+      
+      if (player.image.complete && player.image.naturalHeight > 0) {
+        ctx.drawImage(
+          player.image,
+          -player.width / 2,
+          -player.height / 2,
+          player.width,
+          player.height
+        );
       }
-      for (let y = pipe.bottomY; y < canvas.height; y += 25) {
-        ctx.beginPath();
-        ctx.moveTo(pipe.x + 8, y);
-        ctx.lineTo(pipe.x + pipeWidth - 8, y);
-        ctx.stroke();
-      }
+      
+      ctx.restore();
     }
 
     function drawParticles() {
@@ -628,12 +458,10 @@
           return;
         }
         
-        ctx.fillStyle = p.color;
-        ctx.globalAlpha = p.life;
+        ctx.fillStyle = `rgba(255, 215, 0, ${p.life})`;
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
         ctx.fill();
-        ctx.globalAlpha = 1;
       });
     }
 
@@ -645,10 +473,6 @@
       
       floorOffset += 3;
       if (floorOffset >= 40) floorOffset = 0;
-      
-      seaweed.forEach(sw => {
-        sw.sway += 0.02;
-      });
       
       bubbles.forEach(bubble => {
         bubble.y -= bubble.speed;
@@ -669,26 +493,23 @@
         pipeTimer = 0;
       }
       
-      const pipeSpeed = 3.5; // REDUCED from 4
+      const pipeSpeed = 3;
       pipes.forEach((pipe, index) => {
         pipe.x -= pipeSpeed;
         
-        if (pipe.glow > 0) pipe.glow -= 2;
-        
         if (!pipe.scored && pipe.x + pipeWidth < player.x) {
           pipe.scored = true;
-          pipe.glow = 30;
           gameState.score++;
           document.getElementById('scoreDisplay').textContent = gameState.score;
           soundManager.play('ready');
-          createParticles(player.x + player.width / 2, player.y + player.height / 2, '#00FF88');
+          createParticles(player.x + player.width / 2, player.y + player.height / 2);
         }
         
         if (pipe.x + pipeWidth < 0) {
           pipes.splice(index, 1);
         }
         
-        const padding = 8; // INCREASED hitbox padding - more forgiving!
+        const padding = 10;
         if (
           player.x + padding < pipe.x + pipeWidth &&
           player.x + player.width - padding > pipe.x &&
@@ -708,7 +529,6 @@
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       
       drawBubbles();
-      seaweed.forEach(sw => drawSeaweed(sw));
       pipes.forEach(pipe => drawPipe(pipe));
       drawOceanFloor();
       drawParticles();
@@ -747,8 +567,6 @@
       gameState.playing = false;
       
       soundManager.play('puffscream');
-      createParticles(player.x + player.width / 2, player.y + player.height / 2, '#FF0000');
-      createParticles(player.x + player.width / 2, player.y + player.height / 2, '#FFA500');
       
       if (gameState.score > gameState.bestScore) {
         gameState.bestScore = gameState.score;
@@ -770,7 +588,7 @@
       if (typeof showLeaderboardModal === 'function') {
         showLeaderboardModal('flappy-cock', 'Flappy Cock', gameState.score);
       } else {
-        alert('Leaderboard system is loading... Please try again in a moment!');
+        alert('Leaderboard is loading...');
       }
     }
 
