@@ -708,6 +708,7 @@
         flex-direction: column;
         overflow-y: auto;
         padding: 10px;
+        margin-bottom: 80px;
       }
 
       .restaurant-view,
@@ -723,6 +724,9 @@
 
       .mobile-tabs {
         display: block;
+        position: sticky;
+        bottom: 0;
+        z-index: 150;
       }
 
       .stat-box {
@@ -759,15 +763,18 @@
       }
 
       .prestige-btn {
-        font-size: 20px;
-        padding: 14px 35px;
-        bottom: 85px;
+        font-size: 18px;
+        padding: 12px 28px;
+        bottom: 80px;
+        left: 10px;
+        right: auto;
+        transform: none;
       }
 
       .leaderboard-btn {
         font-size: 18px;
         padding: 12px 25px;
-        bottom: 25px;
+        bottom: 80px;
         right: 10px;
       }
 
@@ -888,6 +895,29 @@
   </div>
 
   <script>
+    // Switch Tab (Mobile)
+    function switchTab(tab) {
+      const restaurantView = document.getElementById('restaurantView');
+      const kitchenView = document.getElementById('kitchenView');
+      const tabButtons = document.querySelectorAll('.tab-btn');
+      
+      // Remove active class from all buttons
+      tabButtons.forEach(btn => btn.classList.remove('active'));
+      
+      // Hide all views
+      restaurantView.classList.remove('active');
+      kitchenView.classList.remove('active');
+      
+      // Show selected view and mark button as active
+      if (tab === 'restaurant') {
+        restaurantView.classList.add('active');
+        tabButtons[0].classList.add('active');
+      } else if (tab === 'kitchen') {
+        kitchenView.classList.add('active');
+        tabButtons[1].classList.add('active');
+      }
+    }
+
     // Open Leaderboard
     function openLeaderboard() {
       showLeaderboardModal('krusty-tycoon', 'Krusty Krab Tycoon', gameState.customersServed + (gameState.prestigeLevel * 500));
