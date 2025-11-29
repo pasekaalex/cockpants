@@ -121,13 +121,15 @@ async function getAllLeaderboards() {
 
     const games = [
       'pump-clicker',
+      'flappy-cock',
       'plankton-heist',
       'boating-school',
       'bikini-adventure',
       'jellyfish-fields',
       'patrick-friendship',
       'house-hoarder',
-      'krusty-krab-rush'
+      'krusty-krab-rush',
+      'krusty-tycoon'
     ];
 
     const leaderboards = {};
