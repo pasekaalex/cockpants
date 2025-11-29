@@ -1116,18 +1116,35 @@
       mobileControls.style.display = 'flex';
     }
     
+    // Left button
     document.getElementById('mobileLeft').addEventListener('touchstart', (e) => {
       e.preventDefault();
       if (!gameRunning || isPaused) return;
-      movePiece(-1);
+      move(-1);
+      drawBoard();
     });
     
+    document.getElementById('mobileLeft').addEventListener('click', (e) => {
+      if (!gameRunning || isPaused) return;
+      move(-1);
+      drawBoard();
+    });
+    
+    // Right button
     document.getElementById('mobileRight').addEventListener('touchstart', (e) => {
       e.preventDefault();
       if (!gameRunning || isPaused) return;
-      movePiece(1);
+      move(1);
+      drawBoard();
     });
     
+    document.getElementById('mobileRight').addEventListener('click', (e) => {
+      if (!gameRunning || isPaused) return;
+      move(1);
+      drawBoard();
+    });
+    
+    // Rotate button
     document.getElementById('mobileRotate').addEventListener('touchstart', (e) => {
       e.preventDefault();
       if (!gameRunning || isPaused) return;
@@ -1135,13 +1152,28 @@
       drawBoard();
     });
     
+    document.getElementById('mobileRotate').addEventListener('click', (e) => {
+      if (!gameRunning || isPaused) return;
+      rotate();
+      drawBoard();
+    });
+    
+    // Drop button
     document.getElementById('mobileDown').addEventListener('touchstart', (e) => {
       e.preventDefault();
       if (!gameRunning || isPaused) return;
-      while (canMove(currentPiece.x, currentPiece.y + 1)) {
-        currentPiece.y++;
-      }
-      lockPiece();
+      hardDrop();
+      dropCounter = 0;
+      drawBoard();
+      updateStats();
+    });
+    
+    document.getElementById('mobileDown').addEventListener('click', (e) => {
+      if (!gameRunning || isPaused) return;
+      hardDrop();
+      dropCounter = 0;
+      drawBoard();
+      updateStats();
     });
     
     // Music toggle
