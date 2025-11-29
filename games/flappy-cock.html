@@ -381,6 +381,18 @@
       }
     }
 
+    function getPipeStyle() {
+      const milestone = Math.floor(gameState.score / 10);
+      const styles = [
+        { name: 'seaweed', color1: '#228B22', color2: '#32CD32', rim: '#1a5f1a' },
+        { name: 'coral', color1: '#FF6B6B', color2: '#FF8E8E', rim: '#CC5555' },
+        { name: 'shell', color1: '#FFB347', color2: '#FFDAB9', rim: '#CC8833' },
+        { name: 'jellyfish', color1: '#9D4EDD', color2: '#C77DFF', rim: '#6A2C91' },
+        { name: 'barnacle', color1: '#808080', color2: '#A9A9A9', rim: '#505050' }
+      ];
+      return styles[milestone % styles.length];
+    }
+
     function spawnPipe() {
       const minHeight = 120;
       const maxHeight = canvas.height - pipeGap - minHeight - 100;
@@ -390,7 +402,8 @@
         x: canvas.width,
         topHeight: height,
         bottomY: height + pipeGap,
-        scored: false
+        scored: false,
+        style: getPipeStyle()
       });
     }
 
@@ -459,29 +472,34 @@
     }
 
     function drawPipe(pipe) {
+      const style = pipe.style || getPipeStyle();
       const gradient = ctx.createLinearGradient(pipe.x, 0, pipe.x + pipeWidth, 0);
-      gradient.addColorStop(0, '#228B22');
-      gradient.addColorStop(0.35, '#32CD32');
-      gradient.addColorStop(0.65, '#32CD32');
-      gradient.addColorStop(1, '#228B22');
+      gradient.addColorStop(0, style.color1);
+      gradient.addColorStop(0.35, style.color2);
+      gradient.addColorStop(0.65, style.color2);
+      gradient.addColorStop(1, style.color1);
       
       ctx.fillStyle = gradient;
       ctx.fillRect(pipe.x, 0, pipeWidth, pipe.topHeight);
       ctx.fillRect(pipe.x, pipe.bottomY, pipeWidth, canvas.height - pipe.bottomY);
       
-      ctx.fillStyle = 'rgba(34, 139, 34, 0.8)';
+      // Inner detail stripe
+      ctx.fillStyle = style.color1 + '99';
       ctx.fillRect(pipe.x + 8, 0, 6, pipe.topHeight);
       ctx.fillRect(pipe.x + 8, pipe.bottomY, 6, canvas.height - pipe.bottomY);
       
+      // Left shadow for depth
       ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
       ctx.fillRect(pipe.x, 0, 3, pipe.topHeight);
       ctx.fillRect(pipe.x, pipe.bottomY, 3, canvas.height - pipe.bottomY);
       
-      ctx.fillStyle = 'rgba(144, 238, 144, 0.4)';
+      // Right highlight
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
       ctx.fillRect(pipe.x + pipeWidth - 3, 0, 3, pipe.topHeight);
       ctx.fillRect(pipe.x + pipeWidth - 3, pipe.bottomY, 3, canvas.height - pipe.bottomY);
       
-      ctx.strokeStyle = '#1a5f1a';
+      // Pipe rings/rim
+      ctx.strokeStyle = style.rim;
       ctx.lineWidth = 3;
       ctx.beginPath();
       ctx.ellipse(pipe.x + pipeWidth / 2, pipe.topHeight, pipeWidth / 2, 18, 0, 0, Math.PI * 2);
@@ -491,7 +509,9 @@
       ctx.ellipse(pipe.x + pipeWidth / 2, pipe.bottomY, pipeWidth / 2, 18, 0, 0, Math.PI * 2);
       ctx.stroke();
       
-      ctx.fillStyle = '#2d7a2d';
+      // Rim fill (darker version of main color)
+      ctx.fillStyle = style.color1;
+      ctx.globalAlpha = 0.6;
       ctx.beginPath();
       ctx.ellipse(pipe.x + pipeWidth / 2, pipe.topHeight, pipeWidth / 2, 15, 0, 0, Math.PI * 2);
       ctx.fill();
@@ -499,6 +519,7 @@
       ctx.beginPath();
       ctx.ellipse(pipe.x + pipeWidth / 2, pipe.bottomY, pipeWidth / 2, 15, 0, 0, Math.PI * 2);
       ctx.fill();
+      ctx.globalAlpha = 1;
     }
 
     function drawPlayer() {
@@ -535,9 +556,26 @@
           return;
         }
         
-        ctx.fillStyle = `rgba(255, 215, 0, ${p.life})`;
+        // Glow effect
+        const glowSize = p.size * p.life * 2.5;
+        ctx.fillStyle = `rgba(255, 215, 0, ${p.life * 0.3})`;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, glowSize, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Main particle with gradient
+        const particleGradient = ctx.createRadialGradient(p.x - p.size * 0.3, p.y - p.size * 0.3, 0, p.x, p.y, p.size * p.life);
+        particleGradient.addColorStop(0, `rgba(255, 255, 150, ${p.life})`);
+        particleGradient.addColorStop(1, `rgba(255, 215, 0, ${p.life * 0.5})`);
+        ctx.fillStyle = particleGradient;
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Sparkle dots
+        ctx.fillStyle = `rgba(255, 255, 255, ${p.life * 0.8})`;
+        ctx.beginPath();
+        ctx.arc(p.x + p.size * 0.5 * p.life, p.y - p.size * 0.3 * p.life, p.size * 0.3, 0, Math.PI * 2);
         ctx.fill();
       });
     }
