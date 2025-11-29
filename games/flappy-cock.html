@@ -237,6 +237,15 @@
       border-radius: 18px;
     }
 
+    .score-glow {
+      animation: scoreGlow 0.6s ease-out;
+    }
+
+    @keyframes scoreGlow {
+      0% { transform: scale(1.2); filter: brightness(1.5); }
+      100% { transform: scale(1); filter: brightness(1); }
+    }
+
     @media (max-width: 768px) {
       .game-title { font-size: 56px; padding: 25px 45px; }
       .subtitle { font-size: 24px; }
@@ -406,14 +415,19 @@
     function drawPipe(pipe) {
       const gradient = ctx.createLinearGradient(pipe.x, 0, pipe.x + pipeWidth, 0);
       gradient.addColorStop(0, '#1a5f1a');
-      gradient.addColorStop(0.5, '#2d7a2d');
+      gradient.addColorStop(0.5, '#3d9d3d');
       gradient.addColorStop(1, '#1a5f1a');
       
       ctx.fillStyle = gradient;
       ctx.fillRect(pipe.x, 0, pipeWidth, pipe.topHeight);
       ctx.fillRect(pipe.x, pipe.bottomY, pipeWidth, canvas.height - pipe.bottomY);
       
-      ctx.fillStyle = '#3d8a3d';
+      // Add shadow and depth
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+      ctx.fillRect(pipe.x + pipeWidth - 8, 0, 8, pipe.topHeight);
+      ctx.fillRect(pipe.x + pipeWidth - 8, pipe.bottomY, 8, canvas.height - pipe.bottomY);
+      
+      ctx.fillStyle = '#4db84d';
       ctx.beginPath();
       ctx.ellipse(pipe.x + pipeWidth / 2, pipe.topHeight, pipeWidth / 2 + 10, 25, 0, 0, Math.PI * 2);
       ctx.fill();
@@ -421,6 +435,11 @@
       ctx.beginPath();
       ctx.ellipse(pipe.x + pipeWidth / 2, pipe.bottomY, pipeWidth / 2 + 10, 25, 0, 0, Math.PI * 2);
       ctx.fill();
+      
+      // Highlight on pipes
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
+      ctx.fillRect(pipe.x + 3, 0, 4, pipe.topHeight);
+      ctx.fillRect(pipe.x + 3, pipe.bottomY, 4, canvas.height - pipe.bottomY);
     }
 
     function drawPlayer() {
@@ -500,7 +519,11 @@
           pipe.scored = true;
           gameState.score++;
           document.getElementById('scoreDisplay').textContent = gameState.score;
-          soundManager.play('ready');
+          // Add visual glow effect instead of sound
+          const scoreDisplay = document.getElementById('scoreDisplay');
+          scoreDisplay.classList.remove('score-glow');
+          void scoreDisplay.offsetWidth; // Trigger reflow
+          scoreDisplay.classList.add('score-glow');
           createParticles(player.x + player.width / 2, player.y + player.height / 2);
         }
         
@@ -522,10 +545,17 @@
     function draw() {
       const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
       gradient.addColorStop(0, '#87CEEB');
-      gradient.addColorStop(0.5, '#5DADE2');
-      gradient.addColorStop(1, '#3498DB');
+      gradient.addColorStop(0.25, '#5DADE2');
+      gradient.addColorStop(0.75, '#3498DB');
+      gradient.addColorStop(1, '#2980B9');
       ctx.fillStyle = gradient;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      // Add light rays effect
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.08)';
+      for (let i = 0; i < 5; i++) {
+        ctx.fillRect(i * canvas.width / 5, 0, canvas.width / 10, canvas.height);
+      }
       
       drawBubbles();
       pipes.forEach(pipe => drawPipe(pipe));
@@ -581,10 +611,24 @@
     }
 
     function submitScore() {
+      const btn = document.querySelector('.btn');
+      const originalText = btn.textContent;
+      btn.textContent = '⏳ SUBMITTING...';
+      btn.disabled = true;
+      
       if (typeof showLeaderboardModal === 'function') {
         showLeaderboardModal('flappy-cock', 'Flappy Cock', gameState.score);
+        setTimeout(() => {
+          btn.textContent = '✅ SUBMITTED!';
+          setTimeout(() => {
+            btn.textContent = originalText;
+            btn.disabled = false;
+          }, 2000);
+        }, 1000);
       } else {
-        alert('Leaderboard is loading...');
+        alert('Leaderboard is loading... try again in a moment');
+        btn.textContent = originalText;
+        btn.disabled = false;
       }
     }
 
