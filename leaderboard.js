@@ -7,6 +7,33 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 // Initialize Supabase client (loaded from CDN in HTML)
 let supabase = null;
 
+// Wait for Supabase to load and initialize it
+function waitForSupabase() {
+  return new Promise((resolve) => {
+    if (typeof window.supabase !== 'undefined') {
+      if (!supabase) {
+        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        console.log('✅ Supabase initialized');
+      }
+      resolve(supabase);
+    } else {
+      console.log('⏳ Waiting for Supabase library to load...');
+      setTimeout(() => {
+        if (typeof window.supabase !== 'undefined') {
+          if (!supabase) {
+            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            console.log('✅ Supabase initialized (after wait)');
+          }
+          resolve(supabase);
+        } else {
+          console.error('❌ Supabase library not found');
+          resolve(null);
+        }
+      }, 500);
+    }
+  });
+}
+
 function initSupabase() {
   if (typeof window.supabase !== 'undefined' && !supabase) {
     supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -17,9 +44,11 @@ function initSupabase() {
 // Submit a score to the leaderboard
 async function submitScore(gameName, playerName, score) {
   try {
-    const client = initSupabase();
+    console.log('🎯 submitScore called with:', gameName, playerName, score);
+    const client = await waitForSupabase();
+    console.log('📊 Client after init:', client ? 'READY' : 'NULL');
     if (!client) {
-      console.error('Supabase not loaded');
+      console.error('❌ Supabase not loaded');
       return { success: false, error: 'Supabase not initialized' };
     }
 
@@ -86,7 +115,7 @@ async function submitScore(gameName, playerName, score) {
 // Get top N scores for a specific game
 async function getLeaderboard(gameName, limit = 10) {
   try {
-    const client = initSupabase();
+    const client = await waitForSupabase();
     if (!client) {
       console.error('Supabase not loaded');
       return { success: false, error: 'Supabase not initialized', data: [] };
@@ -114,7 +143,7 @@ async function getLeaderboard(gameName, limit = 10) {
 // Get all leaderboards (for global leaderboard page)
 async function getAllLeaderboards() {
   try {
-    const client = initSupabase();
+    const client = await waitForSupabase();
     if (!client) {
       return { success: false, data: {} };
     }
@@ -319,9 +348,19 @@ window.submitLeaderboardScore = async function(gameName, score) {
   submitBtn.textContent = 'SUBMITTING...';
   
   // Submit score
-  const result = await submitScore(gameName, playerName, score);
+  try {
+    const result = await submitScore(gameName, playerName, score);
+    console.log('📍 Result from submitScore:', result);
+    
+    if (!result) {
+      console.error('❌ No result returned from submitScore');
+      alert('Error: No response from leaderboard system');
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'SUBMIT SCORE';
+      return;
+    }
   
-  if (result.success) {
+    if (result.success) {
     // Save username for pump clicker auto-update
     if (gameName === 'pump-clicker') {
       localStorage.setItem('clickerUsername', playerName);
@@ -339,10 +378,16 @@ window.submitLeaderboardScore = async function(gameName, score) {
       </p>
     `;
     
-    // Reload leaderboard
-    loadLeaderboardData(gameName);
-  } else {
-    alert('Error submitting score. Please try again!');
+      // Reload leaderboard
+      loadLeaderboardData(gameName);
+    } else {
+      alert('Error submitting score. Please try again!');
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'SUBMIT SCORE';
+    }
+  } catch (err) {
+    console.error('❌ Exception in submitLeaderboardScore:', err);
+    alert('Error submitting score: ' + err.message);
     submitBtn.disabled = false;
     submitBtn.textContent = 'SUBMIT SCORE';
   }
@@ -353,5 +398,38 @@ window.closeLeaderboardModal = function() {
   const modal = document.getElementById('leaderboardModal');
   if (modal) {
     modal.remove();
+  }
+};
+
+// Delete a specific player from leaderboard
+window.deletePlayerFromLeaderboard = async function(gameName, playerName) {
+  try {
+    console.log(`🗑️ Attempting to delete ${playerName} from ${gameName} leaderboard...`);
+    const client = await waitForSupabase();
+    if (!client) {
+      console.error('❌ Supabase not loaded');
+      alert('Error: Supabase not initialized');
+      return false;
+    }
+
+    const { error } = await client
+      .from('leaderboards')
+      .delete()
+      .eq('game_name', gameName)
+      .eq('player_name', playerName);
+
+    if (error) {
+      console.error(`❌ Error deleting ${playerName}:`, error);
+      alert(`Error deleting ${playerName}: ${error.message}`);
+      return false;
+    }
+
+    console.log(`✅ Successfully deleted ${playerName} from ${gameName}`);
+    alert(`✓ Successfully deleted ${playerName} from ${gameName} leaderboard!`);
+    return true;
+  } catch (err) {
+    console.error('❌ Exception deleting player:', err);
+    alert('Error deleting player: ' + err.message);
+    return false;
   }
 };
