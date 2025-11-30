@@ -271,7 +271,7 @@
       <div class="stat-item">SCORE: <span id="finalScore">0</span></div>
       <div class="stat-item">BEST: <span id="displayBest">0</span></div>
     </div>
-    <button class="btn" id="submitBtn" onclick="submitScore()">🏆 SUBMIT SCORE</button>
+    <button class="btn" id="submitBtn" onclick="showLeaderboard()">🏆 SUBMIT SCORE</button>
     <button class="btn" onclick="restartGame()">PLAY AGAIN</button>
     <button class="btn secondary" onclick="backToMenu()">MAIN MENU</button>
   </div>
@@ -307,15 +307,14 @@
     let lastFrameTime = Date.now();
     let deltaTime = 0;
 
-    // EASY PHYSICS - NOT FALLING TOO MUCH! (now per-second normalized)
     const player = {
       x: 100,
       y: 200,
       width: 55,
       height: 55,
       velocity: 0,
-      gravity: 288,  // 0.08 * 3600 = pixels/second^2
-      jumpPower: -210, // -3.5 * 60 = pixels/second
+      gravity: 288,
+      jumpPower: -210,
       rotation: 0,
       image: new Image()
     };
@@ -327,9 +326,9 @@
 
     const pipes = [];
     const pipeWidth = 75;
-    const pipeGap = 200; // HUGE gap - very easy!
+    const pipeGap = 200;
     let pipeTimer = 0;
-    const pipeInterval = 140; // Much slower spawn
+    const pipeInterval = 140;
 
     const particles = [];
     const bubbles = [];
@@ -382,6 +381,18 @@
       }
     }
 
+    function getPipeStyle() {
+      const milestone = Math.floor(gameState.score / 10);
+      const styles = [
+        { name: 'seaweed', color1: '#228B22', color2: '#32CD32', rim: '#1a5f1a' },
+        { name: 'coral', color1: '#FF6B6B', color2: '#FF8E8E', rim: '#CC5555' },
+        { name: 'shell', color1: '#FFB347', color2: '#FFDAB9', rim: '#CC8833' },
+        { name: 'jellyfish', color1: '#9D4EDD', color2: '#C77DFF', rim: '#6A2C91' },
+        { name: 'barnacle', color1: '#808080', color2: '#A9A9A9', rim: '#505050' }
+      ];
+      return styles[milestone % styles.length];
+    }
+
     function spawnPipe() {
       const minHeight = 120;
       const maxHeight = canvas.height - pipeGap - minHeight - 100;
@@ -391,7 +402,8 @@
         x: canvas.width,
         topHeight: height,
         bottomY: height + pipeGap,
-        scored: false
+        scored: false,
+        style: getPipeStyle()
       });
     }
 
@@ -423,14 +435,12 @@
     function drawOceanFloor() {
       const floorY = canvas.height - 80;
       
-      // Ocean floor background
       const gradient = ctx.createLinearGradient(0, floorY, 0, canvas.height);
       gradient.addColorStop(0, '#1B4D3E');
       gradient.addColorStop(1, '#0F2818');
       ctx.fillStyle = gradient;
       ctx.fillRect(0, floorY, canvas.width, 80);
       
-      // Draw jellyfish scattered across the floor
       for (let i = 0; i < canvas.width + 80; i += 80) {
         const x = (i + Math.floor(floorOffset / 2)) % (canvas.width + 80);
         drawJellyfish(x, floorY - 20);
@@ -441,14 +451,12 @@
       const jellyfishColors = ['#FF6B9D', '#FFB6D9', '#9D4EDD', '#C77DFF', '#E0AAFF'];
       const color = jellyfishColors[Math.floor((x / 80)) % jellyfishColors.length];
       
-      // Bell
       ctx.fillStyle = color;
       ctx.globalAlpha = 0.8;
       ctx.beginPath();
       ctx.ellipse(x, y, 18, 12, 0, 0, Math.PI * 2);
       ctx.fill();
       
-      // Tentacles
       ctx.strokeStyle = color;
       ctx.lineWidth = 2;
       ctx.globalAlpha = 0.6;
@@ -464,19 +472,19 @@
     }
 
     function drawPipe(pipe) {
-      // Main pipe body with vibrant gradient
+      const style = pipe.style || getPipeStyle();
       const gradient = ctx.createLinearGradient(pipe.x, 0, pipe.x + pipeWidth, 0);
-      gradient.addColorStop(0, '#228B22');
-      gradient.addColorStop(0.35, '#32CD32');
-      gradient.addColorStop(0.65, '#32CD32');
-      gradient.addColorStop(1, '#228B22');
+      gradient.addColorStop(0, style.color1);
+      gradient.addColorStop(0.35, style.color2);
+      gradient.addColorStop(0.65, style.color2);
+      gradient.addColorStop(1, style.color1);
       
       ctx.fillStyle = gradient;
       ctx.fillRect(pipe.x, 0, pipeWidth, pipe.topHeight);
       ctx.fillRect(pipe.x, pipe.bottomY, pipeWidth, canvas.height - pipe.bottomY);
       
-      // Inner details and ridges
-      ctx.fillStyle = 'rgba(34, 139, 34, 0.8)';
+      // Inner detail stripe
+      ctx.fillStyle = style.color1 + '99';
       ctx.fillRect(pipe.x + 8, 0, 6, pipe.topHeight);
       ctx.fillRect(pipe.x + 8, pipe.bottomY, 6, canvas.height - pipe.bottomY);
       
@@ -486,12 +494,12 @@
       ctx.fillRect(pipe.x, pipe.bottomY, 3, canvas.height - pipe.bottomY);
       
       // Right highlight
-      ctx.fillStyle = 'rgba(144, 238, 144, 0.4)';
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
       ctx.fillRect(pipe.x + pipeWidth - 3, 0, 3, pipe.topHeight);
       ctx.fillRect(pipe.x + pipeWidth - 3, pipe.bottomY, 3, canvas.height - pipe.bottomY);
       
       // Pipe rings/rim
-      ctx.strokeStyle = '#1a5f1a';
+      ctx.strokeStyle = style.rim;
       ctx.lineWidth = 3;
       ctx.beginPath();
       ctx.ellipse(pipe.x + pipeWidth / 2, pipe.topHeight, pipeWidth / 2, 18, 0, 0, Math.PI * 2);
@@ -501,8 +509,9 @@
       ctx.ellipse(pipe.x + pipeWidth / 2, pipe.bottomY, pipeWidth / 2, 18, 0, 0, Math.PI * 2);
       ctx.stroke();
       
-      // Pipe rim fill
-      ctx.fillStyle = '#2d7a2d';
+      // Rim fill (darker version of main color)
+      ctx.fillStyle = style.color1;
+      ctx.globalAlpha = 0.6;
       ctx.beginPath();
       ctx.ellipse(pipe.x + pipeWidth / 2, pipe.topHeight, pipeWidth / 2, 15, 0, 0, Math.PI * 2);
       ctx.fill();
@@ -510,6 +519,7 @@
       ctx.beginPath();
       ctx.ellipse(pipe.x + pipeWidth / 2, pipe.bottomY, pipeWidth / 2, 15, 0, 0, Math.PI * 2);
       ctx.fill();
+      ctx.globalAlpha = 1;
     }
 
     function drawPlayer() {
@@ -519,7 +529,7 @@
       player.rotation += (targetRotation - player.rotation) * 0.15;
       
       ctx.translate(player.x + player.width / 2, player.y + player.height / 2);
-      ctx.rotate(player.rotation + Math.PI / 2); // Rotate 90° clockwise
+      ctx.rotate(player.rotation + Math.PI / 2);
       
       if (player.image.complete && player.image.naturalHeight > 0) {
         ctx.drawImage(
@@ -546,9 +556,26 @@
           return;
         }
         
-        ctx.fillStyle = `rgba(255, 215, 0, ${p.life})`;
+        // Glow effect
+        const glowSize = p.size * p.life * 2.5;
+        ctx.fillStyle = `rgba(255, 215, 0, ${p.life * 0.3})`;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, glowSize, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Main particle with gradient
+        const particleGradient = ctx.createRadialGradient(p.x - p.size * 0.3, p.y - p.size * 0.3, 0, p.x, p.y, p.size * p.life);
+        particleGradient.addColorStop(0, `rgba(255, 255, 150, ${p.life})`);
+        particleGradient.addColorStop(1, `rgba(255, 215, 0, ${p.life * 0.5})`);
+        ctx.fillStyle = particleGradient;
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Sparkle dots
+        ctx.fillStyle = `rgba(255, 255, 255, ${p.life * 0.8})`;
+        ctx.beginPath();
+        ctx.arc(p.x + p.size * 0.5 * p.life, p.y - p.size * 0.3 * p.life, p.size * 0.3, 0, Math.PI * 2);
         ctx.fill();
       });
     }
@@ -581,7 +608,7 @@
         pipeTimer = 0;
       }
       
-      const pipeSpeed = 104; // pixels per second (15% faster)
+      const pipeSpeed = 120;
       pipes.forEach((pipe, index) => {
         pipe.x -= pipeSpeed * deltaTime;
         
@@ -589,10 +616,9 @@
           pipe.scored = true;
           gameState.score++;
           document.getElementById('scoreDisplay').textContent = gameState.score;
-          // Add visual glow effect instead of sound
           const scoreDisplay = document.getElementById('scoreDisplay');
           scoreDisplay.classList.remove('score-glow');
-          void scoreDisplay.offsetWidth; // Trigger reflow
+          void scoreDisplay.offsetWidth;
           scoreDisplay.classList.add('score-glow');
           createParticles(player.x + player.width / 2, player.y + player.height / 2);
         }
@@ -621,7 +647,6 @@
       ctx.fillStyle = gradient;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       
-      // Add light rays effect
       ctx.fillStyle = 'rgba(255, 255, 255, 0.08)';
       for (let i = 0; i < 5; i++) {
         ctx.fillRect(i * canvas.width / 5, 0, canvas.width / 10, canvas.height);
@@ -637,7 +662,7 @@
 
     function gameLoop() {
       const now = Date.now();
-      deltaTime = Math.min((now - lastFrameTime) / 1000, 0.016); // Cap at ~60fps delta
+      deltaTime = Math.min((now - lastFrameTime) / 1000, 0.016);
       lastFrameTime = now;
       
       update();
@@ -685,7 +710,7 @@
       }, 600);
     }
 
-    function submitScore() {
+    function showLeaderboard() {
       const btn = document.getElementById('submitBtn');
       if (!btn) {
         console.error('Submit button not found');
@@ -694,11 +719,13 @@
       }
       
       const originalText = btn.textContent;
-      btn.textContent = '⏳ SUBMITTING...';
+      btn.textContent = '⏳ LOADING...';
       btn.disabled = true;
       
       if (typeof showLeaderboardModal === 'function') {
         showLeaderboardModal('flappy-cock', 'Flappy Cock', gameState.score);
+        btn.textContent = originalText;
+        btn.disabled = false;
       } else {
         alert('Leaderboard is loading... try again in a moment');
         btn.textContent = originalText;
