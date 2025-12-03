@@ -277,19 +277,10 @@
       }, [weapons]);
 
       const startGame = () => {
-        gameRef.current = {
-          player: { x: 0, y: 0, facing: 1 },
-          enemies: [],
-          projectiles: [],
-          xpOrbs: [],
-          particles: [],
-          damageNumbers: [],
-          keys: {},
-          lastShot: {},
-          camera: { x: 0, y: 0 },
-          wave: 1,
-          bossSpawned: false,
-        };
+        // Keep the current keyboard state
+        const currentKeys = gameRef.current.keys || {};
+        
+        // Reset all game state
         setScore(0);
         setLevel(1);
         setXp(0);
@@ -297,12 +288,11 @@
         setTime(0);
         setKills(0);
         setCombo(0);
-        // Reset weapons with proper initial bonuses
         setWeapons([{ ...WEAPONS.spatula, level: 1, damageBonus: 1, cooldownBonus: 1, rangeBonus: 1, sizeBonus: 1 }]);
-        // Reset stats to initial values
         setStats({ ...INITIAL_STATS });
         setLeaderboardShown(false);
-        gameOverRef.current = false; // Reset game over flag for new game
+        gameOverRef.current = false;
+        
         // Reset the game ref completely
         gameRef.current = {
           player: { x: 0, y: 0, facing: 1 },
@@ -312,12 +302,13 @@
           chests: [],
           particles: [],
           damageNumbers: [],
-          keys: gameRef.current.keys, // Keep keyboard state
+          keys: currentKeys,
           lastShot: {},
           camera: { x: 0, y: 0 },
           wave: 1,
           bossSpawned: false,
         };
+        
         touchRef.current.active = false;
         const stick = document.getElementById('joystickStick');
         if (stick) {
@@ -415,7 +406,9 @@
         gameOverRef.current = false;
 
         const canvas = canvasRef.current;
+        if (!canvas) return; // Safety check
         const ctx = canvas.getContext('2d');
+        if (!ctx) return; // Safety check
         let animationId;
         let lastTime = Date.now();
         let spawnTimer = 0;
