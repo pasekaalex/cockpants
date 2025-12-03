@@ -53,10 +53,10 @@ function formatLargeScore(n) {
 }
 
 // Safely handle very large scores for database storage
-// PostgreSQL BIGINT max is ~9.2 quintillion, but JS Number.MAX_SAFE_INTEGER is ~9 quadrillion
+// PostgreSQL BIGINT max is ~9.2 quintillion, JS MAX_SAFE_INTEGER is ~9 quadrillion
+// We use JS limit since beyond that we lose precision
 function sanitizeScoreForDB(score) {
-  // Cap at MAX_SAFE_INTEGER to prevent precision loss
-  const MAX_SAFE = Number.MAX_SAFE_INTEGER; // 9,007,199,254,740,991
+  const MAX_SAFE = 9007199254740991; // Number.MAX_SAFE_INTEGER (~9 quadrillion)
   if (score > MAX_SAFE) {
     console.warn(`Score ${score} exceeds MAX_SAFE_INTEGER, capping at ${MAX_SAFE}`);
     return MAX_SAFE;

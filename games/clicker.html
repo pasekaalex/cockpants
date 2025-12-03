@@ -1119,7 +1119,7 @@
 </head>
 <body>
   <a href="../index.html" class="back-btn">⬅️ MENU</a>
-  <button class="leaderboard-btn" onclick="showLeaderboardModal('pump-clicker', 'Pump Clicker', gameState.totalPumps)">🏆 LEADERBOARD</button>
+  <button class="leaderboard-btn" onclick="openLeaderboard()">🏆 LEADERBOARD</button>
   
   <audio id="bgMusic" preload="auto" loop>
     <source src="bob.mp3" type="audio/mpeg">
@@ -1260,6 +1260,20 @@
   </div>
 
   <script>
+    // =====================
+    // LEADERBOARD HELPERS
+    // =====================
+    // Cap score at JS MAX_SAFE_INTEGER (requires BIGINT column in database)
+    function getLeaderboardScore() {
+      const MAX_SAFE = 9007199254740991; // ~9 quadrillion
+      return Math.min(Math.floor(gameState.totalPumps), MAX_SAFE);
+    }
+    
+    // Open leaderboard modal with sanitized score
+    function openLeaderboard() {
+      showLeaderboardModal('pump-clicker', 'Pump Clicker', getLeaderboardScore());
+    }
+    
     // =====================
     // GAME STATE
     // =====================
@@ -1584,7 +1598,7 @@
         if (savedUsername && gameState.totalPumps > 0) {
           setTimeout(async () => {
             if (typeof submitScore === 'function') {
-              await submitScore('pump-clicker', savedUsername, gameState.totalPumps);
+              await submitScore('pump-clicker', savedUsername, getLeaderboardScore());
             }
           }, 2000);
         }
