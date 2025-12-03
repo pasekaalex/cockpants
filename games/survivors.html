@@ -118,6 +118,19 @@
       mermaidMan: { hp: 500, speed: 0.5, xp: 150, color: '#FF6347', name: 'Mermaid Man', scale: 1.5, boss: true },
     };
 
+    // Upgrade types for level-up bonuses (RNG based)
+    const UPGRADE_TYPES = [
+      { stat: 'damage', emoji: '⚔️', desc: '+15% Damage', subdesc: 'Hit harder!' },
+      { stat: 'attackSpeed', emoji: '🔥', desc: '+12% Attack Speed', subdesc: 'Fire faster!' },
+      { stat: 'range', emoji: '🎯', desc: '+20% Range', subdesc: 'Reach further!' },
+      { stat: 'projectileSize', emoji: '💥', desc: '+15% Projectile Size', subdesc: 'Bigger hits!' },
+      { stat: 'pierce', emoji: '🗡️', desc: '+1 Pierce', subdesc: 'Hit more enemies!' },
+      { stat: 'speed', emoji: '⚡', desc: '+10% Move Speed', subdesc: 'Gotta go fast!' },
+      { stat: 'maxHp', emoji: '❤️', desc: '+40 Max HP', subdesc: 'More tankiness!' },
+      { stat: 'armor', emoji: '🛡️', desc: '+3 Armor', subdesc: 'Take less damage!' },
+      { stat: 'pickupRange', emoji: '🧲', desc: '+25% Pickup Range', subdesc: 'Vacuum XP!' },
+    ];
+
     const PARTICLE_COLORS = ['#FFD700', '#FF69B4', '#00BFFF', '#FF4500', '#7CFC00', '#FF1493'];
 
     function CockpantsSurvivors() {
@@ -147,6 +160,7 @@
         enemies: [],
         projectiles: [],
         xpOrbs: [],
+        chests: [], // Weapon chests dropped by elite enemies
         particles: [],
         damageNumbers: [],
         keys: {},
@@ -155,6 +169,10 @@
         wave: 1,
         bossSpawned: false,
       });
+      
+      // Initial game state values for proper reset
+      const INITIAL_STATS = { speed: 3.8, maxHp: 250, hp: 250, pickupRange: 60, armor: 0 };
+      const INITIAL_WEAPON = { ...WEAPONS.spatula, level: 1, damageBonus: 1, cooldownBonus: 1, rangeBonus: 1, sizeBonus: 1 };
 
       const spawnParticles = (x, y, count, color, speed = 3) => {
         const game = gameRef.current;
@@ -181,69 +199,76 @@
         });
       };
 
+      // Generate RNG-based stat upgrades on level up
       const generateUpgrades = useCallback(() => {
-        const options = [];
-        const allWeapons = Object.entries(WEAPONS);
-        
-        weapons.forEach(w => {
-          if (w.level < 7) {
-            options.push({ 
-              type: 'weaponUpgrade', 
-              weapon: w.name, 
-              emoji: w.emoji,
-              desc: `${w.name} +25% DMG`,
-              subdesc: `Lv.${w.level} → Lv.${w.level + 1}`
-            });
-          }
-        });
-        
-        allWeapons.forEach(([key, w]) => {
-          if (!weapons.find(ow => ow.name === w.name) && weapons.length < 6) {
-            options.push({ 
-              type: 'newWeapon', 
-              weapon: key, 
-              emoji: w.emoji,
-              desc: `NEW: ${w.name}`,
-              subdesc: `${w.damage} DMG / ${w.cooldown}ms`
-            });
-          }
-        });
-        
-        options.push({ type: 'stat', stat: 'speed', emoji: '⚡', desc: '+15% Move Speed', subdesc: 'Gotta go fast!' });
-        options.push({ type: 'stat', stat: 'maxHp', emoji: '❤️', desc: '+50 Max HP', subdesc: '+Full heal!' });
-        options.push({ type: 'stat', stat: 'pickupRange', emoji: '🧲', desc: '+30% Pickup Range', subdesc: 'Vacuum pineapples!' });
-        options.push({ type: 'stat', stat: 'armor', emoji: '🛡️', desc: '+5 Armor', subdesc: 'Reduce damage taken' });
-        options.push({ type: 'stat', stat: 'cooldown', emoji: '🔥', desc: '-10% Cooldowns', subdesc: 'Attack faster!' });
-        
-        const shuffled = options.sort(() => Math.random() - 0.5);
+        // Shuffle and pick 3 random upgrade types
+        const shuffled = [...UPGRADE_TYPES].sort(() => Math.random() - 0.5);
         setUpgradeOptions(shuffled.slice(0, 3));
-      }, [weapons]);
+      }, []);
 
+      // Apply the selected upgrade
       const selectUpgrade = (upgrade) => {
-        if (upgrade.type === 'weaponUpgrade') {
-          setWeapons(prev => prev.map(w => 
-            w.name === upgrade.weapon ? { ...w, level: w.level + 1, damage: Math.floor(w.damage * 1.25) } : w
-          ));
-        } else if (upgrade.type === 'newWeapon') {
-          setWeapons(prev => [...prev, { ...WEAPONS[upgrade.weapon], level: 1 }]);
-        } else if (upgrade.type === 'stat') {
-          setStats(prev => {
-            const newStats = { ...prev };
-            if (upgrade.stat === 'speed') newStats.speed *= 1.15;
-            else if (upgrade.stat === 'maxHp') {
-              newStats.maxHp += 30;
-              newStats.hp = newStats.maxHp;
-            }
-            else if (upgrade.stat === 'pickupRange') newStats.pickupRange *= 1.3;
-            else if (upgrade.stat === 'armor') newStats.armor += 5;
-            else if (upgrade.stat === 'cooldown') {
-              setWeapons(prev => prev.map(w => ({ ...w, cooldown: Math.floor(w.cooldown * 0.9) })));
-            }
-            return newStats;
-          });
+        switch (upgrade.stat) {
+          case 'damage':
+            setWeapons(prev => prev.map(w => ({ ...w, damageBonus: (w.damageBonus || 1) * 1.15 })));
+            break;
+          case 'attackSpeed':
+            setWeapons(prev => prev.map(w => ({ ...w, cooldownBonus: (w.cooldownBonus || 1) * 0.88 })));
+            break;
+          case 'range':
+            setWeapons(prev => prev.map(w => ({ ...w, rangeBonus: (w.rangeBonus || 1) * 1.2 })));
+            break;
+          case 'projectileSize':
+            setWeapons(prev => prev.map(w => ({ ...w, sizeBonus: (w.sizeBonus || 1) * 1.15 })));
+            break;
+          case 'pierce':
+            setWeapons(prev => prev.map(w => ({ ...w, pierce: (w.pierce || 1) + 1 })));
+            break;
+          case 'speed':
+            setStats(prev => ({ ...prev, speed: prev.speed * 1.1 }));
+            break;
+          case 'maxHp':
+            setStats(prev => ({ ...prev, maxHp: prev.maxHp + 40, hp: prev.hp + 40 }));
+            break;
+          case 'armor':
+            setStats(prev => ({ ...prev, armor: prev.armor + 3 }));
+            break;
+          case 'pickupRange':
+            setStats(prev => ({ ...prev, pickupRange: prev.pickupRange * 1.25 }));
+            break;
         }
         setShowUpgrade(false);
       };
+      
+      // Add a new weapon from chest
+      const addWeaponFromChest = useCallback((weaponKey) => {
+        const weapon = WEAPONS[weaponKey];
+        if (!weapon) return;
+        
+        // Check if we already have this weapon
+        const existing = weapons.find(w => w.name === weapon.name);
+        if (existing) {
+          // Level up existing weapon
+          setWeapons(prev => prev.map(w => 
+            w.name === weapon.name 
+              ? { ...w, level: w.level + 1, damageBonus: (w.damageBonus || 1) * 1.2 }
+              : w
+          ));
+        } else if (weapons.length < 6) {
+          // Add new weapon
+          setWeapons(prev => [...prev, { 
+            ...weapon, 
+            level: 1, 
+            damageBonus: 1, 
+            cooldownBonus: 1, 
+            rangeBonus: 1, 
+            sizeBonus: 1 
+          }]);
+        } else {
+          // Max weapons, boost all damage instead
+          setWeapons(prev => prev.map(w => ({ ...w, damageBonus: (w.damageBonus || 1) * 1.1 })));
+        }
+      }, [weapons]);
 
       const startGame = () => {
         gameRef.current = {
@@ -266,10 +291,27 @@
         setTime(0);
         setKills(0);
         setCombo(0);
-        setWeapons([{ ...WEAPONS.spatula, level: 1 }]);
-        setStats({ speed: 3.8, maxHp: 250, hp: 250, pickupRange: 60, armor: 0 });
+        // Reset weapons with proper initial bonuses
+        setWeapons([{ ...WEAPONS.spatula, level: 1, damageBonus: 1, cooldownBonus: 1, rangeBonus: 1, sizeBonus: 1 }]);
+        // Reset stats to initial values
+        setStats({ ...INITIAL_STATS });
         setLeaderboardShown(false);
         gameOverRef.current = false; // Reset game over flag for new game
+        // Reset the game ref completely
+        gameRef.current = {
+          player: { x: 0, y: 0, facing: 1 },
+          enemies: [],
+          projectiles: [],
+          xpOrbs: [],
+          chests: [],
+          particles: [],
+          damageNumbers: [],
+          keys: gameRef.current.keys, // Keep keyboard state
+          lastShot: {},
+          camera: { x: 0, y: 0 },
+          wave: 1,
+          bossSpawned: false,
+        };
         touchRef.current.active = false;
         const stick = document.getElementById('joystickStick');
         if (stick) {
@@ -374,7 +416,7 @@
         let timeTimer = 0;
         let comboDecay = 0;
 
-        const spawnEnemy = (forceType = null) => {
+        const spawnEnemy = (forceType = null, forceElite = false) => {
           const game = gameRef.current;
           const side = Math.floor(Math.random() * 4);
           let x, y;
@@ -397,13 +439,19 @@
           const typeKey = forceType || enemyPool[Math.floor(Math.random() * enemyPool.length)];
           const template = ENEMIES[typeKey];
           
+          // 5% chance for elite enemy (or forced), elites drop weapon chests
+          const isElite = forceElite || Math.random() < 0.05;
+          const eliteMultiplier = isElite ? 3 : 1;
+          
           game.enemies.push({
             ...template,
             x, y,
-            hp: template.hp * (1 + difficulty * 0.3),
-            maxHp: template.hp * (1 + difficulty * 0.3),
+            hp: template.hp * (1 + difficulty * 0.3) * eliteMultiplier,
+            maxHp: template.hp * (1 + difficulty * 0.3) * eliteMultiplier,
             type: typeKey,
             hit: 0,
+            isElite: isElite, // Elite enemies drop weapon chests
+            xp: template.xp * (isElite ? 3 : 1),
           });
         };
 
@@ -436,7 +484,9 @@
           const now = Date.now();
           
           weapons.forEach(weapon => {
-            if (!game.lastShot[weapon.name] || now - game.lastShot[weapon.name] > weapon.cooldown) {
+            const cooldownBonus = weapon.cooldownBonus || 1;
+            const actualCooldown = weapon.cooldown * cooldownBonus;
+            if (!game.lastShot[weapon.name] || now - game.lastShot[weapon.name] > actualCooldown) {
               let nearestEnemy = null;
               let nearestDist = Infinity;
               game.enemies.forEach(e => {
@@ -454,18 +504,23 @@
                 const shots = weapon.level >= 5 ? 3 : weapon.level >= 3 ? 2 : 1;
                 const spread = 0.15;
                 
+                // Apply weapon bonuses
+                const damageBonus = weapon.damageBonus || 1;
+                const sizeBonus = weapon.sizeBonus || 1;
+                const rangeBonus = weapon.rangeBonus || 1;
+                
                 for (let i = 0; i < shots; i++) {
                   const shotAngle = angle + (i - (shots - 1) / 2) * spread;
                   game.projectiles.push({
                     x: game.player.x,
                     y: game.player.y,
-                    vx: Math.cos(shotAngle) * weapon.speed,
-                    vy: Math.sin(shotAngle) * weapon.speed,
-                    damage: weapon.damage,
+                    vx: Math.cos(shotAngle) * weapon.speed * rangeBonus,
+                    vy: Math.sin(shotAngle) * weapon.speed * rangeBonus,
+                    damage: weapon.damage * damageBonus,
                     color: weapon.color,
-                    life: 120,
+                    life: 120 * rangeBonus,
                     pierce: weapon.pierce + Math.floor(weapon.level / 2),
-                    size: 6 + weapon.level,
+                    size: (6 + weapon.level) * sizeBonus,
                     hit: [],
                   });
                 }
@@ -1115,6 +1170,7 @@
                 if (e.hp <= 0) {
                   spawnParticles(e.x, e.y, 12, e.color, 5);
                   
+                  // XP orbs for all enemies
                   const orbCount = e.boss ? 10 : Math.ceil(e.xp / 5);
                   for (let i = 0; i < orbCount; i++) {
                     game.xpOrbs.push({
@@ -1122,6 +1178,18 @@
                       y: e.y + (Math.random() - 0.5) * 40,
                       xp: Math.ceil(e.xp / orbCount),
                     });
+                  }
+                  
+                  // Elite enemies drop weapon chests!
+                  if (e.isElite || e.boss) {
+                    const weaponKeys = Object.keys(WEAPONS);
+                    const randomWeapon = weaponKeys[Math.floor(Math.random() * weaponKeys.length)];
+                    game.chests.push({
+                      x: e.x,
+                      y: e.y,
+                      weapon: randomWeapon,
+                    });
+                    spawnParticles(e.x, e.y, 20, '#FFD700', 6);
                   }
                   
                   setKills(k => k + 1);
@@ -1183,6 +1251,19 @@
             return true;
           });
           
+          // Collect weapon chests
+          game.chests = game.chests.filter(chest => {
+            const dist = Math.hypot(game.player.x - chest.x, game.player.y - chest.y);
+            if (dist < 40) {
+              // Collect the chest and add the weapon
+              addWeaponFromChest(chest.weapon);
+              spawnParticles(chest.x, chest.y, 15, '#FFD700', 5);
+              setScore(s => s + 500);
+              return false;
+            }
+            return true;
+          });
+          
           if (screenShake > 0) {
             setScreenShake(s => Math.max(0, s - delta));
           }
@@ -1233,11 +1314,66 @@
             drawPineapple(ctx, screenX, screenY, 8 + orb.xp / 3);
           });
           
+          // Draw weapon chests
+          game.chests.forEach(chest => {
+            const screenX = chest.x - game.camera.x;
+            const screenY = chest.y - game.camera.y;
+            
+            // Chest glow
+            ctx.shadowColor = '#FFD700';
+            ctx.shadowBlur = 20;
+            
+            // Chest body
+            ctx.fillStyle = '#8B4513';
+            ctx.fillRect(screenX - 15, screenY - 10, 30, 20);
+            
+            // Chest lid
+            ctx.fillStyle = '#A0522D';
+            ctx.beginPath();
+            ctx.moveTo(screenX - 17, screenY - 10);
+            ctx.lineTo(screenX - 15, screenY - 18);
+            ctx.lineTo(screenX + 15, screenY - 18);
+            ctx.lineTo(screenX + 17, screenY - 10);
+            ctx.closePath();
+            ctx.fill();
+            
+            // Gold trim
+            ctx.strokeStyle = '#FFD700';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(screenX - 15, screenY - 10, 30, 20);
+            
+            // Lock
+            ctx.fillStyle = '#FFD700';
+            ctx.beginPath();
+            ctx.arc(screenX, screenY, 5, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Weapon icon floating above
+            ctx.shadowBlur = 0;
+            ctx.font = '16px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(WEAPONS[chest.weapon]?.emoji || '📦', screenX, screenY - 25);
+          });
+          ctx.shadowBlur = 0;
+          
           game.enemies.forEach(e => {
             const screenX = e.x - game.camera.x;
             const screenY = e.y - game.camera.y;
             if (screenX > -100 && screenX < GAME_WIDTH + 100 && screenY > -100 && screenY < GAME_HEIGHT + 100) {
+              // Draw elite glow
+              if (e.isElite) {
+                ctx.shadowColor = '#FFD700';
+                ctx.shadowBlur = 25;
+              }
               drawEnemy(ctx, e, screenX, screenY);
+              ctx.shadowBlur = 0;
+              
+              // Draw elite crown
+              if (e.isElite) {
+                ctx.font = '16px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('👑', screenX, screenY - ENEMY_SIZE * (e.scale || 1) - 5);
+              }
             }
           });
           
@@ -1305,7 +1441,7 @@
           // Ensure loop stops on cleanup
           gameOverRef.current = true;
         };
-      }, [gameState, showUpgrade, weapons, stats, xpToLevel, time, generateUpgrades, screenShake, combo]);
+      }, [gameState, showUpgrade, weapons, stats, xpToLevel, time, generateUpgrades, screenShake, combo, addWeaponFromChest]);
 
       const formatTime = (seconds) => {
         const m = Math.floor(seconds / 60);
