@@ -186,7 +186,8 @@ async function getAllLeaderboards() {
       'patrick-friendship',
       'house-hoarder',
       'krusty-krab-rush',
-      'krusty-tycoon'
+      'krusty-tycoon',
+      'survivors'
     ];
 
     const leaderboards = {};

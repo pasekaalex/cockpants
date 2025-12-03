@@ -1,0 +1,1434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>$COCKPANTS Survivors</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../leaderboard.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+      background: #000; 
+      overflow: hidden;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+    #root { width: 100vw; height: 100vh; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  
+  <script type="text/babel">
+    const { useState, useEffect, useRef, useCallback } = React;
+
+    const GAME_WIDTH = 900;
+    const GAME_HEIGHT = 650;
+    const PLAYER_SIZE = 44;
+    const ENEMY_SIZE = 36;
+
+    const WEAPONS = {
+      spatula: { damage: 12, cooldown: 700, speed: 9, color: '#FFD700', name: 'Krusty Spatula', emoji: '🍳', pierce: 1 },
+      bubble: { damage: 6, cooldown: 300, speed: 7, color: '#87CEEB', name: 'Bubble Wand', emoji: '🫧', pierce: 2 },
+      clarinet: { damage: 30, cooldown: 1400, speed: 12, color: '#8B4513', name: 'Clarinet Blast', emoji: '🎵', pierce: 3 },
+      jellyNet: { damage: 18, cooldown: 550, speed: 8, color: '#FF69B4', name: 'Jellyfish Net', emoji: '🪼', pierce: 1 },
+      karate: { damage: 45, cooldown: 1800, speed: 14, color: '#FF4500', name: 'Karate Chop', emoji: '🥋', pierce: 5 },
+      pattyBlast: { damage: 22, cooldown: 900, speed: 10, color: '#CD853F', name: 'Krabby Patty', emoji: '🍔', pierce: 2 },
+    };
+
+    const ENEMIES = {
+      plankton: { hp: 15, speed: 2.8, xp: 3, color: '#228B22', name: 'Plankton', scale: 0.6 },
+      krabs: { hp: 80, speed: 1.2, xp: 20, color: '#DC143C', name: 'Mr. Krabs', scale: 1.2 },
+      squidward: { hp: 40, speed: 1.5, xp: 10, color: '#40E0D0', name: 'Squidward', scale: 1.0 },
+      patrick: { hp: 120, speed: 0.8, xp: 25, color: '#FFB6C1', name: 'Patrick', scale: 1.3 },
+      sandy: { hp: 60, speed: 2.2, xp: 15, color: '#DEB887', name: 'Sandy', scale: 1.0 },
+      doodlebob: { hp: 200, speed: 1.0, xp: 50, color: '#FFFFFF', name: 'DoodleBob', scale: 1.4, boss: true },
+      flyingDutchman: { hp: 350, speed: 0.9, xp: 100, color: '#00FF7F', name: 'Flying Dutchman', scale: 1.6, boss: true },
+      mermaidMan: { hp: 500, speed: 0.7, xp: 150, color: '#FF6347', name: 'Mermaid Man', scale: 1.5, boss: true },
+    };
+
+    const PARTICLE_COLORS = ['#FFD700', '#FF69B4', '#00BFFF', '#FF4500', '#7CFC00', '#FF1493'];
+
+    function CockpantsSurvivors() {
+      const canvasRef = useRef(null);
+      const [gameState, setGameState] = useState('menu');
+      const [score, setScore] = useState(0);
+      const [level, setLevel] = useState(1);
+      const [xp, setXp] = useState(0);
+      const [xpToLevel, setXpToLevel] = useState(25);
+      const [time, setTime] = useState(0);
+      const [kills, setKills] = useState(0);
+      const [showUpgrade, setShowUpgrade] = useState(false);
+      const [upgradeOptions, setUpgradeOptions] = useState([]);
+      const [weapons, setWeapons] = useState([{ ...WEAPONS.spatula, level: 1 }]);
+      const [stats, setStats] = useState({ speed: 3.2, maxHp: 100, hp: 100, pickupRange: 60, armor: 0 });
+      const [screenShake, setScreenShake] = useState(0);
+      const [bossWarning, setBossWarning] = useState(false);
+      const [combo, setCombo] = useState(0);
+      const [comboTimer, setComboTimer] = useState(0);
+      const [leaderboardShown, setLeaderboardShown] = useState(false);
+
+      const gameRef = useRef({
+        player: { x: GAME_WIDTH / 2, y: GAME_HEIGHT / 2, facing: 1 },
+        enemies: [],
+        projectiles: [],
+        xpOrbs: [],
+        particles: [],
+        damageNumbers: [],
+        keys: {},
+        lastShot: {},
+        camera: { x: 0, y: 0 },
+        wave: 1,
+        bossSpawned: false,
+      });
+
+      const spawnParticles = (x, y, count, color, speed = 3) => {
+        const game = gameRef.current;
+        for (let i = 0; i < count; i++) {
+          const angle = (Math.PI * 2 * i) / count + Math.random() * 0.5;
+          game.particles.push({
+            x, y,
+            vx: Math.cos(angle) * speed * (0.5 + Math.random()),
+            vy: Math.sin(angle) * speed * (0.5 + Math.random()),
+            life: 30 + Math.random() * 20,
+            maxLife: 50,
+            color: color || PARTICLE_COLORS[Math.floor(Math.random() * PARTICLE_COLORS.length)],
+            size: 3 + Math.random() * 4,
+          });
+        }
+      };
+
+      const spawnDamageNumber = (x, y, damage, crit = false) => {
+        gameRef.current.damageNumbers.push({
+          x, y, damage: Math.floor(damage),
+          life: 40,
+          vy: -2,
+          crit,
+        });
+      };
+
+      const generateUpgrades = useCallback(() => {
+        const options = [];
+        const allWeapons = Object.entries(WEAPONS);
+        
+        weapons.forEach(w => {
+          if (w.level < 7) {
+            options.push({ 
+              type: 'weaponUpgrade', 
+              weapon: w.name, 
+              emoji: w.emoji,
+              desc: `${w.name} +25% DMG`,
+              subdesc: `Lv.${w.level} → Lv.${w.level + 1}`
+            });
+          }
+        });
+        
+        allWeapons.forEach(([key, w]) => {
+          if (!weapons.find(ow => ow.name === w.name) && weapons.length < 6) {
+            options.push({ 
+              type: 'newWeapon', 
+              weapon: key, 
+              emoji: w.emoji,
+              desc: `NEW: ${w.name}`,
+              subdesc: `${w.damage} DMG / ${w.cooldown}ms`
+            });
+          }
+        });
+        
+        options.push({ type: 'stat', stat: 'speed', emoji: '⚡', desc: '+15% Move Speed', subdesc: 'Gotta go fast!' });
+        options.push({ type: 'stat', stat: 'maxHp', emoji: '❤️', desc: '+30 Max HP', subdesc: '+Full heal!' });
+        options.push({ type: 'stat', stat: 'pickupRange', emoji: '🧲', desc: '+30% Pickup Range', subdesc: 'Vacuum pineapples!' });
+        options.push({ type: 'stat', stat: 'armor', emoji: '🛡️', desc: '+5 Armor', subdesc: 'Reduce damage taken' });
+        options.push({ type: 'stat', stat: 'cooldown', emoji: '🔥', desc: '-10% Cooldowns', subdesc: 'Attack faster!' });
+        
+        const shuffled = options.sort(() => Math.random() - 0.5);
+        setUpgradeOptions(shuffled.slice(0, 3));
+      }, [weapons]);
+
+      const selectUpgrade = (upgrade) => {
+        if (upgrade.type === 'weaponUpgrade') {
+          setWeapons(prev => prev.map(w => 
+            w.name === upgrade.weapon ? { ...w, level: w.level + 1, damage: Math.floor(w.damage * 1.25) } : w
+          ));
+        } else if (upgrade.type === 'newWeapon') {
+          setWeapons(prev => [...prev, { ...WEAPONS[upgrade.weapon], level: 1 }]);
+        } else if (upgrade.type === 'stat') {
+          setStats(prev => {
+            const newStats = { ...prev };
+            if (upgrade.stat === 'speed') newStats.speed *= 1.15;
+            else if (upgrade.stat === 'maxHp') {
+              newStats.maxHp += 30;
+              newStats.hp = newStats.maxHp;
+            }
+            else if (upgrade.stat === 'pickupRange') newStats.pickupRange *= 1.3;
+            else if (upgrade.stat === 'armor') newStats.armor += 5;
+            else if (upgrade.stat === 'cooldown') {
+              setWeapons(prev => prev.map(w => ({ ...w, cooldown: Math.floor(w.cooldown * 0.9) })));
+            }
+            return newStats;
+          });
+        }
+        setShowUpgrade(false);
+      };
+
+      const startGame = () => {
+        gameRef.current = {
+          player: { x: 0, y: 0, facing: 1 },
+          enemies: [],
+          projectiles: [],
+          xpOrbs: [],
+          particles: [],
+          damageNumbers: [],
+          keys: {},
+          lastShot: {},
+          camera: { x: 0, y: 0 },
+          wave: 1,
+          bossSpawned: false,
+        };
+        setScore(0);
+        setLevel(1);
+        setXp(0);
+        setXpToLevel(25);
+        setTime(0);
+        setKills(0);
+        setCombo(0);
+        setWeapons([{ ...WEAPONS.spatula, level: 1 }]);
+        setStats({ speed: 3.2, maxHp: 100, hp: 100, pickupRange: 60, armor: 0 });
+        setLeaderboardShown(false);
+        setGameState('playing');
+      };
+
+      useEffect(() => {
+        const handleKeyDown = (e) => {
+          gameRef.current.keys[e.key.toLowerCase()] = true;
+        };
+        const handleKeyUp = (e) => {
+          gameRef.current.keys[e.key.toLowerCase()] = false;
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        window.addEventListener('keyup', handleKeyUp);
+        return () => {
+          window.removeEventListener('keydown', handleKeyDown);
+          window.removeEventListener('keyup', handleKeyUp);
+        };
+      }, []);
+
+      // Show leaderboard when game ends
+      useEffect(() => {
+        if (gameState === 'gameover' && !leaderboardShown && typeof showLeaderboardModal === 'function') {
+          setLeaderboardShown(true);
+          // Small delay to ensure the gameover screen is rendered
+          setTimeout(() => {
+            showLeaderboardModal('survivors', '$COCKPANTS Survivors', score);
+          }, 500);
+        }
+      }, [gameState, leaderboardShown, score]);
+
+      useEffect(() => {
+        if (gameState !== 'playing' || showUpgrade) return;
+
+        const canvas = canvasRef.current;
+        const ctx = canvas.getContext('2d');
+        let animationId;
+        let lastTime = Date.now();
+        let spawnTimer = 0;
+        let timeTimer = 0;
+        let comboDecay = 0;
+
+        const spawnEnemy = (forceType = null) => {
+          const game = gameRef.current;
+          const side = Math.floor(Math.random() * 4);
+          let x, y;
+          const offset = 150;
+          
+          switch(side) {
+            case 0: x = game.player.x + (Math.random() - 0.5) * GAME_WIDTH; y = game.player.y - GAME_HEIGHT/2 - offset; break;
+            case 1: x = game.player.x + GAME_WIDTH/2 + offset; y = game.player.y + (Math.random() - 0.5) * GAME_HEIGHT; break;
+            case 2: x = game.player.x + (Math.random() - 0.5) * GAME_WIDTH; y = game.player.y + GAME_HEIGHT/2 + offset; break;
+            default: x = game.player.x - GAME_WIDTH/2 - offset; y = game.player.y + (Math.random() - 0.5) * GAME_HEIGHT;
+          }
+          
+          const difficulty = Math.min(time / 45, 5);
+          let enemyPool = ['plankton'];
+          if (time > 15) enemyPool.push('squidward');
+          if (time > 30) enemyPool.push('krabs');
+          if (time > 45) enemyPool.push('sandy');
+          if (time > 60) enemyPool.push('patrick');
+          
+          const typeKey = forceType || enemyPool[Math.floor(Math.random() * enemyPool.length)];
+          const template = ENEMIES[typeKey];
+          
+          game.enemies.push({
+            ...template,
+            x, y,
+            hp: template.hp * (1 + difficulty * 0.3),
+            maxHp: template.hp * (1 + difficulty * 0.3),
+            type: typeKey,
+            hit: 0,
+          });
+        };
+
+        const spawnBoss = () => {
+          const game = gameRef.current;
+          if (game.bossSpawned) return;
+          
+          setBossWarning(true);
+          setTimeout(() => setBossWarning(false), 2000);
+          
+          const bosses = ['doodlebob', 'flyingDutchman', 'mermaidMan'];
+          const bossType = bosses[Math.min(Math.floor(time / 90), bosses.length - 1)];
+          const template = ENEMIES[bossType];
+          
+          game.enemies.push({
+            ...template,
+            x: game.player.x + 400,
+            y: game.player.y,
+            hp: template.hp * (1 + game.wave * 0.5),
+            maxHp: template.hp * (1 + game.wave * 0.5),
+            type: bossType,
+            hit: 0,
+          });
+          
+          game.bossSpawned = true;
+        };
+
+        const shootProjectiles = () => {
+          const game = gameRef.current;
+          const now = Date.now();
+          
+          weapons.forEach(weapon => {
+            if (!game.lastShot[weapon.name] || now - game.lastShot[weapon.name] > weapon.cooldown) {
+              let nearestEnemy = null;
+              let nearestDist = Infinity;
+              game.enemies.forEach(e => {
+                const dist = Math.hypot(e.x - game.player.x, e.y - game.player.y);
+                if (dist < nearestDist && dist < 500) {
+                  nearestDist = dist;
+                  nearestEnemy = e;
+                }
+              });
+              
+              if (nearestEnemy) {
+                game.lastShot[weapon.name] = now;
+                const angle = Math.atan2(nearestEnemy.y - game.player.y, nearestEnemy.x - game.player.x);
+                
+                const shots = weapon.level >= 5 ? 3 : weapon.level >= 3 ? 2 : 1;
+                const spread = 0.15;
+                
+                for (let i = 0; i < shots; i++) {
+                  const shotAngle = angle + (i - (shots - 1) / 2) * spread;
+                  game.projectiles.push({
+                    x: game.player.x,
+                    y: game.player.y,
+                    vx: Math.cos(shotAngle) * weapon.speed,
+                    vy: Math.sin(shotAngle) * weapon.speed,
+                    damage: weapon.damage,
+                    color: weapon.color,
+                    life: 120,
+                    pierce: weapon.pierce + Math.floor(weapon.level / 2),
+                    size: 6 + weapon.level,
+                    hit: [],
+                  });
+                }
+                
+                spawnParticles(game.player.x, game.player.y, 3, weapon.color, 2);
+              }
+            }
+          });
+        };
+
+        const drawSpongebob = (ctx, x, y, facing, bobOffset) => {
+          ctx.save();
+          ctx.translate(x, y + bobOffset);
+          if (facing < 0) ctx.scale(-1, 1);
+          
+          ctx.fillStyle = 'rgba(0,0,0,0.3)';
+          ctx.beginPath();
+          ctx.ellipse(0, 24, 16, 6, 0, 0, Math.PI * 2);
+          ctx.fill();
+          
+          const gradient = ctx.createLinearGradient(-20, -28, 20, 28);
+          gradient.addColorStop(0, '#FFE566');
+          gradient.addColorStop(0.5, '#FFD700');
+          gradient.addColorStop(1, '#E6B800');
+          ctx.fillStyle = gradient;
+          ctx.beginPath();
+          ctx.roundRect(-20, -28, 40, 52, 6);
+          ctx.fill();
+          
+          ctx.strokeStyle = '#CC9900';
+          ctx.lineWidth = 2;
+          ctx.stroke();
+          
+          ctx.fillStyle = '#8B4513';
+          ctx.fillRect(-20, 12, 40, 16);
+          
+          ctx.fillStyle = '#1a1a1a';
+          ctx.fillRect(-20, 10, 40, 5);
+          
+          ctx.fillStyle = '#FFF';
+          ctx.beginPath();
+          ctx.moveTo(-12, 10);
+          ctx.lineTo(0, 16);
+          ctx.lineTo(12, 10);
+          ctx.lineTo(12, 12);
+          ctx.lineTo(0, 18);
+          ctx.lineTo(-12, 12);
+          ctx.closePath();
+          ctx.fill();
+          
+          ctx.fillStyle = '#FF0000';
+          ctx.beginPath();
+          ctx.moveTo(-3, 12);
+          ctx.lineTo(3, 12);
+          ctx.lineTo(4, 20);
+          ctx.lineTo(0, 22);
+          ctx.lineTo(-4, 20);
+          ctx.closePath();
+          ctx.fill();
+          
+          ctx.fillStyle = '#FFF';
+          ctx.beginPath();
+          ctx.ellipse(-7, -10, 9, 11, 0, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.beginPath();
+          ctx.ellipse(7, -10, 9, 11, 0, 0, Math.PI * 2);
+          ctx.fill();
+          
+          ctx.strokeStyle = '#000';
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          ctx.ellipse(-7, -10, 9, 11, 0, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.ellipse(7, -10, 9, 11, 0, 0, Math.PI * 2);
+          ctx.stroke();
+          
+          ctx.fillStyle = '#00BFFF';
+          ctx.beginPath();
+          ctx.arc(-7 + facing * 2, -10, 5, 0, Math.PI * 2);
+          ctx.arc(7 + facing * 2, -10, 5, 0, Math.PI * 2);
+          ctx.fill();
+          
+          ctx.fillStyle = '#000';
+          ctx.beginPath();
+          ctx.arc(-7 + facing * 2, -10, 2.5, 0, Math.PI * 2);
+          ctx.arc(7 + facing * 2, -10, 2.5, 0, Math.PI * 2);
+          ctx.fill();
+          
+          ctx.fillStyle = '#FFF';
+          ctx.beginPath();
+          ctx.arc(-9, -12, 2, 0, Math.PI * 2);
+          ctx.arc(5, -12, 2, 0, Math.PI * 2);
+          ctx.fill();
+          
+          ctx.fillStyle = '#FFD700';
+          ctx.beginPath();
+          ctx.ellipse(0, -2, 4, 6, 0, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.strokeStyle = '#CC9900';
+          ctx.lineWidth = 1;
+          ctx.stroke();
+          
+          ctx.fillStyle = 'rgba(255, 150, 150, 0.4)';
+          ctx.beginPath();
+          ctx.ellipse(-14, 0, 5, 3, 0, 0, Math.PI * 2);
+          ctx.ellipse(14, 0, 5, 3, 0, 0, Math.PI * 2);
+          ctx.fill();
+          
+          ctx.strokeStyle = '#000';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.arc(0, 4, 10, 0.1 * Math.PI, 0.9 * Math.PI);
+          ctx.stroke();
+          
+          ctx.fillStyle = '#FFF';
+          ctx.fillRect(-5, 4, 4, 7);
+          ctx.fillRect(1, 4, 4, 7);
+          ctx.strokeStyle = '#000';
+          ctx.lineWidth = 1;
+          ctx.strokeRect(-5, 4, 4, 7);
+          ctx.strokeRect(1, 4, 4, 7);
+          
+          ctx.fillStyle = '#CC9900';
+          [[-12, -4], [-10, -8], [-14, -10], [12, -4], [10, -8], [14, -10]].forEach(([fx, fy]) => {
+            ctx.beginPath();
+            ctx.arc(fx, fy, 1.5, 0, Math.PI * 2);
+            ctx.fill();
+          });
+          
+          ctx.fillStyle = '#DAA520';
+          [[-12, -22], [10, -20], [-6, -2], [8, 0], [-14, 6]].forEach(([hx, hy]) => {
+            ctx.beginPath();
+            ctx.ellipse(hx, hy, 3, 2, Math.random(), 0, Math.PI * 2);
+            ctx.fill();
+          });
+          
+          ctx.fillStyle = '#FFE135';
+          ctx.fillRect(-12, 28, 6, 10);
+          ctx.fillRect(6, 28, 6, 10);
+          
+          ctx.fillStyle = '#1a1a1a';
+          ctx.beginPath();
+          ctx.ellipse(-9, 40, 8, 5, 0, 0, Math.PI * 2);
+          ctx.ellipse(9, 40, 8, 5, 0, 0, Math.PI * 2);
+          ctx.fill();
+          
+          ctx.fillStyle = '#FFF';
+          ctx.fillRect(-14, 32, 10, 6);
+          ctx.fillRect(4, 32, 10, 6);
+          ctx.fillStyle = '#FF0000';
+          ctx.fillRect(-14, 34, 10, 2);
+          ctx.fillRect(4, 34, 10, 2);
+          ctx.fillStyle = '#0000FF';
+          ctx.fillRect(-14, 36, 10, 2);
+          ctx.fillRect(4, 36, 10, 2);
+          
+          ctx.restore();
+        };
+
+        const drawEnemy = (ctx, enemy, screenX, screenY) => {
+          const scale = enemy.scale || 1;
+          const size = ENEMY_SIZE * scale;
+          const hitFlash = enemy.hit > 0;
+          
+          ctx.save();
+          ctx.translate(screenX, screenY);
+          
+          if (hitFlash) {
+            ctx.filter = 'brightness(2)';
+          }
+          
+          ctx.fillStyle = 'rgba(0,0,0,0.3)';
+          ctx.beginPath();
+          ctx.ellipse(0, size/2, size/2, size/4, 0, 0, Math.PI * 2);
+          ctx.fill();
+          
+          switch(enemy.type) {
+            case 'plankton':
+              ctx.fillStyle = '#228B22';
+              ctx.beginPath();
+              ctx.ellipse(0, 0, size/3, size/2, 0, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.fillStyle = '#FF0000';
+              ctx.beginPath();
+              ctx.arc(0, -size/6, size/4, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.fillStyle = '#000';
+              ctx.beginPath();
+              ctx.arc(0, -size/6, size/8, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.strokeStyle = '#228B22';
+              ctx.lineWidth = 2;
+              ctx.beginPath();
+              ctx.moveTo(-3, -size/2);
+              ctx.lineTo(-5, -size/2 - 8);
+              ctx.moveTo(3, -size/2);
+              ctx.lineTo(5, -size/2 - 8);
+              ctx.stroke();
+              break;
+              
+            case 'krabs':
+              ctx.fillStyle = '#DC143C';
+              ctx.beginPath();
+              ctx.ellipse(0, 0, size/2, size/2.5, 0, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.strokeStyle = '#DC143C';
+              ctx.lineWidth = 4;
+              ctx.beginPath();
+              ctx.moveTo(-8, -size/3);
+              ctx.lineTo(-10, -size/2 - 5);
+              ctx.moveTo(8, -size/3);
+              ctx.lineTo(10, -size/2 - 5);
+              ctx.stroke();
+              ctx.fillStyle = '#FFFF00';
+              ctx.beginPath();
+              ctx.arc(-10, -size/2 - 8, 5, 0, Math.PI * 2);
+              ctx.arc(10, -size/2 - 8, 5, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.fillStyle = '#000';
+              ctx.beginPath();
+              ctx.arc(-10, -size/2 - 8, 2, 0, Math.PI * 2);
+              ctx.arc(10, -size/2 - 8, 2, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.fillStyle = '#DC143C';
+              ctx.beginPath();
+              ctx.ellipse(-size/2 - 8, 0, 10, 7, -0.3, 0, Math.PI * 2);
+              ctx.ellipse(size/2 + 8, 0, 10, 7, 0.3, 0, Math.PI * 2);
+              ctx.fill();
+              break;
+              
+            case 'squidward':
+              ctx.fillStyle = '#40E0D0';
+              ctx.beginPath();
+              ctx.ellipse(0, -size/4, size/3, size/2, 0, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.fillStyle = '#2F9F9F';
+              ctx.beginPath();
+              ctx.ellipse(0, size/6, size/5, size/3, 0, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.fillStyle = '#FFFF00';
+              ctx.fillRect(-12, -size/2, 8, 6);
+              ctx.fillRect(4, -size/2, 8, 6);
+              ctx.fillStyle = '#000';
+              ctx.fillRect(-10, -size/2 + 2, 4, 4);
+              ctx.fillRect(6, -size/2 + 2, 4, 4);
+              ctx.strokeStyle = '#000';
+              ctx.lineWidth = 2;
+              ctx.beginPath();
+              ctx.arc(0, size/4, 6, 1.1 * Math.PI, 1.9 * Math.PI);
+              ctx.stroke();
+              break;
+              
+            case 'patrick':
+              ctx.fillStyle = '#FFB6C1';
+              const points = 5;
+              ctx.beginPath();
+              for (let i = 0; i < points * 2; i++) {
+                const radius = i % 2 === 0 ? size/1.8 : size/3.5;
+                const angle = (i * Math.PI / points) - Math.PI / 2;
+                const px = Math.cos(angle) * radius;
+                const py = Math.sin(angle) * radius;
+                if (i === 0) ctx.moveTo(px, py);
+                else ctx.lineTo(px, py);
+              }
+              ctx.closePath();
+              ctx.fill();
+              ctx.strokeStyle = '#FF69B4';
+              ctx.lineWidth = 2;
+              ctx.stroke();
+              ctx.fillStyle = '#32CD32';
+              ctx.beginPath();
+              ctx.ellipse(0, size/4, size/3, size/5, 0, 0, Math.PI);
+              ctx.fill();
+              ctx.fillStyle = '#FFF';
+              ctx.beginPath();
+              ctx.arc(-6, -size/6, 5, 0, Math.PI * 2);
+              ctx.arc(6, -size/6, 5, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.fillStyle = '#000';
+              ctx.beginPath();
+              ctx.arc(-6, -size/6, 2, 0, Math.PI * 2);
+              ctx.arc(6, -size/6, 2, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.strokeStyle = '#000';
+              ctx.lineWidth = 2;
+              ctx.beginPath();
+              ctx.arc(0, size/8, 8, 0, Math.PI);
+              ctx.stroke();
+              break;
+              
+            case 'sandy':
+              ctx.fillStyle = '#DEB887';
+              ctx.beginPath();
+              ctx.arc(0, 0, size/2.5, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.strokeStyle = 'rgba(255,255,255,0.6)';
+              ctx.lineWidth = 3;
+              ctx.beginPath();
+              ctx.arc(0, 0, size/2, 0, Math.PI * 2);
+              ctx.stroke();
+              ctx.fillStyle = '#000';
+              ctx.beginPath();
+              ctx.arc(-5, -3, 3, 0, Math.PI * 2);
+              ctx.arc(5, -3, 3, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.fillStyle = '#FF9999';
+              ctx.beginPath();
+              ctx.arc(-10, 3, 4, 0, Math.PI * 2);
+              ctx.arc(10, 3, 4, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.fillStyle = '#FF69B4';
+              ctx.beginPath();
+              ctx.arc(size/3, -size/3, 5, 0, Math.PI * 2);
+              ctx.fill();
+              break;
+              
+            case 'doodlebob':
+              ctx.strokeStyle = '#1a1a1a';
+              ctx.lineWidth = 3;
+              ctx.fillStyle = '#FFF';
+              ctx.beginPath();
+              ctx.moveTo(-size/2.5, -size/2);
+              for (let i = 0; i < 20; i++) {
+                ctx.lineTo(
+                  -size/2.5 + (size/1.25) * (i/20) + (Math.random() - 0.5) * 4,
+                  -size/2 + (Math.random() - 0.5) * 4
+                );
+              }
+              ctx.lineTo(size/2.5, size/2);
+              ctx.lineTo(-size/2.5, size/2);
+              ctx.closePath();
+              ctx.fill();
+              ctx.stroke();
+              ctx.fillStyle = '#FFF';
+              ctx.strokeStyle = '#000';
+              ctx.beginPath();
+              ctx.ellipse(-8, -size/4, 10, 12, -0.2, 0, Math.PI * 2);
+              ctx.ellipse(10, -size/4, 8, 14, 0.3, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.stroke();
+              ctx.fillStyle = '#FF0000';
+              ctx.beginPath();
+              ctx.arc(-8, -size/4, 4, 0, Math.PI * 2);
+              ctx.arc(10, -size/4, 4, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.fillStyle = '#000';
+              ctx.beginPath();
+              ctx.moveTo(-12, size/6);
+              ctx.lineTo(-8, size/4);
+              ctx.lineTo(-4, size/6);
+              ctx.lineTo(0, size/4);
+              ctx.lineTo(4, size/6);
+              ctx.lineTo(8, size/4);
+              ctx.lineTo(12, size/6);
+              ctx.lineTo(8, size/3);
+              ctx.lineTo(-8, size/3);
+              ctx.closePath();
+              ctx.fill();
+              ctx.strokeStyle = 'rgba(0,0,0,0.3)';
+              ctx.lineWidth = 1;
+              for (let i = 0; i < 8; i++) {
+                const angle = (Math.PI * 2 * i) / 8 + Date.now() / 500;
+                ctx.beginPath();
+                ctx.moveTo(Math.cos(angle) * size/1.5, Math.sin(angle) * size/1.5);
+                ctx.lineTo(Math.cos(angle) * size, Math.sin(angle) * size);
+                ctx.stroke();
+              }
+              break;
+              
+            case 'flyingDutchman':
+              ctx.fillStyle = 'rgba(0, 255, 127, 0.7)';
+              ctx.beginPath();
+              ctx.ellipse(0, -size/4, size/2, size/2.5, 0, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.beginPath();
+              ctx.moveTo(-size/2, size/4);
+              ctx.quadraticCurveTo(-size/4, size/2, 0, size/3);
+              ctx.quadraticCurveTo(size/4, size/2, size/2, size/4);
+              ctx.quadraticCurveTo(size/4, size, 0, size/1.5);
+              ctx.quadraticCurveTo(-size/4, size, -size/2, size/4);
+              ctx.fill();
+              ctx.fillStyle = '#FFFF00';
+              ctx.shadowColor = '#FFFF00';
+              ctx.shadowBlur = 10;
+              ctx.beginPath();
+              ctx.arc(-8, -size/3, 5, 0, Math.PI * 2);
+              ctx.arc(8, -size/3, 5, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.shadowBlur = 0;
+              ctx.fillStyle = 'rgba(0, 200, 100, 0.8)';
+              ctx.beginPath();
+              ctx.moveTo(-12, 0);
+              ctx.quadraticCurveTo(-15, size/3, -10, size/2);
+              ctx.lineTo(10, size/2);
+              ctx.quadraticCurveTo(15, size/3, 12, 0);
+              ctx.closePath();
+              ctx.fill();
+              ctx.fillStyle = '#1a1a1a';
+              ctx.beginPath();
+              ctx.ellipse(0, -size/2, size/2, size/6, 0, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.fillRect(-size/3, -size/2 - 15, size/1.5, 15);
+              break;
+              
+            case 'mermaidMan':
+              ctx.fillStyle = '#FFDAB9';
+              ctx.beginPath();
+              ctx.arc(0, -size/4, size/3, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.fillStyle = '#FF6347';
+              ctx.beginPath();
+              ctx.ellipse(0, size/4, size/2.5, size/3, 0, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.fillStyle = '#9370DB';
+              ctx.beginPath();
+              ctx.arc(-8, size/6, 6, 0, Math.PI * 2);
+              ctx.arc(8, size/6, 6, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.fillStyle = '#FFD700';
+              ctx.fillRect(-size/3, size/3, size/1.5, 8);
+              ctx.fillStyle = '#FF0000';
+              ctx.beginPath();
+              ctx.moveTo(0, size/3);
+              ctx.lineTo(-6, size/3 + 8);
+              ctx.lineTo(6, size/3 + 8);
+              ctx.closePath();
+              ctx.fill();
+              ctx.fillStyle = '#9370DB';
+              ctx.beginPath();
+              ctx.ellipse(-10, -size/3, 8, 5, -0.2, 0, Math.PI);
+              ctx.ellipse(10, -size/3, 8, 5, 0.2, 0, Math.PI);
+              ctx.fill();
+              ctx.fillStyle = '#FFF';
+              ctx.beginPath();
+              ctx.arc(-8, -size/3, 5, 0, Math.PI * 2);
+              ctx.arc(8, -size/3, 5, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.fillStyle = '#000';
+              ctx.beginPath();
+              ctx.arc(-8, -size/3, 2, 0, Math.PI * 2);
+              ctx.arc(8, -size/3, 2, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.fillStyle = '#FFD700';
+              ctx.beginPath();
+              for (let i = 0; i < 5; i++) {
+                const angle = (i * Math.PI * 2 / 5) - Math.PI / 2;
+                const r = i % 2 === 0 ? 8 : 4;
+                if (i === 0) ctx.moveTo(Math.cos(angle) * r, -size/2 - 15 + Math.sin(angle) * r);
+                else ctx.lineTo(Math.cos(angle) * r, -size/2 - 15 + Math.sin(angle) * r);
+              }
+              ctx.closePath();
+              ctx.fill();
+              break;
+              
+            default:
+              ctx.fillStyle = enemy.color;
+              ctx.beginPath();
+              ctx.arc(0, 0, size/2, 0, Math.PI * 2);
+              ctx.fill();
+          }
+          
+          ctx.filter = 'none';
+          ctx.restore();
+          
+          if (enemy.type !== 'plankton') {
+            const hpPercent = enemy.hp / enemy.maxHp;
+            const barWidth = size * 1.2;
+            ctx.fillStyle = 'rgba(0,0,0,0.7)';
+            ctx.fillRect(screenX - barWidth/2, screenY - size/2 - 12, barWidth, 6);
+            const hpColor = enemy.boss ? '#FF00FF' : (hpPercent > 0.5 ? '#00FF00' : hpPercent > 0.25 ? '#FFFF00' : '#FF0000');
+            ctx.fillStyle = hpColor;
+            ctx.fillRect(screenX - barWidth/2 + 1, screenY - size/2 - 11, (barWidth - 2) * hpPercent, 4);
+          }
+        };
+
+        const drawPineapple = (ctx, x, y, size) => {
+          const gradient = ctx.createRadialGradient(x, y, 0, x, y, size);
+          gradient.addColorStop(0, '#FFD700');
+          gradient.addColorStop(0.7, '#FFA500');
+          gradient.addColorStop(1, '#FF8C00');
+          ctx.fillStyle = gradient;
+          ctx.beginPath();
+          ctx.ellipse(x, y, size * 0.8, size, 0, 0, Math.PI * 2);
+          ctx.fill();
+          
+          ctx.strokeStyle = '#CC7000';
+          ctx.lineWidth = 1;
+          for (let i = -2; i <= 2; i++) {
+            ctx.beginPath();
+            ctx.moveTo(x + i * 3, y - size);
+            ctx.lineTo(x + i * 3, y + size);
+            ctx.stroke();
+          }
+          for (let i = -2; i <= 2; i++) {
+            ctx.beginPath();
+            ctx.moveTo(x - size, y + i * 4);
+            ctx.lineTo(x + size, y + i * 4);
+            ctx.stroke();
+          }
+          
+          ctx.fillStyle = '#228B22';
+          for (let i = 0; i < 5; i++) {
+            const angle = -Math.PI/2 + (i - 2) * 0.3;
+            ctx.beginPath();
+            ctx.ellipse(
+              x + Math.cos(angle) * 2,
+              y - size - 4 + Math.sin(angle) * 2,
+              2, 6,
+              angle,
+              0, Math.PI * 2
+            );
+            ctx.fill();
+          }
+        };
+
+        const gameLoop = () => {
+          const now = Date.now();
+          const delta = Math.min((now - lastTime) / 16.67, 3);
+          lastTime = now;
+          
+          const game = gameRef.current;
+          const keys = game.keys;
+          
+          let dx = 0, dy = 0;
+          if (keys['w'] || keys['arrowup']) dy -= 1;
+          if (keys['s'] || keys['arrowdown']) dy += 1;
+          if (keys['a'] || keys['arrowleft']) dx -= 1;
+          if (keys['d'] || keys['arrowright']) dx += 1;
+          
+          if (dx !== 0 || dy !== 0) {
+            const len = Math.hypot(dx, dy);
+            game.player.x += (dx / len) * stats.speed * delta;
+            game.player.y += (dy / len) * stats.speed * delta;
+            game.player.facing = dx !== 0 ? Math.sign(dx) : game.player.facing;
+          }
+          
+          game.camera.x = game.player.x - GAME_WIDTH / 2;
+          game.camera.y = game.player.y - GAME_HEIGHT / 2;
+          
+          spawnTimer += delta;
+          const baseSpawnRate = Math.max(20, 50 - time * 0.5);
+          if (spawnTimer > baseSpawnRate) {
+            spawnTimer = 0;
+            const count = Math.min(1 + Math.floor(time / 20), 6);
+            for (let i = 0; i < count; i++) spawnEnemy();
+          }
+          
+          if (time > 0 && time % 90 === 0 && !game.bossSpawned) {
+            spawnBoss();
+          }
+          if (time % 90 !== 0) {
+            game.bossSpawned = false;
+          }
+          
+          timeTimer += delta;
+          if (timeTimer > 60) {
+            timeTimer = 0;
+            setTime(t => t + 1);
+          }
+          
+          comboDecay += delta;
+          if (comboDecay > 120) {
+            comboDecay = 0;
+            setCombo(c => Math.max(0, c - 1));
+          }
+          
+          shootProjectiles();
+          
+          game.particles = game.particles.filter(p => {
+            p.x += p.vx * delta;
+            p.y += p.vy * delta;
+            p.vy += 0.1 * delta;
+            p.life -= delta;
+            return p.life > 0;
+          });
+          
+          game.damageNumbers = game.damageNumbers.filter(d => {
+            d.y += d.vy * delta;
+            d.life -= delta;
+            return d.life > 0;
+          });
+          
+          game.projectiles = game.projectiles.filter(p => {
+            p.x += p.vx * delta;
+            p.y += p.vy * delta;
+            p.life -= delta;
+            return p.life > 0 && p.pierce > 0;
+          });
+          
+          game.enemies.forEach(e => {
+            const angle = Math.atan2(game.player.y - e.y, game.player.x - e.x);
+            e.x += Math.cos(angle) * e.speed * delta;
+            e.y += Math.sin(angle) * e.speed * delta;
+            if (e.hit > 0) e.hit -= delta;
+          });
+          
+          game.projectiles.forEach(p => {
+            game.enemies.forEach(e => {
+              if (p.pierce <= 0) return;
+              if (p.hit.includes(e)) return;
+              
+              const dist = Math.hypot(p.x - e.x, p.y - e.y);
+              if (dist < ENEMY_SIZE * (e.scale || 1)) {
+                const crit = Math.random() < 0.15;
+                const damage = crit ? p.damage * 2 : p.damage;
+                e.hp -= damage;
+                e.hit = 8;
+                p.pierce--;
+                p.hit.push(e);
+                
+                spawnParticles(e.x, e.y, 5, e.color, 4);
+                spawnDamageNumber(e.x, e.y - 20, damage, crit);
+                
+                if (e.hp <= 0) {
+                  spawnParticles(e.x, e.y, 12, e.color, 5);
+                  
+                  const orbCount = e.boss ? 10 : Math.ceil(e.xp / 5);
+                  for (let i = 0; i < orbCount; i++) {
+                    game.xpOrbs.push({
+                      x: e.x + (Math.random() - 0.5) * 40,
+                      y: e.y + (Math.random() - 0.5) * 40,
+                      xp: Math.ceil(e.xp / orbCount),
+                    });
+                  }
+                  
+                  setKills(k => k + 1);
+                  setCombo(c => c + 1);
+                  comboDecay = 0;
+                  
+                  const comboMultiplier = 1 + combo * 0.1;
+                  setScore(s => s + Math.floor(e.xp * 10 * comboMultiplier));
+                  
+                  if (e.boss) {
+                    setScreenShake(20);
+                    setScore(s => s + 1000);
+                  }
+                }
+              }
+            });
+          });
+          game.enemies = game.enemies.filter(e => e.hp > 0);
+          
+          game.enemies.forEach(e => {
+            const dist = Math.hypot(game.player.x - e.x, game.player.y - e.y);
+            if (dist < (PLAYER_SIZE + ENEMY_SIZE * (e.scale || 1)) / 2) {
+              const damage = Math.max(1, (e.boss ? 2 : 1) - stats.armor * 0.1);
+              setStats(prev => {
+                const newHp = prev.hp - damage * delta;
+                if (newHp <= 0) {
+                  setGameState('gameover');
+                }
+                return { ...prev, hp: Math.max(0, newHp) };
+              });
+              setScreenShake(5);
+            }
+          });
+          
+          game.xpOrbs = game.xpOrbs.filter(orb => {
+            const dist = Math.hypot(game.player.x - orb.x, game.player.y - orb.y);
+            if (dist < stats.pickupRange) {
+              const angle = Math.atan2(game.player.y - orb.y, game.player.x - orb.x);
+              orb.x += Math.cos(angle) * 10 * delta;
+              orb.y += Math.sin(angle) * 10 * delta;
+            }
+            if (dist < 25) {
+              setXp(prev => {
+                const newXp = prev + orb.xp;
+                if (newXp >= xpToLevel) {
+                  setLevel(l => l + 1);
+                  setXpToLevel(x => Math.floor(x * 1.4));
+                  setShowUpgrade(true);
+                  generateUpgrades();
+                  return 0;
+                }
+                return newXp;
+              });
+              return false;
+            }
+            return true;
+          });
+          
+          if (screenShake > 0) {
+            setScreenShake(s => Math.max(0, s - delta));
+          }
+          
+          const shakeX = screenShake > 0 ? (Math.random() - 0.5) * screenShake : 0;
+          const shakeY = screenShake > 0 ? (Math.random() - 0.5) * screenShake : 0;
+          
+          ctx.save();
+          ctx.translate(shakeX, shakeY);
+          
+          const bgGradient = ctx.createLinearGradient(0, 0, 0, GAME_HEIGHT);
+          bgGradient.addColorStop(0, '#0a1628');
+          bgGradient.addColorStop(0.5, '#0d2137');
+          bgGradient.addColorStop(1, '#0a1628');
+          ctx.fillStyle = bgGradient;
+          ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+          
+          ctx.fillStyle = 'rgba(135, 206, 250, 0.1)';
+          for (let i = 0; i < 20; i++) {
+            const bx = ((i * 137 + now / 50) % (GAME_WIDTH + 100)) - 50;
+            const by = ((i * 89 + now / 30) % (GAME_HEIGHT + 100)) - 50;
+            ctx.beginPath();
+            ctx.arc(bx, by, 3 + (i % 5), 0, Math.PI * 2);
+            ctx.fill();
+          }
+          
+          const sandY = GAME_HEIGHT - 80;
+          const sandGradient = ctx.createLinearGradient(0, sandY, 0, GAME_HEIGHT);
+          sandGradient.addColorStop(0, '#C2B280');
+          sandGradient.addColorStop(1, '#8B7355');
+          ctx.fillStyle = sandGradient;
+          
+          ctx.beginPath();
+          ctx.moveTo(0, GAME_HEIGHT);
+          for (let x = 0; x <= GAME_WIDTH; x += 20) {
+            const waveOffset = Math.sin((x + game.camera.x) / 50 + now / 1000) * 5;
+            ctx.lineTo(x, sandY + waveOffset);
+          }
+          ctx.lineTo(GAME_WIDTH, GAME_HEIGHT);
+          ctx.closePath();
+          ctx.fill();
+          
+          ctx.strokeStyle = 'rgba(0, 191, 255, 0.08)';
+          ctx.lineWidth = 1;
+          const gridSize = 60;
+          const offsetX = -game.camera.x % gridSize;
+          const offsetY = -game.camera.y % gridSize;
+          for (let x = offsetX; x < GAME_WIDTH; x += gridSize) {
+            ctx.beginPath();
+            ctx.moveTo(x, 0);
+            ctx.lineTo(x, GAME_HEIGHT);
+            ctx.stroke();
+          }
+          for (let y = offsetY; y < GAME_HEIGHT; y += gridSize) {
+            ctx.beginPath();
+            ctx.moveTo(0, y);
+            ctx.lineTo(GAME_WIDTH, y);
+            ctx.stroke();
+          }
+          
+          game.xpOrbs.forEach(orb => {
+            const screenX = orb.x - game.camera.x;
+            const screenY = orb.y - game.camera.y;
+            drawPineapple(ctx, screenX, screenY, 8 + orb.xp / 3);
+          });
+          
+          game.enemies.forEach(e => {
+            const screenX = e.x - game.camera.x;
+            const screenY = e.y - game.camera.y;
+            if (screenX > -100 && screenX < GAME_WIDTH + 100 && screenY > -100 && screenY < GAME_HEIGHT + 100) {
+              drawEnemy(ctx, e, screenX, screenY);
+            }
+          });
+          
+          game.projectiles.forEach(p => {
+            const screenX = p.x - game.camera.x;
+            const screenY = p.y - game.camera.y;
+            
+            ctx.shadowColor = p.color;
+            ctx.shadowBlur = 15;
+            ctx.fillStyle = p.color;
+            ctx.beginPath();
+            ctx.arc(screenX, screenY, p.size / 2, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.shadowBlur = 0;
+            ctx.fillStyle = '#FFF';
+            ctx.beginPath();
+            ctx.arc(screenX, screenY, p.size / 4, 0, Math.PI * 2);
+            ctx.fill();
+          });
+          
+          game.particles.forEach(p => {
+            const screenX = p.x - game.camera.x;
+            const screenY = p.y - game.camera.y;
+            const alpha = p.life / p.maxLife;
+            ctx.fillStyle = p.color;
+            ctx.globalAlpha = alpha;
+            ctx.beginPath();
+            ctx.arc(screenX, screenY, p.size * alpha, 0, Math.PI * 2);
+            ctx.fill();
+          });
+          ctx.globalAlpha = 1;
+          
+          const px = GAME_WIDTH / 2;
+          const py = GAME_HEIGHT / 2;
+          const bobOffset = Math.sin(now / 150) * 3;
+          drawSpongebob(ctx, px, py, game.player.facing, bobOffset);
+          
+          game.damageNumbers.forEach(d => {
+            const screenX = d.x - game.camera.x;
+            const screenY = d.y - game.camera.y;
+            const alpha = d.life / 40;
+            ctx.globalAlpha = alpha;
+            ctx.font = d.crit ? 'bold 24px Arial' : 'bold 16px Arial';
+            ctx.fillStyle = d.crit ? '#FF0' : '#FFF';
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 3;
+            ctx.textAlign = 'center';
+            ctx.strokeText(d.damage, screenX, screenY);
+            ctx.fillText(d.damage, screenX, screenY);
+          });
+          ctx.globalAlpha = 1;
+          
+          ctx.restore();
+          
+          animationId = requestAnimationFrame(gameLoop);
+        };
+        
+        animationId = requestAnimationFrame(gameLoop);
+        return () => cancelAnimationFrame(animationId);
+      }, [gameState, showUpgrade, weapons, stats, xpToLevel, time, generateUpgrades, screenShake, combo]);
+
+      const formatTime = (seconds) => {
+        const m = Math.floor(seconds / 60);
+        const s = seconds % 60;
+        return `${m}:${s.toString().padStart(2, '0')}`;
+      };
+
+      if (gameState === 'menu') {
+        return (
+          <div className="relative flex flex-col items-center justify-center h-screen overflow-hidden" style={{
+            background: 'linear-gradient(180deg, #0a1628 0%, #1a3a5c 50%, #0d2137 100%)'
+          }}>
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+              {[...Array(20)].map((_, i) => (
+                <div
+                  key={i}
+                  className="absolute rounded-full bg-cyan-400/10 animate-pulse"
+                  style={{
+                    width: 10 + (i % 5) * 8,
+                    height: 10 + (i % 5) * 8,
+                    left: `${(i * 17) % 100}%`,
+                    top: `${(i * 23) % 100}%`,
+                    animationDelay: `${i * 0.2}s`,
+                    animationDuration: `${2 + (i % 3)}s`
+                  }}
+                />
+              ))}
+            </div>
+            
+            <div className="relative z-10 mb-2">
+              <div className="text-7xl font-black tracking-tight" style={{
+                background: 'linear-gradient(180deg, #FFD700 0%, #FFA500 50%, #FF6B00 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                textShadow: '0 0 40px rgba(255, 165, 0, 0.5)',
+                fontFamily: 'Impact, sans-serif'
+              }}>
+                $COCKPANTS
+              </div>
+            </div>
+            
+            <div className="text-4xl font-bold text-cyan-300 mb-6 tracking-widest" style={{
+              textShadow: '0 0 20px rgba(0, 191, 255, 0.7)'
+            }}>
+              SURVIVORS
+            </div>
+            
+            <div className="text-9xl mb-8 animate-bounce" style={{ animationDuration: '2s' }}>
+              🧽
+            </div>
+            
+            <button 
+              onClick={startGame}
+              className="relative px-12 py-5 font-black text-2xl rounded-xl transition-all transform hover:scale-110 active:scale-95 overflow-hidden group"
+              style={{
+                background: 'linear-gradient(180deg, #FFD700 0%, #FFA500 100%)',
+                boxShadow: '0 0 30px rgba(255, 165, 0, 0.6), inset 0 -4px 0 rgba(0,0,0,0.2)',
+                color: '#1a1a1a'
+              }}
+            >
+              <span className="relative z-10">🎮 START GAME</span>
+              <div className="absolute inset-0 bg-white/30 translate-y-full group-hover:translate-y-0 transition-transform" />
+            </button>
+            
+            <div className="mt-10 text-cyan-200/80 text-center space-y-2">
+              <p className="text-lg">🎯 WASD or Arrow Keys to move</p>
+              <p className="text-lg">⚔️ Auto-attack nearest enemies</p>
+              <p className="text-lg">🍍 Collect pineapples to level up!</p>
+            </div>
+            
+            <div className="absolute bottom-6 text-cyan-300/50 text-sm tracking-widest">
+              A <span className="text-yellow-400">$COCKPANTS</span> PRODUCTION • cockpants.lol
+            </div>
+          </div>
+        );
+      }
+
+      if (gameState === 'gameover') {
+        return (
+          <div className="relative flex flex-col items-center justify-center h-screen overflow-hidden" style={{
+            background: 'linear-gradient(180deg, #1a0a0a 0%, #2d1515 50%, #1a0a0a 100%)'
+          }}>
+            <div className="text-6xl font-black mb-4" style={{
+              background: 'linear-gradient(180deg, #FF4444 0%, #AA0000 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+            }}>
+              GAME OVER
+            </div>
+            
+            <div className="text-8xl mb-8">💀</div>
+            
+            <div className="bg-black/50 rounded-2xl p-8 border border-red-500/30 mb-8">
+              <div className="grid grid-cols-2 gap-x-12 gap-y-4 text-xl">
+                <div className="text-gray-400">Score</div>
+                <div className="text-yellow-400 font-bold text-right">{score.toLocaleString()}</div>
+                <div className="text-gray-400">Level</div>
+                <div className="text-green-400 font-bold text-right">{level}</div>
+                <div className="text-gray-400">Time</div>
+                <div className="text-cyan-400 font-bold text-right">{formatTime(time)}</div>
+                <div className="text-gray-400">Kills</div>
+                <div className="text-red-400 font-bold text-right">{kills}</div>
+              </div>
+            </div>
+            
+            <div className="flex gap-4">
+              <button 
+                onClick={() => {
+                  if (typeof showLeaderboardModal === 'function') {
+                    showLeaderboardModal('survivors', '$COCKPANTS Survivors', score);
+                  }
+                }}
+                className="px-10 py-4 font-black text-xl rounded-xl transition-all transform hover:scale-105"
+                style={{
+                  background: 'linear-gradient(180deg, #4A90E2 0%, #357ABD 100%)',
+                  boxShadow: '0 0 20px rgba(74, 144, 226, 0.5)',
+                  color: '#fff'
+                }}
+              >
+                🏆 LEADERBOARD
+              </button>
+              <button 
+                onClick={startGame}
+                className="px-10 py-4 font-black text-xl rounded-xl transition-all transform hover:scale-105"
+                style={{
+                  background: 'linear-gradient(180deg, #FFD700 0%, #FFA500 100%)',
+                  boxShadow: '0 0 20px rgba(255, 165, 0, 0.5)',
+                  color: '#1a1a1a'
+                }}
+              >
+                🔄 TRY AGAIN
+              </button>
+            </div>
+            
+            <div className="mt-8 text-yellow-400/70 text-lg">
+              $COCKPANTS never gives up! 💎🙌
+            </div>
+          </div>
+        );
+      }
+
+      return (
+        <div className="relative flex items-center justify-center h-screen" style={{
+          background: '#000'
+        }}>
+          <div className="absolute top-3 left-3 z-10">
+            <div className="text-2xl font-black tracking-tight" style={{
+              background: 'linear-gradient(90deg, #FFD700, #FFA500)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+            }}>
+              $COCKPANTS
+            </div>
+            <div className="text-white/90 text-lg font-bold">
+              Score: <span className="text-yellow-400">{score.toLocaleString()}</span>
+            </div>
+            <div className="text-white/70">
+              ⏱️ {formatTime(time)} | 💀 {kills}
+            </div>
+            {combo > 5 && (
+              <div className="text-orange-400 font-bold animate-pulse">
+                🔥 {combo}x COMBO!
+              </div>
+            )}
+          </div>
+          
+          <div className="absolute top-3 right-3 z-10 text-right">
+            <div className="text-green-400 font-bold text-xl">Level {level}</div>
+            <div className="w-36 h-4 bg-black/70 rounded-full border border-green-500/50 overflow-hidden">
+              <div 
+                className="h-full transition-all duration-300"
+                style={{ 
+                  width: `${(xp / xpToLevel) * 100}%`,
+                  background: 'linear-gradient(90deg, #00FF00, #88FF88)'
+                }}
+              />
+            </div>
+            <div className="text-xs text-green-300/70 mt-1">{xp}/{xpToLevel} XP</div>
+          </div>
+          
+          <div className="absolute bottom-3 left-3 z-10">
+            <div className="text-red-400 text-sm font-bold mb-1">
+              ❤️ {Math.floor(stats.hp)}/{stats.maxHp}
+            </div>
+            <div className="w-52 h-5 bg-black/70 rounded-full border border-red-500/50 overflow-hidden">
+              <div 
+                className="h-full transition-all duration-200"
+                style={{ 
+                  width: `${(stats.hp / stats.maxHp) * 100}%`,
+                  background: stats.hp / stats.maxHp > 0.5 
+                    ? 'linear-gradient(90deg, #22c55e, #4ade80)'
+                    : stats.hp / stats.maxHp > 0.25 
+                      ? 'linear-gradient(90deg, #eab308, #fde047)'
+                      : 'linear-gradient(90deg, #dc2626, #f87171)'
+                }}
+              />
+            </div>
+          </div>
+          
+          <div className="absolute bottom-3 right-3 z-10">
+            <div className="text-xs text-gray-400 mb-2 text-right">WEAPONS</div>
+            <div className="flex gap-2 justify-end">
+              {weapons.map((w, i) => (
+                <div 
+                  key={i} 
+                  className="w-12 h-12 rounded-lg flex flex-col items-center justify-center border"
+                  style={{
+                    background: 'rgba(0,0,0,0.7)',
+                    borderColor: w.color,
+                    boxShadow: `0 0 10px ${w.color}40`
+                  }}
+                >
+                  <span className="text-lg">{w.emoji}</span>
+                  <span className="text-[10px] text-white/70">Lv.{w.level}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+          
+          <canvas 
+            ref={canvasRef} 
+            width={GAME_WIDTH} 
+            height={GAME_HEIGHT}
+            className="rounded-lg"
+            style={{
+              border: '3px solid',
+              borderImage: 'linear-gradient(180deg, #FFD700, #FF6B00) 1',
+              boxShadow: '0 0 40px rgba(255, 165, 0, 0.3)'
+            }}
+          />
+          
+          {bossWarning && (
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-30">
+              <div className="text-5xl font-black text-red-500 animate-pulse" style={{
+                textShadow: '0 0 30px rgba(255, 0, 0, 0.8)'
+              }}>
+                ⚠️ BOSS INCOMING ⚠️
+              </div>
+            </div>
+          )}
+          
+          {showUpgrade && (
+            <div className="absolute inset-0 bg-black/85 flex items-center justify-center z-20 backdrop-blur-sm">
+              <div className="p-8 rounded-2xl" style={{
+                background: 'linear-gradient(180deg, #1a2a3a 0%, #0d1a2a 100%)',
+                border: '2px solid #FFD700',
+                boxShadow: '0 0 60px rgba(255, 215, 0, 0.3)'
+              }}>
+                <div className="text-4xl font-black text-center mb-2" style={{
+                  background: 'linear-gradient(90deg, #FFD700, #FFA500)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                }}>
+                  🎉 LEVEL UP! 🎉
+                </div>
+                <div className="text-cyan-300/70 text-center mb-6">Choose an upgrade</div>
+                
+                <div className="flex gap-4">
+                  {upgradeOptions.map((opt, i) => (
+                    <button
+                      key={i}
+                      onClick={() => selectUpgrade(opt)}
+                      className="p-5 rounded-xl border-2 transition-all transform hover:scale-105 hover:border-yellow-400 w-44 group"
+                      style={{
+                        background: 'linear-gradient(180deg, #1a3a4a 0%, #0d2030 100%)',
+                        borderColor: 'rgba(100, 200, 255, 0.3)'
+                      }}
+                    >
+                      <div className="text-4xl mb-3 group-hover:scale-110 transition-transform">
+                        {opt.emoji}
+                      </div>
+                      <div className="text-white font-bold text-sm mb-1">{opt.desc}</div>
+                      <div className="text-cyan-300/60 text-xs">{opt.subdesc}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    ReactDOM.render(<CockpantsSurvivors />, document.getElementById('root'));
+  </script>
+</body>
+</html>
