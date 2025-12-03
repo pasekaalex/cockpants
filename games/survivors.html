@@ -11,11 +11,16 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
+    @font-face {
+      font-family: 'Krabby Patty';
+      src: url('../Krabby Patty.ttf') format('truetype');
+    }
+    
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     body { 
       background: #000; 
       overflow: hidden;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-family: 'Krabby Patty', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       touch-action: none;
       user-select: none;
     }
@@ -94,8 +99,8 @@
     const GAME_HEIGHT = 650;
     const PLAYER_SIZE = 44;
     const ENEMY_SIZE = 36;
-    const FIXED_DELTA = 1.0; // Fixed delta for consistent game speed - no speed-ups ever
-    const PLAYER_SPEED_MULT = 1.0; // Player moves at normal speed
+    const BASE_PLAYER_SPEED = 3.0; // Base player movement speed - NEVER changes
+    const MAX_PLAYER_SPEED = 5.0; // Maximum player speed cap
     const ENEMY_SPEED_MULT = 0.55; // Enemies move slower than player
 
     const WEAPONS = {
@@ -145,7 +150,7 @@
       const [showUpgrade, setShowUpgrade] = useState(false);
       const [upgradeOptions, setUpgradeOptions] = useState([]);
       const [weapons, setWeapons] = useState([{ ...WEAPONS.spatula, level: 1 }]);
-      const [stats, setStats] = useState({ speed: 3.8, maxHp: 250, hp: 250, pickupRange: 60, armor: 0 });
+      const [stats, setStats] = useState({ speedBonus: 1.0, maxHp: 250, hp: 250, pickupRange: 60, armor: 0 });
       const [screenShake, setScreenShake] = useState(0);
       const [bossWarning, setBossWarning] = useState(false);
       const [combo, setCombo] = useState(0);
@@ -171,7 +176,8 @@
       });
       
       // Initial game state values for proper reset
-      const INITIAL_STATS = { speed: 3.8, maxHp: 250, hp: 250, pickupRange: 60, armor: 0 };
+      // Speed is now a BONUS multiplier, not the actual speed
+      const INITIAL_STATS = { speedBonus: 1.0, maxHp: 250, hp: 250, pickupRange: 60, armor: 0 };
       const INITIAL_WEAPON = { ...WEAPONS.spatula, level: 1, damageBonus: 1, cooldownBonus: 1, rangeBonus: 1, sizeBonus: 1 };
 
       const spawnParticles = (x, y, count, color, speed = 3) => {
@@ -225,7 +231,7 @@
             setWeapons(prev => prev.map(w => ({ ...w, pierce: (w.pierce || 1) + 1 })));
             break;
           case 'speed':
-            setStats(prev => ({ ...prev, speed: prev.speed * 1.1 }));
+            setStats(prev => ({ ...prev, speedBonus: Math.min(prev.speedBonus * 1.1, 1.7) })); // Cap at 70% bonus
             break;
           case 'maxHp':
             setStats(prev => ({ ...prev, maxHp: prev.maxHp + 40, hp: prev.hp + 40 }));
@@ -1085,8 +1091,10 @@
           
           if (dx !== 0 || dy !== 0) {
             const len = Math.hypot(dx, dy);
-            game.player.x += (dx / len) * stats.speed * delta;
-            game.player.y += (dy / len) * stats.speed * delta;
+            // Calculate actual speed: base speed * bonus, capped at max
+            const actualSpeed = Math.min(BASE_PLAYER_SPEED * (stats.speedBonus || 1.0), MAX_PLAYER_SPEED);
+            game.player.x += (dx / len) * actualSpeed;
+            game.player.y += (dy / len) * actualSpeed;
             game.player.facing = dx !== 0 ? Math.sign(dx) : game.player.facing;
           }
           
