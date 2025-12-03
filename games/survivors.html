@@ -366,6 +366,7 @@
         let spawnTimer = 0;
         let timeTimer = 0;
         let comboDecay = 0;
+        let smoothedDelta = 1.0; // Smoothed delta to prevent sudden spikes
 
         const spawnEnemy = (forceType = null) => {
           const game = gameRef.current;
@@ -977,7 +978,13 @@
 
         const gameLoop = () => {
           const now = Date.now();
-          const delta = Math.min((now - lastTime) / 16.67, 2) * GAME_SPEED_MULTIPLIER;
+          // Use a more stable delta calculation to prevent speed spikes
+          // Cap delta at 1.2 frames (20ms) to prevent speed-up from frame drops
+          const rawDelta = (now - lastTime) / 16.67;
+          const cappedDelta = Math.min(rawDelta, 1.2);
+          // Smooth the delta to prevent sudden spikes when particles spawn
+          smoothedDelta = smoothedDelta * 0.7 + cappedDelta * 0.3;
+          const delta = smoothedDelta * GAME_SPEED_MULTIPLIER;
           lastTime = now;
           
           const game = gameRef.current;
@@ -1191,22 +1198,6 @@
             ctx.arc(bx, by, 3 + (i % 5), 0, Math.PI * 2);
             ctx.fill();
           }
-          
-          const sandY = GAME_HEIGHT - 80;
-          const sandGradient = ctx.createLinearGradient(0, sandY, 0, GAME_HEIGHT);
-          sandGradient.addColorStop(0, '#C2B280');
-          sandGradient.addColorStop(1, '#8B7355');
-          ctx.fillStyle = sandGradient;
-          
-          ctx.beginPath();
-          ctx.moveTo(0, GAME_HEIGHT);
-          for (let x = 0; x <= GAME_WIDTH; x += 20) {
-            const waveOffset = Math.sin((x + game.camera.x) / 50 + now / 1000) * 5;
-            ctx.lineTo(x, sandY + waveOffset);
-          }
-          ctx.lineTo(GAME_WIDTH, GAME_HEIGHT);
-          ctx.closePath();
-          ctx.fill();
           
           ctx.strokeStyle = 'rgba(0, 191, 255, 0.08)';
           ctx.lineWidth = 1;
