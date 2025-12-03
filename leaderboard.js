@@ -41,10 +41,38 @@ function initSupabase() {
   return supabase;
 }
 
+// Format large numbers for display (K, M, B, T, Q, etc.)
+function formatLargeScore(n) {
+  if (n >= 1e18) return (n / 1e18).toFixed(2) + 'Qi'; // Quintillion
+  if (n >= 1e15) return (n / 1e15).toFixed(2) + 'Q';  // Quadrillion
+  if (n >= 1e12) return (n / 1e12).toFixed(2) + 'T';  // Trillion
+  if (n >= 1e9) return (n / 1e9).toFixed(2) + 'B';    // Billion
+  if (n >= 1e6) return (n / 1e6).toFixed(2) + 'M';    // Million
+  if (n >= 1e3) return (n / 1e3).toFixed(1) + 'K';    // Thousand
+  return Math.floor(n).toLocaleString();
+}
+
+// Safely handle very large scores for database storage
+// PostgreSQL BIGINT max is ~9.2 quintillion, but JS Number.MAX_SAFE_INTEGER is ~9 quadrillion
+function sanitizeScoreForDB(score) {
+  // Cap at MAX_SAFE_INTEGER to prevent precision loss
+  const MAX_SAFE = Number.MAX_SAFE_INTEGER; // 9,007,199,254,740,991
+  if (score > MAX_SAFE) {
+    console.warn(`Score ${score} exceeds MAX_SAFE_INTEGER, capping at ${MAX_SAFE}`);
+    return MAX_SAFE;
+  }
+  return Math.floor(score);
+}
+
 // Submit a score to the leaderboard
 async function submitScore(gameName, playerName, score) {
   try {
     console.log('🎯 submitScore called with:', gameName, playerName, score);
+    
+    // Sanitize the score to prevent database/precision issues
+    const safeScore = sanitizeScoreForDB(score);
+    console.log('📊 Sanitized score:', safeScore);
+    
     const client = await waitForSupabase();
     console.log('📊 Client after init:', client ? 'READY' : 'NULL');
     if (!client) {
@@ -67,7 +95,7 @@ async function submitScore(gameName, playerName, score) {
     if (existingScores && existingScores.length > 0) {
       const bestExisting = Math.max(...existingScores.map(s => s.score));
       
-      if (score > bestExisting) {
+      if (safeScore > bestExisting) {
         // New score is better! Delete old scores and insert new one
         const { error: deleteError } = await client
           .from('leaderboards')
@@ -96,7 +124,7 @@ async function submitScore(gameName, playerName, score) {
         {
           game_name: gameName,
           player_name: playerName,
-          score: score
+          score: safeScore
         }
       ]);
 
@@ -179,6 +207,18 @@ async function getAllLeaderboards() {
 
 // Show leaderboard modal
 function showLeaderboardModal(gameName, gameTitle, playerScore = null) {
+  // Format the player score for display
+  let displayPlayerScore = playerScore;
+  if (playerScore !== null) {
+    if (gameName === 'pump-clicker' && playerScore >= 1e9) {
+      displayPlayerScore = formatLargeScore(playerScore);
+    } else if (gameName && gameName.startsWith('plankton-heist-level')) {
+      displayPlayerScore = `${10000 - playerScore}s`;
+    } else {
+      displayPlayerScore = playerScore.toLocaleString();
+    }
+  }
+  
   // Create modal HTML
   const modalHTML = `
     <div id="leaderboardModal" style="
@@ -216,7 +256,7 @@ function showLeaderboardModal(gameName, gameTitle, playerScore = null) {
         ${playerScore !== null ? `
           <div id="nameSubmitSection" style="margin-bottom: 20px;">
             <p style="color: #FFD700; text-align: center; font-size: 18px; margin-bottom: 15px;">
-              Your Score: <strong>${gameName && gameName.startsWith('plankton-heist-level') ? `${10000 - playerScore}s` : playerScore}</strong>
+              Your Score: <strong>${displayPlayerScore}</strong>
             </p>
             <input 
               type="text" 
@@ -303,11 +343,17 @@ async function loadLeaderboardData(gameName) {
       const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}.`;
       const bgColor = index < 3 ? 'rgba(255, 215, 0, 0.2)' : 'transparent';
       
-      // Format score display (convert inverted scores back to time for Plankton)
-      let displayScore = entry.score.toLocaleString();
+      // Format score display based on game type
+      let displayScore;
       if (gameName && gameName.startsWith('plankton-heist-level')) {
+        // Plankton heist shows time
         const timeInSeconds = 10000 - entry.score;
         displayScore = `${timeInSeconds}s`;
+      } else if (gameName === 'pump-clicker' && entry.score >= 1e9) {
+        // Pump clicker with billion+ scores gets special formatting
+        displayScore = formatLargeScore(entry.score);
+      } else {
+        displayScore = entry.score.toLocaleString();
       }
       
       html += `
@@ -350,7 +396,7 @@ window.submitLeaderboardScore = async function(gameName, score) {
   // Submit score
   try {
     const result = await submitScore(gameName, playerName, score);
-    console.log('📍 Result from submitScore:', result);
+    console.log('📝 Result from submitScore:', result);
     
     if (!result) {
       console.error('❌ No result returned from submitScore');
@@ -368,8 +414,8 @@ window.submitLeaderboardScore = async function(gameName, score) {
     
     // Hide name input section with appropriate message
     const message = result.isNewBest !== false 
-      ? '✓ Score submitted successfully!' 
-      : '✓ Your previous score was higher!';
+      ? '✔ Score submitted successfully!' 
+      : '✔ Your previous score was higher!';
     const color = result.isNewBest !== false ? '#00ff00' : '#FFD700';
     
     document.getElementById('nameSubmitSection').innerHTML = `
@@ -425,7 +471,7 @@ window.deletePlayerFromLeaderboard = async function(gameName, playerName) {
     }
 
     console.log(`✅ Successfully deleted ${playerName} from ${gameName}`);
-    alert(`✓ Successfully deleted ${playerName} from ${gameName} leaderboard!`);
+    alert(`✔ Successfully deleted ${playerName} from ${gameName} leaderboard!`);
     return true;
   } catch (err) {
     console.error('❌ Exception deleting player:', err);

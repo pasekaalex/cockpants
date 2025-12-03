@@ -194,8 +194,19 @@
       { id: 'house-hoarder', name: 'House Hoarder', icon: '🏠' },
       { id: 'krusty-krab-rush', name: 'Krusty Krab Order Rush', icon: '🍔' },
       { id: 'krusty-tycoon', name: 'Krusty Krab Tycoon', icon: '🦀' },
-      { id: 'flappy-cock', name: 'Flappy Cock', icon: '🐓' }
+      { id: 'flappy-cock', name: 'Flappy Cock', icon: '🐔' }
     ];
+    
+    // Format large numbers for display (K, M, B, T, Q, etc.)
+    function formatLargeScore(n) {
+      if (n >= 1e18) return (n / 1e18).toFixed(2) + 'Qi'; // Quintillion
+      if (n >= 1e15) return (n / 1e15).toFixed(2) + 'Q';  // Quadrillion
+      if (n >= 1e12) return (n / 1e12).toFixed(2) + 'T';  // Trillion
+      if (n >= 1e9) return (n / 1e9).toFixed(2) + 'B';    // Billion
+      if (n >= 1e6) return (n / 1e6).toFixed(2) + 'M';    // Million
+      if (n >= 1e3) return (n / 1e3).toFixed(1) + 'K';    // Thousand
+      return Math.floor(n).toLocaleString();
+    }
     
     async function loadAllLeaderboards() {
       const container = document.getElementById('leaderboardsContainer');
@@ -218,11 +229,17 @@
             const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}.`;
             const topClass = index === 0 ? 'top-1' : index === 1 ? 'top-2' : index === 2 ? 'top-3' : '';
             
-            // For Plankton levels, convert inverted score back to time
-            let displayScore = entry.score.toLocaleString();
+            // Format score based on game type
+            let displayScore;
             if (game.id.startsWith('plankton-heist-level')) {
+              // Plankton levels show time
               const timeInSeconds = 10000 - entry.score;
               displayScore = `${timeInSeconds}s`;
+            } else if (game.id === 'pump-clicker' && entry.score >= 1e9) {
+              // Pump clicker with billion+ scores gets special formatting
+              displayScore = formatLargeScore(entry.score);
+            } else {
+              displayScore = entry.score.toLocaleString();
             }
             
             entriesHTML += `
