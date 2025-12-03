@@ -46,6 +46,17 @@
       pointer-events: none;
     }
     
+    /* ASCENDED BODY EFFECT */
+    body.ascended::before {
+      background: linear-gradient(135deg, rgba(138, 43, 226, 0.3), rgba(255, 215, 0, 0.2), rgba(0, 20, 40, 0.4));
+      animation: ascendedBg 10s ease infinite;
+    }
+    
+    @keyframes ascendedBg {
+      0%, 100% { filter: hue-rotate(0deg); }
+      50% { filter: hue-rotate(30deg); }
+    }
+    
     /* BACK BUTTON */
     .back-btn {
       position: fixed;
@@ -145,6 +156,12 @@
       box-shadow: 0 0 15px rgba(76, 175, 80, 0.3);
     }
     
+    .currency-item.prestige {
+      border-color: #9b59b6;
+      box-shadow: 0 0 15px rgba(155, 89, 182, 0.5);
+      background: linear-gradient(135deg, rgba(155, 89, 182, 0.3), rgba(30, 30, 30, 0.8));
+    }
+    
     .currency-label {
       font-size: 12px;
       color: #aaa;
@@ -158,11 +175,68 @@
     
     .currency-item.pumps .currency-value { color: #ff6b6b; }
     .currency-item.dollars .currency-value { color: #4CAF50; }
+    .currency-item.prestige .currency-value { color: #9b59b6; }
     
     .currency-rate {
       font-size: 11px;
       color: #888;
       margin-top: 2px;
+    }
+    
+    /* ASCENSION BUTTON */
+    .ascend-btn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: linear-gradient(135deg, #9b59b6, #8e44ad);
+      border: 3px solid #e74c3c;
+      color: #fff;
+      padding: 15px 25px;
+      font-family: 'Krabby Patty', Arial, sans-serif;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 15px;
+      z-index: 1000;
+      transition: all 0.3s;
+      display: none;
+      animation: ascendPulse 2s ease-in-out infinite;
+    }
+    
+    .ascend-btn.visible { display: block; }
+    
+    .ascend-btn:hover {
+      transform: scale(1.1);
+      box-shadow: 0 0 30px rgba(155, 89, 182, 0.8), 0 0 60px rgba(231, 76, 60, 0.5);
+    }
+    
+    @keyframes ascendPulse {
+      0%, 100% { box-shadow: 0 0 20px rgba(155, 89, 182, 0.5); }
+      50% { box-shadow: 0 0 40px rgba(155, 89, 182, 0.8), 0 0 60px rgba(231, 76, 60, 0.5); }
+    }
+    
+    /* GOLDEN PANTS EVENT */
+    .golden-pants {
+      position: fixed;
+      font-size: 60px;
+      cursor: pointer;
+      z-index: 500;
+      animation: goldenFloat 3s ease-in-out infinite, goldenGlow 0.5s ease-in-out infinite;
+      filter: drop-shadow(0 0 20px gold);
+      transition: transform 0.2s;
+    }
+    
+    .golden-pants:hover {
+      transform: scale(1.3);
+    }
+    
+    @keyframes goldenFloat {
+      0%, 100% { transform: translateY(0) rotate(-5deg); }
+      50% { transform: translateY(-20px) rotate(5deg); }
+    }
+    
+    @keyframes goldenGlow {
+      0%, 100% { filter: drop-shadow(0 0 20px gold) drop-shadow(0 0 40px orange); }
+      50% { filter: drop-shadow(0 0 40px gold) drop-shadow(0 0 60px yellow); }
     }
     
     /* MAIN CONTAINER */
@@ -200,6 +274,25 @@
     
     .spinner:hover {
       filter: drop-shadow(0 0 50px rgba(255, 255, 0, 1)) drop-shadow(0 0 80px rgba(255, 0, 255, 0.8));
+    }
+    
+    /* ASCENDED SPINNER */
+    .spinner.ascended {
+      filter: drop-shadow(0 0 30px rgba(155, 89, 182, 1)) 
+              drop-shadow(0 0 50px rgba(255, 215, 0, 0.8))
+              drop-shadow(0 0 70px rgba(231, 76, 60, 0.6));
+    }
+    
+    .spinner.mega-ascended {
+      filter: drop-shadow(0 0 40px rgba(255, 0, 255, 1)) 
+              drop-shadow(0 0 60px rgba(0, 255, 255, 0.8))
+              drop-shadow(0 0 80px rgba(255, 255, 0, 0.6));
+      animation: spin var(--spin-speed, 3s) linear infinite, rainbowHue 5s linear infinite;
+    }
+    
+    @keyframes rainbowHue {
+      0% { filter: drop-shadow(0 0 40px rgba(255, 0, 0, 1)) hue-rotate(0deg); }
+      100% { filter: drop-shadow(0 0 40px rgba(255, 0, 0, 1)) hue-rotate(360deg); }
     }
     
     @keyframes spin {
@@ -260,6 +353,12 @@
       padding: 8px 20px;
       border-radius: 10px;
       box-shadow: 0 0 15px rgba(76, 175, 80, 0.3), inset 0 0 10px rgba(76, 175, 80, 0.1);
+    }
+    
+    .multiplier.boosted {
+      background: linear-gradient(135deg, rgba(155, 89, 182, 0.3), rgba(231, 76, 60, 0.2));
+      border-color: #9b59b6;
+      color: #9b59b6;
     }
     
     .pps-display {
@@ -438,12 +537,21 @@
       box-shadow: 0 0 30px rgba(255, 200, 50, 0.8);
     }
     
+    .mega-tab.prestige-tab {
+      background: linear-gradient(135deg, rgba(155, 89, 182, 0.95), rgba(142, 68, 173, 0.95));
+      border-color: #e74c3c;
+    }
+    
+    .mega-tab.prestige-tab.active {
+      background: linear-gradient(135deg, #9b59b6, #e74c3c);
+    }
+    
     .mega-sidebar {
       position: fixed;
       right: -96%;
       top: 0;
       width: 92%;
-      max-width: 400px;
+      max-width: 450px;
       height: 100%;
       background: linear-gradient(180deg, rgba(139, 69, 19, 0.98), rgba(80, 50, 20, 0.98));
       border-left: 4px solid #ffcc00;
@@ -557,6 +665,32 @@
     
     .upgrade-item.locked::before { display: none; }
     
+    .upgrade-item.legendary {
+      border-color: rgba(255, 215, 0, 0.5);
+      background: linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(255, 140, 0, 0.1));
+    }
+    
+    .upgrade-item.cosmic {
+      border-color: rgba(138, 43, 226, 0.5);
+      background: linear-gradient(135deg, rgba(138, 43, 226, 0.15), rgba(75, 0, 130, 0.1));
+    }
+    
+    .upgrade-item.interdimensional {
+      border-color: rgba(0, 255, 255, 0.5);
+      background: linear-gradient(135deg, rgba(0, 255, 255, 0.15), rgba(0, 128, 128, 0.1));
+    }
+    
+    .upgrade-item.ascended {
+      border-color: rgba(255, 0, 128, 0.5);
+      background: linear-gradient(135deg, rgba(255, 0, 128, 0.15), rgba(255, 100, 0, 0.1));
+      animation: ascendedGlow 2s ease-in-out infinite;
+    }
+    
+    @keyframes ascendedGlow {
+      0%, 100% { box-shadow: 0 0 10px rgba(255, 0, 128, 0.3); }
+      50% { box-shadow: 0 0 25px rgba(255, 0, 128, 0.5), 0 0 40px rgba(255, 100, 0, 0.3); }
+    }
+    
     .upgrade-item .icon { font-size: 28px; }
     .upgrade-item .name { color: #ffcc00; font-size: 16px; margin: 5px 0; }
     .upgrade-item .desc { color: #aaa; font-size: 12px; margin-bottom: 5px; }
@@ -570,6 +704,11 @@
       padding-bottom: 5px;
       border-bottom: 2px solid rgba(255, 200, 50, 0.3);
     }
+    
+    .upgrade-category.legendary { color: #ffd700; border-color: rgba(255, 215, 0, 0.5); }
+    .upgrade-category.cosmic { color: #8a2be2; border-color: rgba(138, 43, 226, 0.5); }
+    .upgrade-category.interdimensional { color: #00ffff; border-color: rgba(0, 255, 255, 0.5); }
+    .upgrade-category.ascended { color: #ff0080; border-color: rgba(255, 0, 128, 0.5); }
     
     /* ACHIEVEMENTS */
     .achievement {
@@ -618,6 +757,24 @@
       border-color: #4CAF50;
     }
     
+    .milestone.legendary {
+      border-color: rgba(255, 215, 0, 0.5);
+    }
+    
+    .milestone.legendary.claimed {
+      background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 140, 0, 0.15));
+      border-color: #ffd700;
+    }
+    
+    .milestone.cosmic {
+      border-color: rgba(138, 43, 226, 0.5);
+    }
+    
+    .milestone.cosmic.claimed {
+      background: linear-gradient(135deg, rgba(138, 43, 226, 0.2), rgba(75, 0, 130, 0.15));
+      border-color: #8a2be2;
+    }
+    
     .milestone-icon { font-size: 36px; margin-right: 15px; filter: grayscale(0.8); }
     .milestone.claimed .milestone-icon { filter: none; }
     .milestone-info { flex: 1; }
@@ -641,6 +798,86 @@
       border-radius: 3px;
       transition: width 0.3s;
     }
+    
+    /* PRESTIGE PANEL */
+    .prestige-info {
+      background: linear-gradient(135deg, rgba(155, 89, 182, 0.2), rgba(142, 68, 173, 0.15));
+      border: 2px solid #9b59b6;
+      border-radius: 15px;
+      padding: 20px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    
+    .prestige-info h3 {
+      color: #9b59b6;
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+    
+    .prestige-info p {
+      color: #aaa;
+      font-size: 14px;
+      margin: 5px 0;
+    }
+    
+    .prestige-bonus {
+      color: #e74c3c;
+      font-size: 28px;
+      margin: 15px 0;
+    }
+    
+    .prestige-btn {
+      background: linear-gradient(135deg, #9b59b6, #8e44ad);
+      border: 3px solid #e74c3c;
+      color: #fff;
+      padding: 15px 30px;
+      font-family: 'Krabby Patty', Arial, sans-serif;
+      font-size: 18px;
+      cursor: pointer;
+      border-radius: 15px;
+      transition: all 0.3s;
+      margin-top: 15px;
+    }
+    
+    .prestige-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 30px rgba(155, 89, 182, 0.6);
+    }
+    
+    .prestige-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    .prestige-upgrades {
+      margin-top: 20px;
+    }
+    
+    .prestige-upgrade {
+      background: rgba(155, 89, 182, 0.15);
+      border: 2px solid rgba(155, 89, 182, 0.4);
+      border-radius: 12px;
+      padding: 15px;
+      margin: 10px 0;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .prestige-upgrade:hover {
+      border-color: #9b59b6;
+      transform: translateX(-5px);
+    }
+    
+    .prestige-upgrade.owned {
+      background: rgba(155, 89, 182, 0.3);
+      border-color: #9b59b6;
+    }
+    
+    .prestige-upgrade .name { color: #9b59b6; font-size: 16px; }
+    .prestige-upgrade .desc { color: #aaa; font-size: 12px; margin: 5px 0; }
+    .prestige-upgrade .cost { color: #e74c3c; font-size: 14px; }
     
     /* INFO SECTION */
     .sidebar-section {
@@ -714,6 +951,12 @@
     .notification.visible {
       opacity: 1;
       transform: translateX(-50%) translateY(0);
+    }
+    
+    .notification.prestige {
+      background: linear-gradient(135deg, #9b59b6, #e74c3c);
+      color: #fff;
+      box-shadow: 0 0 50px rgba(155, 89, 182, 0.8);
     }
     
     .notification .icon { font-size: 40px; display: block; margin-bottom: 10px; }
@@ -815,11 +1058,48 @@
       transform: scale(1);
     }
     
+    /* ASCENSION ANIMATION */
+    .ascension-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: radial-gradient(circle, rgba(155, 89, 182, 0.9), rgba(0, 0, 0, 0.95));
+      z-index: 3000;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+    
+    .ascension-overlay.active {
+      display: flex;
+      animation: ascensionFlash 3s ease-out forwards;
+    }
+    
+    @keyframes ascensionFlash {
+      0% { opacity: 0; }
+      20% { opacity: 1; }
+      80% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+    
+    .ascension-text {
+      font-size: 64px;
+      color: #ffd700;
+      text-shadow: 0 0 30px #ffd700, 0 0 60px #ff8c00;
+      animation: ascensionPulse 0.5s ease-in-out infinite;
+    }
+    
+    @keyframes ascensionPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+    
     /* MOBILE */
     @media (max-width: 768px) {
       .currency-bar { top: 10px; gap: 10px; }
-      .currency-item { padding: 8px 12px; min-width: 120px; }
-      .currency-value { font-size: 18px; }
+      .currency-item { padding: 8px 12px; min-width: 100px; }
+      .currency-value { font-size: 16px; }
       .back-btn { top: auto; bottom: 80px; left: 15px; padding: 10px 15px; font-size: 14px; }
       .music-toggle { width: 44px; height: 44px; font-size: 20px; }
       .spinner { width: 200px; }
@@ -827,11 +1107,12 @@
       .mega-tab { padding: 12px 10px; font-size: 12px; }
       .stroke-banner { font-size: 32px; }
       .flash { font-size: 28px; }
+      .ascend-btn { bottom: 80px; right: 15px; padding: 10px 15px; font-size: 14px; }
     }
     
     @media (max-width: 400px) {
-      .currency-item { min-width: 100px; padding: 6px 10px; }
-      .currency-value { font-size: 16px; }
+      .currency-item { min-width: 80px; padding: 6px 8px; }
+      .currency-value { font-size: 14px; }
       .spinner { width: 160px; }
     }
   </style>
@@ -845,7 +1126,12 @@
   </audio>
   <button class="music-toggle" id="musicToggle" onclick="toggleMusic()">🎵</button>
   
+  <button class="ascend-btn" id="ascendBtn" onclick="showPrestigePanel()">⭐ ASCEND ⭐</button>
+  
   <div class="color-flash" id="colorFlash"></div>
+  <div class="ascension-overlay" id="ascensionOverlay">
+    <div class="ascension-text">✨ ASCENDING ✨</div>
+  </div>
   
   <!-- CURRENCY BAR -->
   <div class="currency-bar">
@@ -858,6 +1144,11 @@
       <div class="currency-label">💵 BIKINI BOTTOM $</div>
       <div class="currency-value" id="dollars">0</div>
       <div class="currency-rate">+<span id="dollarsPerSec">0</span>/sec</div>
+    </div>
+    <div class="currency-item prestige" id="prestigeDisplay" style="display: none;">
+      <div class="currency-label">⭐ ASCENSION STARS</div>
+      <div class="currency-value" id="prestigePoints">0</div>
+      <div class="currency-rate"><span id="prestigeMultiplier">1</span>x ALL</div>
     </div>
   </div>
   
@@ -890,6 +1181,7 @@
     <button class="mega-tab" id="tabShop" data-panel="shop">🛒 SHOP</button>
     <button class="mega-tab" id="tabMilestones" data-panel="milestones">🎯 GOALS</button>
     <button class="mega-tab" id="tabAchievements" data-panel="achievements">🏆 BADGES</button>
+    <button class="mega-tab prestige-tab" id="tabPrestige" data-panel="prestige">⭐ ASCEND</button>
   </div>
   
   <!-- SIDEBAR -->
@@ -908,7 +1200,9 @@
           <p>⚡ Per Click: <span id="infoPerClick">1</span></p>
           <p>🤖 Pumps/sec: <span id="infoPumpsPerSec">0</span></p>
           <p>💰 Dollars/sec: <span id="infoDollarsPerSec">0</span></p>
+          <p>⭐ Ascensions: <span id="infoAscensions">0</span></p>
           <p>🏆 Achievements: <span id="infoAchievements">0</span>/<span id="infoAchievementsTotal">0</span></p>
+          <p>🎯 Milestones: <span id="infoMilestones">0</span>/<span id="infoMilestonesTotal">0</span></p>
         </div>
         <div class="sidebar-section">
           <h3>🔗 Links</h3>
@@ -942,6 +1236,26 @@
       <div class="mega-panel" id="panelAchievements">
         <div id="achievementsList"></div>
       </div>
+      
+      <!-- PRESTIGE -->
+      <div class="mega-panel" id="panelPrestige">
+        <div class="prestige-info">
+          <h3>⭐ ASCENSION ⭐</h3>
+          <p>Reset your progress for permanent multipliers!</p>
+          <p>Requires: <strong>1 BILLION</strong> pumps minimum</p>
+          <div class="prestige-bonus">
+            <span id="prestigeGain">0</span> ⭐ Stars
+          </div>
+          <p style="font-size: 12px;">Current Multiplier: <span id="currentPrestigeMultiplier">1</span>x</p>
+          <button class="prestige-btn" id="doPrestige" onclick="performPrestige()">
+            🌟 ASCEND NOW 🌟
+          </button>
+        </div>
+        <div class="prestige-upgrades">
+          <h3 style="color: #9b59b6; margin-bottom: 15px;">⭐ Permanent Upgrades</h3>
+          <div id="prestigeUpgradesList"></div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -951,17 +1265,24 @@
     // =====================
     let gameState = {
       totalPumps: 0,
+      lifetimePumps: 0,
       dollars: 0,
       pumpsPerClick: 1,
       pumpsPerSecond: 0,
       dollarsPerSecond: 0,
-      dollarsPerPump: 0.1, // Base rate: 10 pumps = 1 dollar
+      dollarsPerPump: 0.1,
       combo: 0,
       maxCombo: 0,
       strokeModeActivations: 0,
       unlockedAchievements: [],
       claimedMilestones: [],
       upgrades: {},
+      // PRESTIGE SYSTEM
+      prestigePoints: 0,
+      totalAscensions: 0,
+      prestigeUpgrades: {},
+      // Event tracking
+      goldenPantsCaught: 0,
       totalPlayTime: 0,
       lastSaveTime: Date.now()
     };
@@ -973,12 +1294,13 @@
     let strokeParticleInterval;
     let feelingItActive = false;
     let feelingItTimeout;
+    let goldenPantsTimeout;
     
     // =====================
-    // UPGRADES (Buy with BB$)
+    // UPGRADES (MASSIVELY EXPANDED)
     // =====================
     const upgrades = [
-      // CLICK UPGRADES
+      // === CLICK UPGRADES (BASIC) ===
       { id: 'spatula', name: 'Golden Spatula', desc: '+1 pump per click', icon: '🥄', baseCost: 10, costMult: 1.5, effect: 'perClick', value: 1, category: 'click' },
       { id: 'gloves', name: 'Karate Gloves', desc: '+2 pumps per click', icon: '🥊', baseCost: 50, costMult: 1.6, effect: 'perClick', value: 2, category: 'click' },
       { id: 'net', name: 'Jellyfish Net', desc: '+5 pumps per click', icon: '🪼', baseCost: 200, costMult: 1.7, effect: 'perClick', value: 5, category: 'click' },
@@ -986,7 +1308,7 @@
       { id: 'crown', name: "Neptune's Crown", desc: '+25 pumps per click', icon: '👑', baseCost: 5000, costMult: 2.0, effect: 'perClick', value: 25, category: 'click' },
       { id: 'trident', name: "Neptune's Trident", desc: '+100 pumps per click', icon: '🔱', baseCost: 50000, costMult: 2.2, effect: 'perClick', value: 100, category: 'click' },
       
-      // AUTO PUMP UPGRADES
+      // === AUTO PUMP UPGRADES (BASIC) ===
       { id: 'gary', name: 'Gary Helper', desc: '+1 pump per second', icon: '🐌', baseCost: 25, costMult: 1.4, effect: 'autoPump', value: 1, category: 'auto' },
       { id: 'patty', name: 'Krabby Patty Machine', desc: '+5 pumps per second', icon: '🍔', baseCost: 150, costMult: 1.5, effect: 'autoPump', value: 5, category: 'auto' },
       { id: 'bubble', name: 'Bubble Blower', desc: '+10 pumps per second', icon: '🫧', baseCost: 500, costMult: 1.5, effect: 'autoPump', value: 10, category: 'auto' },
@@ -994,31 +1316,86 @@
       { id: 'formula', name: 'Secret Formula', desc: '+100 pumps per second', icon: '📜', baseCost: 10000, costMult: 1.7, effect: 'autoPump', value: 100, category: 'auto' },
       { id: 'mermaidman', name: 'Mermaid Man Powers', desc: '+500 pumps per second', icon: '🦸', baseCost: 100000, costMult: 1.8, effect: 'autoPump', value: 500, category: 'auto' },
       
-      // PASSIVE INCOME (BB$/sec)
+      // === PASSIVE INCOME (BASIC) ===
       { id: 'penny', name: "Penny's Tips", desc: '+0.5 BB$ per second', icon: '🪙', baseCost: 100, costMult: 1.5, effect: 'dollarSec', value: 0.5, category: 'passive' },
       { id: 'register', name: 'Cash Register', desc: '+2 BB$ per second', icon: '🧾', baseCost: 500, costMult: 1.6, effect: 'dollarSec', value: 2, category: 'passive' },
       { id: 'vault', name: "Mr. Krabs' Vault", desc: '+10 BB$ per second', icon: '💰', baseCost: 2500, costMult: 1.7, effect: 'dollarSec', value: 10, category: 'passive' },
       { id: 'bank', name: 'Bikini Bottom Bank', desc: '+50 BB$ per second', icon: '🏦', baseCost: 15000, costMult: 1.8, effect: 'dollarSec', value: 50, category: 'passive' },
       { id: 'treasure', name: 'Flying Dutchman Treasure', desc: '+250 BB$ per second', icon: '💎', baseCost: 100000, costMult: 2.0, effect: 'dollarSec', value: 250, category: 'passive' },
       
-      // DOLLAR RATE UPGRADES
+      // === DOLLAR RATE (BASIC) ===
       { id: 'tip', name: 'Tip Jar', desc: '+0.05 BB$ per pump', icon: '🫙', baseCost: 200, costMult: 1.8, effect: 'dollarRate', value: 0.05, category: 'rate' },
       { id: 'bonus', name: 'Employee Bonus', desc: '+0.1 BB$ per pump', icon: '📋', baseCost: 1000, costMult: 2.0, effect: 'dollarRate', value: 0.1, category: 'rate' },
       { id: 'raise', name: 'Big Raise', desc: '+0.25 BB$ per pump', icon: '📈', baseCost: 5000, costMult: 2.2, effect: 'dollarRate', value: 0.25, category: 'rate' },
       { id: 'profit', name: 'Profit Sharing', desc: '+1 BB$ per pump', icon: '💹', baseCost: 50000, costMult: 2.5, effect: 'dollarRate', value: 1, category: 'rate' },
+      
+      // ========================================
+      // LEGENDARY TIER (Millions)
+      // ========================================
+      { id: 'planktonLaser', name: "Plankton's Laser", desc: '+500 pumps per click', icon: '🔫', baseCost: 500000, costMult: 2.0, effect: 'perClick', value: 500, category: 'legendary', tier: 'legendary' },
+      { id: 'chum', name: 'Chum Bucket Takeover', desc: '+1,000 pumps per click', icon: '🪣', baseCost: 2000000, costMult: 2.2, effect: 'perClick', value: 1000, category: 'legendary', tier: 'legendary' },
+      { id: 'karen', name: 'Karen Computer', desc: '+5,000 pumps per second', icon: '🖥️', baseCost: 1000000, costMult: 1.9, effect: 'autoPump', value: 5000, category: 'legendary', tier: 'legendary' },
+      { id: 'dutchman', name: 'Flying Dutchman Soul', desc: '+25,000 pumps per second', icon: '👻', baseCost: 5000000, costMult: 2.0, effect: 'autoPump', value: 25000, category: 'legendary', tier: 'legendary' },
+      { id: 'atlantis', name: 'Atlantis Riches', desc: '+2,000 BB$ per second', icon: '🏛️', baseCost: 2000000, costMult: 2.0, effect: 'dollarSec', value: 2000, category: 'legendary', tier: 'legendary' },
+      { id: 'goldDoubloon', name: 'Gold Doubloons', desc: '+5 BB$ per pump', icon: '🪙', baseCost: 1000000, costMult: 2.5, effect: 'dollarRate', value: 5, category: 'legendary', tier: 'legendary' },
+      
+      // ========================================
+      // COSMIC TIER (Tens of Millions)
+      // ========================================
+      { id: 'moonRock', name: 'Moon Rock Pants', desc: '+10,000 pumps per click', icon: '🌙', baseCost: 10000000, costMult: 2.0, effect: 'perClick', value: 10000, category: 'cosmic', tier: 'cosmic' },
+      { id: 'alienJelly', name: 'Alien Jellyfish', desc: '+50,000 pumps per click', icon: '👽', baseCost: 50000000, costMult: 2.2, effect: 'perClick', value: 50000, category: 'cosmic', tier: 'cosmic' },
+      { id: 'blackHole', name: 'Black Hole Pump', desc: '+250,000 pumps per second', icon: '🕳️', baseCost: 25000000, costMult: 2.0, effect: 'autoPump', value: 250000, category: 'cosmic', tier: 'cosmic' },
+      { id: 'starPower', name: 'Patrick Star Power', desc: '+1,000,000 pumps per second', icon: '⭐', baseCost: 100000000, costMult: 2.1, effect: 'autoPump', value: 1000000, category: 'cosmic', tier: 'cosmic' },
+      { id: 'cosmicCash', name: 'Cosmic Cash Flow', desc: '+50,000 BB$ per second', icon: '🌌', baseCost: 50000000, costMult: 2.0, effect: 'dollarSec', value: 50000, category: 'cosmic', tier: 'cosmic' },
+      { id: 'stardust', name: 'Stardust Coating', desc: '+25 BB$ per pump', icon: '✨', baseCost: 25000000, costMult: 2.5, effect: 'dollarRate', value: 25, category: 'cosmic', tier: 'cosmic' },
+      
+      // ========================================
+      // INTERDIMENSIONAL TIER (Hundreds of Millions)
+      // ========================================
+      { id: 'portalPump', name: 'Portal Pump', desc: '+250,000 pumps per click', icon: '🌀', baseCost: 250000000, costMult: 2.0, effect: 'perClick', value: 250000, category: 'interdimensional', tier: 'interdimensional' },
+      { id: 'timeWarp', name: 'Time Warp Engine', desc: '+1,000,000 pumps per click', icon: '⏰', baseCost: 1000000000, costMult: 2.2, effect: 'perClick', value: 1000000, category: 'interdimensional', tier: 'interdimensional' },
+      { id: 'multiverse', name: 'Multiverse Factory', desc: '+10,000,000 pumps per second', icon: '🔮', baseCost: 500000000, costMult: 2.0, effect: 'autoPump', value: 10000000, category: 'interdimensional', tier: 'interdimensional' },
+      { id: 'infiniteGary', name: 'Infinite Garys', desc: '+50,000,000 pumps per second', icon: '🐌', baseCost: 2000000000, costMult: 2.1, effect: 'autoPump', value: 50000000, category: 'interdimensional', tier: 'interdimensional' },
+      { id: 'dimensionWallet', name: 'Dimension Wallet', desc: '+1,000,000 BB$ per second', icon: '👛', baseCost: 1000000000, costMult: 2.0, effect: 'dollarSec', value: 1000000, category: 'interdimensional', tier: 'interdimensional' },
+      { id: 'realityBend', name: 'Reality Bender', desc: '+100 BB$ per pump', icon: '🌈', baseCost: 500000000, costMult: 2.5, effect: 'dollarRate', value: 100, category: 'interdimensional', tier: 'interdimensional' },
+      
+      // ========================================
+      // ASCENDED TIER (Billions+)
+      // ========================================
+      { id: 'godPump', name: 'God Pump', desc: '+10,000,000 pumps per click', icon: '👼', baseCost: 5000000000, costMult: 2.0, effect: 'perClick', value: 10000000, category: 'ascended', tier: 'ascended' },
+      { id: 'infinityPants', name: 'Infinity Pants', desc: '+100,000,000 pumps per click', icon: '♾️', baseCost: 50000000000, costMult: 2.2, effect: 'perClick', value: 100000000, category: 'ascended', tier: 'ascended' },
+      { id: 'bigBang', name: 'Big Bang Generator', desc: '+500,000,000 pumps per second', icon: '💥', baseCost: 25000000000, costMult: 2.0, effect: 'autoPump', value: 500000000, category: 'ascended', tier: 'ascended' },
+      { id: 'cosmicSpongeBob', name: 'Cosmic SpongeBob', desc: '+5,000,000,000 pumps per second', icon: '🧽', baseCost: 250000000000, costMult: 2.1, effect: 'autoPump', value: 5000000000, category: 'ascended', tier: 'ascended' },
+      { id: 'infiniteWealth', name: 'Infinite Wealth', desc: '+100,000,000 BB$ per second', icon: '🏆', baseCost: 100000000000, costMult: 2.0, effect: 'dollarSec', value: 100000000, category: 'ascended', tier: 'ascended' },
+      { id: 'universalRate', name: 'Universal Rate', desc: '+1,000 BB$ per pump', icon: '🌟', baseCost: 50000000000, costMult: 2.5, effect: 'dollarRate', value: 1000, category: 'ascended', tier: 'ascended' },
+      
+      // ========================================
+      // OMEGA TIER (Trillions)
+      // ========================================
+      { id: 'omegaPump', name: 'Omega Pump', desc: '+1B pumps per click', icon: '🔥', baseCost: 500000000000, costMult: 2.0, effect: 'perClick', value: 1000000000, category: 'omega', tier: 'omega' },
+      { id: 'realityEngine', name: 'Reality Engine', desc: '+10B pumps per second', icon: '⚙️', baseCost: 1000000000000, costMult: 2.0, effect: 'autoPump', value: 10000000000, category: 'omega', tier: 'omega' },
+      { id: 'omegaCash', name: 'Omega Cash', desc: '+1B BB$ per second', icon: '💎', baseCost: 500000000000, costMult: 2.0, effect: 'dollarSec', value: 1000000000, category: 'omega', tier: 'omega' },
+      { id: 'omegaRate', name: 'Omega Rate', desc: '+10,000 BB$ per pump', icon: '💫', baseCost: 250000000000, costMult: 2.5, effect: 'dollarRate', value: 10000, category: 'omega', tier: 'omega' },
     ];
     
     // =====================
-    // ACHIEVEMENTS
+    // ACHIEVEMENTS (MASSIVELY EXPANDED)
     // =====================
     const achievements = [
-      // Pump achievements
+      // Pump achievements - Basic
       { id: 'pump1', name: 'First Pump!', desc: 'Pump once', icon: '🧽', type: 'pumps', req: 1 },
       { id: 'pump100', name: 'Getting Started', desc: 'Pump 100 times', icon: '💪', type: 'pumps', req: 100 },
       { id: 'pump1k', name: 'Dedicated Pumper', desc: 'Pump 1,000 times', icon: '⭐', type: 'pumps', req: 1000 },
       { id: 'pump10k', name: 'Pump Master', desc: 'Pump 10,000 times', icon: '🏆', type: 'pumps', req: 10000 },
       { id: 'pump100k', name: 'Pump Legend', desc: 'Pump 100,000 times', icon: '👑', type: 'pumps', req: 100000 },
       { id: 'pump1m', name: 'GOOFY GOOBER', desc: 'Pump 1,000,000 times', icon: '🎸', type: 'pumps', req: 1000000 },
+      // Pump achievements - Advanced
+      { id: 'pump10m', name: 'Pump Overlord', desc: 'Pump 10 Million times', icon: '🌟', type: 'pumps', req: 10000000 },
+      { id: 'pump100m', name: 'Pump Deity', desc: 'Pump 100 Million times', icon: '👼', type: 'pumps', req: 100000000 },
+      { id: 'pump1b', name: 'BILLIONAIRE PUMPER', desc: 'Pump 1 BILLION times', icon: '🚀', type: 'pumps', req: 1000000000 },
+      { id: 'pump10b', name: 'Cosmic Pumper', desc: 'Pump 10 BILLION times', icon: '🌌', type: 'pumps', req: 10000000000 },
+      { id: 'pump100b', name: 'Universal Pumper', desc: 'Pump 100 BILLION times', icon: '🔮', type: 'pumps', req: 100000000000 },
+      { id: 'pump1t', name: 'TRILLIONAIRE PUMPER', desc: 'Pump 1 TRILLION times', icon: '♾️', type: 'pumps', req: 1000000000000 },
       
       // Combo achievements
       { id: 'combo10', name: 'Combo Starter', desc: '10x combo', icon: '🔥', type: 'combo', req: 10 },
@@ -1026,24 +1403,48 @@
       { id: 'combo50', name: 'STROKE MODE!', desc: '50x combo', icon: '🌟', type: 'combo', req: 50 },
       { id: 'combo100', name: 'Unstoppable', desc: '100x combo', icon: '⚡', type: 'combo', req: 100 },
       { id: 'combo200', name: 'LEGENDARY', desc: '200x combo', icon: '🌈', type: 'combo', req: 200 },
+      { id: 'combo500', name: 'GODLIKE', desc: '500x combo', icon: '👑', type: 'combo', req: 500 },
+      { id: 'combo1000', name: 'IMPOSSIBLE', desc: '1000x combo', icon: '💎', type: 'combo', req: 1000 },
       
-      // Dollar achievements
+      // Dollar achievements - Expanded
       { id: 'dollar100', name: 'First Paycheck', desc: 'Earn 100 BB$', icon: '💵', type: 'dollars', req: 100 },
       { id: 'dollar1k', name: 'Savings Account', desc: 'Earn 1,000 BB$', icon: '🏧', type: 'dollars', req: 1000 },
       { id: 'dollar10k', name: 'Small Fortune', desc: 'Earn 10,000 BB$', icon: '💎', type: 'dollars', req: 10000 },
       { id: 'dollar100k', name: 'Rich!', desc: 'Earn 100,000 BB$', icon: '🤑', type: 'dollars', req: 100000 },
       { id: 'dollar1m', name: 'MILLIONAIRE!', desc: 'Earn 1,000,000 BB$', icon: '🏰', type: 'dollars', req: 1000000 },
+      { id: 'dollar10m', name: 'Multi-Millionaire', desc: 'Earn 10,000,000 BB$', icon: '🏦', type: 'dollars', req: 10000000 },
+      { id: 'dollar100m', name: 'Mega Rich', desc: 'Earn 100,000,000 BB$', icon: '💰', type: 'dollars', req: 100000000 },
+      { id: 'dollar1b', name: 'BILLIONAIRE!', desc: 'Earn 1 BILLION BB$', icon: '🌟', type: 'dollars', req: 1000000000 },
+      { id: 'dollar1t', name: 'TRILLIONAIRE!', desc: 'Earn 1 TRILLION BB$', icon: '🏆', type: 'dollars', req: 1000000000000 },
       
-      // Special achievements
+      // Stroke mode achievements
       { id: 'stroke5', name: 'Feeling It', desc: 'Activate STROKE MODE 5 times', icon: '🦀', type: 'strokes', req: 5 },
       { id: 'stroke25', name: 'Mr. Krabs Approved', desc: 'Activate STROKE MODE 25 times', icon: '💰', type: 'strokes', req: 25 },
+      { id: 'stroke100', name: 'Stroke Master', desc: 'Activate STROKE MODE 100 times', icon: '🔥', type: 'strokes', req: 100 },
+      { id: 'stroke500', name: 'Stroke Legend', desc: 'Activate STROKE MODE 500 times', icon: '⭐', type: 'strokes', req: 500 },
+      
+      // Prestige achievements
+      { id: 'ascend1', name: 'First Ascension', desc: 'Ascend for the first time', icon: '✨', type: 'ascensions', req: 1 },
+      { id: 'ascend5', name: 'Ascending Star', desc: 'Ascend 5 times', icon: '🌟', type: 'ascensions', req: 5 },
+      { id: 'ascend10', name: 'Ascension Master', desc: 'Ascend 10 times', icon: '💫', type: 'ascensions', req: 10 },
+      { id: 'ascend25', name: 'Transcendent', desc: 'Ascend 25 times', icon: '👼', type: 'ascensions', req: 25 },
+      { id: 'ascend50', name: 'GODHOOD', desc: 'Ascend 50 times', icon: '🔱', type: 'ascensions', req: 50 },
+      
+      // Golden Pants achievements
+      { id: 'golden1', name: 'Golden Touch', desc: 'Catch 1 Golden Pants', icon: '🩲', type: 'golden', req: 1 },
+      { id: 'golden10', name: 'Pants Collector', desc: 'Catch 10 Golden Pants', icon: '🩲', type: 'golden', req: 10 },
+      { id: 'golden50', name: 'Pants Hunter', desc: 'Catch 50 Golden Pants', icon: '🩲', type: 'golden', req: 50 },
+      { id: 'golden100', name: 'PANTS MASTER', desc: 'Catch 100 Golden Pants', icon: '🩲', type: 'golden', req: 100 },
+      
+      // Special achievements
       { id: 'allUpgrades', name: 'Collector', desc: 'Own every upgrade type', icon: '🎯', type: 'special', req: 0 },
     ];
     
     // =====================
-    // MILESTONES
+    // MILESTONES (MASSIVELY EXPANDED)
     // =====================
     const milestones = [
+      // Basic tier
       { id: 'm100', pumps: 100, name: 'Baby Steps', icon: '👶', reward: 'perClick', value: 1, text: '+1 per click' },
       { id: 'm500', pumps: 500, name: 'Getting Warmed Up', icon: '🔥', reward: 'perClick', value: 2, text: '+2 per click' },
       { id: 'm1k', pumps: 1000, name: 'Krusty Krab Employee', icon: '🍔', reward: 'autoPump', value: 5, text: '+5 pumps/sec' },
@@ -1055,6 +1456,57 @@
       { id: 'm250k', pumps: 250000, name: 'Hall of Fame', icon: '🏆', reward: 'dollarSec', value: 100, text: '+100 BB$/sec' },
       { id: 'm500k', pumps: 500000, name: 'Bikini Bottom Legend', icon: '🌟', reward: 'perClick', value: 100, text: '+100 per click' },
       { id: 'm1m', pumps: 1000000, name: 'GOAT OF BIKINI BOTTOM', icon: '🐐', reward: 'all', value: 500, text: '+500 per click & +500/sec' },
+      
+      // Legendary tier (millions)
+      { id: 'm2m', pumps: 2000000, name: 'Rock Bottom Traveler', icon: '🪨', reward: 'autoPump', value: 2000, text: '+2,000 pumps/sec', tier: 'legendary' },
+      { id: 'm5m', pumps: 5000000, name: 'Atlantis Explorer', icon: '🏛️', reward: 'perClick', value: 1000, text: '+1,000 per click', tier: 'legendary' },
+      { id: 'm10m', pumps: 10000000, name: 'Flying Dutchman Friend', icon: '👻', reward: 'dollarSec', value: 5000, text: '+5,000 BB$/sec', tier: 'legendary' },
+      { id: 'm25m', pumps: 25000000, name: 'Magic Conch Holder', icon: '🐚', reward: 'autoPump', value: 10000, text: '+10,000 pumps/sec', tier: 'legendary' },
+      { id: 'm50m', pumps: 50000000, name: 'Bubble Buddy Creator', icon: '🫧', reward: 'perClick', value: 5000, text: '+5,000 per click', tier: 'legendary' },
+      { id: 'm100m', pumps: 100000000, name: 'NEPTUNE\'S CHAMPION', icon: '🔱', reward: 'all', value: 25000, text: '+25K click & +25K/sec', tier: 'legendary' },
+      
+      // Cosmic tier (hundreds of millions)
+      { id: 'm250m', pumps: 250000000, name: 'Space Squid', icon: '🦑', reward: 'autoPump', value: 100000, text: '+100,000 pumps/sec', tier: 'cosmic' },
+      { id: 'm500m', pumps: 500000000, name: 'Cosmic Sponge', icon: '🌌', reward: 'perClick', value: 50000, text: '+50,000 per click', tier: 'cosmic' },
+      { id: 'm750m', pumps: 750000000, name: 'Star Navigator', icon: '⭐', reward: 'dollarSec', value: 100000, text: '+100,000 BB$/sec', tier: 'cosmic' },
+      { id: 'm1b', pumps: 1000000000, name: 'BILLION PUMP CLUB', icon: '🚀', reward: 'all', value: 500000, text: '+500K click & +500K/sec', tier: 'cosmic' },
+      
+      // Interdimensional tier (billions)
+      { id: 'm2b', pumps: 2000000000, name: 'Reality Warper', icon: '🌀', reward: 'autoPump', value: 2000000, text: '+2M pumps/sec', tier: 'cosmic' },
+      { id: 'm5b', pumps: 5000000000, name: 'Dimension Hopper', icon: '🔮', reward: 'perClick', value: 1000000, text: '+1M per click', tier: 'cosmic' },
+      { id: 'm10b', pumps: 10000000000, name: 'Multiverse Master', icon: '🌈', reward: 'dollarSec', value: 5000000, text: '+5M BB$/sec', tier: 'cosmic' },
+      { id: 'm25b', pumps: 25000000000, name: 'COSMIC OVERLORD', icon: '👽', reward: 'all', value: 10000000, text: '+10M click & +10M/sec', tier: 'cosmic' },
+      
+      // Ascended tier (tens/hundreds of billions)
+      { id: 'm50b', pumps: 50000000000, name: 'Ascending Being', icon: '👼', reward: 'autoPump', value: 50000000, text: '+50M pumps/sec', tier: 'cosmic' },
+      { id: 'm100b', pumps: 100000000000, name: 'Ethereal Form', icon: '✨', reward: 'perClick', value: 25000000, text: '+25M per click', tier: 'cosmic' },
+      { id: 'm250b', pumps: 250000000000, name: 'TRANSCENDENT', icon: '💫', reward: 'all', value: 100000000, text: '+100M click & +100M/sec', tier: 'cosmic' },
+      { id: 'm500b', pumps: 500000000000, name: 'Universal Entity', icon: '🌟', reward: 'autoPump', value: 500000000, text: '+500M pumps/sec', tier: 'cosmic' },
+      
+      // Omega tier (trillions)
+      { id: 'm1t', pumps: 1000000000000, name: 'TRILLION PUMP GOD', icon: '🔥', reward: 'all', value: 1000000000, text: '+1B click & +1B/sec', tier: 'cosmic' },
+      { id: 'm10t', pumps: 10000000000000, name: 'OMEGA BEING', icon: '♾️', reward: 'all', value: 10000000000, text: '+10B click & +10B/sec', tier: 'cosmic' },
+    ];
+    
+    // =====================
+    // PRESTIGE UPGRADES
+    // =====================
+    const prestigeUpgrades = [
+      { id: 'pMult1', name: 'Ascended Power I', desc: '+50% base multiplier', icon: '⭐', cost: 5, effect: 'baseMult', value: 0.5 },
+      { id: 'pMult2', name: 'Ascended Power II', desc: '+100% base multiplier', icon: '🌟', cost: 25, effect: 'baseMult', value: 1.0 },
+      { id: 'pMult3', name: 'Ascended Power III', desc: '+200% base multiplier', icon: '💫', cost: 100, effect: 'baseMult', value: 2.0 },
+      { id: 'pClick1', name: 'Divine Click I', desc: 'Start with +100 per click', icon: '👆', cost: 10, effect: 'startClick', value: 100 },
+      { id: 'pClick2', name: 'Divine Click II', desc: 'Start with +1,000 per click', icon: '✋', cost: 50, effect: 'startClick', value: 1000 },
+      { id: 'pClick3', name: 'Divine Click III', desc: 'Start with +10,000 per click', icon: '🖐️', cost: 200, effect: 'startClick', value: 10000 },
+      { id: 'pAuto1', name: 'Eternal Helpers I', desc: 'Start with +500 pumps/sec', icon: '🤖', cost: 15, effect: 'startAuto', value: 500 },
+      { id: 'pAuto2', name: 'Eternal Helpers II', desc: 'Start with +5,000 pumps/sec', icon: '⚙️', cost: 75, effect: 'startAuto', value: 5000 },
+      { id: 'pAuto3', name: 'Eternal Helpers III', desc: 'Start with +50,000 pumps/sec', icon: '🔧', cost: 300, effect: 'startAuto', value: 50000 },
+      { id: 'pDollar1', name: 'Golden Start I', desc: 'Start with 10,000 BB$', icon: '💰', cost: 10, effect: 'startDollars', value: 10000 },
+      { id: 'pDollar2', name: 'Golden Start II', desc: 'Start with 1,000,000 BB$', icon: '💎', cost: 50, effect: 'startDollars', value: 1000000 },
+      { id: 'pDollar3', name: 'Golden Start III', desc: 'Start with 1 BILLION BB$', icon: '🏆', cost: 250, effect: 'startDollars', value: 1000000000 },
+      { id: 'pGolden', name: 'Golden Magnet', desc: 'Golden Pants appear 2x more often', icon: '🧲', cost: 30, effect: 'goldenRate', value: 2 },
+      { id: 'pOffline', name: 'Eternal Workers', desc: '100% offline efficiency (was 50%)', icon: '🌙', cost: 40, effect: 'offlineEff', value: 1.0 },
+      { id: 'pCombo', name: 'Combo Master', desc: 'Combo timer +1 second', icon: '⚡', cost: 20, effect: 'comboTime', value: 1 },
     ];
     
     // =====================
@@ -1068,38 +1520,20 @@
     const dollarsPerSecEl = document.getElementById('dollarsPerSec');
     const comboDisplay = document.getElementById('comboDisplay');
     const multiplierEl = document.getElementById('multiplier');
-    // ppsDisplay now uses individual stat elements
     const flashEl = document.getElementById('flash');
     const strokeBanner = document.getElementById('strokeBanner');
     const colorFlash = document.getElementById('colorFlash');
     const notification = document.getElementById('notification');
     const bgMusic = document.getElementById('bgMusic');
+    const ascendBtn = document.getElementById('ascendBtn');
     
-    // Check if audio file loaded - with detailed error info
     bgMusic.addEventListener('error', (e) => {
-      const error = bgMusic.error;
-      let errorMsg = 'Unknown error';
-      if (error) {
-        switch(error.code) {
-          case 1: errorMsg = 'MEDIA_ERR_ABORTED - Fetching aborted'; break;
-          case 2: errorMsg = 'MEDIA_ERR_NETWORK - Network error'; break;
-          case 3: errorMsg = 'MEDIA_ERR_DECODE - Decoding error'; break;
-          case 4: errorMsg = 'MEDIA_ERR_SRC_NOT_SUPPORTED - Source not supported or not found'; break;
-        }
-      }
-      console.error('❌ Audio failed to load:', errorMsg);
-      console.log('Make sure bob.mp3 is uploaded to GitHub in the same folder as clicker.html');
-      // Update music button to show error
+      console.error('❌ Audio failed to load');
       document.getElementById('musicToggle').textContent = '❌';
-      document.getElementById('musicToggle').title = 'Audio file not found: bob.mp3';
     });
     
     bgMusic.addEventListener('canplaythrough', () => {
-      console.log('✅ Audio file loaded and ready!');
-    });
-    
-    bgMusic.addEventListener('loadstart', () => {
-      console.log('🔄 Starting to load audio...');
+      console.log('✅ Audio file loaded!');
     });
     
     // =====================
@@ -1118,47 +1552,61 @@
         
         // Calculate offline earnings
         const offlineTime = (Date.now() - gameState.lastSaveTime) / 1000;
+        const offlineEff = gameState.prestigeUpgrades['pOffline'] ? 1.0 : 0.5;
         if (offlineTime > 10 && gameState.pumpsPerSecond > 0) {
-          const maxOfflineTime = 3600 * 8; // Max 8 hours
+          const maxOfflineTime = 3600 * 8;
           const effectiveTime = Math.min(offlineTime, maxOfflineTime);
-          const offlinePumps = Math.floor(gameState.pumpsPerSecond * effectiveTime * 0.5); // 50% efficiency
-          const offlineDollars = Math.floor(gameState.dollarsPerSecond * effectiveTime * 0.5);
+          const offlinePumps = Math.floor(gameState.pumpsPerSecond * effectiveTime * offlineEff);
+          const offlineDollars = Math.floor(gameState.dollarsPerSecond * effectiveTime * offlineEff);
           
           if (offlinePumps > 0 || offlineDollars > 0) {
             gameState.totalPumps += offlinePumps;
+            gameState.lifetimePumps += offlinePumps;
             gameState.dollars += offlineDollars;
             
             setTimeout(() => {
-              showNotification('🌙', `Welcome back! You earned ${offlinePumps.toLocaleString()} pumps and ${offlineDollars.toLocaleString()} BB$ while away!`);
+              showNotification('🌙', `Welcome back! You earned ${formatNumber(offlinePumps)} pumps and ${formatNumber(offlineDollars)} BB$ while away!`);
             }, 1000);
           }
         }
         
-        // Rebuild upgrades owned object
         upgrades.forEach(u => {
           if (!gameState.upgrades[u.id]) gameState.upgrades[u.id] = 0;
         });
         
-        recalculateStats();
+        if (!gameState.prestigeUpgrades) gameState.prestigeUpgrades = {};
+        if (!gameState.lifetimePumps) gameState.lifetimePumps = gameState.totalPumps;
         
-        // Auto-update leaderboard if username saved
+        recalculateStats();
+        updatePrestigeDisplay();
+        
         const savedUsername = localStorage.getItem('clickerUsername');
         if (savedUsername && gameState.totalPumps > 0) {
-          // Wait a bit then auto-submit
           setTimeout(async () => {
-            await submitScore('pump-clicker', savedUsername, gameState.totalPumps);
-            console.log('Auto-updated leaderboard for', savedUsername);
+            if (typeof submitScore === 'function') {
+              await submitScore('pump-clicker', savedUsername, gameState.totalPumps);
+            }
           }, 2000);
         }
       }
     }
     
     function recalculateStats() {
+      // Base stats
       gameState.pumpsPerClick = 1;
       gameState.pumpsPerSecond = 0;
       gameState.dollarsPerSecond = 0;
       gameState.dollarsPerPump = 0.1;
       
+      // Apply prestige starting bonuses
+      prestigeUpgrades.forEach(p => {
+        if (gameState.prestigeUpgrades[p.id]) {
+          if (p.effect === 'startClick') gameState.pumpsPerClick += p.value;
+          if (p.effect === 'startAuto') gameState.pumpsPerSecond += p.value;
+        }
+      });
+      
+      // Apply upgrades
       upgrades.forEach(u => {
         const owned = gameState.upgrades[u.id] || 0;
         if (owned > 0) {
@@ -1169,7 +1617,7 @@
         }
       });
       
-      // Add milestone bonuses
+      // Apply milestone bonuses
       milestones.forEach(m => {
         if (gameState.claimedMilestones.includes(m.id)) {
           if (m.reward === 'perClick') gameState.pumpsPerClick += m.value;
@@ -1182,7 +1630,27 @@
         }
       });
       
+      // Apply prestige multiplier
+      const prestigeMult = getPrestigeMultiplier();
+      gameState.pumpsPerClick = Math.floor(gameState.pumpsPerClick * prestigeMult);
+      gameState.pumpsPerSecond = Math.floor(gameState.pumpsPerSecond * prestigeMult);
+      gameState.dollarsPerSecond = Math.floor(gameState.dollarsPerSecond * prestigeMult);
+      
       updateDisplays();
+      updateSpinnerEffects();
+    }
+    
+    function getPrestigeMultiplier() {
+      let mult = 1 + (gameState.prestigePoints * 0.1); // Each star = +10%
+      
+      // Add prestige upgrade bonuses
+      prestigeUpgrades.forEach(p => {
+        if (gameState.prestigeUpgrades[p.id] && p.effect === 'baseMult') {
+          mult += p.value;
+        }
+      });
+      
+      return mult;
     }
     
     // =====================
@@ -1191,16 +1659,42 @@
     function updateDisplays() {
       totalPumpsEl.textContent = formatNumber(gameState.totalPumps);
       dollarsEl.textContent = formatNumber(Math.floor(gameState.dollars));
-      pumpsPerClickEl.textContent = gameState.pumpsPerClick;
-      pumpsPerSecEl.textContent = gameState.pumpsPerSecond;
-      dollarsPerSecEl.textContent = gameState.dollarsPerSecond.toFixed(1);
+      pumpsPerClickEl.textContent = formatNumber(gameState.pumpsPerClick);
+      pumpsPerSecEl.textContent = formatNumber(gameState.pumpsPerSecond);
+      dollarsPerSecEl.textContent = formatNumber(gameState.dollarsPerSecond);
       
-      // Update the stats box
-      document.getElementById('statPumpsPerSec').textContent = gameState.pumpsPerSecond.toLocaleString();
-      document.getElementById('statDollarsPerSec').textContent = gameState.dollarsPerSecond.toFixed(1);
+      document.getElementById('statPumpsPerSec').textContent = formatNumber(gameState.pumpsPerSecond);
+      document.getElementById('statDollarsPerSec').textContent = formatNumber(gameState.dollarsPerSecond);
+      
+      // Check ascension button visibility
+      if (gameState.totalPumps >= 1000000000) {
+        ascendBtn.classList.add('visible');
+      }
+    }
+    
+    function updatePrestigeDisplay() {
+      if (gameState.prestigePoints > 0 || gameState.totalAscensions > 0) {
+        document.getElementById('prestigeDisplay').style.display = 'block';
+        document.getElementById('prestigePoints').textContent = gameState.prestigePoints;
+        document.getElementById('prestigeMultiplier').textContent = getPrestigeMultiplier().toFixed(1);
+      }
+    }
+    
+    function updateSpinnerEffects() {
+      spinner.classList.remove('ascended', 'mega-ascended');
+      document.body.classList.remove('ascended');
+      
+      if (gameState.totalAscensions >= 10) {
+        spinner.classList.add('mega-ascended');
+        document.body.classList.add('ascended');
+      } else if (gameState.totalAscensions >= 1) {
+        spinner.classList.add('ascended');
+      }
     }
     
     function formatNumber(n) {
+      if (n >= 1e15) return (n / 1e15).toFixed(2) + 'Q';
+      if (n >= 1e12) return (n / 1e12).toFixed(2) + 'T';
       if (n >= 1e9) return (n / 1e9).toFixed(2) + 'B';
       if (n >= 1e6) return (n / 1e6).toFixed(2) + 'M';
       if (n >= 1e3) return (n / 1e3).toFixed(1) + 'K';
@@ -1210,11 +1704,163 @@
     // =====================
     // NOTIFICATIONS
     // =====================
-    function showNotification(icon, text) {
+    function showNotification(icon, text, isPrestige = false) {
       notification.querySelector('.icon').textContent = icon;
       notification.querySelector('.text').innerHTML = text;
-      notification.classList.add('visible');
+      notification.className = 'notification visible' + (isPrestige ? ' prestige' : '');
       setTimeout(() => notification.classList.remove('visible'), 4000);
+    }
+    
+    // =====================
+    // GOLDEN PANTS EVENT
+    // =====================
+    function spawnGoldenPants() {
+      const goldenRate = gameState.prestigeUpgrades['pGolden'] ? 0.5 : 1;
+      const chance = 0.001 * goldenRate; // Base 0.1% per second
+      
+      if (Math.random() < chance && !document.querySelector('.golden-pants')) {
+        const pants = document.createElement('div');
+        pants.className = 'golden-pants';
+        pants.textContent = '🩲';
+        pants.style.left = (Math.random() * 60 + 20) + '%';
+        pants.style.top = (Math.random() * 60 + 20) + '%';
+        
+        pants.onclick = (e) => {
+          e.stopPropagation();
+          catchGoldenPants(pants);
+        };
+        
+        document.body.appendChild(pants);
+        
+        setTimeout(() => {
+          if (pants.parentNode) pants.remove();
+        }, 10000);
+      }
+    }
+    
+    function catchGoldenPants(pants) {
+      pants.remove();
+      gameState.goldenPantsCaught++;
+      
+      // Random bonus
+      const bonuses = [
+        { type: 'pumps', mult: 60 }, // 1 minute of pumps
+        { type: 'dollars', mult: 120 }, // 2 minutes of dollars
+        { type: 'instant', value: gameState.totalPumps * 0.01 }, // 1% of total pumps
+      ];
+      
+      const bonus = bonuses[Math.floor(Math.random() * bonuses.length)];
+      
+      if (bonus.type === 'pumps') {
+        const gain = gameState.pumpsPerSecond * bonus.mult;
+        gameState.totalPumps += gain;
+        gameState.lifetimePumps += gain;
+        showNotification('🩲', `GOLDEN PANTS! +${formatNumber(gain)} pumps!`);
+      } else if (bonus.type === 'dollars') {
+        const gain = gameState.dollarsPerSecond * bonus.mult;
+        gameState.dollars += gain;
+        showNotification('🩲', `GOLDEN PANTS! +${formatNumber(gain)} BB$!`);
+      } else {
+        gameState.totalPumps += bonus.value;
+        gameState.lifetimePumps += bonus.value;
+        showNotification('🩲', `GOLDEN PANTS! +${formatNumber(bonus.value)} pumps!`);
+      }
+      
+      if (typeof soundManager !== 'undefined') soundManager.play('money');
+      checkAchievements();
+      updateDisplays();
+      saveGame();
+    }
+    
+    // =====================
+    // PRESTIGE SYSTEM
+    // =====================
+    function calculatePrestigeGain() {
+      if (gameState.totalPumps < 1000000000) return 0;
+      return Math.floor(Math.sqrt(gameState.totalPumps / 1000000000));
+    }
+    
+    function showPrestigePanel() {
+      const tab = document.querySelector('[data-panel="prestige"]');
+      tab.click();
+    }
+    
+    function performPrestige() {
+      const gain = calculatePrestigeGain();
+      if (gain < 1) {
+        showNotification('❌', 'Need 1 BILLION pumps to ascend!');
+        return;
+      }
+      
+      // Show ascension animation
+      const overlay = document.getElementById('ascensionOverlay');
+      overlay.classList.add('active');
+      
+      setTimeout(() => {
+        // Grant prestige points
+        gameState.prestigePoints += gain;
+        gameState.totalAscensions++;
+        
+        // Reset progress but keep prestige stuff
+        gameState.totalPumps = 0;
+        gameState.dollars = gameState.prestigeUpgrades['pDollar1'] ? 10000 : 0;
+        if (gameState.prestigeUpgrades['pDollar2']) gameState.dollars = 1000000;
+        if (gameState.prestigeUpgrades['pDollar3']) gameState.dollars = 1000000000;
+        
+        gameState.upgrades = {};
+        gameState.claimedMilestones = [];
+        
+        recalculateStats();
+        updatePrestigeDisplay();
+        renderUpgrades();
+        renderMilestones();
+        saveGame();
+        
+        overlay.classList.remove('active');
+        showNotification('⭐', `ASCENDED! +${gain} Stars!<br>Total: ${gameState.prestigePoints} ⭐`, true);
+      }, 2500);
+    }
+    
+    function buyPrestigeUpgrade(id) {
+      const upgrade = prestigeUpgrades.find(p => p.id === id);
+      if (!upgrade || gameState.prestigeUpgrades[id]) return;
+      
+      if (gameState.prestigePoints < upgrade.cost) {
+        showNotification('❌', 'Not enough stars!');
+        return;
+      }
+      
+      gameState.prestigePoints -= upgrade.cost;
+      gameState.prestigeUpgrades[id] = true;
+      
+      recalculateStats();
+      updatePrestigeDisplay();
+      renderPrestigeUpgrades();
+      saveGame();
+      
+      showNotification('⭐', `Unlocked ${upgrade.name}!`, true);
+    }
+    
+    function renderPrestigeUpgrades() {
+      const list = document.getElementById('prestigeUpgradesList');
+      list.innerHTML = prestigeUpgrades.map(p => {
+        const owned = gameState.prestigeUpgrades[p.id];
+        const canAfford = gameState.prestigePoints >= p.cost;
+        return `
+          <div class="prestige-upgrade ${owned ? 'owned' : ''} ${!owned && !canAfford ? 'locked' : ''}" 
+               onclick="${owned ? '' : `buyPrestigeUpgrade('${p.id}')`}">
+            <span style="font-size: 24px;">${p.icon}</span>
+            <div class="name">${p.name}</div>
+            <div class="desc">${p.desc}</div>
+            ${owned ? '<div class="cost" style="color: #4CAF50;">✅ OWNED</div>' : `<div class="cost">⭐ ${p.cost} Stars</div>`}
+          </div>
+        `;
+      }).join('');
+      
+      // Update prestige panel info
+      document.getElementById('prestigeGain').textContent = calculatePrestigeGain();
+      document.getElementById('currentPrestigeMultiplier').textContent = getPrestigeMultiplier().toFixed(1);
+      document.getElementById('doPrestige').disabled = calculatePrestigeGain() < 1;
     }
     
     // =====================
@@ -1235,34 +1881,38 @@
       gameState.dollars -= cost;
       gameState.upgrades[upgrade.id] = (gameState.upgrades[upgrade.id] || 0) + 1;
       
-      // Play money sound for purchases
-      soundManager.play('money');
+      if (typeof soundManager !== 'undefined') soundManager.play('money');
       
       recalculateStats();
       renderUpgrades();
       checkAchievements();
       saveGame();
       
-      // Visual feedback
       showNotification(upgrade.icon, `Bought ${upgrade.name}!`);
     }
     
     function renderUpgrades() {
       const list = document.getElementById('upgradesList');
       const categories = {
-        click: { name: '⚡ Click Power', items: [] },
-        auto: { name: '🤖 Auto Pumpers', items: [] },
-        passive: { name: '💰 Passive Income', items: [] },
-        rate: { name: '📈 Dollar Rate', items: [] }
+        click: { name: '⚡ Click Power', items: [], class: '' },
+        auto: { name: '🤖 Auto Pumpers', items: [], class: '' },
+        passive: { name: '💰 Passive Income', items: [], class: '' },
+        rate: { name: '📈 Dollar Rate', items: [], class: '' },
+        legendary: { name: '🏆 LEGENDARY', items: [], class: 'legendary' },
+        cosmic: { name: '🌌 COSMIC', items: [], class: 'cosmic' },
+        interdimensional: { name: '🔮 INTERDIMENSIONAL', items: [], class: 'interdimensional' },
+        ascended: { name: '👼 ASCENDED', items: [], class: 'ascended' },
+        omega: { name: '♾️ OMEGA', items: [], class: 'ascended' },
       };
       
       upgrades.forEach(u => {
         const cost = getUpgradeCost(u);
         const owned = gameState.upgrades[u.id] || 0;
         const canAfford = gameState.dollars >= cost;
+        const tierClass = u.tier || '';
         
         categories[u.category].items.push(`
-          <div class="upgrade-item ${canAfford ? '' : 'locked'}" onclick="buyUpgrade('${u.id}')">
+          <div class="upgrade-item ${canAfford ? '' : 'locked'} ${tierClass}" onclick="buyUpgrade('${u.id}')">
             <span class="icon">${u.icon}</span>
             ${owned > 0 ? `<span class="owned">x${owned}</span>` : ''}
             <div class="name">${u.name}</div>
@@ -1272,16 +1922,17 @@
         `);
       });
       
-      list.innerHTML = Object.values(categories).map(cat => `
-        <div class="upgrade-category">${cat.name}</div>
-        ${cat.items.join('')}
-      `).join('');
+      list.innerHTML = Object.entries(categories)
+        .filter(([key, cat]) => cat.items.length > 0)
+        .map(([key, cat]) => `
+          <div class="upgrade-category ${cat.class}">${cat.name}</div>
+          ${cat.items.join('')}
+        `).join('');
       
-      // Update shop stats
       document.getElementById('shopDollars').textContent = formatNumber(Math.floor(gameState.dollars));
-      document.getElementById('shopPerClick').textContent = gameState.pumpsPerClick;
-      document.getElementById('shopPumpsPerSec').textContent = gameState.pumpsPerSecond;
-      document.getElementById('shopDollarsPerSec').textContent = gameState.dollarsPerSecond.toFixed(1);
+      document.getElementById('shopPerClick').textContent = formatNumber(gameState.pumpsPerClick);
+      document.getElementById('shopPumpsPerSec').textContent = formatNumber(gameState.pumpsPerSecond);
+      document.getElementById('shopDollarsPerSec').textContent = formatNumber(gameState.dollarsPerSecond);
     }
     
     // =====================
@@ -1296,6 +1947,8 @@
         if (a.type === 'combo' && gameState.maxCombo >= a.req) unlocked = true;
         if (a.type === 'dollars' && gameState.dollars >= a.req) unlocked = true;
         if (a.type === 'strokes' && gameState.strokeModeActivations >= a.req) unlocked = true;
+        if (a.type === 'ascensions' && gameState.totalAscensions >= a.req) unlocked = true;
+        if (a.type === 'golden' && gameState.goldenPantsCaught >= a.req) unlocked = true;
         if (a.type === 'special' && a.id === 'allUpgrades') {
           const uniqueUpgrades = upgrades.filter(u => gameState.upgrades[u.id] > 0).length;
           if (uniqueUpgrades >= upgrades.length) unlocked = true;
@@ -1347,8 +2000,9 @@
       list.innerHTML = milestones.map(m => {
         const claimed = gameState.claimedMilestones.includes(m.id);
         const progress = Math.min(100, (gameState.totalPumps / m.pumps) * 100);
+        const tierClass = m.tier || '';
         return `
-          <div class="milestone ${claimed ? 'claimed' : ''}">
+          <div class="milestone ${claimed ? 'claimed' : ''} ${tierClass}">
             <span class="milestone-icon">${m.icon}</span>
             <div class="milestone-info">
               <h4>${m.name}</h4>
@@ -1359,6 +2013,9 @@
           </div>
         `;
       }).join('');
+      
+      document.getElementById('infoMilestones').textContent = gameState.claimedMilestones.length;
+      document.getElementById('infoMilestonesTotal').textContent = milestones.length;
     }
     
     // =====================
@@ -1368,20 +2025,20 @@
       if (e.target.closest('.mega-sidebar') || 
           e.target.closest('.mega-sidebar-tabs') ||
           e.target.closest('.back-btn') ||
-          e.target.closest('.music-toggle')) return;
+          e.target.closest('.music-toggle') ||
+          e.target.closest('.ascend-btn') ||
+          e.target.closest('.golden-pants') ||
+          e.target.closest('.leaderboard-btn')) return;
       
-      // Add pumps
       gameState.totalPumps += gameState.pumpsPerClick;
+      gameState.lifetimePumps += gameState.pumpsPerClick;
       
-      // Earn dollars based on pumps
       const dollarsEarned = gameState.pumpsPerClick * gameState.dollarsPerPump;
       gameState.dollars += dollarsEarned;
       
-      // Combo
       gameState.combo++;
       if (gameState.combo > gameState.maxCombo) gameState.maxCombo = gameState.combo;
       
-      // Visual scale
       pumpScale = Math.min(pumpScale + 0.05, 2.5);
       spinner.style.setProperty('--pump-scale', pumpScale);
       
@@ -1392,14 +2049,13 @@
       updateCombo();
       createParticle(e.clientX, e.clientY);
       
-      // Show dollar float
       if (dollarsEarned >= 0.5) {
         createDollarFloat(e.clientX, e.clientY, dollarsEarned);
       }
       
-      // Flash text
       if (gameState.totalPumps % 25 === 0) {
-        const phrases = ["PUMP IT! 🩲", "LET'S GO! 🚀", "BULLISH! 📈", "WAGMI! 💎", "MY LEG! 🦵", "I'M READY! 🧽"];
+        const phrases = ["PUMP IT! 🩲", "LET'S GO! 🚀", "BULLISH! 📈", "WAGMI! 💎", "MY LEG! 🦵", "I'M READY! 🧽", 
+                        "TO THE MOON! 🌙", "GOOFY GOOBER! 🎸", "FEELING IT! 🦀", "OH YEAH! ⭐"];
         flashEl.textContent = phrases[Math.floor(Math.random() * phrases.length)];
         flashEl.classList.add('visible');
         setTimeout(() => flashEl.classList.remove('visible'), 500);
@@ -1410,7 +2066,6 @@
       checkMilestones();
       renderUpgrades();
       
-      // Reset shrink
       clearTimeout(shrinkTimeout);
       shrinkTimeout = setTimeout(() => {
         pumpScale = 1;
@@ -1432,6 +2087,10 @@
       const mult = 1 + Math.floor(gameState.combo / 10) * 0.5;
       multiplierEl.textContent = `${mult}x Multiplier`;
       
+      if (gameState.prestigePoints > 0) {
+        multiplierEl.classList.add('boosted');
+      }
+      
       if (gameState.combo >= 50 && !strokeMode) {
         activateStrokeMode();
       }
@@ -1442,13 +2101,14 @@
         comboDisplay.classList.remove('stroke-active');
       }
       
+      const comboTime = 1500 + (gameState.prestigeUpgrades['pCombo'] ? 1000 : 0);
       clearTimeout(comboTimeout);
       comboTimeout = setTimeout(() => {
         gameState.combo = 0;
         comboDisplay.classList.remove('visible', 'stroke-active');
         multiplierEl.textContent = '1x Multiplier';
         if (strokeMode) deactivateStrokeMode();
-      }, 1500);
+      }, comboTime);
     }
     
     function activateStrokeMode() {
@@ -1459,8 +2119,7 @@
       colorFlash.classList.add('active');
       document.body.classList.add('shake');
       
-      // Play "Are you feeling it now Mr. Krabs" sound
-      soundManager.play('feelit');
+      if (typeof soundManager !== 'undefined') soundManager.play('feelit');
       
       triggerFeelingIt();
       
@@ -1479,14 +2138,13 @@
       document.body.classList.remove('shake');
       if (strokeParticleInterval) clearInterval(strokeParticleInterval);
       
-      // Play "Oh yeah" sound when stroke mode ends
-      soundManager.play('ohyeah');
+      if (typeof soundManager !== 'undefined') soundManager.play('ohyeah');
     }
     
     // =====================
     // PARTICLES
     // =====================
-    const particleEmojis = ['💰', '🩲', '💵', '⭐', '🔥', '💎', '🚀', '🍍'];
+    const particleEmojis = ['💰', '🩲', '💵', '⭐', '🔥', '💎', '🚀', '🍍', '✨', '🌟'];
     
     function createParticle(x, y) {
       const particle = document.createElement('div');
@@ -1503,7 +2161,7 @@
     function createDollarFloat(x, y, amount) {
       const float = document.createElement('div');
       float.className = 'dollar-float';
-      float.textContent = `+${amount.toFixed(1)} BB$`;
+      float.textContent = `+${formatNumber(amount)} BB$`;
       float.style.left = x + 'px';
       float.style.top = y + 'px';
       document.body.appendChild(float);
@@ -1554,7 +2212,8 @@
       info: '📊 INFO',
       shop: '🛒 KRUSTY SHOP',
       milestones: '🎯 MILESTONES',
-      achievements: '🏆 ACHIEVEMENTS'
+      achievements: '🏆 ACHIEVEMENTS',
+      prestige: '⭐ ASCENSION'
     };
     
     megaTabs.forEach(tab => {
@@ -1569,6 +2228,7 @@
         
         if (panel === 'info') updateInfoPanel();
         if (panel === 'milestones') renderMilestones();
+        if (panel === 'prestige') renderPrestigeUpgrades();
       });
     });
     
@@ -1580,9 +2240,10 @@
     function updateInfoPanel() {
       document.getElementById('infoTotalPumps').textContent = formatNumber(gameState.totalPumps);
       document.getElementById('infoDollars').textContent = formatNumber(Math.floor(gameState.dollars));
-      document.getElementById('infoPerClick').textContent = gameState.pumpsPerClick;
-      document.getElementById('infoPumpsPerSec').textContent = gameState.pumpsPerSecond;
-      document.getElementById('infoDollarsPerSec').textContent = gameState.dollarsPerSecond.toFixed(1);
+      document.getElementById('infoPerClick').textContent = formatNumber(gameState.pumpsPerClick);
+      document.getElementById('infoPumpsPerSec').textContent = formatNumber(gameState.pumpsPerSecond);
+      document.getElementById('infoDollarsPerSec').textContent = formatNumber(gameState.dollarsPerSecond);
+      document.getElementById('infoAscensions').textContent = gameState.totalAscensions;
     }
     
     // =====================
@@ -1591,6 +2252,7 @@
     setInterval(() => {
       if (gameState.pumpsPerSecond > 0) {
         gameState.totalPumps += gameState.pumpsPerSecond;
+        gameState.lifetimePumps += gameState.pumpsPerSecond;
         gameState.dollars += gameState.pumpsPerSecond * gameState.dollarsPerPump;
       }
       if (gameState.dollarsPerSecond > 0) {
@@ -1600,9 +2262,9 @@
       checkAchievements();
       checkMilestones();
       renderUpgrades();
+      spawnGoldenPants();
     }, 1000);
     
-    // Save every 30 seconds
     setInterval(saveGame, 30000);
     
     // =====================
@@ -1636,27 +2298,21 @@
       
       bgMusic.play().then(() => {
         musicStarted = true;
-        console.log('🎵 Music playing!');
         document.removeEventListener('click', startMusic);
         document.removeEventListener('touchstart', startMusic);
       }).catch(err => {
-        console.log('Music play failed, will retry on next click');
+        console.log('Music play failed, will retry');
       });
     }
     
-    // Try to start immediately (will likely fail)
     startMusic();
-    
-    // Also try on first user interaction
     document.addEventListener('click', startMusic);
     document.addEventListener('touchstart', startMusic);
     
     function toggleMusic() {
       const btn = document.getElementById('musicToggle');
       if (bgMusic.paused) {
-        bgMusic.play().then(() => {
-          musicStarted = true;
-        });
+        bgMusic.play().then(() => { musicStarted = true; });
         btn.textContent = '🎵';
         btn.classList.remove('muted');
       } else {
@@ -1673,9 +2329,10 @@
     renderUpgrades();
     renderAchievements();
     renderMilestones();
+    renderPrestigeUpgrades();
     updateDisplays();
+    updatePrestigeDisplay();
     
-    // Save on page unload
     window.addEventListener('beforeunload', saveGame);
   </script>
 </body>
