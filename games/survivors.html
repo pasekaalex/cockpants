@@ -77,12 +77,12 @@
     const ENEMY_SPEED_MULT = 0.6;
 
     const WEAPONS = {
-      spatula: { damage: 12, cooldown: 700, speed: 9, color: '#FFD700', name: 'Krusty Spatula', emoji: '🍳', pierce: 1 },
-      bubble: { damage: 6, cooldown: 300, speed: 7, color: '#87CEEB', name: 'Bubble Wand', emoji: '🫧', pierce: 2 },
-      clarinet: { damage: 30, cooldown: 1400, speed: 12, color: '#8B4513', name: 'Clarinet Blast', emoji: '🎵', pierce: 3 },
-      jellyNet: { damage: 18, cooldown: 550, speed: 8, color: '#FF69B4', name: 'Jellyfish Net', emoji: '🪼', pierce: 1 },
-      karate: { damage: 45, cooldown: 1800, speed: 14, color: '#FF4500', name: 'Karate Chop', emoji: '🥋', pierce: 5 },
-      pattyBlast: { damage: 22, cooldown: 900, speed: 10, color: '#CD853F', name: 'Krabby Patty', emoji: '🍔', pierce: 2 },
+      spatula: { damage: 25, cooldown: 600, speed: 9, color: '#FFD700', name: 'Krusty Spatula', emoji: '🍳', pierce: 1 },
+      bubble: { damage: 15, cooldown: 250, speed: 7, color: '#87CEEB', name: 'Bubble Wand', emoji: '🫧', pierce: 2 },
+      clarinet: { damage: 50, cooldown: 1200, speed: 12, color: '#8B4513', name: 'Clarinet Blast', emoji: '🎵', pierce: 3 },
+      jellyNet: { damage: 30, cooldown: 450, speed: 8, color: '#FF69B4', name: 'Jellyfish Net', emoji: '🪼', pierce: 1 },
+      karate: { damage: 70, cooldown: 1500, speed: 14, color: '#FF4500', name: 'Karate Chop', emoji: '🥋', pierce: 5 },
+      pattyBlast: { damage: 40, cooldown: 750, speed: 10, color: '#CD853F', name: 'Krabby Patty', emoji: '🍔', pierce: 2 },
     };
 
     const ENEMIES = {
@@ -111,7 +111,7 @@
       const [score, setScore] = useState(0);
       const [level, setLevel] = useState(1);
       const [xp, setXp] = useState(0);
-      const [xpToLevel, setXpToLevel] = useState(25);
+      const [xpToLevel, setXpToLevel] = useState(15);
       const [time, setTime] = useState(0);
       const [kills, setKills] = useState(0);
       const [showUpgrade, setShowUpgrade] = useState(false);
@@ -182,7 +182,7 @@
         setScore(0);
         setLevel(1);
         setXp(0);
-        setXpToLevel(25);
+        setXpToLevel(15);
         setTime(0);
         setKills(0);
         setCombo(0);
@@ -284,9 +284,11 @@
 
         let animationId;
         let lastFrameTime = performance.now();
-        const FIXED_DELTA = 1.0; // ALWAYS use 1.0 - game speed NEVER changes
+        const TARGET_FPS = 60;
+        const FRAME_TIME = 1000 / TARGET_FPS; // ~16.67ms per frame
         let spawnTimer = 0;
         let timeTimer = 0;
+        let accumulatedTime = 0;
 
         const spawnEnemy = () => {
           const game = gameRef.current;
@@ -361,9 +363,12 @@
         const gameLoop = (currentTime) => {
           if (gameOverRef.current) return;
           
-          // FIXED TIMESTEP - Always use 1.0, never calculate from frame time
-          // This ensures game speed NEVER changes, no matter what
-          const delta = FIXED_DELTA;
+          // Fixed timestep - always use 1.0 delta per frame
+          // This ensures game speed NEVER changes
+          const delta = 1.0;
+          
+          // Only update lastFrameTime for reference, but don't use it for calculations
+          lastFrameTime = currentTime || performance.now();
           
           const game = gameRef.current;
           const keys = game.keys;
@@ -391,12 +396,12 @@
           game.camera.x = game.player.x - GAME_WIDTH / 2;
           game.camera.y = game.player.y - GAME_HEIGHT / 2;
           
-          // Spawn enemies
+          // Spawn enemies - REDUCED spawn rate
           spawnTimer += delta;
-          const spawnRate = Math.max(30, 60 - time * 0.3);
+          const spawnRate = Math.max(50, 80 - time * 0.2); // Slower spawn rate
           if (spawnTimer > spawnRate) {
             spawnTimer = 0;
-            const count = Math.min(1 + Math.floor(time / 25), 4);
+            const count = Math.min(1 + Math.floor(time / 40), 3); // Fewer enemies at once
             for (let i = 0; i < count; i++) spawnEnemy();
           }
           
@@ -488,7 +493,7 @@
                 const newXp = prev + orb.xp;
                 if (newXp >= xpToLevel) {
                   setLevel(l => l + 1);
-                  setXpToLevel(x => Math.floor(x * 1.4));
+                  setXpToLevel(x => Math.floor(x * 1.25)); // Slower XP growth
                   setShowUpgrade(true);
                   generateUpgrades();
                   return 0;
@@ -561,33 +566,201 @@
             ctx.fillText(WEAPONS[chest.weapon]?.emoji || '📦', sx, sy - 15);
           });
           
-          // Enemies
-          game.enemies.forEach(e => {
-            const sx = e.x - game.camera.x, sy = e.y - game.camera.y;
-            if (sx < -100 || sx > GAME_WIDTH + 100 || sy < -100 || sy > GAME_HEIGHT + 100) return;
-            
+          // Draw Enemies with Art
+          const drawEnemy = (ctx, e, sx, sy) => {
             const size = ENEMY_SIZE * (e.scale || 1);
-            ctx.fillStyle = e.hit > 0 ? '#FFF' : e.color;
-            if (e.isElite) { ctx.shadowColor = '#FFD700'; ctx.shadowBlur = 20; }
+            const hitFlash = e.hit > 0;
+            
+            ctx.save();
+            ctx.translate(sx, sy);
+            if (hitFlash) ctx.filter = 'brightness(2)';
+            
+            // Shadow
+            ctx.fillStyle = 'rgba(0,0,0,0.3)';
             ctx.beginPath();
-            ctx.arc(sx, sy, size / 2, 0, Math.PI * 2);
+            ctx.ellipse(0, size/2, size/2, size/4, 0, 0, Math.PI * 2);
             ctx.fill();
-            ctx.shadowBlur = 0;
+            
+            switch(e.type) {
+              case 'plankton':
+                // Green plankton body
+                ctx.fillStyle = '#228B22';
+                ctx.beginPath();
+                ctx.ellipse(0, 0, size/3, size/2, 0, 0, Math.PI * 2);
+                ctx.fill();
+                // Red eye
+                ctx.fillStyle = '#FF0000';
+                ctx.beginPath();
+                ctx.arc(0, -size/6, size/4, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = '#000';
+                ctx.beginPath();
+                ctx.arc(0, -size/6, size/8, 0, Math.PI * 2);
+                ctx.fill();
+                // Antennae
+                ctx.strokeStyle = '#228B22';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(-3, -size/2);
+                ctx.lineTo(-5, -size/2 - 8);
+                ctx.moveTo(3, -size/2);
+                ctx.lineTo(5, -size/2 - 8);
+                ctx.stroke();
+                break;
+                
+              case 'krabs':
+                // Red crab body
+                ctx.fillStyle = '#DC143C';
+                ctx.beginPath();
+                ctx.ellipse(0, 0, size/2, size/2.5, 0, 0, Math.PI * 2);
+                ctx.fill();
+                // Claws
+                ctx.fillStyle = '#DC143C';
+                ctx.beginPath();
+                ctx.ellipse(-size/2 - 8, 0, 10, 7, -0.3, 0, Math.PI * 2);
+                ctx.ellipse(size/2 + 8, 0, 10, 7, 0.3, 0, Math.PI * 2);
+                ctx.fill();
+                // Eyes
+                ctx.fillStyle = '#FFFF00';
+                ctx.beginPath();
+                ctx.arc(-10, -size/2 - 8, 5, 0, Math.PI * 2);
+                ctx.arc(10, -size/2 - 8, 5, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = '#000';
+                ctx.beginPath();
+                ctx.arc(-10, -size/2 - 8, 2, 0, Math.PI * 2);
+                ctx.arc(10, -size/2 - 8, 2, 0, Math.PI * 2);
+                ctx.fill();
+                break;
+                
+              case 'squidward':
+                // Teal squidward head
+                ctx.fillStyle = '#40E0D0';
+                ctx.beginPath();
+                ctx.ellipse(0, -size/4, size/3, size/2, 0, 0, Math.PI * 2);
+                ctx.fill();
+                // Body
+                ctx.fillStyle = '#2F9F9F';
+                ctx.beginPath();
+                ctx.ellipse(0, size/6, size/5, size/3, 0, 0, Math.PI * 2);
+                ctx.fill();
+                // Nose
+                ctx.fillStyle = '#FFFF00';
+                ctx.fillRect(-12, -size/2, 8, 6);
+                ctx.fillRect(4, -size/2, 8, 6);
+                ctx.fillStyle = '#000';
+                ctx.fillRect(-10, -size/2 + 2, 4, 4);
+                ctx.fillRect(6, -size/2 + 2, 4, 4);
+                // Mouth
+                ctx.strokeStyle = '#000';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(0, size/4, 6, 1.1 * Math.PI, 1.9 * Math.PI);
+                ctx.stroke();
+                break;
+                
+              case 'patrick':
+                // Pink starfish
+                ctx.fillStyle = '#FFB6C1';
+                const points = 5;
+                ctx.beginPath();
+                for (let i = 0; i < points * 2; i++) {
+                  const radius = i % 2 === 0 ? size/1.8 : size/3.5;
+                  const angle = (i * Math.PI / points) - Math.PI / 2;
+                  const px = Math.cos(angle) * radius;
+                  const py = Math.sin(angle) * radius;
+                  if (i === 0) ctx.moveTo(px, py);
+                  else ctx.lineTo(px, py);
+                }
+                ctx.closePath();
+                ctx.fill();
+                // Belly
+                ctx.fillStyle = '#32CD32';
+                ctx.beginPath();
+                ctx.ellipse(0, size/4, size/3, size/5, 0, 0, Math.PI);
+                ctx.fill();
+                // Eyes
+                ctx.fillStyle = '#FFF';
+                ctx.beginPath();
+                ctx.arc(-6, -size/6, 5, 0, Math.PI * 2);
+                ctx.arc(6, -size/6, 5, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = '#000';
+                ctx.beginPath();
+                ctx.arc(-6, -size/6, 2, 0, Math.PI * 2);
+                ctx.arc(6, -size/6, 2, 0, Math.PI * 2);
+                ctx.fill();
+                // Mouth
+                ctx.strokeStyle = '#000';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(0, size/8, 8, 0, Math.PI);
+                ctx.stroke();
+                break;
+                
+              case 'sandy':
+                // Tan squirrel
+                ctx.fillStyle = '#DEB887';
+                ctx.beginPath();
+                ctx.arc(0, 0, size/2.5, 0, Math.PI * 2);
+                ctx.fill();
+                // Goggles
+                ctx.strokeStyle = 'rgba(255,255,255,0.6)';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.arc(0, 0, size/2, 0, Math.PI * 2);
+                ctx.stroke();
+                // Eyes
+                ctx.fillStyle = '#000';
+                ctx.beginPath();
+                ctx.arc(-5, -3, 3, 0, Math.PI * 2);
+                ctx.arc(5, -3, 3, 0, Math.PI * 2);
+                ctx.fill();
+                // Cheeks
+                ctx.fillStyle = '#FF9999';
+                ctx.beginPath();
+                ctx.arc(-10, 3, 4, 0, Math.PI * 2);
+                ctx.arc(10, 3, 4, 0, Math.PI * 2);
+                ctx.fill();
+                break;
+                
+              default:
+                // Generic enemy
+                ctx.fillStyle = e.color;
+                ctx.beginPath();
+                ctx.arc(0, 0, size/2, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            
+            ctx.filter = 'none';
+            ctx.restore();
             
             // HP bar
             if (e.type !== 'plankton') {
               const barW = size * 1.2;
               ctx.fillStyle = 'rgba(0,0,0,0.7)';
-              ctx.fillRect(sx - barW/2, sy - size/2 - 10, barW, 5);
+              ctx.fillRect(sx - barW/2, sy - size/2 - 12, barW, 6);
               ctx.fillStyle = e.hp / e.maxHp > 0.5 ? '#0F0' : e.hp / e.maxHp > 0.25 ? '#FF0' : '#F00';
-              ctx.fillRect(sx - barW/2 + 1, sy - size/2 - 9, (barW - 2) * (e.hp / e.maxHp), 3);
+              ctx.fillRect(sx - barW/2 + 1, sy - size/2 - 11, (barW - 2) * (e.hp / e.maxHp), 4);
             }
             
             // Elite crown
             if (e.isElite) {
-              ctx.font = '14px Arial';
+              ctx.font = '16px Arial';
               ctx.textAlign = 'center';
-              ctx.fillText('👑', sx, sy - size/2 - 15);
+              ctx.fillText('👑', sx, sy - size/2 - 18);
+            }
+          };
+          
+          game.enemies.forEach(e => {
+            const sx = e.x - game.camera.x, sy = e.y - game.camera.y;
+            if (sx > -100 && sx < GAME_WIDTH + 100 && sy > -100 && sy < GAME_HEIGHT + 100) {
+              if (e.isElite) {
+                ctx.shadowColor = '#FFD700';
+                ctx.shadowBlur = 20;
+              }
+              drawEnemy(ctx, e, sx, sy);
+              ctx.shadowBlur = 0;
             }
           });
           
