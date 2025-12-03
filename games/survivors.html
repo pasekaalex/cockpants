@@ -283,6 +283,8 @@
         if (!ctx) return;
 
         let animationId;
+        let lastFrameTime = performance.now();
+        const FIXED_DELTA = 1.0; // ALWAYS use 1.0 - game speed NEVER changes
         let spawnTimer = 0;
         let timeTimer = 0;
 
@@ -356,8 +358,12 @@
           });
         };
 
-        const gameLoop = () => {
+        const gameLoop = (currentTime) => {
           if (gameOverRef.current) return;
+          
+          // FIXED TIMESTEP - Always use 1.0, never calculate from frame time
+          // This ensures game speed NEVER changes, no matter what
+          const delta = FIXED_DELTA;
           
           const game = gameRef.current;
           const keys = game.keys;
@@ -377,8 +383,8 @@
           if (dx !== 0 || dy !== 0) {
             const len = Math.hypot(dx, dy);
             const speed = BASE_PLAYER_SPEED * (playerStats.speedBonus || 1);
-            game.player.x += (dx / len) * speed;
-            game.player.y += (dy / len) * speed;
+            game.player.x += (dx / len) * speed * delta;
+            game.player.y += (dy / len) * speed * delta;
             game.player.facing = dx !== 0 ? Math.sign(dx) : game.player.facing;
           }
           
@@ -386,7 +392,7 @@
           game.camera.y = game.player.y - GAME_HEIGHT / 2;
           
           // Spawn enemies
-          spawnTimer++;
+          spawnTimer += delta;
           const spawnRate = Math.max(30, 60 - time * 0.3);
           if (spawnTimer > spawnRate) {
             spawnTimer = 0;
@@ -395,7 +401,7 @@
           }
           
           // Time
-          timeTimer++;
+          timeTimer += delta;
           if (timeTimer > 60) { timeTimer = 0; setTime(t => t + 1); }
           
           // Shoot
@@ -403,18 +409,18 @@
           
           // Update projectiles
           game.projectiles = game.projectiles.filter(p => {
-            p.x += p.vx;
-            p.y += p.vy;
-            p.life--;
+            p.x += p.vx * delta;
+            p.y += p.vy * delta;
+            p.life -= delta;
             return p.life > 0 && p.pierce > 0;
           });
           
           // Update enemies
           game.enemies.forEach(e => {
             const angle = Math.atan2(game.player.y - e.y, game.player.x - e.x);
-            e.x += Math.cos(angle) * e.speed * ENEMY_SPEED_MULT;
-            e.y += Math.sin(angle) * e.speed * ENEMY_SPEED_MULT;
-            if (e.hit > 0) e.hit--;
+            e.x += Math.cos(angle) * e.speed * ENEMY_SPEED_MULT * delta;
+            e.y += Math.sin(angle) * e.speed * ENEMY_SPEED_MULT * delta;
+            if (e.hit > 0) e.hit -= delta;
           });
           
           // Projectile-enemy collision
@@ -430,7 +436,7 @@
                 p.pierce--;
                 p.hit.push(e);
                 
-                game.damageNumbers.push({ x: e.x, y: e.y - 20, damage: Math.floor(dmg), life: 40, vy: -2, crit });
+                game.damageNumbers.push({ x: e.x, y: e.y - 20, damage: Math.floor(dmg), life: 40, vy: -2 * delta, crit });
                 
                 if (e.hp <= 0) {
                   // Drop XP
@@ -456,7 +462,7 @@
             if (gameOverRef.current) return;
             const dist = Math.hypot(game.player.x - e.x, game.player.y - e.y);
             if (dist < (PLAYER_SIZE + ENEMY_SIZE * (e.scale || 1)) / 2) {
-              const dmg = Math.max(0.5, 1 - playerStats.armor * 0.05);
+              const dmg = Math.max(0.5, 1 - playerStats.armor * 0.05) * delta;
               setPlayerStats(prev => {
                 const newHp = prev.hp - dmg;
                 if (newHp <= 0 && !gameOverRef.current) {
@@ -474,8 +480,8 @@
             const dist = Math.hypot(game.player.x - orb.x, game.player.y - orb.y);
             if (dist < playerStats.pickupRange) {
               const angle = Math.atan2(game.player.y - orb.y, game.player.x - orb.x);
-              orb.x += Math.cos(angle) * 8;
-              orb.y += Math.sin(angle) * 8;
+              orb.x += Math.cos(angle) * 8 * delta;
+              orb.y += Math.sin(angle) * 8 * delta;
             }
             if (dist < 25) {
               setXp(prev => {
@@ -507,8 +513,8 @@
           
           // Update damage numbers
           game.damageNumbers = game.damageNumbers.filter(d => {
-            d.y += d.vy;
-            d.life--;
+            d.y += d.vy * delta;
+            d.life -= delta;
             return d.life > 0;
           });
           
@@ -690,7 +696,7 @@
 
       // PLAYING
       return (
-        <div className="relative flex items-center justify-center h-screen" style={{ background: '#000' }}>
+        <div className="flex flex-col items-center h-screen" style={{ background: '#000', padding: '10px' }}>
           {/* Mobile Joystick */}
           <div className={`mobile-joystick ${gameState === 'playing' ? 'visible' : ''}`}>
             <div className="joystick-base" id="joystickBase">
@@ -698,46 +704,56 @@
             </div>
           </div>
           
-          {/* UI - Top Left */}
-          <div className="absolute top-2 left-2 z-10">
-            <div className="text-xl font-bold" style={{ color: '#FFD700' }}>$COCKPANTS</div>
-            <div className="text-white text-sm">Score: <span className="text-yellow-400">{score.toLocaleString()}</span></div>
-            <div className="text-white/70 text-xs">⏱️ {formatTime(time)} | 💀 {kills}</div>
-          </div>
-          
-          {/* UI - Top Right */}
-          <div className="absolute top-2 right-2 z-10 text-right">
-            <div className="text-green-400 font-bold">Level {level}</div>
-            <div className="w-28 h-3 bg-black/70 rounded-full border border-green-500/50 overflow-hidden">
-              <div className="h-full bg-green-500" style={{ width: `${(xp / xpToLevel) * 100}%` }} />
-            </div>
-            <div className="text-xs text-green-300/70">{xp}/{xpToLevel} XP</div>
-          </div>
-          
-          {/* UI - Bottom Left - HP */}
-          <div className="absolute bottom-2 left-2 z-10">
-            <div className="text-red-400 text-xs font-bold">❤️ {Math.floor(playerStats.hp)}/{playerStats.maxHp}</div>
-            <div className="w-48 h-5 bg-black/70 rounded-full border border-red-500/50 overflow-hidden">
-              <div className="h-full transition-all" style={{ 
-                width: `${(playerStats.hp / playerStats.maxHp) * 100}%`,
-                background: playerStats.hp / playerStats.maxHp > 0.5 ? '#22c55e' : playerStats.hp / playerStats.maxHp > 0.25 ? '#eab308' : '#dc2626'
-              }} />
-            </div>
-          </div>
-          
-          {/* UI - Bottom Right - Weapons */}
-          <div className="absolute bottom-2 right-2 z-10">
-            <div className="flex gap-1">
-              {weapons.map((w, i) => (
-                <div key={i} className="w-10 h-10 rounded-lg flex flex-col items-center justify-center text-lg" style={{ background: 'rgba(0,0,0,0.7)', border: `2px solid ${w.color}` }}>
-                  {w.emoji}
-                  <span className="text-[8px] text-white/70">Lv.{w.level}</span>
+          {/* UI Bar Above Game */}
+          <div className="w-full max-w-4xl mb-2 flex justify-between items-center px-4 py-2 rounded-lg" style={{ background: 'rgba(0, 0, 0, 0.8)', border: '2px solid #FFD700' }}>
+            {/* Left Side - Score & Info */}
+            <div className="flex items-center gap-4">
+              <div>
+                <div className="text-lg font-bold" style={{ color: '#FFD700' }}>$COCKPANTS</div>
+                <div className="text-white text-sm">Score: <span className="text-yellow-400">{score.toLocaleString()}</span></div>
+                <div className="text-white/70 text-xs">⏱️ {formatTime(time)} | 💀 {kills}</div>
+              </div>
+              
+              {/* HP Bar */}
+              <div>
+                <div className="text-red-400 text-xs font-bold mb-1">❤️ {Math.floor(playerStats.hp)}/{playerStats.maxHp}</div>
+                <div className="w-40 h-4 bg-black/70 rounded-full border border-red-500/50 overflow-hidden">
+                  <div className="h-full transition-all" style={{ 
+                    width: `${(playerStats.hp / playerStats.maxHp) * 100}%`,
+                    background: playerStats.hp / playerStats.maxHp > 0.5 ? '#22c55e' : playerStats.hp / playerStats.maxHp > 0.25 ? '#eab308' : '#dc2626'
+                  }} />
                 </div>
-              ))}
+              </div>
+            </div>
+            
+            {/* Right Side - Level & Weapons */}
+            <div className="flex items-center gap-4">
+              {/* Level & XP */}
+              <div className="text-right">
+                <div className="text-green-400 font-bold">Level {level}</div>
+                <div className="w-32 h-3 bg-black/70 rounded-full border border-green-500/50 overflow-hidden">
+                  <div className="h-full bg-green-500" style={{ width: `${(xp / xpToLevel) * 100}%` }} />
+                </div>
+                <div className="text-xs text-green-300/70">{xp}/{xpToLevel} XP</div>
+              </div>
+              
+              {/* Weapons */}
+              <div>
+                <div className="text-xs text-gray-400 mb-1 text-center">WEAPONS</div>
+                <div className="flex gap-1">
+                  {weapons.map((w, i) => (
+                    <div key={i} className="w-10 h-10 rounded-lg flex flex-col items-center justify-center text-lg" style={{ background: 'rgba(0,0,0,0.7)', border: `2px solid ${w.color}` }}>
+                      {w.emoji}
+                      <span className="text-[8px] text-white/70">Lv.{w.level}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
           
-          <canvas ref={canvasRef} width={GAME_WIDTH} height={GAME_HEIGHT} className="rounded-lg" style={{ border: '3px solid #FFD700', maxWidth: '100vw', maxHeight: '100vh' }} />
+          {/* Game Canvas */}
+          <canvas ref={canvasRef} width={GAME_WIDTH} height={GAME_HEIGHT} className="rounded-lg" style={{ border: '3px solid #FFD700', maxWidth: '100vw', maxHeight: 'calc(100vh - 120px)' }} />
           
           {/* Upgrade Modal */}
           {showUpgrade && (
