@@ -283,12 +283,11 @@
         if (!ctx) return;
 
         let animationId;
-        let lastFrameTime = performance.now();
+        let lastUpdateTime = performance.now();
         const TARGET_FPS = 60;
         const FRAME_TIME = 1000 / TARGET_FPS; // ~16.67ms per frame
         let spawnTimer = 0;
         let timeTimer = 0;
-        let accumulatedTime = 0;
 
         const spawnEnemy = () => {
           const game = gameRef.current;
@@ -363,12 +362,34 @@
         const gameLoop = (currentTime) => {
           if (gameOverRef.current) return;
           
-          // Fixed timestep - always use 1.0 delta per frame
-          // This ensures game speed NEVER changes
-          const delta = 1.0;
+          if (!currentTime) currentTime = performance.now();
           
-          // Only update lastFrameTime for reference, but don't use it for calculations
-          lastFrameTime = currentTime || performance.now();
+          // FIXED TIMESTEP - Only update game logic at exactly 60fps
+          const elapsed = currentTime - lastUpdateTime;
+          
+          // Only update if enough time has passed (16.67ms for 60fps)
+          if (elapsed >= FRAME_TIME) {
+            // Cap to prevent huge jumps
+            const cappedElapsed = Math.min(elapsed, FRAME_TIME * 3); // Max 3 frames worth
+            const updateCount = Math.floor(cappedElapsed / FRAME_TIME);
+            
+            // Run game updates
+            for (let i = 0; i < updateCount; i++) {
+              updateGame(1.0); // Always use 1.0 delta
+            }
+            
+            lastUpdateTime = currentTime - (elapsed % FRAME_TIME);
+          }
+          
+          // Always render (smooth visuals)
+          renderGame();
+          
+          if (!gameOverRef.current) {
+            animationId = requestAnimationFrame(gameLoop);
+          }
+        };
+        
+        const updateGame = (delta) => {
           
           const game = gameRef.current;
           const keys = game.keys;
@@ -398,15 +419,15 @@
           
           // Spawn enemies
           spawnTimer += delta;
-          const spawnRate = Math.max(25, 45 - time * 0.15); // Reasonable spawn rate
+          const spawnRate = Math.max(25, 45 - time * 0.15);
           if (spawnTimer > spawnRate) {
             spawnTimer = 0;
             const count = Math.min(1 + Math.floor(time / 30), 3);
             for (let i = 0; i < count; i++) spawnEnemy();
           }
           
-          // Time - count frames, 60 frames = 1 second at 60fps
-          timeTimer += 1; // Count frames, not delta
+          // Time - count fixed updates, 60 updates = 1 second
+          timeTimer += delta;
           if (timeTimer >= 60) { 
             timeTimer = 0; 
             setTime(t => t + 1); 
@@ -525,6 +546,10 @@
             d.life -= delta;
             return d.life > 0;
           });
+        };
+        
+        const renderGame = () => {
+          const game = gameRef.current;
           
           // RENDER
           ctx.fillStyle = '#0a1628';
@@ -806,10 +831,6 @@
             ctx.fillText(d.damage, sx, sy);
           });
           ctx.globalAlpha = 1;
-          
-          if (!gameOverRef.current) {
-            animationId = requestAnimationFrame(gameLoop);
-          }
         };
         
         animationId = requestAnimationFrame(gameLoop);
