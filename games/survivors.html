@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>$COCKPANTS Survivors</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../leaderboard.js"></script>
@@ -11,13 +11,77 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     body { 
       background: #000; 
       overflow: hidden;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      touch-action: none;
+      user-select: none;
     }
     #root { width: 100vw; height: 100vh; }
+    
+    /* Mobile Touch Controls */
+    .mobile-joystick {
+      display: none;
+      position: fixed;
+      bottom: 100px;
+      left: 20px;
+      width: 120px;
+      height: 120px;
+      z-index: 1000;
+      touch-action: none;
+    }
+    
+    @media (max-width: 768px) {
+      .mobile-joystick.visible {
+        display: block;
+      }
+    }
+    
+    .joystick-base {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.5);
+      border: 3px solid rgba(255, 215, 0, 0.6);
+      position: relative;
+    }
+    
+    .joystick-stick {
+      position: absolute;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: rgba(255, 215, 0, 0.8);
+      border: 2px solid #FFD700;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      transition: transform 0.1s ease-out;
+      pointer-events: none;
+    }
+    
+    @media (max-width: 768px) {
+      /* Scale down UI elements on mobile */
+      .mobile-ui-scale {
+        transform: scale(0.85);
+        transform-origin: top left;
+      }
+      
+      /* Make buttons more touch-friendly */
+      button {
+        min-height: 44px;
+        min-width: 44px;
+      }
+      
+      /* Adjust canvas for mobile */
+      canvas {
+        width: 100vw !important;
+        height: auto !important;
+        max-height: 100vh;
+      }
+    }
   </style>
 </head>
 <body>
@@ -30,6 +94,7 @@
     const GAME_HEIGHT = 650;
     const PLAYER_SIZE = 44;
     const ENEMY_SIZE = 36;
+    const GAME_SPEED_MULTIPLIER = 0.65; // Global speed multiplier to slow down the game
 
     const WEAPONS = {
       spatula: { damage: 12, cooldown: 700, speed: 9, color: '#FFD700', name: 'Krusty Spatula', emoji: '🍳', pierce: 1 },
@@ -65,12 +130,14 @@
       const [showUpgrade, setShowUpgrade] = useState(false);
       const [upgradeOptions, setUpgradeOptions] = useState([]);
       const [weapons, setWeapons] = useState([{ ...WEAPONS.spatula, level: 1 }]);
-      const [stats, setStats] = useState({ speed: 3.2, maxHp: 100, hp: 100, pickupRange: 60, armor: 0 });
+      const [stats, setStats] = useState({ speed: 2.5, maxHp: 100, hp: 100, pickupRange: 60, armor: 0 });
       const [screenShake, setScreenShake] = useState(0);
       const [bossWarning, setBossWarning] = useState(false);
       const [combo, setCombo] = useState(0);
       const [comboTimer, setComboTimer] = useState(0);
       const [leaderboardShown, setLeaderboardShown] = useState(false);
+      const touchRef = useRef({ active: false, startX: 0, startY: 0, currentX: 0, currentY: 0 });
+      const joystickRef = useRef(null);
 
       const gameRef = useRef({
         player: { x: GAME_WIDTH / 2, y: GAME_HEIGHT / 2, facing: 1 },
@@ -197,8 +264,13 @@
         setKills(0);
         setCombo(0);
         setWeapons([{ ...WEAPONS.spatula, level: 1 }]);
-        setStats({ speed: 3.2, maxHp: 100, hp: 100, pickupRange: 60, armor: 0 });
+        setStats({ speed: 2.5, maxHp: 100, hp: 100, pickupRange: 60, armor: 0 });
         setLeaderboardShown(false);
+        touchRef.current.active = false;
+        const stick = document.getElementById('joystickStick');
+        if (stick) {
+          stick.style.transform = 'translate(-50%, -50%)';
+        }
         setGameState('playing');
       };
 
@@ -216,6 +288,62 @@
           window.removeEventListener('keyup', handleKeyUp);
         };
       }, []);
+
+      // Mobile touch controls
+      useEffect(() => {
+        const isMobile = window.innerWidth <= 768;
+        if (!isMobile || gameState !== 'playing') return;
+
+        const joystickBase = document.getElementById('joystickBase');
+        if (!joystickBase) return;
+
+        const handleTouchStart = (e) => {
+          e.preventDefault();
+          const touch = e.touches[0];
+          const rect = joystickBase.getBoundingClientRect();
+          const centerX = rect.left + rect.width / 2;
+          const centerY = rect.top + rect.height / 2;
+          
+          touchRef.current.active = true;
+          touchRef.current.startX = centerX;
+          touchRef.current.startY = centerY;
+          touchRef.current.currentX = touch.clientX;
+          touchRef.current.currentY = touch.clientY;
+        };
+
+        const handleTouchMove = (e) => {
+          if (!touchRef.current.active) return;
+          e.preventDefault();
+          const touch = e.touches[0];
+          touchRef.current.currentX = touch.clientX;
+          touchRef.current.currentY = touch.clientY;
+        };
+
+        const handleTouchEnd = (e) => {
+          e.preventDefault();
+          touchRef.current.active = false;
+          touchRef.current.currentX = touchRef.current.startX;
+          touchRef.current.currentY = touchRef.current.startY;
+          
+          // Reset joystick visual
+          const stick = document.getElementById('joystickStick');
+          if (stick) {
+            stick.style.transform = 'translate(-50%, -50%)';
+          }
+        };
+
+        joystickBase.addEventListener('touchstart', handleTouchStart, { passive: false });
+        window.addEventListener('touchmove', handleTouchMove, { passive: false });
+        window.addEventListener('touchend', handleTouchEnd, { passive: false });
+        window.addEventListener('touchcancel', handleTouchEnd, { passive: false });
+
+        return () => {
+          joystickBase.removeEventListener('touchstart', handleTouchStart);
+          window.removeEventListener('touchmove', handleTouchMove);
+          window.removeEventListener('touchend', handleTouchEnd);
+          window.removeEventListener('touchcancel', handleTouchEnd);
+        };
+      }, [gameState]);
 
       // Show leaderboard when game ends
       useEffect(() => {
@@ -849,17 +977,42 @@
 
         const gameLoop = () => {
           const now = Date.now();
-          const delta = Math.min((now - lastTime) / 16.67, 3);
+          const delta = Math.min((now - lastTime) / 16.67, 2) * GAME_SPEED_MULTIPLIER;
           lastTime = now;
           
           const game = gameRef.current;
           const keys = game.keys;
           
           let dx = 0, dy = 0;
+          
+          // Desktop keyboard controls
           if (keys['w'] || keys['arrowup']) dy -= 1;
           if (keys['s'] || keys['arrowdown']) dy += 1;
           if (keys['a'] || keys['arrowleft']) dx -= 1;
           if (keys['d'] || keys['arrowright']) dx += 1;
+          
+          // Mobile touch/joystick controls
+          if (touchRef.current.active) {
+            const touch = touchRef.current;
+            const deltaX = touch.currentX - touch.startX;
+            const deltaY = touch.currentY - touch.startY;
+            const distance = Math.hypot(deltaX, deltaY);
+            const maxDistance = 50; // Max joystick distance
+            
+            if (distance > 5) {
+              const clampedDistance = Math.min(distance, maxDistance);
+              dx = (deltaX / maxDistance) * (clampedDistance / distance);
+              dy = (deltaY / maxDistance) * (clampedDistance / distance);
+              
+              // Update joystick visual
+              const stick = document.getElementById('joystickStick');
+              if (stick) {
+                const stickX = (deltaX / maxDistance) * 35;
+                const stickY = (deltaY / maxDistance) * 35;
+                stick.style.transform = `translate(calc(-50% + ${stickX}px), calc(-50% + ${stickY}px))`;
+              }
+            }
+          }
           
           if (dx !== 0 || dy !== 0) {
             const len = Math.hypot(dx, dy);
@@ -872,10 +1025,10 @@
           game.camera.y = game.player.y - GAME_HEIGHT / 2;
           
           spawnTimer += delta;
-          const baseSpawnRate = Math.max(20, 50 - time * 0.5);
+          const baseSpawnRate = Math.max(30, 60 - time * 0.4);
           if (spawnTimer > baseSpawnRate) {
             spawnTimer = 0;
-            const count = Math.min(1 + Math.floor(time / 20), 6);
+            const count = Math.min(1 + Math.floor(time / 25), 5);
             for (let i = 0; i < count; i++) spawnEnemy();
           }
           
@@ -1154,7 +1307,7 @@
 
       if (gameState === 'menu') {
         return (
-          <div className="relative flex flex-col items-center justify-center h-screen overflow-hidden" style={{
+          <div className="relative flex flex-col items-center justify-center h-screen overflow-hidden px-4" style={{
             background: 'linear-gradient(180deg, #0a1628 0%, #1a3a5c 50%, #0d2137 100%)'
           }}>
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -1202,7 +1355,9 @@
               style={{
                 background: 'linear-gradient(180deg, #FFD700 0%, #FFA500 100%)',
                 boxShadow: '0 0 30px rgba(255, 165, 0, 0.6), inset 0 -4px 0 rgba(0,0,0,0.2)',
-                color: '#1a1a1a'
+                color: '#1a1a1a',
+                minHeight: '60px',
+                minWidth: '200px'
               }}
             >
               <span className="relative z-10">🎮 START GAME</span>
@@ -1211,6 +1366,7 @@
             
             <div className="mt-10 text-cyan-200/80 text-center space-y-2">
               <p className="text-lg">🎯 WASD or Arrow Keys to move</p>
+              <p className="text-sm md:text-lg">📱 Use joystick on mobile</p>
               <p className="text-lg">⚔️ Auto-attack nearest enemies</p>
               <p className="text-lg">🍍 Collect pineapples to level up!</p>
             </div>
@@ -1290,7 +1446,14 @@
         <div className="relative flex items-center justify-center h-screen" style={{
           background: '#000'
         }}>
-          <div className="absolute top-3 left-3 z-10">
+          {/* Mobile Joystick - only visible on mobile and when playing */}
+          <div className={`mobile-joystick ${gameState === 'playing' ? 'visible' : ''}`} id="mobileJoystick">
+            <div className="joystick-base" id="joystickBase">
+              <div className="joystick-stick" id="joystickStick"></div>
+            </div>
+          </div>
+          
+          <div className="absolute top-3 left-3 z-10 mobile-ui-scale">
             <div className="text-2xl font-black tracking-tight" style={{
               background: 'linear-gradient(90deg, #FFD700, #FFA500)',
               WebkitBackgroundClip: 'text',
@@ -1311,7 +1474,7 @@
             )}
           </div>
           
-          <div className="absolute top-3 right-3 z-10 text-right">
+          <div className="absolute top-3 right-3 z-10 text-right mobile-ui-scale">
             <div className="text-green-400 font-bold text-xl">Level {level}</div>
             <div className="w-36 h-4 bg-black/70 rounded-full border border-green-500/50 overflow-hidden">
               <div 
@@ -1325,7 +1488,7 @@
             <div className="text-xs text-green-300/70 mt-1">{xp}/{xpToLevel} XP</div>
           </div>
           
-          <div className="absolute bottom-3 left-3 z-10">
+          <div className="absolute bottom-3 left-3 z-10 mobile-ui-scale">
             <div className="text-red-400 text-sm font-bold mb-1">
               ❤️ {Math.floor(stats.hp)}/{stats.maxHp}
             </div>
@@ -1344,7 +1507,7 @@
             </div>
           </div>
           
-          <div className="absolute bottom-3 right-3 z-10">
+          <div className="absolute bottom-3 right-3 z-10 mobile-ui-scale">
             <div className="text-xs text-gray-400 mb-2 text-right">WEAPONS</div>
             <div className="flex gap-2 justify-end">
               {weapons.map((w, i) => (
@@ -1372,7 +1535,10 @@
             style={{
               border: '3px solid',
               borderImage: 'linear-gradient(180deg, #FFD700, #FF6B00) 1',
-              boxShadow: '0 0 40px rgba(255, 165, 0, 0.3)'
+              boxShadow: '0 0 40px rgba(255, 165, 0, 0.3)',
+              maxWidth: '100vw',
+              maxHeight: '100vh',
+              objectFit: 'contain'
             }}
           />
           
