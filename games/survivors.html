@@ -20,13 +20,12 @@
     body { 
       background: #000; 
       overflow: hidden;
-      font-family: 'Krabby Patty', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-family: 'Krabby Patty', Arial, sans-serif;
       touch-action: none;
       user-select: none;
     }
     #root { width: 100vw; height: 100vh; }
     
-    /* Mobile Touch Controls */
     .mobile-joystick {
       display: none;
       position: fixed;
@@ -35,13 +34,6 @@
       width: 120px;
       height: 120px;
       z-index: 1000;
-      touch-action: none;
-    }
-    
-    @media (max-width: 768px) {
-      .mobile-joystick.visible {
-        display: block;
-      }
     }
     
     .joystick-base {
@@ -63,29 +55,11 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      transition: transform 0.1s ease-out;
       pointer-events: none;
     }
     
     @media (max-width: 768px) {
-      /* Scale down UI elements on mobile */
-      .mobile-ui-scale {
-        transform: scale(0.85);
-        transform-origin: top left;
-      }
-      
-      /* Make buttons more touch-friendly */
-      button {
-        min-height: 44px;
-        min-width: 44px;
-      }
-      
-      /* Adjust canvas for mobile */
-      canvas {
-        width: 100vw !important;
-        height: auto !important;
-        max-height: 100vh;
-      }
+      .mobile-joystick.visible { display: block; }
     }
   </style>
 </head>
@@ -99,9 +73,8 @@
     const GAME_HEIGHT = 650;
     const PLAYER_SIZE = 44;
     const ENEMY_SIZE = 36;
-    const BASE_PLAYER_SPEED = 3.0; // Base player movement speed - NEVER changes
-    const MAX_PLAYER_SPEED = 5.0; // Maximum player speed cap
-    const ENEMY_SPEED_MULT = 0.55; // Enemies move slower than player
+    const BASE_PLAYER_SPEED = 3.0;
+    const ENEMY_SPEED_MULT = 0.6;
 
     const WEAPONS = {
       spatula: { damage: 12, cooldown: 700, speed: 9, color: '#FFD700', name: 'Krusty Spatula', emoji: '🍳', pierce: 1 },
@@ -119,15 +92,11 @@
       patrick: { hp: 120, speed: 0.6, xp: 25, color: '#FFB6C1', name: 'Patrick', scale: 1.3 },
       sandy: { hp: 60, speed: 1.4, xp: 15, color: '#DEB887', name: 'Sandy', scale: 1.0 },
       doodlebob: { hp: 200, speed: 0.8, xp: 50, color: '#FFFFFF', name: 'DoodleBob', scale: 1.4, boss: true },
-      flyingDutchman: { hp: 350, speed: 0.7, xp: 100, color: '#00FF7F', name: 'Flying Dutchman', scale: 1.6, boss: true },
-      mermaidMan: { hp: 500, speed: 0.5, xp: 150, color: '#FF6347', name: 'Mermaid Man', scale: 1.5, boss: true },
     };
 
-    // Upgrade types for level-up bonuses (RNG based)
     const UPGRADE_TYPES = [
       { stat: 'damage', emoji: '⚔️', desc: '+15% Damage', subdesc: 'Hit harder!' },
       { stat: 'attackSpeed', emoji: '🔥', desc: '+12% Attack Speed', subdesc: 'Fire faster!' },
-      { stat: 'range', emoji: '🎯', desc: '+20% Range', subdesc: 'Reach further!' },
       { stat: 'projectileSize', emoji: '💥', desc: '+15% Projectile Size', subdesc: 'Bigger hits!' },
       { stat: 'pierce', emoji: '🗡️', desc: '+1 Pierce', subdesc: 'Hit more enemies!' },
       { stat: 'speed', emoji: '⚡', desc: '+10% Move Speed', subdesc: 'Gotta go fast!' },
@@ -135,8 +104,6 @@
       { stat: 'armor', emoji: '🛡️', desc: '+3 Armor', subdesc: 'Take less damage!' },
       { stat: 'pickupRange', emoji: '🧲', desc: '+25% Pickup Range', subdesc: 'Vacuum XP!' },
     ];
-
-    const PARTICLE_COLORS = ['#FFD700', '#FF69B4', '#00BFFF', '#FF4500', '#7CFC00', '#FF1493'];
 
     function CockpantsSurvivors() {
       const canvasRef = useRef(null);
@@ -149,138 +116,69 @@
       const [kills, setKills] = useState(0);
       const [showUpgrade, setShowUpgrade] = useState(false);
       const [upgradeOptions, setUpgradeOptions] = useState([]);
-      const [weapons, setWeapons] = useState([{ ...WEAPONS.spatula, level: 1 }]);
-      const [stats, setStats] = useState({ speedBonus: 1.0, maxHp: 250, hp: 250, pickupRange: 60, armor: 0 });
+      const [weapons, setWeapons] = useState([]);
+      const [playerStats, setPlayerStats] = useState({ speedBonus: 1, maxHp: 250, hp: 250, pickupRange: 60, armor: 0 });
       const [screenShake, setScreenShake] = useState(0);
-      const [bossWarning, setBossWarning] = useState(false);
       const [combo, setCombo] = useState(0);
-      const [comboTimer, setComboTimer] = useState(0);
-      const [leaderboardShown, setLeaderboardShown] = useState(false);
-      const touchRef = useRef({ active: false, startX: 0, startY: 0, currentX: 0, currentY: 0 });
-      const joystickRef = useRef(null);
-      const gameOverRef = useRef(false); // Track game over state for the game loop
+      const gameOverRef = useRef(false);
+      const touchRef = useRef({ active: false, startX: 0, startY: 0, dx: 0, dy: 0 });
 
       const gameRef = useRef({
-        player: { x: GAME_WIDTH / 2, y: GAME_HEIGHT / 2, facing: 1 },
+        player: { x: 0, y: 0, facing: 1 },
         enemies: [],
         projectiles: [],
         xpOrbs: [],
-        chests: [], // Weapon chests dropped by elite enemies
+        chests: [],
         particles: [],
         damageNumbers: [],
         keys: {},
         lastShot: {},
         camera: { x: 0, y: 0 },
-        wave: 1,
-        bossSpawned: false,
       });
-      
-      // Initial game state values for proper reset
-      // Speed is now a BONUS multiplier, not the actual speed
-      const INITIAL_STATS = { speedBonus: 1.0, maxHp: 250, hp: 250, pickupRange: 60, armor: 0 };
-      const INITIAL_WEAPON = { ...WEAPONS.spatula, level: 1, damageBonus: 1, cooldownBonus: 1, rangeBonus: 1, sizeBonus: 1 };
 
-      const spawnParticles = (x, y, count, color, speed = 3) => {
-        const game = gameRef.current;
-        for (let i = 0; i < count; i++) {
-          const angle = (Math.PI * 2 * i) / count + Math.random() * 0.5;
-          game.particles.push({
-            x, y,
-            vx: Math.cos(angle) * speed * (0.5 + Math.random()),
-            vy: Math.sin(angle) * speed * (0.5 + Math.random()),
-            life: 30 + Math.random() * 20,
-            maxLife: 50,
-            color: color || PARTICLE_COLORS[Math.floor(Math.random() * PARTICLE_COLORS.length)],
-            size: 3 + Math.random() * 4,
-          });
-        }
-      };
-
-      const spawnDamageNumber = (x, y, damage, crit = false) => {
-        gameRef.current.damageNumbers.push({
-          x, y, damage: Math.floor(damage),
-          life: 40,
-          vy: -2,
-          crit,
-        });
-      };
-
-      // Generate RNG-based stat upgrades on level up
       const generateUpgrades = useCallback(() => {
-        // Shuffle and pick 3 random upgrade types
         const shuffled = [...UPGRADE_TYPES].sort(() => Math.random() - 0.5);
         setUpgradeOptions(shuffled.slice(0, 3));
       }, []);
 
-      // Apply the selected upgrade
       const selectUpgrade = (upgrade) => {
-        switch (upgrade.stat) {
-          case 'damage':
-            setWeapons(prev => prev.map(w => ({ ...w, damageBonus: (w.damageBonus || 1) * 1.15 })));
-            break;
-          case 'attackSpeed':
-            setWeapons(prev => prev.map(w => ({ ...w, cooldownBonus: (w.cooldownBonus || 1) * 0.88 })));
-            break;
-          case 'range':
-            setWeapons(prev => prev.map(w => ({ ...w, rangeBonus: (w.rangeBonus || 1) * 1.2 })));
-            break;
-          case 'projectileSize':
-            setWeapons(prev => prev.map(w => ({ ...w, sizeBonus: (w.sizeBonus || 1) * 1.15 })));
-            break;
-          case 'pierce':
-            setWeapons(prev => prev.map(w => ({ ...w, pierce: (w.pierce || 1) + 1 })));
-            break;
-          case 'speed':
-            setStats(prev => ({ ...prev, speedBonus: Math.min(prev.speedBonus * 1.1, 1.7) })); // Cap at 70% bonus
-            break;
-          case 'maxHp':
-            setStats(prev => ({ ...prev, maxHp: prev.maxHp + 40, hp: prev.hp + 40 }));
-            break;
-          case 'armor':
-            setStats(prev => ({ ...prev, armor: prev.armor + 3 }));
-            break;
-          case 'pickupRange':
-            setStats(prev => ({ ...prev, pickupRange: prev.pickupRange * 1.25 }));
-            break;
+        if (upgrade.stat === 'damage') {
+          setWeapons(prev => prev.map(w => ({ ...w, damageBonus: (w.damageBonus || 1) * 1.15 })));
+        } else if (upgrade.stat === 'attackSpeed') {
+          setWeapons(prev => prev.map(w => ({ ...w, cooldownBonus: (w.cooldownBonus || 1) * 0.88 })));
+        } else if (upgrade.stat === 'projectileSize') {
+          setWeapons(prev => prev.map(w => ({ ...w, sizeBonus: (w.sizeBonus || 1) * 1.15 })));
+        } else if (upgrade.stat === 'pierce') {
+          setWeapons(prev => prev.map(w => ({ ...w, pierce: (w.pierce || 1) + 1 })));
+        } else if (upgrade.stat === 'speed') {
+          setPlayerStats(prev => ({ ...prev, speedBonus: Math.min(prev.speedBonus * 1.1, 1.5) }));
+        } else if (upgrade.stat === 'maxHp') {
+          setPlayerStats(prev => ({ ...prev, maxHp: prev.maxHp + 40, hp: prev.hp + 40 }));
+        } else if (upgrade.stat === 'armor') {
+          setPlayerStats(prev => ({ ...prev, armor: prev.armor + 3 }));
+        } else if (upgrade.stat === 'pickupRange') {
+          setPlayerStats(prev => ({ ...prev, pickupRange: prev.pickupRange * 1.25 }));
         }
         setShowUpgrade(false);
       };
-      
-      // Add a new weapon from chest
+
       const addWeaponFromChest = useCallback((weaponKey) => {
         const weapon = WEAPONS[weaponKey];
         if (!weapon) return;
-        
-        // Check if we already have this weapon
-        const existing = weapons.find(w => w.name === weapon.name);
-        if (existing) {
-          // Level up existing weapon
-          setWeapons(prev => prev.map(w => 
-            w.name === weapon.name 
-              ? { ...w, level: w.level + 1, damageBonus: (w.damageBonus || 1) * 1.2 }
-              : w
-          ));
-        } else if (weapons.length < 6) {
-          // Add new weapon
-          setWeapons(prev => [...prev, { 
-            ...weapon, 
-            level: 1, 
-            damageBonus: 1, 
-            cooldownBonus: 1, 
-            rangeBonus: 1, 
-            sizeBonus: 1 
-          }]);
-        } else {
-          // Max weapons, boost all damage instead
-          setWeapons(prev => prev.map(w => ({ ...w, damageBonus: (w.damageBonus || 1) * 1.1 })));
-        }
-      }, [weapons]);
+        setWeapons(prev => {
+          const existing = prev.find(w => w.name === weapon.name);
+          if (existing) {
+            return prev.map(w => w.name === weapon.name ? { ...w, level: w.level + 1, damageBonus: (w.damageBonus || 1) * 1.2 } : w);
+          } else if (prev.length < 6) {
+            return [...prev, { ...weapon, level: 1, damageBonus: 1, cooldownBonus: 1, sizeBonus: 1 }];
+          }
+          return prev.map(w => ({ ...w, damageBonus: (w.damageBonus || 1) * 1.1 }));
+        });
+      }, []);
 
       const startGame = () => {
-        // Keep the current keyboard state
         const currentKeys = gameRef.current.keys || {};
-        
-        // Reset all game state
+        gameOverRef.current = false;
         setScore(0);
         setLevel(1);
         setXp(0);
@@ -288,12 +186,9 @@
         setTime(0);
         setKills(0);
         setCombo(0);
-        setWeapons([{ ...WEAPONS.spatula, level: 1, damageBonus: 1, cooldownBonus: 1, rangeBonus: 1, sizeBonus: 1 }]);
-        setStats({ ...INITIAL_STATS });
-        setLeaderboardShown(false);
-        gameOverRef.current = false;
-        
-        // Reset the game ref completely
+        setShowUpgrade(false);
+        setWeapons([{ ...WEAPONS.spatula, level: 1, damageBonus: 1, cooldownBonus: 1, sizeBonus: 1 }]);
+        setPlayerStats({ speedBonus: 1, maxHp: 250, hp: 250, pickupRange: 60, armor: 0 });
         gameRef.current = {
           player: { x: 0, y: 0, facing: 1 },
           enemies: [],
@@ -305,25 +200,15 @@
           keys: currentKeys,
           lastShot: {},
           camera: { x: 0, y: 0 },
-          wave: 1,
-          bossSpawned: false,
         };
-        
-        touchRef.current.active = false;
-        const stick = document.getElementById('joystickStick');
-        if (stick) {
-          stick.style.transform = 'translate(-50%, -50%)';
-        }
+        touchRef.current = { active: false, startX: 0, startY: 0, dx: 0, dy: 0 };
         setGameState('playing');
       };
 
+      // Keyboard controls
       useEffect(() => {
-        const handleKeyDown = (e) => {
-          gameRef.current.keys[e.key.toLowerCase()] = true;
-        };
-        const handleKeyUp = (e) => {
-          gameRef.current.keys[e.key.toLowerCase()] = false;
-        };
+        const handleKeyDown = (e) => { gameRef.current.keys[e.key.toLowerCase()] = true; };
+        const handleKeyUp = (e) => { gameRef.current.keys[e.key.toLowerCase()] = false; };
         window.addEventListener('keydown', handleKeyDown);
         window.addEventListener('keyup', handleKeyUp);
         return () => {
@@ -332,150 +217,105 @@
         };
       }, []);
 
-      // Mobile touch controls
+      // Mobile joystick
       useEffect(() => {
-        const isMobile = window.innerWidth <= 768;
-        if (!isMobile || gameState !== 'playing') return;
-
-        const joystickBase = document.getElementById('joystickBase');
-        if (!joystickBase) return;
+        if (gameState !== 'playing') return;
+        const joystick = document.getElementById('joystickBase');
+        if (!joystick) return;
 
         const handleTouchStart = (e) => {
           e.preventDefault();
-          const touch = e.touches[0];
-          const rect = joystickBase.getBoundingClientRect();
-          const centerX = rect.left + rect.width / 2;
-          const centerY = rect.top + rect.height / 2;
-          
+          const rect = joystick.getBoundingClientRect();
           touchRef.current.active = true;
-          touchRef.current.startX = centerX;
-          touchRef.current.startY = centerY;
-          touchRef.current.currentX = touch.clientX;
-          touchRef.current.currentY = touch.clientY;
+          touchRef.current.startX = rect.left + rect.width / 2;
+          touchRef.current.startY = rect.top + rect.height / 2;
         };
-
         const handleTouchMove = (e) => {
           if (!touchRef.current.active) return;
           e.preventDefault();
           const touch = e.touches[0];
-          touchRef.current.currentX = touch.clientX;
-          touchRef.current.currentY = touch.clientY;
-        };
-
-        const handleTouchEnd = (e) => {
-          e.preventDefault();
-          touchRef.current.active = false;
-          touchRef.current.currentX = touchRef.current.startX;
-          touchRef.current.currentY = touchRef.current.startY;
-          
-          // Reset joystick visual
-          const stick = document.getElementById('joystickStick');
-          if (stick) {
-            stick.style.transform = 'translate(-50%, -50%)';
+          const dx = touch.clientX - touchRef.current.startX;
+          const dy = touch.clientY - touchRef.current.startY;
+          const dist = Math.hypot(dx, dy);
+          const maxDist = 40;
+          if (dist > 5) {
+            touchRef.current.dx = (dx / Math.max(dist, maxDist)) * Math.min(dist, maxDist) / maxDist;
+            touchRef.current.dy = (dy / Math.max(dist, maxDist)) * Math.min(dist, maxDist) / maxDist;
+            const stick = document.getElementById('joystickStick');
+            if (stick) {
+              stick.style.transform = `translate(calc(-50% + ${touchRef.current.dx * 30}px), calc(-50% + ${touchRef.current.dy * 30}px))`;
+            }
           }
         };
+        const handleTouchEnd = () => {
+          touchRef.current.active = false;
+          touchRef.current.dx = 0;
+          touchRef.current.dy = 0;
+          const stick = document.getElementById('joystickStick');
+          if (stick) stick.style.transform = 'translate(-50%, -50%)';
+        };
 
-        joystickBase.addEventListener('touchstart', handleTouchStart, { passive: false });
+        joystick.addEventListener('touchstart', handleTouchStart, { passive: false });
         window.addEventListener('touchmove', handleTouchMove, { passive: false });
-        window.addEventListener('touchend', handleTouchEnd, { passive: false });
-        window.addEventListener('touchcancel', handleTouchEnd, { passive: false });
-
+        window.addEventListener('touchend', handleTouchEnd);
         return () => {
-          joystickBase.removeEventListener('touchstart', handleTouchStart);
+          joystick.removeEventListener('touchstart', handleTouchStart);
           window.removeEventListener('touchmove', handleTouchMove);
           window.removeEventListener('touchend', handleTouchEnd);
-          window.removeEventListener('touchcancel', handleTouchEnd);
         };
       }, [gameState]);
 
-      // Show leaderboard when game ends
+      // Show leaderboard on game over
       useEffect(() => {
-        if (gameState === 'gameover' && !leaderboardShown && typeof showLeaderboardModal === 'function') {
-          setLeaderboardShown(true);
-          // Small delay to ensure the gameover screen is rendered
-          setTimeout(() => {
-            showLeaderboardModal('survivors', '$COCKPANTS Survivors', score);
-          }, 500);
+        if (gameState === 'gameover' && typeof showLeaderboardModal === 'function') {
+          setTimeout(() => showLeaderboardModal('survivors', '$COCKPANTS Survivors', score), 500);
         }
-      }, [gameState, leaderboardShown, score]);
+      }, [gameState, score]);
 
+      // Main game loop
       useEffect(() => {
         if (gameState !== 'playing' || showUpgrade) return;
-        
-        // Reset game over flag when starting to play
         gameOverRef.current = false;
 
         const canvas = canvasRef.current;
-        if (!canvas) return; // Safety check
+        if (!canvas) return;
         const ctx = canvas.getContext('2d');
-        if (!ctx) return; // Safety check
+        if (!ctx) return;
+
         let animationId;
-        let lastTime = Date.now();
         let spawnTimer = 0;
         let timeTimer = 0;
-        let comboDecay = 0;
 
-        const spawnEnemy = (forceType = null, forceElite = false) => {
+        const spawnEnemy = () => {
           const game = gameRef.current;
           const side = Math.floor(Math.random() * 4);
           let x, y;
           const offset = 150;
+          if (side === 0) { x = game.player.x + (Math.random() - 0.5) * GAME_WIDTH; y = game.player.y - GAME_HEIGHT/2 - offset; }
+          else if (side === 1) { x = game.player.x + GAME_WIDTH/2 + offset; y = game.player.y + (Math.random() - 0.5) * GAME_HEIGHT; }
+          else if (side === 2) { x = game.player.x + (Math.random() - 0.5) * GAME_WIDTH; y = game.player.y + GAME_HEIGHT/2 + offset; }
+          else { x = game.player.x - GAME_WIDTH/2 - offset; y = game.player.y + (Math.random() - 0.5) * GAME_HEIGHT; }
+
+          let pool = ['plankton'];
+          if (time > 15) pool.push('squidward');
+          if (time > 30) pool.push('krabs');
+          if (time > 45) pool.push('sandy');
+          if (time > 60) pool.push('patrick');
           
-          switch(side) {
-            case 0: x = game.player.x + (Math.random() - 0.5) * GAME_WIDTH; y = game.player.y - GAME_HEIGHT/2 - offset; break;
-            case 1: x = game.player.x + GAME_WIDTH/2 + offset; y = game.player.y + (Math.random() - 0.5) * GAME_HEIGHT; break;
-            case 2: x = game.player.x + (Math.random() - 0.5) * GAME_WIDTH; y = game.player.y + GAME_HEIGHT/2 + offset; break;
-            default: x = game.player.x - GAME_WIDTH/2 - offset; y = game.player.y + (Math.random() - 0.5) * GAME_HEIGHT;
-          }
-          
-          const difficulty = Math.min(time / 45, 5);
-          let enemyPool = ['plankton'];
-          if (time > 15) enemyPool.push('squidward');
-          if (time > 30) enemyPool.push('krabs');
-          if (time > 45) enemyPool.push('sandy');
-          if (time > 60) enemyPool.push('patrick');
-          
-          const typeKey = forceType || enemyPool[Math.floor(Math.random() * enemyPool.length)];
+          const typeKey = pool[Math.floor(Math.random() * pool.length)];
           const template = ENEMIES[typeKey];
-          
-          // 5% chance for elite enemy (or forced), elites drop weapon chests
-          const isElite = forceElite || Math.random() < 0.05;
-          const eliteMultiplier = isElite ? 3 : 1;
+          const isElite = Math.random() < 0.05;
+          const mult = isElite ? 3 : 1;
           
           game.enemies.push({
             ...template,
             x, y,
-            hp: template.hp * (1 + difficulty * 0.3) * eliteMultiplier,
-            maxHp: template.hp * (1 + difficulty * 0.3) * eliteMultiplier,
+            hp: template.hp * mult,
+            maxHp: template.hp * mult,
             type: typeKey,
-            hit: 0,
-            isElite: isElite, // Elite enemies drop weapon chests
-            xp: template.xp * (isElite ? 3 : 1),
-          });
-        };
-
-        const spawnBoss = () => {
-          const game = gameRef.current;
-          if (game.bossSpawned) return;
-          
-          setBossWarning(true);
-          setTimeout(() => setBossWarning(false), 2000);
-          
-          const bosses = ['doodlebob', 'flyingDutchman', 'mermaidMan'];
-          const bossType = bosses[Math.min(Math.floor(time / 90), bosses.length - 1)];
-          const template = ENEMIES[bossType];
-          
-          game.enemies.push({
-            ...template,
-            x: game.player.x + 400,
-            y: game.player.y,
-            hp: template.hp * (1 + game.wave * 0.5),
-            maxHp: template.hp * (1 + game.wave * 0.5),
-            type: bossType,
+            isElite,
             hit: 0,
           });
-          
-          game.bossSpawned = true;
         };
 
         const shootProjectiles = () => {
@@ -483,757 +323,159 @@
           const now = Date.now();
           
           weapons.forEach(weapon => {
-            const cooldownBonus = weapon.cooldownBonus || 1;
-            const actualCooldown = weapon.cooldown * cooldownBonus;
-            if (!game.lastShot[weapon.name] || now - game.lastShot[weapon.name] > actualCooldown) {
-              let nearestEnemy = null;
-              let nearestDist = Infinity;
+            const cooldown = weapon.cooldown * (weapon.cooldownBonus || 1);
+            if (!game.lastShot[weapon.name] || now - game.lastShot[weapon.name] > cooldown) {
+              let nearest = null;
+              let nearestDist = 500;
               game.enemies.forEach(e => {
                 const dist = Math.hypot(e.x - game.player.x, e.y - game.player.y);
-                if (dist < nearestDist && dist < 500) {
-                  nearestDist = dist;
-                  nearestEnemy = e;
-                }
+                if (dist < nearestDist) { nearestDist = dist; nearest = e; }
               });
               
-              if (nearestEnemy) {
+              if (nearest) {
                 game.lastShot[weapon.name] = now;
-                const angle = Math.atan2(nearestEnemy.y - game.player.y, nearestEnemy.x - game.player.x);
-                
+                const angle = Math.atan2(nearest.y - game.player.y, nearest.x - game.player.x);
                 const shots = weapon.level >= 5 ? 3 : weapon.level >= 3 ? 2 : 1;
-                const spread = 0.15;
-                
-                // Apply weapon bonuses
-                const damageBonus = weapon.damageBonus || 1;
-                const sizeBonus = weapon.sizeBonus || 1;
-                const rangeBonus = weapon.rangeBonus || 1;
                 
                 for (let i = 0; i < shots; i++) {
-                  const shotAngle = angle + (i - (shots - 1) / 2) * spread;
+                  const shotAngle = angle + (i - (shots - 1) / 2) * 0.15;
                   game.projectiles.push({
-                    x: game.player.x,
-                    y: game.player.y,
-                    vx: Math.cos(shotAngle) * weapon.speed * rangeBonus,
-                    vy: Math.sin(shotAngle) * weapon.speed * rangeBonus,
-                    damage: weapon.damage * damageBonus,
+                    x: game.player.x, y: game.player.y,
+                    vx: Math.cos(shotAngle) * weapon.speed,
+                    vy: Math.sin(shotAngle) * weapon.speed,
+                    damage: weapon.damage * (weapon.damageBonus || 1),
                     color: weapon.color,
-                    life: 120 * rangeBonus,
+                    life: 120,
                     pierce: weapon.pierce + Math.floor(weapon.level / 2),
-                    size: (6 + weapon.level) * sizeBonus,
+                    size: (6 + weapon.level) * (weapon.sizeBonus || 1),
                     hit: [],
                   });
                 }
-                
-                spawnParticles(game.player.x, game.player.y, 3, weapon.color, 2);
               }
             }
           });
         };
 
-        const drawSpongebob = (ctx, x, y, facing, bobOffset) => {
-          ctx.save();
-          ctx.translate(x, y + bobOffset);
-          if (facing < 0) ctx.scale(-1, 1);
-          
-          ctx.fillStyle = 'rgba(0,0,0,0.3)';
-          ctx.beginPath();
-          ctx.ellipse(0, 24, 16, 6, 0, 0, Math.PI * 2);
-          ctx.fill();
-          
-          const gradient = ctx.createLinearGradient(-20, -28, 20, 28);
-          gradient.addColorStop(0, '#FFE566');
-          gradient.addColorStop(0.5, '#FFD700');
-          gradient.addColorStop(1, '#E6B800');
-          ctx.fillStyle = gradient;
-          ctx.beginPath();
-          ctx.roundRect(-20, -28, 40, 52, 6);
-          ctx.fill();
-          
-          ctx.strokeStyle = '#CC9900';
-          ctx.lineWidth = 2;
-          ctx.stroke();
-          
-          ctx.fillStyle = '#8B4513';
-          ctx.fillRect(-20, 12, 40, 16);
-          
-          ctx.fillStyle = '#1a1a1a';
-          ctx.fillRect(-20, 10, 40, 5);
-          
-          ctx.fillStyle = '#FFF';
-          ctx.beginPath();
-          ctx.moveTo(-12, 10);
-          ctx.lineTo(0, 16);
-          ctx.lineTo(12, 10);
-          ctx.lineTo(12, 12);
-          ctx.lineTo(0, 18);
-          ctx.lineTo(-12, 12);
-          ctx.closePath();
-          ctx.fill();
-          
-          ctx.fillStyle = '#FF0000';
-          ctx.beginPath();
-          ctx.moveTo(-3, 12);
-          ctx.lineTo(3, 12);
-          ctx.lineTo(4, 20);
-          ctx.lineTo(0, 22);
-          ctx.lineTo(-4, 20);
-          ctx.closePath();
-          ctx.fill();
-          
-          ctx.fillStyle = '#FFF';
-          ctx.beginPath();
-          ctx.ellipse(-7, -10, 9, 11, 0, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.beginPath();
-          ctx.ellipse(7, -10, 9, 11, 0, 0, Math.PI * 2);
-          ctx.fill();
-          
-          ctx.strokeStyle = '#000';
-          ctx.lineWidth = 1.5;
-          ctx.beginPath();
-          ctx.ellipse(-7, -10, 9, 11, 0, 0, Math.PI * 2);
-          ctx.stroke();
-          ctx.beginPath();
-          ctx.ellipse(7, -10, 9, 11, 0, 0, Math.PI * 2);
-          ctx.stroke();
-          
-          ctx.fillStyle = '#00BFFF';
-          ctx.beginPath();
-          ctx.arc(-7 + facing * 2, -10, 5, 0, Math.PI * 2);
-          ctx.arc(7 + facing * 2, -10, 5, 0, Math.PI * 2);
-          ctx.fill();
-          
-          ctx.fillStyle = '#000';
-          ctx.beginPath();
-          ctx.arc(-7 + facing * 2, -10, 2.5, 0, Math.PI * 2);
-          ctx.arc(7 + facing * 2, -10, 2.5, 0, Math.PI * 2);
-          ctx.fill();
-          
-          ctx.fillStyle = '#FFF';
-          ctx.beginPath();
-          ctx.arc(-9, -12, 2, 0, Math.PI * 2);
-          ctx.arc(5, -12, 2, 0, Math.PI * 2);
-          ctx.fill();
-          
-          ctx.fillStyle = '#FFD700';
-          ctx.beginPath();
-          ctx.ellipse(0, -2, 4, 6, 0, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.strokeStyle = '#CC9900';
-          ctx.lineWidth = 1;
-          ctx.stroke();
-          
-          ctx.fillStyle = 'rgba(255, 150, 150, 0.4)';
-          ctx.beginPath();
-          ctx.ellipse(-14, 0, 5, 3, 0, 0, Math.PI * 2);
-          ctx.ellipse(14, 0, 5, 3, 0, 0, Math.PI * 2);
-          ctx.fill();
-          
-          ctx.strokeStyle = '#000';
-          ctx.lineWidth = 2;
-          ctx.beginPath();
-          ctx.arc(0, 4, 10, 0.1 * Math.PI, 0.9 * Math.PI);
-          ctx.stroke();
-          
-          ctx.fillStyle = '#FFF';
-          ctx.fillRect(-5, 4, 4, 7);
-          ctx.fillRect(1, 4, 4, 7);
-          ctx.strokeStyle = '#000';
-          ctx.lineWidth = 1;
-          ctx.strokeRect(-5, 4, 4, 7);
-          ctx.strokeRect(1, 4, 4, 7);
-          
-          ctx.fillStyle = '#CC9900';
-          [[-12, -4], [-10, -8], [-14, -10], [12, -4], [10, -8], [14, -10]].forEach(([fx, fy]) => {
-            ctx.beginPath();
-            ctx.arc(fx, fy, 1.5, 0, Math.PI * 2);
-            ctx.fill();
-          });
-          
-          ctx.fillStyle = '#DAA520';
-          [[-12, -22], [10, -20], [-6, -2], [8, 0], [-14, 6]].forEach(([hx, hy]) => {
-            ctx.beginPath();
-            ctx.ellipse(hx, hy, 3, 2, Math.random(), 0, Math.PI * 2);
-            ctx.fill();
-          });
-          
-          ctx.fillStyle = '#FFE135';
-          ctx.fillRect(-12, 28, 6, 10);
-          ctx.fillRect(6, 28, 6, 10);
-          
-          ctx.fillStyle = '#1a1a1a';
-          ctx.beginPath();
-          ctx.ellipse(-9, 40, 8, 5, 0, 0, Math.PI * 2);
-          ctx.ellipse(9, 40, 8, 5, 0, 0, Math.PI * 2);
-          ctx.fill();
-          
-          ctx.fillStyle = '#FFF';
-          ctx.fillRect(-14, 32, 10, 6);
-          ctx.fillRect(4, 32, 10, 6);
-          ctx.fillStyle = '#FF0000';
-          ctx.fillRect(-14, 34, 10, 2);
-          ctx.fillRect(4, 34, 10, 2);
-          ctx.fillStyle = '#0000FF';
-          ctx.fillRect(-14, 36, 10, 2);
-          ctx.fillRect(4, 36, 10, 2);
-          
-          ctx.restore();
-        };
-
-        const drawEnemy = (ctx, enemy, screenX, screenY) => {
-          const scale = enemy.scale || 1;
-          const size = ENEMY_SIZE * scale;
-          const hitFlash = enemy.hit > 0;
-          
-          ctx.save();
-          ctx.translate(screenX, screenY);
-          
-          if (hitFlash) {
-            ctx.filter = 'brightness(2)';
-          }
-          
-          ctx.fillStyle = 'rgba(0,0,0,0.3)';
-          ctx.beginPath();
-          ctx.ellipse(0, size/2, size/2, size/4, 0, 0, Math.PI * 2);
-          ctx.fill();
-          
-          switch(enemy.type) {
-            case 'plankton':
-              ctx.fillStyle = '#228B22';
-              ctx.beginPath();
-              ctx.ellipse(0, 0, size/3, size/2, 0, 0, Math.PI * 2);
-              ctx.fill();
-              ctx.fillStyle = '#FF0000';
-              ctx.beginPath();
-              ctx.arc(0, -size/6, size/4, 0, Math.PI * 2);
-              ctx.fill();
-              ctx.fillStyle = '#000';
-              ctx.beginPath();
-              ctx.arc(0, -size/6, size/8, 0, Math.PI * 2);
-              ctx.fill();
-              ctx.strokeStyle = '#228B22';
-              ctx.lineWidth = 2;
-              ctx.beginPath();
-              ctx.moveTo(-3, -size/2);
-              ctx.lineTo(-5, -size/2 - 8);
-              ctx.moveTo(3, -size/2);
-              ctx.lineTo(5, -size/2 - 8);
-              ctx.stroke();
-              break;
-              
-            case 'krabs':
-              ctx.fillStyle = '#DC143C';
-              ctx.beginPath();
-              ctx.ellipse(0, 0, size/2, size/2.5, 0, 0, Math.PI * 2);
-              ctx.fill();
-              ctx.strokeStyle = '#DC143C';
-              ctx.lineWidth = 4;
-              ctx.beginPath();
-              ctx.moveTo(-8, -size/3);
-              ctx.lineTo(-10, -size/2 - 5);
-              ctx.moveTo(8, -size/3);
-              ctx.lineTo(10, -size/2 - 5);
-              ctx.stroke();
-              ctx.fillStyle = '#FFFF00';
-              ctx.beginPath();
-              ctx.arc(-10, -size/2 - 8, 5, 0, Math.PI * 2);
-              ctx.arc(10, -size/2 - 8, 5, 0, Math.PI * 2);
-              ctx.fill();
-              ctx.fillStyle = '#000';
-              ctx.beginPath();
-              ctx.arc(-10, -size/2 - 8, 2, 0, Math.PI * 2);
-              ctx.arc(10, -size/2 - 8, 2, 0, Math.PI * 2);
-              ctx.fill();
-              ctx.fillStyle = '#DC143C';
-              ctx.beginPath();
-              ctx.ellipse(-size/2 - 8, 0, 10, 7, -0.3, 0, Math.PI * 2);
-              ctx.ellipse(size/2 + 8, 0, 10, 7, 0.3, 0, Math.PI * 2);
-              ctx.fill();
-              break;
-              
-            case 'squidward':
-              ctx.fillStyle = '#40E0D0';
-              ctx.beginPath();
-              ctx.ellipse(0, -size/4, size/3, size/2, 0, 0, Math.PI * 2);
-              ctx.fill();
-              ctx.fillStyle = '#2F9F9F';
-              ctx.beginPath();
-              ctx.ellipse(0, size/6, size/5, size/3, 0, 0, Math.PI * 2);
-              ctx.fill();
-              ctx.fillStyle = '#FFFF00';
-              ctx.fillRect(-12, -size/2, 8, 6);
-              ctx.fillRect(4, -size/2, 8, 6);
-              ctx.fillStyle = '#000';
-              ctx.fillRect(-10, -size/2 + 2, 4, 4);
-              ctx.fillRect(6, -size/2 + 2, 4, 4);
-              ctx.strokeStyle = '#000';
-              ctx.lineWidth = 2;
-              ctx.beginPath();
-              ctx.arc(0, size/4, 6, 1.1 * Math.PI, 1.9 * Math.PI);
-              ctx.stroke();
-              break;
-              
-            case 'patrick':
-              ctx.fillStyle = '#FFB6C1';
-              const points = 5;
-              ctx.beginPath();
-              for (let i = 0; i < points * 2; i++) {
-                const radius = i % 2 === 0 ? size/1.8 : size/3.5;
-                const angle = (i * Math.PI / points) - Math.PI / 2;
-                const px = Math.cos(angle) * radius;
-                const py = Math.sin(angle) * radius;
-                if (i === 0) ctx.moveTo(px, py);
-                else ctx.lineTo(px, py);
-              }
-              ctx.closePath();
-              ctx.fill();
-              ctx.strokeStyle = '#FF69B4';
-              ctx.lineWidth = 2;
-              ctx.stroke();
-              ctx.fillStyle = '#32CD32';
-              ctx.beginPath();
-              ctx.ellipse(0, size/4, size/3, size/5, 0, 0, Math.PI);
-              ctx.fill();
-              ctx.fillStyle = '#FFF';
-              ctx.beginPath();
-              ctx.arc(-6, -size/6, 5, 0, Math.PI * 2);
-              ctx.arc(6, -size/6, 5, 0, Math.PI * 2);
-              ctx.fill();
-              ctx.fillStyle = '#000';
-              ctx.beginPath();
-              ctx.arc(-6, -size/6, 2, 0, Math.PI * 2);
-              ctx.arc(6, -size/6, 2, 0, Math.PI * 2);
-              ctx.fill();
-              ctx.strokeStyle = '#000';
-              ctx.lineWidth = 2;
-              ctx.beginPath();
-              ctx.arc(0, size/8, 8, 0, Math.PI);
-              ctx.stroke();
-              break;
-              
-            case 'sandy':
-              ctx.fillStyle = '#DEB887';
-              ctx.beginPath();
-              ctx.arc(0, 0, size/2.5, 0, Math.PI * 2);
-              ctx.fill();
-              ctx.strokeStyle = 'rgba(255,255,255,0.6)';
-              ctx.lineWidth = 3;
-              ctx.beginPath();
-              ctx.arc(0, 0, size/2, 0, Math.PI * 2);
-              ctx.stroke();
-              ctx.fillStyle = '#000';
-              ctx.beginPath();
-              ctx.arc(-5, -3, 3, 0, Math.PI * 2);
-              ctx.arc(5, -3, 3, 0, Math.PI * 2);
-              ctx.fill();
-              ctx.fillStyle = '#FF9999';
-              ctx.beginPath();
-              ctx.arc(-10, 3, 4, 0, Math.PI * 2);
-              ctx.arc(10, 3, 4, 0, Math.PI * 2);
-              ctx.fill();
-              ctx.fillStyle = '#FF69B4';
-              ctx.beginPath();
-              ctx.arc(size/3, -size/3, 5, 0, Math.PI * 2);
-              ctx.fill();
-              break;
-              
-            case 'doodlebob':
-              ctx.strokeStyle = '#1a1a1a';
-              ctx.lineWidth = 3;
-              ctx.fillStyle = '#FFF';
-              ctx.beginPath();
-              ctx.moveTo(-size/2.5, -size/2);
-              for (let i = 0; i < 20; i++) {
-                ctx.lineTo(
-                  -size/2.5 + (size/1.25) * (i/20) + (Math.random() - 0.5) * 4,
-                  -size/2 + (Math.random() - 0.5) * 4
-                );
-              }
-              ctx.lineTo(size/2.5, size/2);
-              ctx.lineTo(-size/2.5, size/2);
-              ctx.closePath();
-              ctx.fill();
-              ctx.stroke();
-              ctx.fillStyle = '#FFF';
-              ctx.strokeStyle = '#000';
-              ctx.beginPath();
-              ctx.ellipse(-8, -size/4, 10, 12, -0.2, 0, Math.PI * 2);
-              ctx.ellipse(10, -size/4, 8, 14, 0.3, 0, Math.PI * 2);
-              ctx.fill();
-              ctx.stroke();
-              ctx.fillStyle = '#FF0000';
-              ctx.beginPath();
-              ctx.arc(-8, -size/4, 4, 0, Math.PI * 2);
-              ctx.arc(10, -size/4, 4, 0, Math.PI * 2);
-              ctx.fill();
-              ctx.fillStyle = '#000';
-              ctx.beginPath();
-              ctx.moveTo(-12, size/6);
-              ctx.lineTo(-8, size/4);
-              ctx.lineTo(-4, size/6);
-              ctx.lineTo(0, size/4);
-              ctx.lineTo(4, size/6);
-              ctx.lineTo(8, size/4);
-              ctx.lineTo(12, size/6);
-              ctx.lineTo(8, size/3);
-              ctx.lineTo(-8, size/3);
-              ctx.closePath();
-              ctx.fill();
-              ctx.strokeStyle = 'rgba(0,0,0,0.3)';
-              ctx.lineWidth = 1;
-              for (let i = 0; i < 8; i++) {
-                const angle = (Math.PI * 2 * i) / 8 + Date.now() / 500;
-                ctx.beginPath();
-                ctx.moveTo(Math.cos(angle) * size/1.5, Math.sin(angle) * size/1.5);
-                ctx.lineTo(Math.cos(angle) * size, Math.sin(angle) * size);
-                ctx.stroke();
-              }
-              break;
-              
-            case 'flyingDutchman':
-              ctx.fillStyle = 'rgba(0, 255, 127, 0.7)';
-              ctx.beginPath();
-              ctx.ellipse(0, -size/4, size/2, size/2.5, 0, 0, Math.PI * 2);
-              ctx.fill();
-              ctx.beginPath();
-              ctx.moveTo(-size/2, size/4);
-              ctx.quadraticCurveTo(-size/4, size/2, 0, size/3);
-              ctx.quadraticCurveTo(size/4, size/2, size/2, size/4);
-              ctx.quadraticCurveTo(size/4, size, 0, size/1.5);
-              ctx.quadraticCurveTo(-size/4, size, -size/2, size/4);
-              ctx.fill();
-              ctx.fillStyle = '#FFFF00';
-              ctx.shadowColor = '#FFFF00';
-              ctx.shadowBlur = 10;
-              ctx.beginPath();
-              ctx.arc(-8, -size/3, 5, 0, Math.PI * 2);
-              ctx.arc(8, -size/3, 5, 0, Math.PI * 2);
-              ctx.fill();
-              ctx.shadowBlur = 0;
-              ctx.fillStyle = 'rgba(0, 200, 100, 0.8)';
-              ctx.beginPath();
-              ctx.moveTo(-12, 0);
-              ctx.quadraticCurveTo(-15, size/3, -10, size/2);
-              ctx.lineTo(10, size/2);
-              ctx.quadraticCurveTo(15, size/3, 12, 0);
-              ctx.closePath();
-              ctx.fill();
-              ctx.fillStyle = '#1a1a1a';
-              ctx.beginPath();
-              ctx.ellipse(0, -size/2, size/2, size/6, 0, 0, Math.PI * 2);
-              ctx.fill();
-              ctx.fillRect(-size/3, -size/2 - 15, size/1.5, 15);
-              break;
-              
-            case 'mermaidMan':
-              ctx.fillStyle = '#FFDAB9';
-              ctx.beginPath();
-              ctx.arc(0, -size/4, size/3, 0, Math.PI * 2);
-              ctx.fill();
-              ctx.fillStyle = '#FF6347';
-              ctx.beginPath();
-              ctx.ellipse(0, size/4, size/2.5, size/3, 0, 0, Math.PI * 2);
-              ctx.fill();
-              ctx.fillStyle = '#9370DB';
-              ctx.beginPath();
-              ctx.arc(-8, size/6, 6, 0, Math.PI * 2);
-              ctx.arc(8, size/6, 6, 0, Math.PI * 2);
-              ctx.fill();
-              ctx.fillStyle = '#FFD700';
-              ctx.fillRect(-size/3, size/3, size/1.5, 8);
-              ctx.fillStyle = '#FF0000';
-              ctx.beginPath();
-              ctx.moveTo(0, size/3);
-              ctx.lineTo(-6, size/3 + 8);
-              ctx.lineTo(6, size/3 + 8);
-              ctx.closePath();
-              ctx.fill();
-              ctx.fillStyle = '#9370DB';
-              ctx.beginPath();
-              ctx.ellipse(-10, -size/3, 8, 5, -0.2, 0, Math.PI);
-              ctx.ellipse(10, -size/3, 8, 5, 0.2, 0, Math.PI);
-              ctx.fill();
-              ctx.fillStyle = '#FFF';
-              ctx.beginPath();
-              ctx.arc(-8, -size/3, 5, 0, Math.PI * 2);
-              ctx.arc(8, -size/3, 5, 0, Math.PI * 2);
-              ctx.fill();
-              ctx.fillStyle = '#000';
-              ctx.beginPath();
-              ctx.arc(-8, -size/3, 2, 0, Math.PI * 2);
-              ctx.arc(8, -size/3, 2, 0, Math.PI * 2);
-              ctx.fill();
-              ctx.fillStyle = '#FFD700';
-              ctx.beginPath();
-              for (let i = 0; i < 5; i++) {
-                const angle = (i * Math.PI * 2 / 5) - Math.PI / 2;
-                const r = i % 2 === 0 ? 8 : 4;
-                if (i === 0) ctx.moveTo(Math.cos(angle) * r, -size/2 - 15 + Math.sin(angle) * r);
-                else ctx.lineTo(Math.cos(angle) * r, -size/2 - 15 + Math.sin(angle) * r);
-              }
-              ctx.closePath();
-              ctx.fill();
-              break;
-              
-            default:
-              ctx.fillStyle = enemy.color;
-              ctx.beginPath();
-              ctx.arc(0, 0, size/2, 0, Math.PI * 2);
-              ctx.fill();
-          }
-          
-          ctx.filter = 'none';
-          ctx.restore();
-          
-          if (enemy.type !== 'plankton') {
-            const hpPercent = enemy.hp / enemy.maxHp;
-            const barWidth = size * 1.2;
-            ctx.fillStyle = 'rgba(0,0,0,0.7)';
-            ctx.fillRect(screenX - barWidth/2, screenY - size/2 - 12, barWidth, 6);
-            const hpColor = enemy.boss ? '#FF00FF' : (hpPercent > 0.5 ? '#00FF00' : hpPercent > 0.25 ? '#FFFF00' : '#FF0000');
-            ctx.fillStyle = hpColor;
-            ctx.fillRect(screenX - barWidth/2 + 1, screenY - size/2 - 11, (barWidth - 2) * hpPercent, 4);
-          }
-        };
-
-        const drawPineapple = (ctx, x, y, size) => {
-          const gradient = ctx.createRadialGradient(x, y, 0, x, y, size);
-          gradient.addColorStop(0, '#FFD700');
-          gradient.addColorStop(0.7, '#FFA500');
-          gradient.addColorStop(1, '#FF8C00');
-          ctx.fillStyle = gradient;
-          ctx.beginPath();
-          ctx.ellipse(x, y, size * 0.8, size, 0, 0, Math.PI * 2);
-          ctx.fill();
-          
-          ctx.strokeStyle = '#CC7000';
-          ctx.lineWidth = 1;
-          for (let i = -2; i <= 2; i++) {
-            ctx.beginPath();
-            ctx.moveTo(x + i * 3, y - size);
-            ctx.lineTo(x + i * 3, y + size);
-            ctx.stroke();
-          }
-          for (let i = -2; i <= 2; i++) {
-            ctx.beginPath();
-            ctx.moveTo(x - size, y + i * 4);
-            ctx.lineTo(x + size, y + i * 4);
-            ctx.stroke();
-          }
-          
-          ctx.fillStyle = '#228B22';
-          for (let i = 0; i < 5; i++) {
-            const angle = -Math.PI/2 + (i - 2) * 0.3;
-            ctx.beginPath();
-            ctx.ellipse(
-              x + Math.cos(angle) * 2,
-              y - size - 4 + Math.sin(angle) * 2,
-              2, 6,
-              angle,
-              0, Math.PI * 2
-            );
-            ctx.fill();
-          }
-        };
-
         const gameLoop = () => {
-          // Stop the loop immediately if game is over
-          if (gameOverRef.current) {
-            return;
-          }
-          
-          const now = Date.now();
-          // FIXED delta - game speed never changes, like Vampire Survivors
-          // We use fixed timestep to ensure consistent gameplay regardless of frame rate
-          const delta = FIXED_DELTA;
-          lastTime = now;
+          if (gameOverRef.current) return;
           
           const game = gameRef.current;
           const keys = game.keys;
           
+          // Player movement
           let dx = 0, dy = 0;
-          
-          // Desktop keyboard controls
           if (keys['w'] || keys['arrowup']) dy -= 1;
           if (keys['s'] || keys['arrowdown']) dy += 1;
           if (keys['a'] || keys['arrowleft']) dx -= 1;
           if (keys['d'] || keys['arrowright']) dx += 1;
           
-          // Mobile touch/joystick controls
           if (touchRef.current.active) {
-            const touch = touchRef.current;
-            const deltaX = touch.currentX - touch.startX;
-            const deltaY = touch.currentY - touch.startY;
-            const distance = Math.hypot(deltaX, deltaY);
-            const maxDistance = 50; // Max joystick distance
-            
-            if (distance > 5) {
-              const clampedDistance = Math.min(distance, maxDistance);
-              dx = (deltaX / maxDistance) * (clampedDistance / distance);
-              dy = (deltaY / maxDistance) * (clampedDistance / distance);
-              
-              // Update joystick visual
-              const stick = document.getElementById('joystickStick');
-              if (stick) {
-                const stickX = (deltaX / maxDistance) * 35;
-                const stickY = (deltaY / maxDistance) * 35;
-                stick.style.transform = `translate(calc(-50% + ${stickX}px), calc(-50% + ${stickY}px))`;
-              }
-            }
+            dx = touchRef.current.dx;
+            dy = touchRef.current.dy;
           }
           
           if (dx !== 0 || dy !== 0) {
             const len = Math.hypot(dx, dy);
-            // Calculate actual speed: base speed * bonus, capped at max
-            const actualSpeed = Math.min(BASE_PLAYER_SPEED * (stats.speedBonus || 1.0), MAX_PLAYER_SPEED);
-            game.player.x += (dx / len) * actualSpeed;
-            game.player.y += (dy / len) * actualSpeed;
+            const speed = BASE_PLAYER_SPEED * (playerStats.speedBonus || 1);
+            game.player.x += (dx / len) * speed;
+            game.player.y += (dy / len) * speed;
             game.player.facing = dx !== 0 ? Math.sign(dx) : game.player.facing;
           }
           
           game.camera.x = game.player.x - GAME_WIDTH / 2;
           game.camera.y = game.player.y - GAME_HEIGHT / 2;
           
-          spawnTimer += delta;
-          const baseSpawnRate = Math.max(30, 60 - time * 0.4);
-          if (spawnTimer > baseSpawnRate) {
+          // Spawn enemies
+          spawnTimer++;
+          const spawnRate = Math.max(30, 60 - time * 0.3);
+          if (spawnTimer > spawnRate) {
             spawnTimer = 0;
-            const count = Math.min(1 + Math.floor(time / 25), 5);
+            const count = Math.min(1 + Math.floor(time / 25), 4);
             for (let i = 0; i < count; i++) spawnEnemy();
           }
           
-          if (time > 0 && time % 90 === 0 && !game.bossSpawned) {
-            spawnBoss();
-          }
-          if (time % 90 !== 0) {
-            game.bossSpawned = false;
-          }
+          // Time
+          timeTimer++;
+          if (timeTimer > 60) { timeTimer = 0; setTime(t => t + 1); }
           
-          timeTimer += delta;
-          if (timeTimer > 60) {
-            timeTimer = 0;
-            setTime(t => t + 1);
-          }
-          
-          comboDecay += delta;
-          if (comboDecay > 120) {
-            comboDecay = 0;
-            setCombo(c => Math.max(0, c - 1));
-          }
-          
+          // Shoot
           shootProjectiles();
           
-          game.particles = game.particles.filter(p => {
-            p.x += p.vx * delta;
-            p.y += p.vy * delta;
-            p.vy += 0.1 * delta;
-            p.life -= delta;
-            return p.life > 0;
-          });
-          
-          game.damageNumbers = game.damageNumbers.filter(d => {
-            d.y += d.vy * delta;
-            d.life -= delta;
-            return d.life > 0;
-          });
-          
+          // Update projectiles
           game.projectiles = game.projectiles.filter(p => {
-            p.x += p.vx * delta;
-            p.y += p.vy * delta;
-            p.life -= delta;
+            p.x += p.vx;
+            p.y += p.vy;
+            p.life--;
             return p.life > 0 && p.pierce > 0;
           });
           
+          // Update enemies
           game.enemies.forEach(e => {
             const angle = Math.atan2(game.player.y - e.y, game.player.x - e.x);
-            e.x += Math.cos(angle) * e.speed * ENEMY_SPEED_MULT * delta;
-            e.y += Math.sin(angle) * e.speed * ENEMY_SPEED_MULT * delta;
-            if (e.hit > 0) e.hit -= delta;
+            e.x += Math.cos(angle) * e.speed * ENEMY_SPEED_MULT;
+            e.y += Math.sin(angle) * e.speed * ENEMY_SPEED_MULT;
+            if (e.hit > 0) e.hit--;
           });
           
+          // Projectile-enemy collision
           game.projectiles.forEach(p => {
             game.enemies.forEach(e => {
-              if (p.pierce <= 0) return;
-              if (p.hit.includes(e)) return;
-              
+              if (p.pierce <= 0 || p.hit.includes(e)) return;
               const dist = Math.hypot(p.x - e.x, p.y - e.y);
               if (dist < ENEMY_SIZE * (e.scale || 1)) {
                 const crit = Math.random() < 0.15;
-                const damage = crit ? p.damage * 2 : p.damage;
-                e.hp -= damage;
+                const dmg = crit ? p.damage * 2 : p.damage;
+                e.hp -= dmg;
                 e.hit = 8;
                 p.pierce--;
                 p.hit.push(e);
                 
-                spawnParticles(e.x, e.y, 5, e.color, 4);
-                spawnDamageNumber(e.x, e.y - 20, damage, crit);
+                game.damageNumbers.push({ x: e.x, y: e.y - 20, damage: Math.floor(dmg), life: 40, vy: -2, crit });
                 
                 if (e.hp <= 0) {
-                  spawnParticles(e.x, e.y, 12, e.color, 5);
-                  
-                  // XP orbs for all enemies
-                  const orbCount = e.boss ? 10 : Math.ceil(e.xp / 5);
+                  // Drop XP
+                  const orbCount = Math.ceil(e.xp / 5);
                   for (let i = 0; i < orbCount; i++) {
-                    game.xpOrbs.push({
-                      x: e.x + (Math.random() - 0.5) * 40,
-                      y: e.y + (Math.random() - 0.5) * 40,
-                      xp: Math.ceil(e.xp / orbCount),
-                    });
+                    game.xpOrbs.push({ x: e.x + (Math.random() - 0.5) * 30, y: e.y + (Math.random() - 0.5) * 30, xp: Math.ceil(e.xp / orbCount) });
                   }
-                  
-                  // Elite enemies drop weapon chests!
-                  if (e.isElite || e.boss) {
+                  // Elite drops chest
+                  if (e.isElite) {
                     const weaponKeys = Object.keys(WEAPONS);
-                    const randomWeapon = weaponKeys[Math.floor(Math.random() * weaponKeys.length)];
-                    game.chests.push({
-                      x: e.x,
-                      y: e.y,
-                      weapon: randomWeapon,
-                    });
-                    spawnParticles(e.x, e.y, 20, '#FFD700', 6);
+                    game.chests.push({ x: e.x, y: e.y, weapon: weaponKeys[Math.floor(Math.random() * weaponKeys.length)] });
                   }
-                  
                   setKills(k => k + 1);
-                  setCombo(c => c + 1);
-                  comboDecay = 0;
-                  
-                  const comboMultiplier = 1 + combo * 0.1;
-                  setScore(s => s + Math.floor(e.xp * 10 * comboMultiplier));
-                  
-                  if (e.boss) {
-                    setScreenShake(20);
-                    setScore(s => s + 1000);
-                  }
+                  setScore(s => s + e.xp * 10);
                 }
               }
             });
           });
           game.enemies = game.enemies.filter(e => e.hp > 0);
           
+          // Player-enemy collision
           game.enemies.forEach(e => {
-            if (gameOverRef.current) return; // Skip if already game over
+            if (gameOverRef.current) return;
             const dist = Math.hypot(game.player.x - e.x, game.player.y - e.y);
             if (dist < (PLAYER_SIZE + ENEMY_SIZE * (e.scale || 1)) / 2) {
-              const damage = Math.max(1, (e.boss ? 2 : 1) - stats.armor * 0.1);
-              setStats(prev => {
-                const newHp = prev.hp - damage * delta;
+              const dmg = Math.max(0.5, 1 - playerStats.armor * 0.05);
+              setPlayerStats(prev => {
+                const newHp = prev.hp - dmg;
                 if (newHp <= 0 && !gameOverRef.current) {
-                  gameOverRef.current = true; // Set flag immediately
+                  gameOverRef.current = true;
                   setGameState('gameover');
                   return { ...prev, hp: 0 };
                 }
                 return { ...prev, hp: Math.max(0, newHp) };
               });
-              setScreenShake(5);
             }
           });
           
+          // Collect XP orbs
           game.xpOrbs = game.xpOrbs.filter(orb => {
             const dist = Math.hypot(game.player.x - orb.x, game.player.y - orb.y);
-            if (dist < stats.pickupRange) {
+            if (dist < playerStats.pickupRange) {
               const angle = Math.atan2(game.player.y - orb.y, game.player.x - orb.x);
-              orb.x += Math.cos(angle) * 10 * delta;
-              orb.y += Math.sin(angle) * 10 * delta;
+              orb.x += Math.cos(angle) * 8;
+              orb.y += Math.sin(angle) * 8;
             }
             if (dist < 25) {
               setXp(prev => {
@@ -1252,486 +494,262 @@
             return true;
           });
           
-          // Collect weapon chests
+          // Collect chests
           game.chests = game.chests.filter(chest => {
             const dist = Math.hypot(game.player.x - chest.x, game.player.y - chest.y);
             if (dist < 40) {
-              // Collect the chest and add the weapon
               addWeaponFromChest(chest.weapon);
-              spawnParticles(chest.x, chest.y, 15, '#FFD700', 5);
               setScore(s => s + 500);
               return false;
             }
             return true;
           });
           
-          if (screenShake > 0) {
-            setScreenShake(s => Math.max(0, s - delta));
-          }
+          // Update damage numbers
+          game.damageNumbers = game.damageNumbers.filter(d => {
+            d.y += d.vy;
+            d.life--;
+            return d.life > 0;
+          });
           
-          const shakeX = screenShake > 0 ? (Math.random() - 0.5) * screenShake : 0;
-          const shakeY = screenShake > 0 ? (Math.random() - 0.5) * screenShake : 0;
-          
-          ctx.save();
-          ctx.translate(shakeX, shakeY);
-          
-          const bgGradient = ctx.createLinearGradient(0, 0, 0, GAME_HEIGHT);
-          bgGradient.addColorStop(0, '#0a1628');
-          bgGradient.addColorStop(0.5, '#0d2137');
-          bgGradient.addColorStop(1, '#0a1628');
-          ctx.fillStyle = bgGradient;
+          // RENDER
+          ctx.fillStyle = '#0a1628';
           ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
           
-          ctx.fillStyle = 'rgba(135, 206, 250, 0.1)';
-          for (let i = 0; i < 20; i++) {
-            const bx = ((i * 137 + now / 50) % (GAME_WIDTH + 100)) - 50;
-            const by = ((i * 89 + now / 30) % (GAME_HEIGHT + 100)) - 50;
-            ctx.beginPath();
-            ctx.arc(bx, by, 3 + (i % 5), 0, Math.PI * 2);
-            ctx.fill();
-          }
-          
+          // Grid
           ctx.strokeStyle = 'rgba(0, 191, 255, 0.08)';
           ctx.lineWidth = 1;
           const gridSize = 60;
-          const offsetX = -game.camera.x % gridSize;
-          const offsetY = -game.camera.y % gridSize;
-          for (let x = offsetX; x < GAME_WIDTH; x += gridSize) {
-            ctx.beginPath();
-            ctx.moveTo(x, 0);
-            ctx.lineTo(x, GAME_HEIGHT);
-            ctx.stroke();
+          for (let x = -game.camera.x % gridSize; x < GAME_WIDTH; x += gridSize) {
+            ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, GAME_HEIGHT); ctx.stroke();
           }
-          for (let y = offsetY; y < GAME_HEIGHT; y += gridSize) {
-            ctx.beginPath();
-            ctx.moveTo(0, y);
-            ctx.lineTo(GAME_WIDTH, y);
-            ctx.stroke();
+          for (let y = -game.camera.y % gridSize; y < GAME_HEIGHT; y += gridSize) {
+            ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(GAME_WIDTH, y); ctx.stroke();
           }
           
+          // XP orbs (pineapples)
           game.xpOrbs.forEach(orb => {
-            const screenX = orb.x - game.camera.x;
-            const screenY = orb.y - game.camera.y;
-            drawPineapple(ctx, screenX, screenY, 8 + orb.xp / 3);
-          });
-          
-          // Draw weapon chests
-          game.chests.forEach(chest => {
-            const screenX = chest.x - game.camera.x;
-            const screenY = chest.y - game.camera.y;
-            
-            // Chest glow
-            ctx.shadowColor = '#FFD700';
-            ctx.shadowBlur = 20;
-            
-            // Chest body
-            ctx.fillStyle = '#8B4513';
-            ctx.fillRect(screenX - 15, screenY - 10, 30, 20);
-            
-            // Chest lid
-            ctx.fillStyle = '#A0522D';
-            ctx.beginPath();
-            ctx.moveTo(screenX - 17, screenY - 10);
-            ctx.lineTo(screenX - 15, screenY - 18);
-            ctx.lineTo(screenX + 15, screenY - 18);
-            ctx.lineTo(screenX + 17, screenY - 10);
-            ctx.closePath();
-            ctx.fill();
-            
-            // Gold trim
-            ctx.strokeStyle = '#FFD700';
-            ctx.lineWidth = 2;
-            ctx.strokeRect(screenX - 15, screenY - 10, 30, 20);
-            
-            // Lock
+            const sx = orb.x - game.camera.x, sy = orb.y - game.camera.y;
             ctx.fillStyle = '#FFD700';
             ctx.beginPath();
-            ctx.arc(screenX, screenY, 5, 0, Math.PI * 2);
+            ctx.ellipse(sx, sy, 6, 8, 0, 0, Math.PI * 2);
             ctx.fill();
-            
-            // Weapon icon floating above
-            ctx.shadowBlur = 0;
-            ctx.font = '16px Arial';
-            ctx.textAlign = 'center';
-            ctx.fillText(WEAPONS[chest.weapon]?.emoji || '📦', screenX, screenY - 25);
+            ctx.fillStyle = '#228B22';
+            ctx.fillRect(sx - 2, sy - 12, 4, 5);
           });
-          ctx.shadowBlur = 0;
           
+          // Chests
+          game.chests.forEach(chest => {
+            const sx = chest.x - game.camera.x, sy = chest.y - game.camera.y;
+            ctx.shadowColor = '#FFD700';
+            ctx.shadowBlur = 15;
+            ctx.fillStyle = '#8B4513';
+            ctx.fillRect(sx - 12, sy - 8, 24, 16);
+            ctx.fillStyle = '#FFD700';
+            ctx.beginPath();
+            ctx.arc(sx, sy, 4, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+            ctx.font = '14px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(WEAPONS[chest.weapon]?.emoji || '📦', sx, sy - 15);
+          });
+          
+          // Enemies
           game.enemies.forEach(e => {
-            const screenX = e.x - game.camera.x;
-            const screenY = e.y - game.camera.y;
-            if (screenX > -100 && screenX < GAME_WIDTH + 100 && screenY > -100 && screenY < GAME_HEIGHT + 100) {
-              // Draw elite glow
-              if (e.isElite) {
-                ctx.shadowColor = '#FFD700';
-                ctx.shadowBlur = 25;
-              }
-              drawEnemy(ctx, e, screenX, screenY);
-              ctx.shadowBlur = 0;
-              
-              // Draw elite crown
-              if (e.isElite) {
-                ctx.font = '16px Arial';
-                ctx.textAlign = 'center';
-                ctx.fillText('👑', screenX, screenY - ENEMY_SIZE * (e.scale || 1) - 5);
-              }
+            const sx = e.x - game.camera.x, sy = e.y - game.camera.y;
+            if (sx < -100 || sx > GAME_WIDTH + 100 || sy < -100 || sy > GAME_HEIGHT + 100) return;
+            
+            const size = ENEMY_SIZE * (e.scale || 1);
+            ctx.fillStyle = e.hit > 0 ? '#FFF' : e.color;
+            if (e.isElite) { ctx.shadowColor = '#FFD700'; ctx.shadowBlur = 20; }
+            ctx.beginPath();
+            ctx.arc(sx, sy, size / 2, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+            
+            // HP bar
+            if (e.type !== 'plankton') {
+              const barW = size * 1.2;
+              ctx.fillStyle = 'rgba(0,0,0,0.7)';
+              ctx.fillRect(sx - barW/2, sy - size/2 - 10, barW, 5);
+              ctx.fillStyle = e.hp / e.maxHp > 0.5 ? '#0F0' : e.hp / e.maxHp > 0.25 ? '#FF0' : '#F00';
+              ctx.fillRect(sx - barW/2 + 1, sy - size/2 - 9, (barW - 2) * (e.hp / e.maxHp), 3);
+            }
+            
+            // Elite crown
+            if (e.isElite) {
+              ctx.font = '14px Arial';
+              ctx.textAlign = 'center';
+              ctx.fillText('👑', sx, sy - size/2 - 15);
             }
           });
           
+          // Projectiles
           game.projectiles.forEach(p => {
-            const screenX = p.x - game.camera.x;
-            const screenY = p.y - game.camera.y;
-            
+            const sx = p.x - game.camera.x, sy = p.y - game.camera.y;
             ctx.shadowColor = p.color;
-            ctx.shadowBlur = 15;
+            ctx.shadowBlur = 10;
             ctx.fillStyle = p.color;
             ctx.beginPath();
-            ctx.arc(screenX, screenY, p.size / 2, 0, Math.PI * 2);
+            ctx.arc(sx, sy, p.size / 2, 0, Math.PI * 2);
             ctx.fill();
-            
             ctx.shadowBlur = 0;
-            ctx.fillStyle = '#FFF';
-            ctx.beginPath();
-            ctx.arc(screenX, screenY, p.size / 4, 0, Math.PI * 2);
-            ctx.fill();
           });
           
-          game.particles.forEach(p => {
-            const screenX = p.x - game.camera.x;
-            const screenY = p.y - game.camera.y;
-            const alpha = p.life / p.maxLife;
-            ctx.fillStyle = p.color;
-            ctx.globalAlpha = alpha;
-            ctx.beginPath();
-            ctx.arc(screenX, screenY, p.size * alpha, 0, Math.PI * 2);
-            ctx.fill();
-          });
-          ctx.globalAlpha = 1;
+          // Player (SpongeBob)
+          const px = GAME_WIDTH / 2, py = GAME_HEIGHT / 2;
+          ctx.fillStyle = '#FFD700';
+          ctx.fillRect(px - 18, py - 25, 36, 45);
+          ctx.fillStyle = '#FFF';
+          ctx.beginPath();
+          ctx.arc(px - 7, py - 10, 8, 0, Math.PI * 2);
+          ctx.arc(px + 7, py - 10, 8, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = '#00BFFF';
+          ctx.beginPath();
+          ctx.arc(px - 7, py - 10, 4, 0, Math.PI * 2);
+          ctx.arc(px + 7, py - 10, 4, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = '#8B4513';
+          ctx.fillRect(px - 18, py + 10, 36, 12);
           
-          const px = GAME_WIDTH / 2;
-          const py = GAME_HEIGHT / 2;
-          const bobOffset = Math.sin(now / 150) * 3;
-          drawSpongebob(ctx, px, py, game.player.facing, bobOffset);
-          
+          // Damage numbers
           game.damageNumbers.forEach(d => {
-            const screenX = d.x - game.camera.x;
-            const screenY = d.y - game.camera.y;
-            const alpha = d.life / 40;
-            ctx.globalAlpha = alpha;
-            ctx.font = d.crit ? 'bold 24px Arial' : 'bold 16px Arial';
+            const sx = d.x - game.camera.x, sy = d.y - game.camera.y;
+            ctx.globalAlpha = d.life / 40;
+            ctx.font = d.crit ? 'bold 20px Arial' : 'bold 14px Arial';
             ctx.fillStyle = d.crit ? '#FF0' : '#FFF';
-            ctx.strokeStyle = '#000';
-            ctx.lineWidth = 3;
             ctx.textAlign = 'center';
-            ctx.strokeText(d.damage, screenX, screenY);
-            ctx.fillText(d.damage, screenX, screenY);
+            ctx.fillText(d.damage, sx, sy);
           });
           ctx.globalAlpha = 1;
           
-          ctx.restore();
-          
-          // Only continue loop if not game over
           if (!gameOverRef.current) {
             animationId = requestAnimationFrame(gameLoop);
           }
         };
         
         animationId = requestAnimationFrame(gameLoop);
-        return () => {
-          cancelAnimationFrame(animationId);
-          // Ensure loop stops on cleanup
-          gameOverRef.current = true;
-        };
-      }, [gameState, showUpgrade, weapons, stats, xpToLevel, time, generateUpgrades, screenShake, combo, addWeaponFromChest]);
+        return () => { cancelAnimationFrame(animationId); };
+      }, [gameState, showUpgrade, weapons, playerStats, xpToLevel, time, generateUpgrades, addWeaponFromChest]);
 
-      const formatTime = (seconds) => {
-        const m = Math.floor(seconds / 60);
-        const s = seconds % 60;
-        return `${m}:${s.toString().padStart(2, '0')}`;
-      };
+      const formatTime = (s) => `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, '0')}`;
 
+      // MENU
       if (gameState === 'menu') {
         return (
-          <div className="relative flex flex-col items-center justify-center h-screen overflow-hidden px-4" style={{
-            background: 'linear-gradient(180deg, #0a1628 0%, #1a3a5c 50%, #0d2137 100%)'
-          }}>
-            <div className="absolute inset-0 overflow-hidden pointer-events-none">
-              {[...Array(20)].map((_, i) => (
-                <div
-                  key={i}
-                  className="absolute rounded-full bg-cyan-400/10 animate-pulse"
-                  style={{
-                    width: 10 + (i % 5) * 8,
-                    height: 10 + (i % 5) * 8,
-                    left: `${(i * 17) % 100}%`,
-                    top: `${(i * 23) % 100}%`,
-                    animationDelay: `${i * 0.2}s`,
-                    animationDuration: `${2 + (i % 3)}s`
-                  }}
-                />
-              ))}
-            </div>
-            
-            <div className="relative z-10 mb-2">
-              <div className="text-7xl font-black tracking-tight" style={{
-                background: 'linear-gradient(180deg, #FFD700 0%, #FFA500 50%, #FF6B00 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                textShadow: '0 0 40px rgba(255, 165, 0, 0.5)',
-                fontFamily: 'Impact, sans-serif'
-              }}>
-                $COCKPANTS
-              </div>
-            </div>
-            
-            <div className="text-4xl font-bold text-cyan-300 mb-6 tracking-widest" style={{
-              textShadow: '0 0 20px rgba(0, 191, 255, 0.7)'
-            }}>
-              SURVIVORS
-            </div>
-            
-            <div className="text-9xl mb-8 animate-bounce" style={{ animationDuration: '2s' }}>
-              🧽
-            </div>
-            
-            <button 
-              onClick={startGame}
-              className="relative px-12 py-5 font-black text-2xl rounded-xl transition-all transform hover:scale-110 active:scale-95 overflow-hidden group"
-              style={{
-                background: 'linear-gradient(180deg, #FFD700 0%, #FFA500 100%)',
-                boxShadow: '0 0 30px rgba(255, 165, 0, 0.6), inset 0 -4px 0 rgba(0,0,0,0.2)',
-                color: '#1a1a1a',
-                minHeight: '60px',
-                minWidth: '200px'
-              }}
-            >
-              <span className="relative z-10">🎮 START GAME</span>
-              <div className="absolute inset-0 bg-white/30 translate-y-full group-hover:translate-y-0 transition-transform" />
+          <div className="flex flex-col items-center justify-center h-screen" style={{ background: 'linear-gradient(180deg, #0a1628 0%, #1a3a5c 100%)' }}>
+            <div className="text-6xl font-black mb-2" style={{ color: '#FFD700', textShadow: '3px 3px 0 #000' }}>$COCKPANTS</div>
+            <div className="text-3xl text-cyan-300 mb-8">SURVIVORS</div>
+            <div className="text-8xl mb-8">🧽</div>
+            <button onClick={startGame} className="px-10 py-4 text-2xl font-bold rounded-xl" style={{ background: 'linear-gradient(180deg, #FFD700, #FFA500)', color: '#000' }}>
+              🎮 START GAME
             </button>
-            
-            <div className="mt-10 text-cyan-200/80 text-center space-y-2">
-              <p className="text-lg">🎯 WASD or Arrow Keys to move</p>
-              <p className="text-sm md:text-lg">📱 Use joystick on mobile</p>
-              <p className="text-lg">⚔️ Auto-attack nearest enemies</p>
-              <p className="text-lg">🍍 Collect pineapples to level up!</p>
-            </div>
-            
-            <div className="absolute bottom-6 text-cyan-300/50 text-sm tracking-widest">
-              A <span className="text-yellow-400">$COCKPANTS</span> PRODUCTION • cockpants.lol
+            <div className="mt-8 text-cyan-200 text-center">
+              <p>WASD / Arrows to move</p>
+              <p>Auto-attack enemies</p>
+              <p>Collect XP to level up!</p>
             </div>
           </div>
         );
       }
 
+      // GAME OVER
       if (gameState === 'gameover') {
         return (
-          <div className="relative flex flex-col items-center justify-center h-screen overflow-hidden" style={{
-            background: 'linear-gradient(180deg, #1a0a0a 0%, #2d1515 50%, #1a0a0a 100%)'
-          }}>
-            <div className="text-6xl font-black mb-4" style={{
-              background: 'linear-gradient(180deg, #FF4444 0%, #AA0000 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-            }}>
-              GAME OVER
-            </div>
-            
-            <div className="text-8xl mb-8">💀</div>
-            
-            <div className="bg-black/50 rounded-2xl p-8 border border-red-500/30 mb-8">
-              <div className="grid grid-cols-2 gap-x-12 gap-y-4 text-xl">
-                <div className="text-gray-400">Score</div>
-                <div className="text-yellow-400 font-bold text-right">{score.toLocaleString()}</div>
-                <div className="text-gray-400">Level</div>
-                <div className="text-green-400 font-bold text-right">{level}</div>
-                <div className="text-gray-400">Time</div>
-                <div className="text-cyan-400 font-bold text-right">{formatTime(time)}</div>
-                <div className="text-gray-400">Kills</div>
-                <div className="text-red-400 font-bold text-right">{kills}</div>
+          <div className="flex flex-col items-center justify-center h-screen" style={{ background: 'linear-gradient(180deg, #1a0a0a, #2d1515)' }}>
+            <div className="text-5xl font-black mb-4" style={{ color: '#FF4444' }}>GAME OVER</div>
+            <div className="text-7xl mb-6">💀</div>
+            <div className="bg-black/50 rounded-xl p-6 mb-6 text-white">
+              <div className="flex justify-between gap-8 text-lg">
+                <span>Score:</span><span className="text-yellow-400 font-bold">{score.toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between gap-8 text-lg">
+                <span>Level:</span><span className="text-green-400 font-bold">{level}</span>
+              </div>
+              <div className="flex justify-between gap-8 text-lg">
+                <span>Time:</span><span className="text-cyan-400 font-bold">{formatTime(time)}</span>
+              </div>
+              <div className="flex justify-between gap-8 text-lg">
+                <span>Kills:</span><span className="text-red-400 font-bold">{kills}</span>
               </div>
             </div>
-            
             <div className="flex gap-4">
-              <button 
-                onClick={() => {
-                  if (typeof showLeaderboardModal === 'function') {
-                    showLeaderboardModal('survivors', '$COCKPANTS Survivors', score);
-                  }
-                }}
-                className="px-10 py-4 font-black text-xl rounded-xl transition-all transform hover:scale-105"
-                style={{
-                  background: 'linear-gradient(180deg, #4A90E2 0%, #357ABD 100%)',
-                  boxShadow: '0 0 20px rgba(74, 144, 226, 0.5)',
-                  color: '#fff'
-                }}
-              >
+              <button onClick={() => { if (typeof showLeaderboardModal === 'function') showLeaderboardModal('survivors', '$COCKPANTS Survivors', score); }}
+                className="px-8 py-3 text-xl font-bold rounded-xl" style={{ background: '#4A90E2', color: '#FFF' }}>
                 🏆 LEADERBOARD
               </button>
-              <button 
-                onClick={startGame}
-                className="px-10 py-4 font-black text-xl rounded-xl transition-all transform hover:scale-105"
-                style={{
-                  background: 'linear-gradient(180deg, #FFD700 0%, #FFA500 100%)',
-                  boxShadow: '0 0 20px rgba(255, 165, 0, 0.5)',
-                  color: '#1a1a1a'
-                }}
-              >
+              <button onClick={startGame} className="px-8 py-3 text-xl font-bold rounded-xl" style={{ background: 'linear-gradient(180deg, #FFD700, #FFA500)', color: '#000' }}>
                 🔄 TRY AGAIN
               </button>
             </div>
-            
-            <div className="mt-8 text-yellow-400/70 text-lg">
-              $COCKPANTS never gives up! 💎🙌
-            </div>
           </div>
         );
       }
 
+      // PLAYING
       return (
-        <div className="relative flex items-center justify-center h-screen" style={{
-          background: '#000'
-        }}>
-          {/* Mobile Joystick - only visible on mobile and when playing */}
-          <div className={`mobile-joystick ${gameState === 'playing' ? 'visible' : ''}`} id="mobileJoystick">
+        <div className="relative flex items-center justify-center h-screen" style={{ background: '#000' }}>
+          {/* Mobile Joystick */}
+          <div className={`mobile-joystick ${gameState === 'playing' ? 'visible' : ''}`}>
             <div className="joystick-base" id="joystickBase">
               <div className="joystick-stick" id="joystickStick"></div>
             </div>
           </div>
           
-          {/* Top-left UI - Score and info */}
-          <div className="absolute z-10 mobile-ui-scale" style={{ top: '8px', left: '8px' }}>
-            <div className="text-xl font-black tracking-tight" style={{
-              background: 'linear-gradient(90deg, #FFD700, #FFA500)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-            }}>
-              $COCKPANTS
-            </div>
-            <div className="text-white/90 text-base font-bold">
-              Score: <span className="text-yellow-400">{score.toLocaleString()}</span>
-            </div>
-            <div className="text-white/70 text-sm">
-              ⏱️ {formatTime(time)} | 💀 {kills}
-            </div>
-            {combo > 5 && (
-              <div className="text-orange-400 font-bold animate-pulse text-sm">
-                🔥 {combo}x COMBO!
-              </div>
-            )}
+          {/* UI - Top Left */}
+          <div className="absolute top-2 left-2 z-10">
+            <div className="text-xl font-bold" style={{ color: '#FFD700' }}>$COCKPANTS</div>
+            <div className="text-white text-sm">Score: <span className="text-yellow-400">{score.toLocaleString()}</span></div>
+            <div className="text-white/70 text-xs">⏱️ {formatTime(time)} | 💀 {kills}</div>
           </div>
           
-          {/* Top-right UI - Level and XP */}
-          <div className="absolute z-10 text-right mobile-ui-scale" style={{ top: '8px', right: '8px' }}>
-            <div className="text-green-400 font-bold text-lg">Level {level}</div>
-            <div className="w-32 h-3 bg-black/70 rounded-full border border-green-500/50 overflow-hidden">
-              <div 
-                className="h-full transition-all duration-300"
-                style={{ 
-                  width: `${(xp / xpToLevel) * 100}%`,
-                  background: 'linear-gradient(90deg, #00FF00, #88FF88)'
-                }}
-              />
+          {/* UI - Top Right */}
+          <div className="absolute top-2 right-2 z-10 text-right">
+            <div className="text-green-400 font-bold">Level {level}</div>
+            <div className="w-28 h-3 bg-black/70 rounded-full border border-green-500/50 overflow-hidden">
+              <div className="h-full bg-green-500" style={{ width: `${(xp / xpToLevel) * 100}%` }} />
             </div>
-            <div className="text-xs text-green-300/70 mt-1">{xp}/{xpToLevel} XP</div>
+            <div className="text-xs text-green-300/70">{xp}/{xpToLevel} XP</div>
           </div>
           
-          {/* Bottom-left UI - Health bar (bigger and more prominent) */}
-          <div className="absolute z-10 mobile-ui-scale" style={{ bottom: '8px', left: '8px' }}>
-            <div className="text-red-400 text-sm font-bold mb-1">
-              ❤️ {Math.floor(stats.hp)}/{stats.maxHp}
-            </div>
-            <div className="w-64 h-6 bg-black/80 rounded-full border-2 border-red-500/70 overflow-hidden">
-              <div 
-                className="h-full transition-all duration-200"
-                style={{ 
-                  width: `${(stats.hp / stats.maxHp) * 100}%`,
-                  background: stats.hp / stats.maxHp > 0.5 
-                    ? 'linear-gradient(90deg, #22c55e, #4ade80)'
-                    : stats.hp / stats.maxHp > 0.25 
-                      ? 'linear-gradient(90deg, #eab308, #fde047)'
-                      : 'linear-gradient(90deg, #dc2626, #f87171)'
-                }}
-              />
+          {/* UI - Bottom Left - HP */}
+          <div className="absolute bottom-2 left-2 z-10">
+            <div className="text-red-400 text-xs font-bold">❤️ {Math.floor(playerStats.hp)}/{playerStats.maxHp}</div>
+            <div className="w-48 h-5 bg-black/70 rounded-full border border-red-500/50 overflow-hidden">
+              <div className="h-full transition-all" style={{ 
+                width: `${(playerStats.hp / playerStats.maxHp) * 100}%`,
+                background: playerStats.hp / playerStats.maxHp > 0.5 ? '#22c55e' : playerStats.hp / playerStats.maxHp > 0.25 ? '#eab308' : '#dc2626'
+              }} />
             </div>
           </div>
           
-          {/* Bottom-right UI - Weapons */}
-          <div className="absolute z-10 mobile-ui-scale" style={{ bottom: '8px', right: '8px' }}>
-            <div className="text-xs text-gray-400 mb-1 text-right">WEAPONS</div>
-            <div className="flex gap-1 justify-end">
+          {/* UI - Bottom Right - Weapons */}
+          <div className="absolute bottom-2 right-2 z-10">
+            <div className="flex gap-1">
               {weapons.map((w, i) => (
-                <div 
-                  key={i} 
-                  className="w-12 h-12 rounded-lg flex flex-col items-center justify-center border"
-                  style={{
-                    background: 'rgba(0,0,0,0.7)',
-                    borderColor: w.color,
-                    boxShadow: `0 0 10px ${w.color}40`
-                  }}
-                >
-                  <span className="text-lg">{w.emoji}</span>
-                  <span className="text-[10px] text-white/70">Lv.{w.level}</span>
+                <div key={i} className="w-10 h-10 rounded-lg flex flex-col items-center justify-center text-lg" style={{ background: 'rgba(0,0,0,0.7)', border: `2px solid ${w.color}` }}>
+                  {w.emoji}
+                  <span className="text-[8px] text-white/70">Lv.{w.level}</span>
                 </div>
               ))}
             </div>
           </div>
           
-          <canvas 
-            ref={canvasRef} 
-            width={GAME_WIDTH} 
-            height={GAME_HEIGHT}
-            className="rounded-lg"
-            style={{
-              border: '3px solid',
-              borderImage: 'linear-gradient(180deg, #FFD700, #FF6B00) 1',
-              boxShadow: '0 0 40px rgba(255, 165, 0, 0.3)',
-              maxWidth: '100vw',
-              maxHeight: '100vh',
-              objectFit: 'contain'
-            }}
-          />
+          <canvas ref={canvasRef} width={GAME_WIDTH} height={GAME_HEIGHT} className="rounded-lg" style={{ border: '3px solid #FFD700', maxWidth: '100vw', maxHeight: '100vh' }} />
           
-          {bossWarning && (
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-30">
-              <div className="text-5xl font-black text-red-500 animate-pulse" style={{
-                textShadow: '0 0 30px rgba(255, 0, 0, 0.8)'
-              }}>
-                ⚠️ BOSS INCOMING ⚠️
-              </div>
-            </div>
-          )}
-          
+          {/* Upgrade Modal */}
           {showUpgrade && (
-            <div className="absolute inset-0 bg-black/85 flex items-center justify-center z-20 backdrop-blur-sm">
-              <div className="p-8 rounded-2xl" style={{
-                background: 'linear-gradient(180deg, #1a2a3a 0%, #0d1a2a 100%)',
-                border: '2px solid #FFD700',
-                boxShadow: '0 0 60px rgba(255, 215, 0, 0.3)'
-              }}>
-                <div className="text-4xl font-black text-center mb-2" style={{
-                  background: 'linear-gradient(90deg, #FFD700, #FFA500)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                }}>
-                  🎉 LEVEL UP! 🎉
-                </div>
-                <div className="text-cyan-300/70 text-center mb-6">Choose an upgrade</div>
-                
-                <div className="flex gap-4">
+            <div className="absolute inset-0 bg-black/85 flex items-center justify-center z-20">
+              <div className="p-6 rounded-xl" style={{ background: '#1a2a3a', border: '2px solid #FFD700' }}>
+                <div className="text-3xl font-bold text-center mb-2" style={{ color: '#FFD700' }}>🎉 LEVEL UP! 🎉</div>
+                <div className="text-cyan-300/70 text-center mb-4">Choose an upgrade</div>
+                <div className="flex gap-3">
                   {upgradeOptions.map((opt, i) => (
-                    <button
-                      key={i}
-                      onClick={() => selectUpgrade(opt)}
-                      className="p-5 rounded-xl border-2 transition-all transform hover:scale-105 hover:border-yellow-400 w-44 group"
-                      style={{
-                        background: 'linear-gradient(180deg, #1a3a4a 0%, #0d2030 100%)',
-                        borderColor: 'rgba(100, 200, 255, 0.3)'
-                      }}
-                    >
-                      <div className="text-4xl mb-3 group-hover:scale-110 transition-transform">
-                        {opt.emoji}
-                      </div>
-                      <div className="text-white font-bold text-sm mb-1">{opt.desc}</div>
+                    <button key={i} onClick={() => selectUpgrade(opt)} className="p-4 rounded-xl border-2 hover:border-yellow-400 w-36" style={{ background: '#0d1a2a', borderColor: 'rgba(100, 200, 255, 0.3)' }}>
+                      <div className="text-3xl mb-2">{opt.emoji}</div>
+                      <div className="text-white font-bold text-sm">{opt.desc}</div>
                       <div className="text-cyan-300/60 text-xs">{opt.subdesc}</div>
                     </button>
                   ))}
