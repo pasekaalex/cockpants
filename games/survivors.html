@@ -396,18 +396,21 @@
           game.camera.x = game.player.x - GAME_WIDTH / 2;
           game.camera.y = game.player.y - GAME_HEIGHT / 2;
           
-          // Spawn enemies - REDUCED spawn rate
+          // Spawn enemies
           spawnTimer += delta;
-          const spawnRate = Math.max(50, 80 - time * 0.2); // Slower spawn rate
+          const spawnRate = Math.max(25, 45 - time * 0.15); // Reasonable spawn rate
           if (spawnTimer > spawnRate) {
             spawnTimer = 0;
-            const count = Math.min(1 + Math.floor(time / 40), 3); // Fewer enemies at once
+            const count = Math.min(1 + Math.floor(time / 30), 3);
             for (let i = 0; i < count; i++) spawnEnemy();
           }
           
-          // Time
-          timeTimer += delta;
-          if (timeTimer > 60) { timeTimer = 0; setTime(t => t + 1); }
+          // Time - count frames, 60 frames = 1 second at 60fps
+          timeTimer += 1; // Count frames, not delta
+          if (timeTimer >= 60) { 
+            timeTimer = 0; 
+            setTime(t => t + 1); 
+          }
           
           // Shoot
           shootProjectiles();
