@@ -94,7 +94,9 @@
     const GAME_HEIGHT = 650;
     const PLAYER_SIZE = 44;
     const ENEMY_SIZE = 36;
-    const GAME_SPEED_MULTIPLIER = 0.65; // Global speed multiplier to slow down the game
+    const FIXED_DELTA = 1.0; // Fixed delta for consistent game speed - no speed-ups ever
+    const PLAYER_SPEED_MULT = 1.0; // Player moves at normal speed
+    const ENEMY_SPEED_MULT = 0.55; // Enemies move slower than player
 
     const WEAPONS = {
       spatula: { damage: 12, cooldown: 700, speed: 9, color: '#FFD700', name: 'Krusty Spatula', emoji: '🍳', pierce: 1 },
@@ -106,14 +108,14 @@
     };
 
     const ENEMIES = {
-      plankton: { hp: 15, speed: 2.8, xp: 3, color: '#228B22', name: 'Plankton', scale: 0.6 },
-      krabs: { hp: 80, speed: 1.2, xp: 20, color: '#DC143C', name: 'Mr. Krabs', scale: 1.2 },
-      squidward: { hp: 40, speed: 1.5, xp: 10, color: '#40E0D0', name: 'Squidward', scale: 1.0 },
-      patrick: { hp: 120, speed: 0.8, xp: 25, color: '#FFB6C1', name: 'Patrick', scale: 1.3 },
-      sandy: { hp: 60, speed: 2.2, xp: 15, color: '#DEB887', name: 'Sandy', scale: 1.0 },
-      doodlebob: { hp: 200, speed: 1.0, xp: 50, color: '#FFFFFF', name: 'DoodleBob', scale: 1.4, boss: true },
-      flyingDutchman: { hp: 350, speed: 0.9, xp: 100, color: '#00FF7F', name: 'Flying Dutchman', scale: 1.6, boss: true },
-      mermaidMan: { hp: 500, speed: 0.7, xp: 150, color: '#FF6347', name: 'Mermaid Man', scale: 1.5, boss: true },
+      plankton: { hp: 15, speed: 1.8, xp: 3, color: '#228B22', name: 'Plankton', scale: 0.6 },
+      krabs: { hp: 80, speed: 0.9, xp: 20, color: '#DC143C', name: 'Mr. Krabs', scale: 1.2 },
+      squidward: { hp: 40, speed: 1.1, xp: 10, color: '#40E0D0', name: 'Squidward', scale: 1.0 },
+      patrick: { hp: 120, speed: 0.6, xp: 25, color: '#FFB6C1', name: 'Patrick', scale: 1.3 },
+      sandy: { hp: 60, speed: 1.4, xp: 15, color: '#DEB887', name: 'Sandy', scale: 1.0 },
+      doodlebob: { hp: 200, speed: 0.8, xp: 50, color: '#FFFFFF', name: 'DoodleBob', scale: 1.4, boss: true },
+      flyingDutchman: { hp: 350, speed: 0.7, xp: 100, color: '#00FF7F', name: 'Flying Dutchman', scale: 1.6, boss: true },
+      mermaidMan: { hp: 500, speed: 0.5, xp: 150, color: '#FF6347', name: 'Mermaid Man', scale: 1.5, boss: true },
     };
 
     const PARTICLE_COLORS = ['#FFD700', '#FF69B4', '#00BFFF', '#FF4500', '#7CFC00', '#FF1493'];
@@ -130,7 +132,7 @@
       const [showUpgrade, setShowUpgrade] = useState(false);
       const [upgradeOptions, setUpgradeOptions] = useState([]);
       const [weapons, setWeapons] = useState([{ ...WEAPONS.spatula, level: 1 }]);
-      const [stats, setStats] = useState({ speed: 2.5, maxHp: 100, hp: 100, pickupRange: 60, armor: 0 });
+      const [stats, setStats] = useState({ speed: 3.8, maxHp: 250, hp: 250, pickupRange: 60, armor: 0 });
       const [screenShake, setScreenShake] = useState(0);
       const [bossWarning, setBossWarning] = useState(false);
       const [combo, setCombo] = useState(0);
@@ -138,6 +140,7 @@
       const [leaderboardShown, setLeaderboardShown] = useState(false);
       const touchRef = useRef({ active: false, startX: 0, startY: 0, currentX: 0, currentY: 0 });
       const joystickRef = useRef(null);
+      const gameOverRef = useRef(false); // Track game over state for the game loop
 
       const gameRef = useRef({
         player: { x: GAME_WIDTH / 2, y: GAME_HEIGHT / 2, facing: 1 },
@@ -207,7 +210,7 @@
         });
         
         options.push({ type: 'stat', stat: 'speed', emoji: '⚡', desc: '+15% Move Speed', subdesc: 'Gotta go fast!' });
-        options.push({ type: 'stat', stat: 'maxHp', emoji: '❤️', desc: '+30 Max HP', subdesc: '+Full heal!' });
+        options.push({ type: 'stat', stat: 'maxHp', emoji: '❤️', desc: '+50 Max HP', subdesc: '+Full heal!' });
         options.push({ type: 'stat', stat: 'pickupRange', emoji: '🧲', desc: '+30% Pickup Range', subdesc: 'Vacuum pineapples!' });
         options.push({ type: 'stat', stat: 'armor', emoji: '🛡️', desc: '+5 Armor', subdesc: 'Reduce damage taken' });
         options.push({ type: 'stat', stat: 'cooldown', emoji: '🔥', desc: '-10% Cooldowns', subdesc: 'Attack faster!' });
@@ -264,8 +267,9 @@
         setKills(0);
         setCombo(0);
         setWeapons([{ ...WEAPONS.spatula, level: 1 }]);
-        setStats({ speed: 2.5, maxHp: 100, hp: 100, pickupRange: 60, armor: 0 });
+        setStats({ speed: 3.8, maxHp: 250, hp: 250, pickupRange: 60, armor: 0 });
         setLeaderboardShown(false);
+        gameOverRef.current = false; // Reset game over flag for new game
         touchRef.current.active = false;
         const stick = document.getElementById('joystickStick');
         if (stick) {
@@ -358,6 +362,9 @@
 
       useEffect(() => {
         if (gameState !== 'playing' || showUpgrade) return;
+        
+        // Reset game over flag when starting to play
+        gameOverRef.current = false;
 
         const canvas = canvasRef.current;
         const ctx = canvas.getContext('2d');
@@ -366,7 +373,6 @@
         let spawnTimer = 0;
         let timeTimer = 0;
         let comboDecay = 0;
-        let smoothedDelta = 1.0; // Smoothed delta to prevent sudden spikes
 
         const spawnEnemy = (forceType = null) => {
           const game = gameRef.current;
@@ -977,14 +983,15 @@
         };
 
         const gameLoop = () => {
+          // Stop the loop immediately if game is over
+          if (gameOverRef.current) {
+            return;
+          }
+          
           const now = Date.now();
-          // Use a more stable delta calculation to prevent speed spikes
-          // Cap delta at 1.2 frames (20ms) to prevent speed-up from frame drops
-          const rawDelta = (now - lastTime) / 16.67;
-          const cappedDelta = Math.min(rawDelta, 1.2);
-          // Smooth the delta to prevent sudden spikes when particles spawn
-          smoothedDelta = smoothedDelta * 0.7 + cappedDelta * 0.3;
-          const delta = smoothedDelta * GAME_SPEED_MULTIPLIER;
+          // FIXED delta - game speed never changes, like Vampire Survivors
+          // We use fixed timestep to ensure consistent gameplay regardless of frame rate
+          const delta = FIXED_DELTA;
           lastTime = now;
           
           const game = gameRef.current;
@@ -1083,8 +1090,8 @@
           
           game.enemies.forEach(e => {
             const angle = Math.atan2(game.player.y - e.y, game.player.x - e.x);
-            e.x += Math.cos(angle) * e.speed * delta;
-            e.y += Math.sin(angle) * e.speed * delta;
+            e.x += Math.cos(angle) * e.speed * ENEMY_SPEED_MULT * delta;
+            e.y += Math.sin(angle) * e.speed * ENEMY_SPEED_MULT * delta;
             if (e.hit > 0) e.hit -= delta;
           });
           
@@ -1135,13 +1142,16 @@
           game.enemies = game.enemies.filter(e => e.hp > 0);
           
           game.enemies.forEach(e => {
+            if (gameOverRef.current) return; // Skip if already game over
             const dist = Math.hypot(game.player.x - e.x, game.player.y - e.y);
             if (dist < (PLAYER_SIZE + ENEMY_SIZE * (e.scale || 1)) / 2) {
               const damage = Math.max(1, (e.boss ? 2 : 1) - stats.armor * 0.1);
               setStats(prev => {
                 const newHp = prev.hp - damage * delta;
-                if (newHp <= 0) {
+                if (newHp <= 0 && !gameOverRef.current) {
+                  gameOverRef.current = true; // Set flag immediately
                   setGameState('gameover');
+                  return { ...prev, hp: 0 };
                 }
                 return { ...prev, hp: Math.max(0, newHp) };
               });
@@ -1283,11 +1293,18 @@
           
           ctx.restore();
           
-          animationId = requestAnimationFrame(gameLoop);
+          // Only continue loop if not game over
+          if (!gameOverRef.current) {
+            animationId = requestAnimationFrame(gameLoop);
+          }
         };
         
         animationId = requestAnimationFrame(gameLoop);
-        return () => cancelAnimationFrame(animationId);
+        return () => {
+          cancelAnimationFrame(animationId);
+          // Ensure loop stops on cleanup
+          gameOverRef.current = true;
+        };
       }, [gameState, showUpgrade, weapons, stats, xpToLevel, time, generateUpgrades, screenShake, combo]);
 
       const formatTime = (seconds) => {
@@ -1444,30 +1461,32 @@
             </div>
           </div>
           
-          <div className="absolute top-3 left-3 z-10 mobile-ui-scale">
-            <div className="text-2xl font-black tracking-tight" style={{
+          {/* Top-left UI - Score and info */}
+          <div className="absolute z-10 mobile-ui-scale" style={{ top: '8px', left: '8px' }}>
+            <div className="text-xl font-black tracking-tight" style={{
               background: 'linear-gradient(90deg, #FFD700, #FFA500)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
             }}>
               $COCKPANTS
             </div>
-            <div className="text-white/90 text-lg font-bold">
+            <div className="text-white/90 text-base font-bold">
               Score: <span className="text-yellow-400">{score.toLocaleString()}</span>
             </div>
-            <div className="text-white/70">
+            <div className="text-white/70 text-sm">
               ⏱️ {formatTime(time)} | 💀 {kills}
             </div>
             {combo > 5 && (
-              <div className="text-orange-400 font-bold animate-pulse">
+              <div className="text-orange-400 font-bold animate-pulse text-sm">
                 🔥 {combo}x COMBO!
               </div>
             )}
           </div>
           
-          <div className="absolute top-3 right-3 z-10 text-right mobile-ui-scale">
-            <div className="text-green-400 font-bold text-xl">Level {level}</div>
-            <div className="w-36 h-4 bg-black/70 rounded-full border border-green-500/50 overflow-hidden">
+          {/* Top-right UI - Level and XP */}
+          <div className="absolute z-10 text-right mobile-ui-scale" style={{ top: '8px', right: '8px' }}>
+            <div className="text-green-400 font-bold text-lg">Level {level}</div>
+            <div className="w-32 h-3 bg-black/70 rounded-full border border-green-500/50 overflow-hidden">
               <div 
                 className="h-full transition-all duration-300"
                 style={{ 
@@ -1479,11 +1498,12 @@
             <div className="text-xs text-green-300/70 mt-1">{xp}/{xpToLevel} XP</div>
           </div>
           
-          <div className="absolute bottom-3 left-3 z-10 mobile-ui-scale">
+          {/* Bottom-left UI - Health bar (bigger and more prominent) */}
+          <div className="absolute z-10 mobile-ui-scale" style={{ bottom: '8px', left: '8px' }}>
             <div className="text-red-400 text-sm font-bold mb-1">
               ❤️ {Math.floor(stats.hp)}/{stats.maxHp}
             </div>
-            <div className="w-52 h-5 bg-black/70 rounded-full border border-red-500/50 overflow-hidden">
+            <div className="w-64 h-6 bg-black/80 rounded-full border-2 border-red-500/70 overflow-hidden">
               <div 
                 className="h-full transition-all duration-200"
                 style={{ 
@@ -1498,9 +1518,10 @@
             </div>
           </div>
           
-          <div className="absolute bottom-3 right-3 z-10 mobile-ui-scale">
-            <div className="text-xs text-gray-400 mb-2 text-right">WEAPONS</div>
-            <div className="flex gap-2 justify-end">
+          {/* Bottom-right UI - Weapons */}
+          <div className="absolute z-10 mobile-ui-scale" style={{ bottom: '8px', right: '8px' }}>
+            <div className="text-xs text-gray-400 mb-1 text-right">WEAPONS</div>
+            <div className="flex gap-1 justify-end">
               {weapons.map((w, i) => (
                 <div 
                   key={i} 
