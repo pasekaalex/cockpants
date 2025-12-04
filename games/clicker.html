@@ -1322,81 +1322,81 @@
     // =====================
     const upgrades = [
       // === CLICK UPGRADES (BASIC) ===
-      { id: 'spatula', name: 'Golden Spatula', desc: '+1 pump per click', icon: '🥄', baseCost: 9, costMult: 1.5, effect: 'perClick', value: 1, category: 'click' },
-      { id: 'gloves', name: 'Karate Gloves', desc: '+2 pumps per click', icon: '🥊', baseCost: 43, costMult: 1.6, effect: 'perClick', value: 2, category: 'click' },
-      { id: 'net', name: 'Jellyfish Net', desc: '+5 pumps per click', icon: '🪼', baseCost: 170, costMult: 1.7, effect: 'perClick', value: 5, category: 'click' },
-      { id: 'anchor', name: 'Anchor Arms', desc: '+10 pumps per click', icon: '⚓', baseCost: 850, costMult: 1.8, effect: 'perClick', value: 10, category: 'click' },
-      { id: 'crown', name: "Neptune's Crown", desc: '+25 pumps per click', icon: '👑', baseCost: 4250, costMult: 2.0, effect: 'perClick', value: 25, category: 'click' },
-      { id: 'trident', name: "Neptune's Trident", desc: '+100 pumps per click', icon: '🔱', baseCost: 42500, costMult: 2.2, effect: 'perClick', value: 100, category: 'click' },
+      { id: 'spatula', name: 'Golden Spatula', desc: '+1 pump per click', icon: '🥄', baseCost: 13, costMult: 1.5, effect: 'perClick', value: 1, category: 'click' },
+      { id: 'gloves', name: 'Karate Gloves', desc: '+2 pumps per click', icon: '🥊', baseCost: 62, costMult: 1.6, effect: 'perClick', value: 2, category: 'click' },
+      { id: 'net', name: 'Jellyfish Net', desc: '+5 pumps per click', icon: '🪼', baseCost: 247, costMult: 1.7, effect: 'perClick', value: 5, category: 'click' },
+      { id: 'anchor', name: 'Anchor Arms', desc: '+10 pumps per click', icon: '⚓', baseCost: 1233, costMult: 1.8, effect: 'perClick', value: 10, category: 'click' },
+      { id: 'crown', name: "Neptune's Crown", desc: '+25 pumps per click', icon: '👑', baseCost: 6163, costMult: 2.0, effect: 'perClick', value: 25, category: 'click' },
+      { id: 'trident', name: "Neptune's Trident", desc: '+100 pumps per click', icon: '🔱', baseCost: 61625, costMult: 2.2, effect: 'perClick', value: 100, category: 'click' },
       
       // === AUTO PUMP UPGRADES (BASIC) ===
-      { id: 'gary', name: 'Gary Helper', desc: '+1 pump per second', icon: '🐌', baseCost: 21, costMult: 1.4, effect: 'autoPump', value: 1, category: 'auto' },
-      { id: 'patty', name: 'Krabby Patty Machine', desc: '+5 pumps per second', icon: '🍔', baseCost: 128, costMult: 1.5, effect: 'autoPump', value: 5, category: 'auto' },
-      { id: 'bubble', name: 'Bubble Blower', desc: '+10 pumps per second', icon: '🫧', baseCost: 425, costMult: 1.5, effect: 'autoPump', value: 10, category: 'auto' },
-      { id: 'pineapple', name: 'Pineapple Power', desc: '+25 pumps per second', icon: '🍍', baseCost: 1700, costMult: 1.6, effect: 'autoPump', value: 25, category: 'auto' },
-      { id: 'formula', name: 'Secret Formula', desc: '+100 pumps per second', icon: '📜', baseCost: 8500, costMult: 1.7, effect: 'autoPump', value: 100, category: 'auto' },
-      { id: 'mermaidman', name: 'Mermaid Man Powers', desc: '+500 pumps per second', icon: '🦸', baseCost: 85000, costMult: 1.8, effect: 'autoPump', value: 500, category: 'auto' },
+      { id: 'gary', name: 'Gary Helper', desc: '+1 pump per second', icon: '🐌', baseCost: 30, costMult: 1.4, effect: 'autoPump', value: 1, category: 'auto' },
+      { id: 'patty', name: 'Krabby Patty Machine', desc: '+5 pumps per second', icon: '🍔', baseCost: 186, costMult: 1.5, effect: 'autoPump', value: 5, category: 'auto' },
+      { id: 'bubble', name: 'Bubble Blower', desc: '+10 pumps per second', icon: '🫧', baseCost: 616, costMult: 1.5, effect: 'autoPump', value: 10, category: 'auto' },
+      { id: 'pineapple', name: 'Pineapple Power', desc: '+25 pumps per second', icon: '🍍', baseCost: 2465, costMult: 1.6, effect: 'autoPump', value: 25, category: 'auto' },
+      { id: 'formula', name: 'Secret Formula', desc: '+100 pumps per second', icon: '📜', baseCost: 12325, costMult: 1.7, effect: 'autoPump', value: 100, category: 'auto' },
+      { id: 'mermaidman', name: 'Mermaid Man Powers', desc: '+500 pumps per second', icon: '🦸', baseCost: 123250, costMult: 1.8, effect: 'autoPump', value: 500, category: 'auto' },
       
       // === PASSIVE INCOME (BASIC) ===
-      { id: 'penny', name: "Penny's Tips", desc: '+0.5 BB$ per second', icon: '🪙', baseCost: 85, costMult: 1.5, effect: 'dollarSec', value: 0.5, category: 'passive' },
-      { id: 'register', name: 'Cash Register', desc: '+2 BB$ per second', icon: '🧾', baseCost: 425, costMult: 1.6, effect: 'dollarSec', value: 2, category: 'passive' },
-      { id: 'vault', name: "Mr. Krabs' Vault", desc: '+10 BB$ per second', icon: '💰', baseCost: 2125, costMult: 1.7, effect: 'dollarSec', value: 10, category: 'passive' },
-      { id: 'bank', name: 'Bikini Bottom Bank', desc: '+50 BB$ per second', icon: '🏦', baseCost: 12750, costMult: 1.8, effect: 'dollarSec', value: 50, category: 'passive' },
-      { id: 'treasure', name: 'Flying Dutchman Treasure', desc: '+250 BB$ per second', icon: '💎', baseCost: 85000, costMult: 2.0, effect: 'dollarSec', value: 250, category: 'passive' },
+      { id: 'penny', name: "Penny's Tips", desc: '+0.5 BB$ per second', icon: '🪙', baseCost: 123, costMult: 1.5, effect: 'dollarSec', value: 0.5, category: 'passive' },
+      { id: 'register', name: 'Cash Register', desc: '+2 BB$ per second', icon: '🧾', baseCost: 616, costMult: 1.6, effect: 'dollarSec', value: 2, category: 'passive' },
+      { id: 'vault', name: "Mr. Krabs' Vault", desc: '+10 BB$ per second', icon: '💰', baseCost: 3081, costMult: 1.7, effect: 'dollarSec', value: 10, category: 'passive' },
+      { id: 'bank', name: 'Bikini Bottom Bank', desc: '+50 BB$ per second', icon: '🏦', baseCost: 18488, costMult: 1.8, effect: 'dollarSec', value: 50, category: 'passive' },
+      { id: 'treasure', name: 'Flying Dutchman Treasure', desc: '+250 BB$ per second', icon: '💎', baseCost: 123250, costMult: 2.0, effect: 'dollarSec', value: 250, category: 'passive' },
       
       // === DOLLAR RATE (BASIC) ===
-      { id: 'tip', name: 'Tip Jar', desc: '+0.05 BB$ per pump', icon: '🫙', baseCost: 170, costMult: 1.8, effect: 'dollarRate', value: 0.05, category: 'rate' },
-      { id: 'bonus', name: 'Employee Bonus', desc: '+0.1 BB$ per pump', icon: '📋', baseCost: 850, costMult: 2.0, effect: 'dollarRate', value: 0.1, category: 'rate' },
-      { id: 'raise', name: 'Big Raise', desc: '+0.25 BB$ per pump', icon: '📈', baseCost: 4250, costMult: 2.2, effect: 'dollarRate', value: 0.25, category: 'rate' },
-      { id: 'profit', name: 'Profit Sharing', desc: '+1 BB$ per pump', icon: '💹', baseCost: 42500, costMult: 2.5, effect: 'dollarRate', value: 1, category: 'rate' },
+      { id: 'tip', name: 'Tip Jar', desc: '+0.05 BB$ per pump', icon: '🫙', baseCost: 247, costMult: 1.8, effect: 'dollarRate', value: 0.05, category: 'rate' },
+      { id: 'bonus', name: 'Employee Bonus', desc: '+0.1 BB$ per pump', icon: '📋', baseCost: 1233, costMult: 2.0, effect: 'dollarRate', value: 0.1, category: 'rate' },
+      { id: 'raise', name: 'Big Raise', desc: '+0.25 BB$ per pump', icon: '📈', baseCost: 6163, costMult: 2.2, effect: 'dollarRate', value: 0.25, category: 'rate' },
+      { id: 'profit', name: 'Profit Sharing', desc: '+1 BB$ per pump', icon: '💹', baseCost: 61625, costMult: 2.5, effect: 'dollarRate', value: 1, category: 'rate' },
       
       // ========================================
       // LEGENDARY TIER (Millions)
       // ========================================
-      { id: 'planktonLaser', name: "Plankton's Laser", desc: '+500 pumps per click', icon: '🔫', baseCost: 425000, costMult: 2.0, effect: 'perClick', value: 500, category: 'legendary', tier: 'legendary' },
-      { id: 'chum', name: 'Chum Bucket Takeover', desc: '+1,000 pumps per click', icon: '🪣', baseCost: 1700000, costMult: 2.2, effect: 'perClick', value: 1000, category: 'legendary', tier: 'legendary' },
-      { id: 'karen', name: 'Karen Computer', desc: '+5,000 pumps per second', icon: '🖥️', baseCost: 850000, costMult: 1.9, effect: 'autoPump', value: 5000, category: 'legendary', tier: 'legendary' },
-      { id: 'dutchman', name: 'Flying Dutchman Soul', desc: '+25,000 pumps per second', icon: '👻', baseCost: 4250000, costMult: 2.0, effect: 'autoPump', value: 25000, category: 'legendary', tier: 'legendary' },
-      { id: 'atlantis', name: 'Atlantis Riches', desc: '+2,000 BB$ per second', icon: '🏛️', baseCost: 1700000, costMult: 2.0, effect: 'dollarSec', value: 2000, category: 'legendary', tier: 'legendary' },
-      { id: 'goldDoubloon', name: 'Gold Doubloons', desc: '+5 BB$ per pump', icon: '🪙', baseCost: 850000, costMult: 2.5, effect: 'dollarRate', value: 5, category: 'legendary', tier: 'legendary' },
+      { id: 'planktonLaser', name: "Plankton's Laser", desc: '+500 pumps per click', icon: '🔫', baseCost: 616250, costMult: 2.0, effect: 'perClick', value: 500, category: 'legendary', tier: 'legendary' },
+      { id: 'chum', name: 'Chum Bucket Takeover', desc: '+1,000 pumps per click', icon: '🪣', baseCost: 2465000, costMult: 2.2, effect: 'perClick', value: 1000, category: 'legendary', tier: 'legendary' },
+      { id: 'karen', name: 'Karen Computer', desc: '+5,000 pumps per second', icon: '🖥️', baseCost: 1232500, costMult: 1.9, effect: 'autoPump', value: 5000, category: 'legendary', tier: 'legendary' },
+      { id: 'dutchman', name: 'Flying Dutchman Soul', desc: '+25,000 pumps per second', icon: '👻', baseCost: 6162500, costMult: 2.0, effect: 'autoPump', value: 25000, category: 'legendary', tier: 'legendary' },
+      { id: 'atlantis', name: 'Atlantis Riches', desc: '+2,000 BB$ per second', icon: '🏛️', baseCost: 2465000, costMult: 2.0, effect: 'dollarSec', value: 2000, category: 'legendary', tier: 'legendary' },
+      { id: 'goldDoubloon', name: 'Gold Doubloons', desc: '+5 BB$ per pump', icon: '🪙', baseCost: 1232500, costMult: 2.5, effect: 'dollarRate', value: 5, category: 'legendary', tier: 'legendary' },
       
       // ========================================
       // COSMIC TIER (Tens of Millions)
       // ========================================
-      { id: 'moonRock', name: 'Moon Rock Pants', desc: '+10,000 pumps per click', icon: '🌙', baseCost: 8500000, costMult: 2.0, effect: 'perClick', value: 10000, category: 'cosmic', tier: 'cosmic' },
-      { id: 'alienJelly', name: 'Alien Jellyfish', desc: '+50,000 pumps per click', icon: '👽', baseCost: 42500000, costMult: 2.2, effect: 'perClick', value: 50000, category: 'cosmic', tier: 'cosmic' },
-      { id: 'blackHole', name: 'Black Hole Pump', desc: '+250,000 pumps per second', icon: '🕳️', baseCost: 21250000, costMult: 2.0, effect: 'autoPump', value: 250000, category: 'cosmic', tier: 'cosmic' },
-      { id: 'starPower', name: 'Patrick Star Power', desc: '+1,000,000 pumps per second', icon: '⭐', baseCost: 85000000, costMult: 2.1, effect: 'autoPump', value: 1000000, category: 'cosmic', tier: 'cosmic' },
-      { id: 'cosmicCash', name: 'Cosmic Cash Flow', desc: '+50,000 BB$ per second', icon: '🌌', baseCost: 42500000, costMult: 2.0, effect: 'dollarSec', value: 50000, category: 'cosmic', tier: 'cosmic' },
-      { id: 'stardust', name: 'Stardust Coating', desc: '+25 BB$ per pump', icon: '✨', baseCost: 21250000, costMult: 2.5, effect: 'dollarRate', value: 25, category: 'cosmic', tier: 'cosmic' },
+      { id: 'moonRock', name: 'Moon Rock Pants', desc: '+10,000 pumps per click', icon: '🌙', baseCost: 12325000, costMult: 2.0, effect: 'perClick', value: 10000, category: 'cosmic', tier: 'cosmic' },
+      { id: 'alienJelly', name: 'Alien Jellyfish', desc: '+50,000 pumps per click', icon: '👽', baseCost: 61625000, costMult: 2.2, effect: 'perClick', value: 50000, category: 'cosmic', tier: 'cosmic' },
+      { id: 'blackHole', name: 'Black Hole Pump', desc: '+250,000 pumps per second', icon: '🕳️', baseCost: 30812500, costMult: 2.0, effect: 'autoPump', value: 250000, category: 'cosmic', tier: 'cosmic' },
+      { id: 'starPower', name: 'Patrick Star Power', desc: '+1,000,000 pumps per second', icon: '⭐', baseCost: 123250000, costMult: 2.1, effect: 'autoPump', value: 1000000, category: 'cosmic', tier: 'cosmic' },
+      { id: 'cosmicCash', name: 'Cosmic Cash Flow', desc: '+50,000 BB$ per second', icon: '🌌', baseCost: 61625000, costMult: 2.0, effect: 'dollarSec', value: 50000, category: 'cosmic', tier: 'cosmic' },
+      { id: 'stardust', name: 'Stardust Coating', desc: '+25 BB$ per pump', icon: '✨', baseCost: 30812500, costMult: 2.5, effect: 'dollarRate', value: 25, category: 'cosmic', tier: 'cosmic' },
       
       // ========================================
       // INTERDIMENSIONAL TIER (Hundreds of Millions)
       // ========================================
-      { id: 'portalPump', name: 'Portal Pump', desc: '+250,000 pumps per click', icon: '🌀', baseCost: 212500000, costMult: 2.0, effect: 'perClick', value: 250000, category: 'interdimensional', tier: 'interdimensional' },
-      { id: 'timeWarp', name: 'Time Warp Engine', desc: '+1,000,000 pumps per click', icon: '⏰', baseCost: 850000000, costMult: 2.2, effect: 'perClick', value: 1000000, category: 'interdimensional', tier: 'interdimensional' },
-      { id: 'multiverse', name: 'Multiverse Factory', desc: '+10,000,000 pumps per second', icon: '🔮', baseCost: 425000000, costMult: 2.0, effect: 'autoPump', value: 10000000, category: 'interdimensional', tier: 'interdimensional' },
-      { id: 'infiniteGary', name: 'Infinite Garys', desc: '+50,000,000 pumps per second', icon: '🐌', baseCost: 1700000000, costMult: 2.1, effect: 'autoPump', value: 50000000, category: 'interdimensional', tier: 'interdimensional' },
-      { id: 'dimensionWallet', name: 'Dimension Wallet', desc: '+1,000,000 BB$ per second', icon: '👛', baseCost: 850000000, costMult: 2.0, effect: 'dollarSec', value: 1000000, category: 'interdimensional', tier: 'interdimensional' },
-      { id: 'realityBend', name: 'Reality Bender', desc: '+100 BB$ per pump', icon: '🌈', baseCost: 425000000, costMult: 2.5, effect: 'dollarRate', value: 100, category: 'interdimensional', tier: 'interdimensional' },
+      { id: 'portalPump', name: 'Portal Pump', desc: '+250,000 pumps per click', icon: '🌀', baseCost: 308125000, costMult: 2.0, effect: 'perClick', value: 250000, category: 'interdimensional', tier: 'interdimensional' },
+      { id: 'timeWarp', name: 'Time Warp Engine', desc: '+1,000,000 pumps per click', icon: '⏰', baseCost: 1232500000, costMult: 2.2, effect: 'perClick', value: 1000000, category: 'interdimensional', tier: 'interdimensional' },
+      { id: 'multiverse', name: 'Multiverse Factory', desc: '+10,000,000 pumps per second', icon: '🔮', baseCost: 616250000, costMult: 2.0, effect: 'autoPump', value: 10000000, category: 'interdimensional', tier: 'interdimensional' },
+      { id: 'infiniteGary', name: 'Infinite Garys', desc: '+50,000,000 pumps per second', icon: '🐌', baseCost: 2465000000, costMult: 2.1, effect: 'autoPump', value: 50000000, category: 'interdimensional', tier: 'interdimensional' },
+      { id: 'dimensionWallet', name: 'Dimension Wallet', desc: '+1,000,000 BB$ per second', icon: '👛', baseCost: 1232500000, costMult: 2.0, effect: 'dollarSec', value: 1000000, category: 'interdimensional', tier: 'interdimensional' },
+      { id: 'realityBend', name: 'Reality Bender', desc: '+100 BB$ per pump', icon: '🌈', baseCost: 616250000, costMult: 2.5, effect: 'dollarRate', value: 100, category: 'interdimensional', tier: 'interdimensional' },
       
       // ========================================
       // ASCENDED TIER (Billions+)
       // ========================================
-      { id: 'godPump', name: 'God Pump', desc: '+10,000,000 pumps per click', icon: '👼', baseCost: 4250000000, costMult: 2.0, effect: 'perClick', value: 10000000, category: 'ascended', tier: 'ascended' },
-      { id: 'infinityPants', name: 'Infinity Pants', desc: '+100,000,000 pumps per click', icon: '♾️', baseCost: 42500000000, costMult: 2.2, effect: 'perClick', value: 100000000, category: 'ascended', tier: 'ascended' },
-      { id: 'bigBang', name: 'Big Bang Generator', desc: '+500,000,000 pumps per second', icon: '💥', baseCost: 21250000000, costMult: 2.0, effect: 'autoPump', value: 500000000, category: 'ascended', tier: 'ascended' },
-      { id: 'cosmicSpongeBob', name: 'Cosmic SpongeBob', desc: '+5,000,000,000 pumps per second', icon: '🧽', baseCost: 212500000000, costMult: 2.1, effect: 'autoPump', value: 5000000000, category: 'ascended', tier: 'ascended' },
-      { id: 'infiniteWealth', name: 'Infinite Wealth', desc: '+100,000,000 BB$ per second', icon: '🏆', baseCost: 85000000000, costMult: 2.0, effect: 'dollarSec', value: 100000000, category: 'ascended', tier: 'ascended' },
-      { id: 'universalRate', name: 'Universal Rate', desc: '+1,000 BB$ per pump', icon: '🌟', baseCost: 42500000000, costMult: 2.5, effect: 'dollarRate', value: 1000, category: 'ascended', tier: 'ascended' },
+      { id: 'godPump', name: 'God Pump', desc: '+10,000,000 pumps per click', icon: '👼', baseCost: 6162500000, costMult: 2.0, effect: 'perClick', value: 10000000, category: 'ascended', tier: 'ascended' },
+      { id: 'infinityPants', name: 'Infinity Pants', desc: '+100,000,000 pumps per click', icon: '♾️', baseCost: 61625000000, costMult: 2.2, effect: 'perClick', value: 100000000, category: 'ascended', tier: 'ascended' },
+      { id: 'bigBang', name: 'Big Bang Generator', desc: '+500,000,000 pumps per second', icon: '💥', baseCost: 30812500000, costMult: 2.0, effect: 'autoPump', value: 500000000, category: 'ascended', tier: 'ascended' },
+      { id: 'cosmicSpongeBob', name: 'Cosmic SpongeBob', desc: '+5,000,000,000 pumps per second', icon: '🧽', baseCost: 308125000000, costMult: 2.1, effect: 'autoPump', value: 5000000000, category: 'ascended', tier: 'ascended' },
+      { id: 'infiniteWealth', name: 'Infinite Wealth', desc: '+100,000,000 BB$ per second', icon: '🏆', baseCost: 123250000000, costMult: 2.0, effect: 'dollarSec', value: 100000000, category: 'ascended', tier: 'ascended' },
+      { id: 'universalRate', name: 'Universal Rate', desc: '+1,000 BB$ per pump', icon: '🌟', baseCost: 61625000000, costMult: 2.5, effect: 'dollarRate', value: 1000, category: 'ascended', tier: 'ascended' },
       
       // ========================================
       // OMEGA TIER (Trillions)
       // ========================================
-      { id: 'omegaPump', name: 'Omega Pump', desc: '+1B pumps per click', icon: '🔥', baseCost: 425000000000, costMult: 2.0, effect: 'perClick', value: 1000000000, category: 'omega', tier: 'omega' },
-      { id: 'realityEngine', name: 'Reality Engine', desc: '+10B pumps per second', icon: '⚙️', baseCost: 850000000000, costMult: 2.0, effect: 'autoPump', value: 10000000000, category: 'omega', tier: 'omega' },
-      { id: 'omegaCash', name: 'Omega Cash', desc: '+1B BB$ per second', icon: '💎', baseCost: 425000000000, costMult: 2.0, effect: 'dollarSec', value: 1000000000, category: 'omega', tier: 'omega' },
-      { id: 'omegaRate', name: 'Omega Rate', desc: '+10,000 BB$ per pump', icon: '💫', baseCost: 212500000000, costMult: 2.5, effect: 'dollarRate', value: 10000, category: 'omega', tier: 'omega' },
+      { id: 'omegaPump', name: 'Omega Pump', desc: '+1B pumps per click', icon: '🔥', baseCost: 616250000000, costMult: 2.0, effect: 'perClick', value: 1000000000, category: 'omega', tier: 'omega' },
+      { id: 'realityEngine', name: 'Reality Engine', desc: '+10B pumps per second', icon: '⚙️', baseCost: 1232500000000, costMult: 2.0, effect: 'autoPump', value: 10000000000, category: 'omega', tier: 'omega' },
+      { id: 'omegaCash', name: 'Omega Cash', desc: '+1B BB$ per second', icon: '💎', baseCost: 616250000000, costMult: 2.0, effect: 'dollarSec', value: 1000000000, category: 'omega', tier: 'omega' },
+      { id: 'omegaRate', name: 'Omega Rate', desc: '+10,000 BB$ per pump', icon: '💫', baseCost: 308125000000, costMult: 2.5, effect: 'dollarRate', value: 10000, category: 'omega', tier: 'omega' },
     ];
     
     // =====================
@@ -1465,48 +1465,48 @@
     // MILESTONES (MASSIVELY EXPANDED)
     // =====================
     const milestones = [
-      // Basic tier (reduced by 15%)
-      { id: 'm100', pumps: 85, name: 'Baby Steps', icon: '👶', reward: 'perClick', value: 1, text: '+1 per click' },
-      { id: 'm500', pumps: 425, name: 'Getting Warmed Up', icon: '🔥', reward: 'perClick', value: 2, text: '+2 per click' },
-      { id: 'm1k', pumps: 850, name: 'Krusty Krab Employee', icon: '🍔', reward: 'autoPump', value: 5, text: '+5 pumps/sec' },
-      { id: 'm5k', pumps: 4250, name: 'Employee of the Month', icon: '⭐', reward: 'perClick', value: 5, text: '+5 per click' },
-      { id: 'm10k', pumps: 8500, name: 'Fry Cook Legend', icon: '🥄', reward: 'autoPump', value: 20, text: '+20 pumps/sec' },
-      { id: 'm25k', pumps: 21250, name: 'Jellyfishing Champion', icon: '🪼', reward: 'dollarSec', value: 10, text: '+10 BB$/sec' },
-      { id: 'm50k', pumps: 42500, name: 'Boating License!', icon: '🚗', reward: 'perClick', value: 25, text: '+25 per click' },
-      { id: 'm100k', pumps: 85000, name: 'Mermaid Man Sidekick', icon: '🦸', reward: 'autoPump', value: 100, text: '+100 pumps/sec' },
-      { id: 'm250k', pumps: 212500, name: 'Hall of Fame', icon: '🏆', reward: 'dollarSec', value: 100, text: '+100 BB$/sec' },
-      { id: 'm500k', pumps: 425000, name: 'Bikini Bottom Legend', icon: '🌟', reward: 'perClick', value: 100, text: '+100 per click' },
-      { id: 'm1m', pumps: 850000, name: 'GOAT OF BIKINI BOTTOM', icon: '🐐', reward: 'all', value: 500, text: '+500 per click & +500/sec' },
+      // Basic tier (increased by 45%)
+      { id: 'm100', pumps: 123, name: 'Baby Steps', icon: '👶', reward: 'perClick', value: 1, text: '+1 per click' },
+      { id: 'm500', pumps: 616, name: 'Getting Warmed Up', icon: '🔥', reward: 'perClick', value: 2, text: '+2 per click' },
+      { id: 'm1k', pumps: 1233, name: 'Krusty Krab Employee', icon: '🍔', reward: 'autoPump', value: 5, text: '+5 pumps/sec' },
+      { id: 'm5k', pumps: 6163, name: 'Employee of the Month', icon: '⭐', reward: 'perClick', value: 5, text: '+5 per click' },
+      { id: 'm10k', pumps: 12325, name: 'Fry Cook Legend', icon: '🥄', reward: 'autoPump', value: 20, text: '+20 pumps/sec' },
+      { id: 'm25k', pumps: 30813, name: 'Jellyfishing Champion', icon: '🪼', reward: 'dollarSec', value: 10, text: '+10 BB$/sec' },
+      { id: 'm50k', pumps: 61625, name: 'Boating License!', icon: '🚗', reward: 'perClick', value: 25, text: '+25 per click' },
+      { id: 'm100k', pumps: 123250, name: 'Mermaid Man Sidekick', icon: '🦸', reward: 'autoPump', value: 100, text: '+100 pumps/sec' },
+      { id: 'm250k', pumps: 308125, name: 'Hall of Fame', icon: '🏆', reward: 'dollarSec', value: 100, text: '+100 BB$/sec' },
+      { id: 'm500k', pumps: 616250, name: 'Bikini Bottom Legend', icon: '🌟', reward: 'perClick', value: 100, text: '+100 per click' },
+      { id: 'm1m', pumps: 1232500, name: 'GOAT OF BIKINI BOTTOM', icon: '🐐', reward: 'all', value: 500, text: '+500 per click & +500/sec' },
       
-      // Legendary tier (millions) - reduced by 15%
-      { id: 'm2m', pumps: 1700000, name: 'Rock Bottom Traveler', icon: '🪨', reward: 'autoPump', value: 2000, text: '+2,000 pumps/sec', tier: 'legendary' },
-      { id: 'm5m', pumps: 4250000, name: 'Atlantis Explorer', icon: '🏛️', reward: 'perClick', value: 1000, text: '+1,000 per click', tier: 'legendary' },
-      { id: 'm10m', pumps: 8500000, name: 'Flying Dutchman Friend', icon: '👻', reward: 'dollarSec', value: 5000, text: '+5,000 BB$/sec', tier: 'legendary' },
-      { id: 'm25m', pumps: 21250000, name: 'Magic Conch Holder', icon: '🐚', reward: 'autoPump', value: 10000, text: '+10,000 pumps/sec', tier: 'legendary' },
-      { id: 'm50m', pumps: 42500000, name: 'Bubble Buddy Creator', icon: '🫧', reward: 'perClick', value: 5000, text: '+5,000 per click', tier: 'legendary' },
-      { id: 'm100m', pumps: 85000000, name: 'NEPTUNE\'S CHAMPION', icon: '🔱', reward: 'all', value: 25000, text: '+25K click & +25K/sec', tier: 'legendary' },
+      // Legendary tier (millions) - increased by 45%
+      { id: 'm2m', pumps: 2465000, name: 'Rock Bottom Traveler', icon: '🪨', reward: 'autoPump', value: 2000, text: '+2,000 pumps/sec', tier: 'legendary' },
+      { id: 'm5m', pumps: 6162500, name: 'Atlantis Explorer', icon: '🏛️', reward: 'perClick', value: 1000, text: '+1,000 per click', tier: 'legendary' },
+      { id: 'm10m', pumps: 12325000, name: 'Flying Dutchman Friend', icon: '👻', reward: 'dollarSec', value: 5000, text: '+5,000 BB$/sec', tier: 'legendary' },
+      { id: 'm25m', pumps: 30812500, name: 'Magic Conch Holder', icon: '🐚', reward: 'autoPump', value: 10000, text: '+10,000 pumps/sec', tier: 'legendary' },
+      { id: 'm50m', pumps: 61625000, name: 'Bubble Buddy Creator', icon: '🫧', reward: 'perClick', value: 5000, text: '+5,000 per click', tier: 'legendary' },
+      { id: 'm100m', pumps: 123250000, name: 'NEPTUNE\'S CHAMPION', icon: '🔱', reward: 'all', value: 25000, text: '+25K click & +25K/sec', tier: 'legendary' },
       
-      // Cosmic tier (hundreds of millions) - reduced by 15%
-      { id: 'm250m', pumps: 212500000, name: 'Space Squid', icon: '🦑', reward: 'autoPump', value: 100000, text: '+100,000 pumps/sec', tier: 'cosmic' },
-      { id: 'm500m', pumps: 425000000, name: 'Cosmic Sponge', icon: '🌌', reward: 'perClick', value: 50000, text: '+50,000 per click', tier: 'cosmic' },
-      { id: 'm750m', pumps: 637500000, name: 'Star Navigator', icon: '⭐', reward: 'dollarSec', value: 100000, text: '+100,000 BB$/sec', tier: 'cosmic' },
-      { id: 'm1b', pumps: 850000000, name: 'BILLION PUMP CLUB', icon: '🚀', reward: 'all', value: 500000, text: '+500K click & +500K/sec', tier: 'cosmic' },
+      // Cosmic tier (hundreds of millions) - increased by 45%
+      { id: 'm250m', pumps: 308125000, name: 'Space Squid', icon: '🦑', reward: 'autoPump', value: 100000, text: '+100,000 pumps/sec', tier: 'cosmic' },
+      { id: 'm500m', pumps: 616250000, name: 'Cosmic Sponge', icon: '🌌', reward: 'perClick', value: 50000, text: '+50,000 per click', tier: 'cosmic' },
+      { id: 'm750m', pumps: 924375000, name: 'Star Navigator', icon: '⭐', reward: 'dollarSec', value: 100000, text: '+100,000 BB$/sec', tier: 'cosmic' },
+      { id: 'm1b', pumps: 1232500000, name: 'BILLION PUMP CLUB', icon: '🚀', reward: 'all', value: 500000, text: '+500K click & +500K/sec', tier: 'cosmic' },
       
-      // Interdimensional tier (billions) - reduced by 15%
-      { id: 'm2b', pumps: 1700000000, name: 'Reality Warper', icon: '🌀', reward: 'autoPump', value: 2000000, text: '+2M pumps/sec', tier: 'cosmic' },
-      { id: 'm5b', pumps: 4250000000, name: 'Dimension Hopper', icon: '🔮', reward: 'perClick', value: 1000000, text: '+1M per click', tier: 'cosmic' },
-      { id: 'm10b', pumps: 8500000000, name: 'Multiverse Master', icon: '🌈', reward: 'dollarSec', value: 5000000, text: '+5M BB$/sec', tier: 'cosmic' },
-      { id: 'm25b', pumps: 21250000000, name: 'COSMIC OVERLORD', icon: '👽', reward: 'all', value: 10000000, text: '+10M click & +10M/sec', tier: 'cosmic' },
+      // Interdimensional tier (billions) - increased by 45%
+      { id: 'm2b', pumps: 2465000000, name: 'Reality Warper', icon: '🌀', reward: 'autoPump', value: 2000000, text: '+2M pumps/sec', tier: 'cosmic' },
+      { id: 'm5b', pumps: 6162500000, name: 'Dimension Hopper', icon: '🔮', reward: 'perClick', value: 1000000, text: '+1M per click', tier: 'cosmic' },
+      { id: 'm10b', pumps: 12325000000, name: 'Multiverse Master', icon: '🌈', reward: 'dollarSec', value: 5000000, text: '+5M BB$/sec', tier: 'cosmic' },
+      { id: 'm25b', pumps: 30812500000, name: 'COSMIC OVERLORD', icon: '👽', reward: 'all', value: 10000000, text: '+10M click & +10M/sec', tier: 'cosmic' },
       
-      // Ascended tier (tens/hundreds of billions) - reduced by 15%
-      { id: 'm50b', pumps: 42500000000, name: 'Ascending Being', icon: '👼', reward: 'autoPump', value: 50000000, text: '+50M pumps/sec', tier: 'cosmic' },
-      { id: 'm100b', pumps: 85000000000, name: 'Ethereal Form', icon: '✨', reward: 'perClick', value: 25000000, text: '+25M per click', tier: 'cosmic' },
-      { id: 'm250b', pumps: 212500000000, name: 'TRANSCENDENT', icon: '💫', reward: 'all', value: 100000000, text: '+100M click & +100M/sec', tier: 'cosmic' },
-      { id: 'm500b', pumps: 425000000000, name: 'Universal Entity', icon: '🌟', reward: 'autoPump', value: 500000000, text: '+500M pumps/sec', tier: 'cosmic' },
+      // Ascended tier (tens/hundreds of billions) - increased by 45%
+      { id: 'm50b', pumps: 61625000000, name: 'Ascending Being', icon: '👼', reward: 'autoPump', value: 50000000, text: '+50M pumps/sec', tier: 'cosmic' },
+      { id: 'm100b', pumps: 123250000000, name: 'Ethereal Form', icon: '✨', reward: 'perClick', value: 25000000, text: '+25M per click', tier: 'cosmic' },
+      { id: 'm250b', pumps: 308125000000, name: 'TRANSCENDENT', icon: '💫', reward: 'all', value: 100000000, text: '+100M click & +100M/sec', tier: 'cosmic' },
+      { id: 'm500b', pumps: 616250000000, name: 'Universal Entity', icon: '🌟', reward: 'autoPump', value: 500000000, text: '+500M pumps/sec', tier: 'cosmic' },
       
-      // Omega tier (trillions) - reduced by 15%
-      { id: 'm1t', pumps: 850000000000, name: 'TRILLION PUMP GOD', icon: '🔥', reward: 'all', value: 1000000000, text: '+1B click & +1B/sec', tier: 'cosmic' },
-      { id: 'm10t', pumps: 8500000000000, name: 'OMEGA BEING', icon: '♾️', reward: 'all', value: 10000000000, text: '+10B click & +10B/sec', tier: 'cosmic' },
+      // Omega tier (trillions) - increased by 45%
+      { id: 'm1t', pumps: 1232500000000, name: 'TRILLION PUMP GOD', icon: '🔥', reward: 'all', value: 1000000000, text: '+1B click & +1B/sec', tier: 'cosmic' },
+      { id: 'm10t', pumps: 12325000000000, name: 'OMEGA BEING', icon: '♾️', reward: 'all', value: 10000000000, text: '+10B click & +10B/sec', tier: 'cosmic' },
     ];
     
     // =====================
