@@ -153,6 +153,7 @@
       const gameOverRef = useRef(false);
       const touchRef = useRef({ active: false, startX: 0, startY: 0, dx: 0, dy: 0 });
       const soundManagerRef = useRef(null);
+      const levelUpQueueRef = useRef(0); // Queue for pending level-ups
 
       const gameRef = useRef({
         player: { x: 0, y: 0, facing: 1 },
@@ -249,7 +250,44 @@
         } else if (upgrade.stat === 'pickupRange') {
           setPlayerStats(prev => ({ ...prev, pickupRange: prev.pickupRange * 1.25 }));
         }
+        
         setShowUpgrade(false);
+        
+        // Process queued level-ups
+        if (levelUpQueueRef.current > 0) {
+          levelUpQueueRef.current--;
+          setTimeout(() => {
+            // Check if we have enough XP for the queued level-up
+            setXp(prev => {
+              const currentXpToLevel = xpToLevel;
+              if (prev >= currentXpToLevel) {
+                const excessXp = prev - currentXpToLevel;
+                setLevel(l => l + 1);
+                setXpToLevel(x => Math.floor(x * 1.2));
+                setShowUpgrade(true);
+                generateUpgrades();
+                if (soundManagerRef.current) {
+                  soundManagerRef.current.play('levelup', { volume: 0.5 });
+                }
+                // Check if excess XP triggers more level-ups
+                let remainingXp = excessXp;
+                let queuedLevels = 0;
+                let nextXpToLevel = Math.floor(currentXpToLevel * 1.2);
+                while (remainingXp >= nextXpToLevel && levelUpQueueRef.current > 0) {
+                  remainingXp -= nextXpToLevel;
+                  queuedLevels++;
+                  levelUpQueueRef.current--;
+                  nextXpToLevel = Math.floor(nextXpToLevel * 1.2);
+                }
+                if (queuedLevels > 0) {
+                  levelUpQueueRef.current += queuedLevels;
+                }
+                return remainingXp;
+              }
+              return prev;
+            });
+          }, 300);
+        }
       };
 
       const addWeaponFromChest = useCallback((weaponKey) => {
@@ -277,6 +315,7 @@
         setKills(0);
         setCombo(0);
         setShowUpgrade(false);
+        levelUpQueueRef.current = 0;
         setWeapons([{ ...WEAPONS.spatula, level: 1, damageBonus: 1, cooldownBonus: 1, sizeBonus: 1 }]);
         setPlayerStats({ speedBonus: 1, maxHp: 350, hp: 350, pickupRange: 60, armor: 0 }); // Increased starting HP
         gameRef.current = {
@@ -650,23 +689,40 @@
           });
           
           // Apply XP gain once, after collecting all orbs
-          if (totalXpGained > 0) {
+          if (totalXpGained > 0 && !showUpgrade) {
             setXp(prev => {
               const newXp = prev + totalXpGained;
               const currentXpToLevel = xpToLevel; // Capture current value
+              
               if (newXp >= currentXpToLevel) {
                 const excessXp = newXp - currentXpToLevel;
+                // Trigger level-up
                 setLevel(l => l + 1);
-                setXpToLevel(x => Math.floor(x * 1.2)); // Slower XP growth (easier)
+                setXpToLevel(x => Math.floor(x * 1.2));
                 setShowUpgrade(true);
                 generateUpgrades();
                 if (soundManagerRef.current) {
                   soundManagerRef.current.play('levelup', { volume: 0.5 });
                 }
-                return excessXp; // Keep excess XP for next level
+                // Check if excess XP triggers another level-up (queue it)
+                let remainingXp = excessXp;
+                let queuedLevels = 0;
+                let nextXpToLevel = Math.floor(currentXpToLevel * 1.2);
+                while (remainingXp >= nextXpToLevel) {
+                  remainingXp -= nextXpToLevel;
+                  queuedLevels++;
+                  nextXpToLevel = Math.floor(nextXpToLevel * 1.2);
+                }
+                if (queuedLevels > 0) {
+                  levelUpQueueRef.current += queuedLevels;
+                }
+                return remainingXp; // Keep excess XP
               }
               return newXp;
             });
+          } else if (totalXpGained > 0) {
+            // If upgrade screen is showing, just add XP without checking for level-up
+            setXp(prev => prev + totalXpGained);
           }
           
           // Collect chests
@@ -1220,6 +1276,16 @@
 
       const formatTime = (s) => `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, '0')}`;
 
+      // Quit game function
+      const quitGame = () => {
+        gameOverRef.current = true;
+        setGameState('gameover');
+        // Auto-submit score
+        if (typeof showLeaderboardModal === 'function') {
+          setTimeout(() => showLeaderboardModal('survivors', '$COCKPANTS Survivors', score), 500);
+        }
+      };
+
       // MENU
       if (gameState === 'menu') {
         return (
@@ -1303,6 +1369,15 @@
               </div>
             </div>
           )}
+          
+          {/* Quit Button */}
+          <button 
+            onClick={quitGame}
+            className="absolute top-4 right-4 z-30 px-4 py-2 text-sm font-bold rounded-lg"
+            style={{ background: 'rgba(220, 38, 38, 0.9)', color: '#FFF', border: '2px solid #DC2626' }}
+          >
+            🚪 QUIT & SAVE
+          </button>
           
           {/* UI Bar Above Game */}
           <div className="w-full max-w-4xl mb-2 flex justify-between items-center px-4 py-2 rounded-lg" style={{ background: 'rgba(0, 0, 0, 0.8)', border: '2px solid #FFD700' }}>
