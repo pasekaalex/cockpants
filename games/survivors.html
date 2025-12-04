@@ -123,6 +123,15 @@
       { stat: 'armor', emoji: '🛡️', desc: '+3 Armor', subdesc: 'Take less damage!' },
       { stat: 'pickupRange', emoji: '🧲', desc: '+25% Pickup Range', subdesc: 'Vacuum XP!' },
     ];
+    
+    // Weapon unlock upgrades (can appear in level-up choices)
+    const WEAPON_UPGRADES = [
+      { weapon: 'bubble', emoji: '🫧', desc: 'Bubble Wand', subdesc: 'Fast bubbles!' },
+      { weapon: 'clarinet', emoji: '🎵', desc: 'Clarinet Blast', subdesc: 'Powerful sound!' },
+      { weapon: 'jellyNet', emoji: '🪼', desc: 'Jellyfish Net', subdesc: 'Catch em all!' },
+      { weapon: 'karate', emoji: '🥋', desc: 'Karate Chop', subdesc: 'High damage!' },
+      { weapon: 'pattyBlast', emoji: '🍔', desc: 'Krabby Patty', subdesc: 'Delicious!' },
+    ];
 
     function CockpantsSurvivors() {
       const canvasRef = useRef(null);
@@ -190,12 +199,40 @@
       }, []);
 
       const generateUpgrades = useCallback(() => {
-        const shuffled = [...UPGRADE_TYPES].sort(() => Math.random() - 0.5);
+        const allOptions = [...UPGRADE_TYPES];
+        
+        // Add weapon unlocks if player has less than 6 weapons
+        if (weapons.length < 6) {
+          const availableWeapons = WEAPON_UPGRADES.filter(w => 
+            !weapons.some(owned => owned.name === WEAPONS[w.weapon].name)
+          );
+          if (availableWeapons.length > 0) {
+            // 30% chance to include a weapon unlock in options
+            if (Math.random() < 0.3) {
+              const weaponUpgrade = availableWeapons[Math.floor(Math.random() * availableWeapons.length)];
+              allOptions.push({
+                stat: 'weapon',
+                weapon: weaponUpgrade.weapon,
+                emoji: weaponUpgrade.emoji,
+                desc: weaponUpgrade.desc,
+                subdesc: weaponUpgrade.subdesc
+              });
+            }
+          }
+        }
+        
+        const shuffled = allOptions.sort(() => Math.random() - 0.5);
         setUpgradeOptions(shuffled.slice(0, 3));
-      }, []);
+      }, [weapons]);
 
       const selectUpgrade = (upgrade) => {
-        if (upgrade.stat === 'damage') {
+        if (upgrade.stat === 'weapon' && upgrade.weapon) {
+          // Unlock new weapon
+          const weapon = WEAPONS[upgrade.weapon];
+          if (weapon && weapons.length < 6) {
+            setWeapons(prev => [...prev, { ...weapon, level: 1, damageBonus: 1, cooldownBonus: 1, sizeBonus: 1 }]);
+          }
+        } else if (upgrade.stat === 'damage') {
           setWeapons(prev => prev.map(w => ({ ...w, damageBonus: (w.damageBonus || 1) * 1.15 })));
         } else if (upgrade.stat === 'attackSpeed') {
           setWeapons(prev => prev.map(w => ({ ...w, cooldownBonus: (w.cooldownBonus || 1) * 0.88 })));
@@ -328,7 +365,7 @@
 
       // Main game loop
       useEffect(() => {
-        if (gameState !== 'playing' || showUpgrade) return;
+        if (gameState !== 'playing') return;
         gameOverRef.current = false;
 
         const canvas = canvasRef.current;
@@ -414,6 +451,11 @@
         };
 
         const gameLoop = (currentTime) => {
+          // Pause game loop when upgrade screen is shown
+          if (showUpgrade || gameState !== 'playing') {
+            animationId = requestAnimationFrame(gameLoop);
+            return;
+          }
           if (gameOverRef.current) return;
           
           if (!currentTime) currentTime = performance.now();
@@ -553,8 +595,8 @@
                   for (let i = 0; i < orbCount; i++) {
                     game.xpOrbs.push({ x: e.x + (Math.random() - 0.5) * 30, y: e.y + (Math.random() - 0.5) * 30, xp: Math.ceil(e.xp / orbCount) });
                   }
-                  // Elite drops chest
-                  if (e.isElite) {
+                  // Elite drops chest (also regular enemies have 10% chance)
+                  if (e.isElite || Math.random() < 0.1) {
                     const weaponKeys = Object.keys(WEAPONS);
                     game.chests.push({ x: e.x, y: e.y, weapon: weaponKeys[Math.floor(Math.random() * weaponKeys.length)] });
                     setScreenShake(15);
@@ -591,7 +633,8 @@
             }
           });
           
-          // Collect XP orbs
+          // Collect XP orbs - accumulate all XP first to prevent multiple level-ups
+          let totalXpGained = 0;
           game.xpOrbs = game.xpOrbs.filter(orb => {
             const dist = Math.hypot(game.player.x - orb.x, game.player.y - orb.y);
             if (dist < playerStats.pickupRange) {
@@ -600,24 +643,31 @@
               orb.y += Math.sin(angle) * 8 * delta;
             }
             if (dist < 25) {
-              setXp(prev => {
-                const newXp = prev + orb.xp;
-                if (newXp >= xpToLevel) {
-                  setLevel(l => l + 1);
-                  setXpToLevel(x => Math.floor(x * 1.2)); // Slower XP growth (easier)
-                  setShowUpgrade(true);
-                  generateUpgrades();
-                  if (soundManagerRef.current) {
-                    soundManagerRef.current.play('levelup', { volume: 0.5 });
-                  }
-                  return 0;
-                }
-                return newXp;
-              });
-              return false;
+              totalXpGained += orb.xp;
+              return false; // Remove orb
             }
             return true;
           });
+          
+          // Apply XP gain once, after collecting all orbs
+          if (totalXpGained > 0) {
+            setXp(prev => {
+              const newXp = prev + totalXpGained;
+              const currentXpToLevel = xpToLevel; // Capture current value
+              if (newXp >= currentXpToLevel) {
+                const excessXp = newXp - currentXpToLevel;
+                setLevel(l => l + 1);
+                setXpToLevel(x => Math.floor(x * 1.2)); // Slower XP growth (easier)
+                setShowUpgrade(true);
+                generateUpgrades();
+                if (soundManagerRef.current) {
+                  soundManagerRef.current.play('levelup', { volume: 0.5 });
+                }
+                return excessXp; // Keep excess XP for next level
+              }
+              return newXp;
+            });
+          }
           
           // Collect chests
           game.chests = game.chests.filter(chest => {
@@ -1166,7 +1216,7 @@
         
         animationId = requestAnimationFrame(gameLoop);
         return () => { cancelAnimationFrame(animationId); };
-      }, [gameState, showUpgrade, weapons, playerStats, xpToLevel, time, generateUpgrades, addWeaponFromChest]);
+      }, [gameState, showUpgrade, weapons, playerStats, xpToLevel, time, generateUpgrades, addWeaponFromChest, xp]);
 
       const formatTime = (s) => `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, '0')}`;
 
