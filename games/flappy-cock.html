@@ -313,10 +313,16 @@
       width: 55,
       height: 55,
       velocity: 0,
-      gravity: 288,
-      jumpPower: -210,
+      baseGravity: 288,
+      baseJumpPower: -210,
       rotation: 0,
-      image: new Image()
+      image: new Image(),
+      get gravity() {
+        return gameState.score >= 80 ? this.baseGravity * 1.15 : this.baseGravity; // 15% faster fall
+      },
+      get jumpPower() {
+        return gameState.score >= 80 ? this.baseJumpPower * 0.95 : this.baseJumpPower; // Slightly weaker jump
+      }
     };
 
     player.image.src = '../hung.png';
@@ -326,9 +332,22 @@
 
     const pipes = [];
     const pipeWidth = 75;
-    const pipeGap = 200;
+    const basePipeGap = 200;
+    const basePipeInterval = 140;
+    const basePipeSpeed = 120;
     let pipeTimer = 0;
-    const pipeInterval = 140;
+    
+    function getPipeGap() {
+      return gameState.score >= 80 ? basePipeGap * 0.75 : basePipeGap; // 25% smaller gap
+    }
+    
+    function getPipeInterval() {
+      return gameState.score >= 80 ? basePipeInterval * 0.7 : basePipeInterval; // 30% faster spawn
+    }
+    
+    function getPipeSpeed() {
+      return gameState.score >= 80 ? basePipeSpeed * 1.4 : basePipeSpeed; // 40% faster
+    }
 
     const particles = [];
     const bubbles = [];
@@ -394,14 +413,15 @@
     }
 
     function spawnPipe() {
+      const gap = getPipeGap();
       const minHeight = 120;
-      const maxHeight = canvas.height - pipeGap - minHeight - 100;
+      const maxHeight = canvas.height - gap - minHeight - 100;
       const height = Math.random() * (maxHeight - minHeight) + minHeight;
       
       pipes.push({
         x: canvas.width,
         topHeight: height,
-        bottomY: height + pipeGap,
+        bottomY: height + gap,
         scored: false,
         style: getPipeStyle()
       });
@@ -603,12 +623,12 @@
       }
       
       pipeTimer += deltaTime;
-      if (pipeTimer > pipeInterval / 60) {
+      if (pipeTimer > getPipeInterval() / 60) {
         spawnPipe();
         pipeTimer = 0;
       }
       
-      const pipeSpeed = 120;
+      const pipeSpeed = getPipeSpeed();
       pipes.forEach((pipe, index) => {
         pipe.x -= pipeSpeed * deltaTime;
         
@@ -620,6 +640,18 @@
           scoreDisplay.classList.remove('score-glow');
           void scoreDisplay.offsetWidth;
           scoreDisplay.classList.add('score-glow');
+          
+          // Visual indicator when difficulty increases
+          if (gameState.score === 80) {
+            scoreDisplay.style.color = '#FF4444';
+            scoreDisplay.style.textShadow = '5px 5px 0 #8B0000, 7px 7px 20px rgba(255,0,0,0.8)';
+            setTimeout(() => {
+              scoreDisplay.style.color = '#FFD700';
+              scoreDisplay.style.textShadow = '5px 5px 0 #FF8C00, 7px 7px 20px rgba(0,0,0,0.8)';
+            }, 2000);
+            soundManager.play('victory');
+          }
+          
           createParticles(player.x + player.width / 2, player.y + player.height / 2);
         }
         
