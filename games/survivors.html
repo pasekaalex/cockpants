@@ -93,7 +93,7 @@
     const PLAYER_SIZE = 44;
     const ENEMY_SIZE = 36;
     const BASE_PLAYER_SPEED = 3.0;
-    const ENEMY_SPEED_MULT = 0.6;
+    const ENEMY_SPEED_MULT = 0.5; // Reduced from 0.6 to make enemies slower
 
     const WEAPONS = {
       spatula: { damage: 25, cooldown: 600, speed: 9, color: '#FFD700', name: 'Krusty Spatula', emoji: '🍳', pierce: 1 },
@@ -130,13 +130,13 @@
       const [score, setScore] = useState(0);
       const [level, setLevel] = useState(1);
       const [xp, setXp] = useState(0);
-      const [xpToLevel, setXpToLevel] = useState(15);
+      const [xpToLevel, setXpToLevel] = useState(12); // Easier to level up
       const [time, setTime] = useState(0);
       const [kills, setKills] = useState(0);
       const [showUpgrade, setShowUpgrade] = useState(false);
       const [upgradeOptions, setUpgradeOptions] = useState([]);
       const [weapons, setWeapons] = useState([]);
-      const [playerStats, setPlayerStats] = useState({ speedBonus: 1, maxHp: 250, hp: 250, pickupRange: 60, armor: 0 });
+      const [playerStats, setPlayerStats] = useState({ speedBonus: 1, maxHp: 350, hp: 350, pickupRange: 60, armor: 0 });
       const [screenShake, setScreenShake] = useState(0);
       const [combo, setCombo] = useState(0);
       const [comboTimer, setComboTimer] = useState(0);
@@ -235,13 +235,13 @@
         setScore(0);
         setLevel(1);
         setXp(0);
-        setXpToLevel(15);
+        setXpToLevel(12);
         setTime(0);
         setKills(0);
         setCombo(0);
         setShowUpgrade(false);
         setWeapons([{ ...WEAPONS.spatula, level: 1, damageBonus: 1, cooldownBonus: 1, sizeBonus: 1 }]);
-        setPlayerStats({ speedBonus: 1, maxHp: 250, hp: 250, pickupRange: 60, armor: 0 });
+        setPlayerStats({ speedBonus: 1, maxHp: 350, hp: 350, pickupRange: 60, armor: 0 }); // Increased starting HP
         gameRef.current = {
           player: { x: 0, y: 0, facing: 1 },
           enemies: [],
@@ -471,12 +471,12 @@
           game.camera.x = game.player.x - GAME_WIDTH / 2;
           game.camera.y = game.player.y - GAME_HEIGHT / 2;
           
-          // Spawn enemies
+          // Spawn enemies (easier - slower spawn rate)
           spawnTimer += delta;
-          const spawnRate = Math.max(25, 45 - time * 0.2);
+          const spawnRate = Math.max(35, 60 - time * 0.15); // Slower spawn rate
           if (spawnTimer > spawnRate) {
             spawnTimer = 0;
-            const count = Math.min(1 + Math.floor(time / 20), 3);
+            const count = Math.min(1 + Math.floor(time / 30), 2); // Fewer enemies at once
             for (let i = 0; i < count; i++) spawnEnemy();
           }
           
@@ -547,9 +547,6 @@
                 if (e.hp <= 0) {
                   // Particle explosion on death
                   spawnParticles(e.x, e.y, 12, e.color, 5);
-                  if (soundManagerRef.current) {
-                    soundManagerRef.current.play('kill', { volume: 0.3 });
-                  }
                   
                   // Drop XP
                   const orbCount = Math.ceil(e.xp / 5);
@@ -577,7 +574,7 @@
             if (gameOverRef.current) return;
             const dist = Math.hypot(game.player.x - e.x, game.player.y - e.y);
             if (dist < (PLAYER_SIZE + ENEMY_SIZE * (e.scale || 1)) / 2) {
-              const dmg = Math.max(0.5, 1 - playerStats.armor * 0.05) * delta;
+              const dmg = Math.max(0.3, 0.7 - playerStats.armor * 0.05) * delta; // Reduced damage (30% less)
               setScreenShake(8);
               if (soundManagerRef.current) {
                 soundManagerRef.current.play('hit', { volume: 0.2 });
@@ -607,7 +604,7 @@
                 const newXp = prev + orb.xp;
                 if (newXp >= xpToLevel) {
                   setLevel(l => l + 1);
-                  setXpToLevel(x => Math.floor(x * 1.25)); // Slower XP growth
+                  setXpToLevel(x => Math.floor(x * 1.2)); // Slower XP growth (easier)
                   setShowUpgrade(true);
                   generateUpgrades();
                   if (soundManagerRef.current) {
