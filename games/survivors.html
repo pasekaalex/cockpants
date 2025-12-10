@@ -185,7 +185,7 @@
     const GAME_HEIGHT = 650;
     const PLAYER_SIZE = 44;
     const ENEMY_SIZE = 36;
-    const BASE_PLAYER_SPEED = 3.0;
+    const BASE_PLAYER_SPEED = 2.5; // Reduced from 3.0 for better control
     const ENEMY_SPEED_MULT = 0.5; // Reduced from 0.6 to make enemies slower
 
     const WEAPONS = {
@@ -247,6 +247,7 @@
       const touchRef = useRef({ active: false, startX: 0, startY: 0, dx: 0, dy: 0 });
       const soundManagerRef = useRef(null);
       const levelUpQueueRef = useRef(0); // Queue for pending level-ups
+      const pausedForUpgradeRef = useRef(false); // Track if paused for upgrade selection
 
       const gameRef = useRef({
         player: { x: 0, y: 0, facing: 1 },
@@ -335,7 +336,7 @@
         } else if (upgrade.stat === 'pierce') {
           setWeapons(prev => prev.map(w => ({ ...w, pierce: (w.pierce || 1) + 1 })));
         } else if (upgrade.stat === 'speed') {
-          setPlayerStats(prev => ({ ...prev, speedBonus: Math.min(prev.speedBonus * 1.1, 1.5) }));
+          setPlayerStats(prev => ({ ...prev, speedBonus: Math.min(prev.speedBonus * 1.08, 1.35) })); // Reduced from 1.1 to 1.08, cap from 1.5 to 1.35
         } else if (upgrade.stat === 'maxHp') {
           setPlayerStats(prev => ({ ...prev, maxHp: prev.maxHp + 40, hp: prev.hp + 40 }));
         } else if (upgrade.stat === 'armor') {
@@ -345,6 +346,7 @@
         }
         
         setShowUpgrade(false);
+        pausedForUpgradeRef.current = false; // Unpause game
         
         // Process queued level-ups
         if (levelUpQueueRef.current > 0) {
@@ -358,6 +360,7 @@
                 setLevel(l => l + 1);
                 setXpToLevel(x => Math.floor(x * 1.2));
                 setShowUpgrade(true);
+                pausedForUpgradeRef.current = true; // Pause game
                 generateUpgrades();
                 if (soundManagerRef.current) {
                   soundManagerRef.current.play('levelup', { volume: 0.5 });
@@ -408,6 +411,7 @@
         setKills(0);
         setCombo(0);
         setShowUpgrade(false);
+        pausedForUpgradeRef.current = false;
         levelUpQueueRef.current = 0;
         setWeapons([{ ...WEAPONS.spatula, level: 1, damageBonus: 1, cooldownBonus: 1, sizeBonus: 1 }]);
         setPlayerStats({ speedBonus: 1, maxHp: 350, hp: 350, pickupRange: 60, armor: 0 }); // Increased starting HP
@@ -491,7 +495,14 @@
       // Show leaderboard on game over
       useEffect(() => {
         if (gameState === 'gameover' && typeof showLeaderboardModal === 'function') {
-          setTimeout(() => showLeaderboardModal('survivors', '$COCKPANTS Survivors', score), 500);
+          // Use a small delay to ensure score state is updated
+          const timer = setTimeout(() => {
+            const finalScore = score || 0;
+            if (finalScore > 0) {
+              showLeaderboardModal('survivors', '$COCKPANTS Survivors', finalScore);
+            }
+          }, 800);
+          return () => clearTimeout(timer);
         }
       }, [gameState, score]);
 
@@ -584,7 +595,9 @@
 
         const gameLoop = (currentTime) => {
           // Always render, but pause game logic when upgrade screen is shown
-          if (showUpgrade) {
+          pausedForUpgradeRef.current = showUpgrade;
+          
+          if (showUpgrade || pausedForUpgradeRef.current) {
             // Still render the game in background (frozen state)
             renderGame();
             animationId = requestAnimationFrame(gameLoop);
@@ -625,6 +638,10 @@
         };
         
         const updateGame = (delta) => {
+          // PAUSE: Don't update game logic when upgrade screen is showing
+          if (showUpgrade || pausedForUpgradeRef.current) {
+            return; // Exit early - game is paused
+          }
           
           const game = gameRef.current;
           const keys = game.keys;
@@ -654,10 +671,10 @@
           
           // Spawn enemies (easier - slower spawn rate)
           spawnTimer += delta;
-          const spawnRate = Math.max(35, 60 - time * 0.15); // Slower spawn rate
+          const spawnRate = Math.max(40, 65 - time * 0.1); // Slower spawn rate, less aggressive scaling
           if (spawnTimer > spawnRate) {
             spawnTimer = 0;
-            const count = Math.min(1 + Math.floor(time / 30), 2); // Fewer enemies at once
+            const count = Math.min(1 + Math.floor(time / 40), 2); // Fewer enemies at once, slower scaling
             for (let i = 0; i < count; i++) spawnEnemy();
           }
           
@@ -800,6 +817,7 @@
                 setLevel(l => l + 1);
                 setXpToLevel(x => Math.floor(x * 1.2));
                 setShowUpgrade(true);
+                pausedForUpgradeRef.current = true; // Pause game
                 generateUpgrades();
                 if (soundManagerRef.current) {
                   soundManagerRef.current.play('levelup', { volume: 0.5 });
@@ -1472,10 +1490,7 @@
       const quitGame = () => {
         gameOverRef.current = true;
         setGameState('gameover');
-        // Auto-submit score
-        if (typeof showLeaderboardModal === 'function') {
-          setTimeout(() => showLeaderboardModal('survivors', '$COCKPANTS Survivors', score), 500);
-        }
+        // Score will be submitted via useEffect when gameState changes to 'gameover'
       };
 
       // MENU - Enhanced
@@ -1607,7 +1622,12 @@
               
               <div className="flex gap-4">
                 <button 
-                  onClick={() => { if (typeof showLeaderboardModal === 'function') showLeaderboardModal('survivors', '$COCKPANTS Survivors', score); }}
+                  onClick={() => { 
+                    if (typeof showLeaderboardModal === 'function') {
+                      const finalScore = score || 0;
+                      showLeaderboardModal('survivors', '$COCKPANTS Survivors', finalScore);
+                    }
+                  }}
                   className="px-8 py-4 text-xl font-bold rounded-xl transform hover:scale-105 transition-all"
                   style={{ 
                     background: 'linear-gradient(145deg, #4A90E2, #357ABD)', 

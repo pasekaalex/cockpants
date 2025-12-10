@@ -971,15 +971,19 @@
 
     const keys = {};
     window.addEventListener('keydown', (e) => {
-      keys[e.key] = true;
-      if (e.key === ' ') {
+      const key = e.key.toLowerCase();
+      keys[key] = true;
+      keys[e.key] = true; // Also store original case for arrow keys
+      if (e.key === ' ' || key === ' ') {
         e.preventDefault();
         startBoost();
       }
     });
     window.addEventListener('keyup', (e) => {
-      keys[e.key] = false;
-      if (e.key === ' ') stopBoost();
+      const key = e.key.toLowerCase();
+      keys[key] = false;
+      keys[e.key] = false; // Also clear original case
+      if (e.key === ' ' || key === ' ') stopBoost();
     });
 
     let touchStartX = 0;
@@ -1506,8 +1510,8 @@
       });
 
       // Animate propeller
-      if (gameState.playing && boat.children[3]) {
-        boat.children[3].rotation.z += gameState.speed * 20;
+      if (gameState.playing && boat.userData.propeller) {
+        boat.userData.propeller.rotation.z += gameState.speed * 20;
       }
       
       if (!gameState.playing) {
@@ -1516,18 +1520,18 @@
       }
       
       const now = Date.now();
-      const delta = (now - lastTime) / 1000;
+      const delta = Math.min((now - lastTime) / 1000, 0.1); // Cap delta to prevent large jumps
       lastTime = now;
       
-      const moveSpeed = 0.22;
-      if (keys['ArrowLeft'] || keys['a']) {
+      const moveSpeed = 8.0 * delta; // Use delta for smooth movement
+      if (keys['ArrowLeft'] || keys['arrowleft'] || keys['a']) {
         boat.position.x = Math.max(-7, boat.position.x - moveSpeed);
-        boat.rotation.z = Math.min(0.15, boat.rotation.z + 0.02);
-      } else if (keys['ArrowRight'] || keys['d']) {
+        boat.rotation.z = Math.min(0.15, boat.rotation.z + 0.05 * delta * 60);
+      } else if (keys['ArrowRight'] || keys['arrowright'] || keys['d']) {
         boat.position.x = Math.min(7, boat.position.x + moveSpeed);
-        boat.rotation.z = Math.max(-0.15, boat.rotation.z - 0.02);
+        boat.rotation.z = Math.max(-0.15, boat.rotation.z - 0.05 * delta * 60);
       } else {
-        boat.rotation.z += (0 - boat.rotation.z) * 0.1;
+        boat.rotation.z += (0 - boat.rotation.z) * 0.3 * delta * 60;
       }
       
       updateAcceleration(delta);
@@ -1653,6 +1657,13 @@
       
       boat.position.set(0, 1, 0);
       boat.rotation.z = 0;
+      
+      // Reset camera
+      camera.position.set(0, 6, 10);
+      camera.lookAt(0, 1, -10);
+      
+      // Reset ocean floor position
+      oceanFloor.position.z = -145;
       
       // Prime timers for immediate spawning
       obstacleTimer = 1.8;
