@@ -712,7 +712,7 @@
     };
     
     // =====================
-    // DUNGEON GENERATION
+    // DUNGEON GENERATION (IMPROVED)
     // =====================
     function generateDungeon(floor) {
       var size = game.gridSize;
@@ -726,22 +726,50 @@
         }
       }
       
-      // Generate rooms and corridors (simplified)
+      // Better room generation - more rooms on higher floors
       var rooms = [];
-      var numRooms = 5 + Math.floor(floor / 2);
+      var numRooms = 6 + Math.floor(floor * 0.8);
+      var maxAttempts = numRooms * 10;
+      var attempts = 0;
       
-      for (var i = 0; i < numRooms; i++) {
-        var roomW = 3 + Math.floor(Math.random() * 4);
-        var roomH = 3 + Math.floor(Math.random() * 4);
-        var roomX = 1 + Math.floor(Math.random() * (size - roomW - 2));
-        var roomY = 1 + Math.floor(Math.random() * (size - roomH - 2));
+      while (rooms.length < numRooms && attempts < maxAttempts) {
+        attempts++;
         
-        // Check overlap
+        // Room size varies by floor
+        var minRoomSize = floor > 7 ? 4 : 3;
+        var maxRoomSize = floor > 7 ? 7 : 5;
+        var roomW = minRoomSize + Math.floor(Math.random() * (maxRoomSize - minRoomSize + 1));
+        var roomH = minRoomSize + Math.floor(Math.random() * (maxRoomSize - minRoomSize + 1));
+        
+        // Better room placement - try to place in different quadrants
+        var quadrant = rooms.length % 4;
+        var roomX, roomY;
+        
+        if (quadrant === 0) {
+          roomX = 2 + Math.floor(Math.random() * (size / 2 - roomW - 2));
+          roomY = 2 + Math.floor(Math.random() * (size / 2 - roomH - 2));
+        } else if (quadrant === 1) {
+          roomX = size / 2 + Math.floor(Math.random() * (size / 2 - roomW - 2));
+          roomY = 2 + Math.floor(Math.random() * (size / 2 - roomH - 2));
+        } else if (quadrant === 2) {
+          roomX = 2 + Math.floor(Math.random() * (size / 2 - roomW - 2));
+          roomY = size / 2 + Math.floor(Math.random() * (size / 2 - roomH - 2));
+        } else {
+          roomX = size / 2 + Math.floor(Math.random() * (size / 2 - roomW - 2));
+          roomY = size / 2 + Math.floor(Math.random() * (size / 2 - roomH - 2));
+        }
+        
+        // Ensure room is within bounds
+        roomX = Math.max(1, Math.min(roomX, size - roomW - 2));
+        roomY = Math.max(1, Math.min(roomY, size - roomH - 2));
+        
+        // Check overlap with margin
         var overlap = false;
+        var margin = 2;
         for (var j = 0; j < rooms.length; j++) {
           var r = rooms[j];
-          if (roomX < r.x + r.w + 1 && roomX + roomW + 1 > r.x &&
-              roomY < r.y + r.h + 1 && roomY + roomH + 1 > r.y) {
+          if (roomX < r.x + r.w + margin && roomX + roomW + margin > r.x &&
+              roomY < r.y + r.h + margin && roomY + roomH + margin > r.y) {
             overlap = true;
             break;
           }
@@ -761,27 +789,94 @@
         }
       }
       
-      // Connect rooms with corridors
-      for (var i = 1; i < rooms.length; i++) {
-        var prev = rooms[i-1];
-        var curr = rooms[i];
+      // Better corridor generation - create a spanning tree
+      if (rooms.length > 1) {
+        // Create minimum spanning tree for corridors
+        var connected = [0];
+        var unconnected = [];
+        for (var i = 1; i < rooms.length; i++) {
+          unconnected.push(i);
+        }
         
-        var px = Math.floor(prev.x + prev.w / 2);
-        var py = Math.floor(prev.y + prev.h / 2);
-        var cx = Math.floor(curr.x + curr.w / 2);
-        var cy = Math.floor(curr.y + curr.h / 2);
-        
-        // Horizontal corridor
-        for (var x = Math.min(px, cx); x <= Math.max(px, cx); x++) {
-          if (grid[py] && grid[py][x]) {
-            grid[py][x].type = 'floor';
+        while (unconnected.length > 0) {
+          var minDist = Infinity;
+          var bestConnected = -1;
+          var bestUnconnected = -1;
+          
+          for (var c = 0; c < connected.length; c++) {
+            var connIdx = connected[c];
+            var connRoom = rooms[connIdx];
+            var connX = Math.floor(connRoom.x + connRoom.w / 2);
+            var connY = Math.floor(connRoom.y + connRoom.h / 2);
+            
+            for (var u = 0; u < unconnected.length; u++) {
+              var unconnIdx = unconnected[u];
+              var unconnRoom = rooms[unconnIdx];
+              var unconnX = Math.floor(unconnRoom.x + unconnRoom.w / 2);
+              var unconnY = Math.floor(unconnRoom.y + unconnRoom.h / 2);
+              
+              var dist = Math.abs(connX - unconnX) + Math.abs(connY - unconnY);
+              if (dist < minDist) {
+                minDist = dist;
+                bestConnected = connIdx;
+                bestUnconnected = unconnIdx;
+              }
+            }
+          }
+          
+          if (bestConnected >= 0 && bestUnconnected >= 0) {
+            var prev = rooms[bestConnected];
+            var curr = rooms[bestUnconnected];
+            
+            var px = Math.floor(prev.x + prev.w / 2);
+            var py = Math.floor(prev.y + prev.h / 2);
+            var cx = Math.floor(curr.x + curr.w / 2);
+            var cy = Math.floor(curr.y + curr.h / 2);
+            
+            // L-shaped corridor
+            // Horizontal first
+            for (var x = Math.min(px, cx); x <= Math.max(px, cx); x++) {
+              if (grid[py] && grid[py][x]) {
+                grid[py][x].type = 'floor';
+              }
+            }
+            // Then vertical
+            for (var y = Math.min(py, cy); y <= Math.max(py, cy); y++) {
+              if (grid[y] && grid[y][cx]) {
+                grid[y][cx].type = 'floor';
+              }
+            }
+            
+            connected.push(bestUnconnected);
+            unconnected.splice(unconnected.indexOf(bestUnconnected), 1);
+          } else {
+            break;
           }
         }
         
-        // Vertical corridor
-        for (var y = Math.min(py, cy); y <= Math.max(py, cy); y++) {
-          if (grid[y] && grid[y][cx]) {
-            grid[y][cx].type = 'floor';
+        // Add some extra random connections for more interesting layouts
+        var extraConnections = Math.floor(rooms.length * 0.3);
+        for (var e = 0; e < extraConnections; e++) {
+          var r1 = Math.floor(Math.random() * rooms.length);
+          var r2 = Math.floor(Math.random() * rooms.length);
+          if (r1 !== r2) {
+            var room1 = rooms[r1];
+            var room2 = rooms[r2];
+            var x1 = Math.floor(room1.x + room1.w / 2);
+            var y1 = Math.floor(room1.y + room1.h / 2);
+            var x2 = Math.floor(room2.x + room2.w / 2);
+            var y2 = Math.floor(room2.y + room2.h / 2);
+            
+            for (var x = Math.min(x1, x2); x <= Math.max(x1, x2); x++) {
+              if (grid[y1] && grid[y1][x]) {
+                grid[y1][x].type = 'floor';
+              }
+            }
+            for (var y = Math.min(y1, y2); y <= Math.max(y1, y2); y++) {
+              if (grid[y] && grid[y][x2]) {
+                grid[y][x2].type = 'floor';
+              }
+            }
           }
         }
       }
@@ -832,8 +927,11 @@
         return false;
       }
       
-      // Place enemies
-      var enemyCount = 3 + Math.floor(floor * 1.5);
+      // Place enemies - difficulty scales after floor 7
+      var baseEnemyCount = 3 + Math.floor(floor * 1.5);
+      var difficultyMultiplier = floor > 7 ? 1 + (floor - 7) * 0.5 : 1;
+      var enemyCount = Math.floor(baseEnemyCount * difficultyMultiplier);
+      
       for (var i = 0; i < enemyCount; i++) {
         var placed = false;
         var attempts = 0;
@@ -852,15 +950,19 @@
             }
             
             var enemyType = getEnemyForFloor(floor);
+            
+            // Scale enemy stats after floor 7
+            var statMultiplier = floor > 7 ? 1 + (floor - 7) * 0.3 : 1;
+            
             grid[ey][ex].enemy = {
               type: enemyType.name,
               icon: enemyType.icon,
-              hp: enemyType.hp,
-              maxHp: enemyType.maxHp,
-              attack: enemyType.attack,
-              defense: enemyType.defense,
+              hp: Math.floor(enemyType.hp * statMultiplier),
+              maxHp: Math.floor(enemyType.maxHp * statMultiplier),
+              attack: Math.floor(enemyType.attack * statMultiplier),
+              defense: Math.floor(enemyType.defense * statMultiplier),
               speed: enemyType.speed,
-              xp: enemyType.xp
+              xp: Math.floor(enemyType.xp * statMultiplier * 1.2)
             };
             placed = true;
           }
@@ -868,8 +970,8 @@
         }
       }
       
-      // Place items (prioritize health potions)
-      var itemCount = 3 + Math.floor(floor / 2);
+      // Place items (more items on higher floors, but less after floor 7 for difficulty)
+      var itemCount = floor > 7 ? 2 + Math.floor(floor / 3) : 3 + Math.floor(floor / 2);
       for (var i = 0; i < itemCount; i++) {
         var placed = false;
         var attempts = 0;
@@ -901,9 +1003,22 @@
     }
     
     function getEnemyForFloor(floor) {
-      if (floor >= 5 && Math.random() < 0.1) {
+      // After floor 7, harder enemies appear more often
+      var bossChance = floor >= 5 ? (floor > 7 ? 0.15 : 0.1) : 0;
+      if (floor >= 5 && Math.random() < bossChance) {
         return enemyTypes.boss;
       }
+      
+      // Enemy type distribution changes after floor 7
+      if (floor > 7) {
+        var rand = Math.random();
+        if (rand < 0.4) return enemyTypes.krabs;
+        if (rand < 0.7) return enemyTypes.seaHorse;
+        if (rand < 0.9) return enemyTypes.robot;
+        return enemyTypes.jellyfish; // Rare weak enemy
+      }
+      
+      // Normal progression
       if (floor >= 4) return enemyTypes.krabs;
       if (floor >= 3) return enemyTypes.seaHorse;
       if (floor >= 2) return enemyTypes.robot;
@@ -1272,7 +1387,16 @@
     
     function nextFloor() {
       game.currentFloor++;
-      addLog('Descending to floor ' + game.currentFloor + '...', 'info');
+      
+      // Difficulty warning after floor 7
+      if (game.currentFloor === 8) {
+        addLog('⚠️ DANGER: The dungeon grows more treacherous!', 'damage');
+        addLog('Enemies are stronger and more numerous!', 'damage');
+      } else if (game.currentFloor > 7) {
+        addLog('Descending to floor ' + game.currentFloor + '... (EXTREME DIFFICULTY)', 'damage');
+      } else {
+        addLog('Descending to floor ' + game.currentFloor + '...', 'info');
+      }
       
       // Floor transition effect
       for (var i = 0; i < 20; i++) {
