@@ -931,9 +931,9 @@
           if (cell.visible || cell.explored) {
             cell.explored = true;
             
-            if (x === game.playerX && y === game.playerY) {
-              cellEl.className += ' player';
-              cellEl.textContent = game.player.icon;
+          if (x === game.playerX && y === game.playerY && game.player) {
+            cellEl.className += ' player';
+            cellEl.textContent = game.player.icon;
             } else if (cell.enemy && cell.visible) {
               cellEl.className += ' enemy';
               cellEl.textContent = cell.enemy.icon;
@@ -957,9 +957,12 @@
           }
           
           if (cell.visible || cell.explored) {
-            cellEl.addEventListener('click', function() {
-              movePlayer(x, y);
-            });
+            // Fix closure issue - capture x and y properly
+            (function(cellX, cellY) {
+              cellEl.addEventListener('click', function() {
+                movePlayer(cellX, cellY);
+              });
+            })(x, y);
           }
           
           gridEl.appendChild(cellEl);
@@ -978,6 +981,8 @@
     }
     
     function updateUI() {
+      if (!game.player) return; // Safety check
+      
       var p = game.player;
       
       document.getElementById('charInfo').innerHTML = '<div style="font-size: 48px; text-align: center; margin-bottom: 10px;">' + p.icon + '</div><div style="text-align: center; font-size: 18px; color: #4a90e2;">' + p.name + '</div>';
@@ -1408,15 +1413,17 @@
           '<small>' + char.description + '</small>' +
           '</div>';
         
-        card.addEventListener('click', function(ch) {
-          return function() {
+        // Fix closure issue - capture key in IIFE
+        (function(charKey, charCard) {
+          charCard.addEventListener('click', function() {
             document.querySelectorAll('.char-card').forEach(function(c) {
               c.classList.remove('selected');
             });
-            ch.classList.add('selected');
-            game.selectedChar = key;
-          };
-        }(card));
+            charCard.classList.add('selected');
+            game.selectedChar = charKey;
+            console.log('Selected character:', charKey);
+          });
+        })(key, card);
         
         selectEl.appendChild(card);
       }
@@ -1428,12 +1435,18 @@
         return;
       }
       
+      console.log('Starting game with character:', game.selectedChar);
       game.player = JSON.parse(JSON.stringify(characters[game.selectedChar]));
+      console.log('Player initialized:', game.player.name, game.player.icon);
+      
+      // Reset game state
       game.currentFloor = 1;
       game.dungeon = generateDungeon(game.currentFloor);
       game.inventory = [];
       game.combatLog = [];
       game.gameOver = false;
+      game.inCombat = false;
+      game.currentEnemy = null;
       
       document.getElementById('menuScreen').classList.add('hidden');
       
@@ -1447,6 +1460,11 @@
       document.getElementById('gameOverScreen').classList.remove('show');
       document.getElementById('menuScreen').classList.remove('hidden');
       game.selectedChar = null;
+      game.player = null;
+      game.dungeon = null;
+      game.inCombat = false;
+      game.currentEnemy = null;
+      game.gameOver = false;
       document.querySelectorAll('.char-card').forEach(function(c) {
         c.classList.remove('selected');
       });
