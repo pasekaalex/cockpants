@@ -177,6 +177,7 @@ async function getAllLeaderboards() {
     }
 
     const games = [
+      'fishing-frenzy',
       'pump-clicker',
       'flappy-cock',
       'plankton-heist',
@@ -189,7 +190,8 @@ async function getAllLeaderboards() {
       'krusty-tycoon',
       'survivors',
       'bubble-pop',
-      'dungeon-delver'
+      'dungeon-delver',
+      'fishing-frenzy'
     ];
 
     const leaderboards = {};
