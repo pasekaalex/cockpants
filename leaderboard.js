@@ -211,8 +211,18 @@ function showLeaderboardModal(gameName, gameTitle, playerScore = null) {
   // Format the player score for display
   let displayPlayerScore = playerScore;
   if (playerScore !== null) {
-    if (gameName === 'pump-clicker' && playerScore >= 1e9) {
-      displayPlayerScore = formatLargeScore(playerScore);
+    if (gameName === 'pump-clicker') {
+      // Check if this is an ascension score (>= 9 quadrillion)
+      const ASCENSION_THRESHOLD = 9000000000000000; // 9 quadrillion
+      if (playerScore >= ASCENSION_THRESHOLD) {
+        // Extract ascension count from score
+        const ascensions = playerScore - ASCENSION_THRESHOLD;
+        displayPlayerScore = `⭐ ${ascensions} Ascension${ascensions !== 1 ? 's' : ''}`;
+      } else if (playerScore >= 1e9) {
+        displayPlayerScore = formatLargeScore(playerScore);
+      } else {
+        displayPlayerScore = playerScore.toLocaleString();
+      }
     } else if (gameName && gameName.startsWith('plankton-heist-level')) {
       displayPlayerScore = `${10000 - playerScore}s`;
     } else {
@@ -350,9 +360,19 @@ async function loadLeaderboardData(gameName) {
         // Plankton heist shows time
         const timeInSeconds = 10000 - entry.score;
         displayScore = `${timeInSeconds}s`;
-      } else if (gameName === 'pump-clicker' && entry.score >= 1e9) {
-        // Pump clicker with billion+ scores gets special formatting
-        displayScore = formatLargeScore(entry.score);
+      } else if (gameName === 'pump-clicker') {
+        // Check if this is an ascension score (>= 9 quadrillion)
+        const ASCENSION_THRESHOLD = 9000000000000000; // 9 quadrillion
+        if (entry.score >= ASCENSION_THRESHOLD) {
+          // Extract ascension count from score
+          const ascensions = entry.score - ASCENSION_THRESHOLD;
+          displayScore = `⭐ ${ascensions} Ascension${ascensions !== 1 ? 's' : ''}`;
+        } else if (entry.score >= 1e9) {
+          // Pump clicker with billion+ scores gets special formatting
+          displayScore = formatLargeScore(entry.score);
+        } else {
+          displayScore = entry.score.toLocaleString();
+        }
       } else {
         displayScore = entry.score.toLocaleString();
       }
