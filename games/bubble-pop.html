@@ -601,6 +601,8 @@
     
     // Adjust canvas size for mobile
     function resizeCanvas() {
+      updateGameConstants();
+      
       const container = canvas.parentElement;
       const maxWidth = Math.min(800, window.innerWidth - 40);
       const maxHeight = Math.min(600, window.innerHeight * 0.6);
@@ -631,10 +633,11 @@
       particles: [],
       mouseX: 0,
       mouseY: 0,
-      SHOOTER_Y: canvas.height - 50,
-      SHOOTER_X: canvas.width / 2,
+      SHOOTER_Y: 0,
+      SHOOTER_X: 0,
       touchStartX: 0,
-      touchStartY: 0
+      touchStartY: 0,
+      gameLoopRunning: false
     };
     
     const BUBBLE_COLORS = [
@@ -646,13 +649,21 @@
       { main: '#AA96DA', light: '#C2B3E8', dark: '#9279C8' }
     ];
     
-    // Responsive bubble size
-    const isMobile = window.innerWidth < 768;
-    const BUBBLE_RADIUS = isMobile ? 18 : 25;
-    const ROWS = isMobile ? 8 : 10;
-    const COLS = isMobile ? 12 : 15;
-    const BUBBLE_SPACING = BUBBLE_RADIUS * 2.1;
+    // Game constants (will be recalculated on resize)
+    let BUBBLE_RADIUS = 25;
+    let ROWS = 10;
+    let COLS = 15;
+    let BUBBLE_SPACING = BUBBLE_RADIUS * 2.1;
     const SHOT_SPEED = 8;
+    
+    // Update constants based on screen size
+    function updateGameConstants() {
+      const isMobile = window.innerWidth < 768;
+      BUBBLE_RADIUS = isMobile ? 18 : 25;
+      ROWS = isMobile ? 8 : 10;
+      COLS = isMobile ? 12 : 15;
+      BUBBLE_SPACING = BUBBLE_RADIUS * 2.1;
+    }
     
     // =====================
     // PARTICLE SYSTEM
@@ -708,6 +719,8 @@
       gameState.shotBubble = null;
       gameState.gameOver = false;
       gameState.particles = [];
+      gameState.mouseX = gameState.SHOOTER_X;
+      gameState.mouseY = gameState.SHOOTER_Y;
       
       createBubbleGrid();
       gameState.nextBubble = createRandomBubble();
@@ -1205,10 +1218,32 @@
     // GAME CONTROL
     // =====================
     function startGame() {
-      document.getElementById('menuScreen').classList.add('hidden');
-      initGame();
-      gameLoop();
+      console.log('Starting game...');
+      try {
+        const menuScreen = document.getElementById('menuScreen');
+        if (menuScreen) {
+          menuScreen.classList.add('hidden');
+        }
+        
+        // Initialize canvas first
+        resizeCanvas();
+        
+        // Initialize game
+        initGame();
+        
+        // Start game loop if not already running
+        if (!gameState.gameLoopRunning) {
+          gameState.gameLoopRunning = true;
+          gameLoop();
+        }
+      } catch (error) {
+        console.error('Error starting game:', error);
+        alert('Error starting game. Please refresh the page.');
+      }
     }
+    
+    // Make functions globally accessible
+    window.startGame = startGame;
     
     function restartGame() {
       document.getElementById('gameOverScreen').classList.remove('show');
@@ -1223,14 +1258,15 @@
     
     // Handle window resize
     window.addEventListener('resize', () => {
-      resizeCanvas();
-      if (gameState.bubbles.length > 0) {
-        // Recalculate bubble positions if needed
+      if (!gameState.gameOver && gameState.bubbles.length > 0) {
+        resizeCanvas();
+        // Recalculate bubble positions
         createBubbleGrid();
       }
     });
     
     window.addEventListener('load', () => {
+      // Initial canvas setup
       resizeCanvas();
       // Game starts with menu screen
     });
