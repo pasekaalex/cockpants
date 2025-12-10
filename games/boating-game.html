@@ -614,17 +614,18 @@
     <button class="start-btn" onclick="startGame()">START TEST!</button>
   </div>
 
-  <div class="game-over" id="gameOver">
-    <h1 class="game-over-title">CRASHED! 💥</h1>
-    <div class="final-stats">
-      <div class="final-stat">Distance: <span id="finalDistance">0</span>m</div>
-      <div class="final-stat">Score: <span id="finalScore">0</span></div>
-      <div class="final-stat">Jellies: <span id="finalStars">0</span> 🪼</div>
-      <div class="final-stat">Max Combo: <span id="finalCombo">0</span>x</div>
+    <div class="game-over" id="gameOver">
+      <h1 class="game-over-title">CRASHED! 💥</h1>
+      <div class="final-stats">
+        <div class="final-stat">Distance: <span id="finalDistance">0</span>m</div>
+        <div class="final-stat">Score: <span id="finalScore">0</span></div>
+        <div class="final-stat">Jellies: <span id="finalStars">0</span> 🪼</div>
+        <div class="final-stat">Max Combo: <span id="finalCombo">0</span>x</div>
+      </div>
+      <button class="btn" onclick="restartGame()">TRY AGAIN</button>
+      <button class="btn" onclick="showBoatingLeaderboard()">🏆 LEADERBOARD</button>
+      <button class="btn" onclick="backToMenu()">MAIN MENU</button>
     </div>
-    <button class="btn" onclick="restartGame()">TRY AGAIN</button>
-    <button class="btn" onclick="backToMenu()">MAIN MENU</button>
-  </div>
 
   <canvas id="canvas"></canvas>
 
@@ -693,34 +694,82 @@
     };
 
     const scene = new THREE.Scene();
-    scene.fog = new THREE.Fog(0x1e5a7a, 30, 150);
+    // Enhanced fog with gradient
+    scene.fog = new THREE.FogExp2(0x1e5a7a, 0.08); // Exponential fog for better depth
     scene.background = new THREE.Color(0x1e5a7a);
     
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('canvas'), antialias: true });
+    const renderer = new THREE.WebGLRenderer({ 
+      canvas: document.getElementById('canvas'), 
+      antialias: true,
+      powerPreference: "high-performance",
+      stencil: false,
+      depth: true
+    });
     renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Limit pixel ratio for performance
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap; // Soft shadows
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.2;
 
     camera.position.set(0, 6, 10);
-    camera.lookAt(0, 1, -10);
+    camera.lookAt(0, 1, 0); // Look at boat position
 
-    // Underwater lighting
-    const ambientLight = new THREE.AmbientLight(0x4488cc, 0.6);
+    // Enhanced underwater lighting with multiple light sources
+    const ambientLight = new THREE.AmbientLight(0x4488cc, 0.7);
     scene.add(ambientLight);
-    const topLight = new THREE.DirectionalLight(0x88ccff, 0.8);
+    
+    // Main directional light (sunlight from above)
+    const topLight = new THREE.DirectionalLight(0x88ccff, 1.0);
     topLight.position.set(0, 50, 0);
+    topLight.castShadow = true;
+    topLight.shadow.mapSize.width = 2048;
+    topLight.shadow.mapSize.height = 2048;
+    topLight.shadow.camera.near = 0.5;
+    topLight.shadow.camera.far = 100;
+    topLight.shadow.camera.left = -30;
+    topLight.shadow.camera.right = 30;
+    topLight.shadow.camera.top = 30;
+    topLight.shadow.camera.bottom = -30;
+    topLight.shadow.bias = -0.0001;
     scene.add(topLight);
+    
+    // Caustic light effect (underwater light rays)
+    const causticLight = new THREE.PointLight(0x88ccff, 0.5, 40);
+    causticLight.position.set(0, 20, 0);
+    scene.add(causticLight);
+    
+    // Rim light for depth
+    const rimLight = new THREE.DirectionalLight(0x4488cc, 0.4);
+    rimLight.position.set(0, 10, 20);
+    scene.add(rimLight);
 
-    // Sandy ocean floor
+    // Enhanced sandy ocean floor with texture
+    const floorGeometry = new THREE.PlaneGeometry(40, 300, 20, 150);
+    // Add slight height variation for sand texture
+    const vertices = floorGeometry.attributes.position;
+    for (let i = 0; i < vertices.count; i++) {
+      const z = vertices.getZ(i);
+      const variation = Math.sin(z * 0.1) * 0.05 + Math.cos(z * 0.15) * 0.03;
+      vertices.setZ(i, vertices.getZ(i) + variation);
+    }
+    vertices.needsUpdate = true;
+    floorGeometry.computeVertexNormals();
+    
     const oceanFloor = new THREE.Mesh(
-      new THREE.PlaneGeometry(40, 300),
+      floorGeometry,
       new THREE.MeshPhongMaterial({ 
         color: 0xC2B280,
-        shininess: 10
+        shininess: 15,
+        specular: 0x444444,
+        flatShading: false
       })
     );
     oceanFloor.rotation.x = -Math.PI / 2;
     oceanFloor.position.y = -1;
     oceanFloor.position.z = -145;
+    oceanFloor.receiveShadow = true;
     scene.add(oceanFloor);
 
     // Kelp forest on sides
@@ -804,6 +853,8 @@
       specular: 0x444444
     });
     const hull = new THREE.Mesh(hullGeo, hullMat);
+    hull.castShadow = true;
+    hull.receiveShadow = true;
     boatGroup.add(hull);
     
     // Hull bottom (darker)
@@ -811,6 +862,7 @@
     const hullBottomMat = new THREE.MeshPhongMaterial({ color: 0xCC3333, shininess: 50 });
     const hullBottom = new THREE.Mesh(hullBottomGeo, hullBottomMat);
     hullBottom.position.y = -0.35;
+    hullBottom.castShadow = true;
     boatGroup.add(hullBottom);
     
     // Bow (front pointy part)
@@ -819,6 +871,7 @@
     const bow = new THREE.Mesh(bowGeo, bowMat);
     bow.rotation.z = -Math.PI / 2;
     bow.position.z = -1.65;
+    bow.castShadow = true;
     boatGroup.add(bow);
 
     // Bow stripe
@@ -949,11 +1002,14 @@
     const boat = boatGroup;
     boat.position.y = 1;
     boat.userData.propeller = propGroup;
+    boat.userData.wakeParticles = { 
+      positions: wakePositions, 
+      sizes: wakeSizes, 
+      count: 0, 
+      geometry: wakeGeometry,
+      points: wakeParticles
+    };
     scene.add(boat);
-
-    // Wake/trail particles
-    const wakeParticles = [];
-    const maxWakeParticles = 50;
 
     const obstacles = [];
     const collectibles = [];
@@ -1083,6 +1139,13 @@
           type.size,
           -100
         );
+        // Enable shadows for urchin
+        urchin.traverse((child) => {
+          if (child.isMesh) {
+            child.castShadow = true;
+            child.receiveShadow = true;
+          }
+        });
         urchin.userData = { type: type, hit: false, isGroup: true };
         scene.add(urchin);
         obstacles.push(urchin);
@@ -1103,6 +1166,14 @@
         type.size * 0.8,
         -100
       );
+      
+      // Enable shadows for obstacles
+      obstacle.traverse((child) => {
+        if (child.isMesh) {
+          child.castShadow = true;
+          child.receiveShadow = true;
+        }
+      });
       
       obstacle.userData = { type: type, hit: false };
       scene.add(obstacle);
@@ -1524,6 +1595,57 @@
         boat.userData.propeller.rotation.z += gameState.speed * 20;
       }
       
+      // Animate caustic light (underwater light rays)
+      if (causticLight) {
+        const time = Date.now() * 0.001;
+        causticLight.intensity = 0.4 + Math.sin(time * 2) * 0.2;
+        causticLight.position.x = Math.sin(time * 0.5) * 5;
+        causticLight.position.z = Math.cos(time * 0.5) * 5;
+      }
+      
+      // Update wake particles
+      if (gameState.playing && boat.userData.wakeParticles) {
+        const wake = boat.userData.wakeParticles;
+        const wakePos = boat.position;
+        
+        // Add new wake particle
+        if (Math.random() < 0.3) {
+          const index = wake.count * 3;
+          if (index < wake.positions.length - 3) {
+            wake.positions[index] = wakePos.x + (Math.random() - 0.5) * 0.5;
+            wake.positions[index + 1] = -0.3;
+            wake.positions[index + 2] = wakePos.z + 1.5;
+            wake.sizes[wake.count] = 0.5;
+            wake.count = Math.min(wake.count + 1, maxWakeParticles - 1);
+          }
+        }
+        
+        // Update existing particles
+        for (let i = 0; i < wake.count; i++) {
+          const idx = i * 3;
+          wake.positions[idx + 2] += gameState.speed * 60 * delta * 0.5; // Move backward
+          wake.sizes[i] *= 0.98; // Shrink
+          wake.sizes[i] = Math.max(wake.sizes[i], 0.1);
+          
+          // Remove if too far or too small
+          if (wake.positions[idx + 2] > 5 || wake.sizes[i] < 0.1) {
+            // Shift array
+            for (let j = i; j < wake.count - 1; j++) {
+              wake.positions[j * 3] = wake.positions[(j + 1) * 3];
+              wake.positions[j * 3 + 1] = wake.positions[(j + 1) * 3 + 1];
+              wake.positions[j * 3 + 2] = wake.positions[(j + 1) * 3 + 2];
+              wake.sizes[j] = wake.sizes[j + 1];
+            }
+            wake.count--;
+            i--;
+          }
+        }
+        
+        wake.geometry.attributes.position.needsUpdate = true;
+        wake.geometry.attributes.size.needsUpdate = true;
+        wake.geometry.setDrawRange(0, wake.count);
+      }
+      
       if (!gameState.playing) {
         renderer.render(scene, camera);
         return;
@@ -1546,23 +1668,29 @@
       
       updateAcceleration(delta);
       
-      gameState.distance += gameState.speed * 60 * delta * 1.2; // Use delta for consistent distance
-      gameState.baseSpeed = 0.12 + (gameState.distance * 0.000004); // Increased base from 0.08 to 0.12
+      // Calculate forward speed in units per second
+      const forwardSpeed = gameState.speed * 60; // Convert to units per second
+      
+      // Update distance (for scoring)
+      gameState.distance += forwardSpeed * delta * 1.2;
+      gameState.baseSpeed = 0.12 + (gameState.distance * 0.000004);
       if (!gameState.speedBoost.active && !gameState.accelerating) {
         gameState.targetSpeed = gameState.baseSpeed;
       }
       
-      // Move camera forward to show boat moving through the world
-      const cameraZ = gameState.distance * 0.15;
-      camera.position.z = 10 + cameraZ;
-      camera.lookAt(boat.position.x, 1, boat.position.z + cameraZ - 10);
+      // Camera stays fixed - boat stays in place, world moves toward it
+      camera.position.set(0, 6, 10);
+      camera.lookAt(boat.position.x, 1, 0);
       
-      // Move obstacles, collectibles, and powerups toward player
-      const forwardSpeed = gameState.speed * 60; // Convert to units per second
+      // Ocean floor stays relatively static (just for visual background)
+      // We'll move obstacles/collectibles instead
+      
+      // Move obstacles, collectibles, and powerups toward player (negative Z = toward camera)
       obstacles.forEach((obstacle, index) => {
-        obstacle.position.z += forwardSpeed * delta;
+        obstacle.position.z += forwardSpeed * delta; // Positive Z = moving toward boat
         obstacle.rotation.y += 0.02;
         
+        // Remove if past the boat
         if (obstacle.position.z > 15) {
           scene.remove(obstacle);
           obstacles.splice(index, 1);
@@ -1670,12 +1798,15 @@
       boat.position.set(0, 1, 0);
       boat.rotation.z = 0;
       
-      // Reset camera
+      // Reset camera - fixed position
       camera.position.set(0, 6, 10);
-      camera.lookAt(0, 1, -10);
+      camera.lookAt(0, 1, 0);
       
       // Reset ocean floor position
       oceanFloor.position.z = -145;
+      
+      // Reset lastTime to prevent huge delta on first frame
+      lastTime = Date.now();
       
       // Prime timers for immediate spawning
       obstacleTimer = 1.8;
@@ -1697,7 +1828,9 @@
       gameState.playing = false;
       gameState.accelerating = false;
       stopBoost();
-      soundManager.play('wawawa');
+      if (typeof soundManager !== 'undefined' && soundManager.play) {
+        soundManager.play('wawawa');
+      }
       
       document.getElementById('finalDistance').textContent = Math.floor(gameState.distance);
       document.getElementById('finalScore').textContent = gameState.score;
@@ -1705,14 +1838,27 @@
       document.getElementById('finalCombo').textContent = gameState.maxCombo;
       document.getElementById('gameOver').classList.add('active');
       
-      if (gameState.score > 0) {
-        showLeaderboardModal('boating-school', 'Boating School Chaos', gameState.score);
-      }
+      // Submit to leaderboard with delay to ensure modal is ready
+      setTimeout(() => {
+        if (typeof showLeaderboardModal === 'function') {
+          const finalScore = gameState.score || 0;
+          if (finalScore > 0) {
+            showLeaderboardModal('boating-school', 'Boating School Chaos', finalScore);
+          }
+        }
+      }, 1000);
     }
 
     function restartGame() {
       document.getElementById('gameOver').classList.remove('active');
       startGame();
+    }
+
+    function showBoatingLeaderboard() {
+      if (typeof showLeaderboardModal === 'function') {
+        const finalScore = gameState.score || 0;
+        showLeaderboardModal('boating-school', 'Boating School Chaos', finalScore);
+      }
     }
 
     function backToMenu() {

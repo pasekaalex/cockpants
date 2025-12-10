@@ -239,6 +239,7 @@
       const [upgradeOptions, setUpgradeOptions] = useState([]);
       const [weapons, setWeapons] = useState([]);
       const [playerStats, setPlayerStats] = useState({ speedBonus: 1, maxHp: 350, hp: 350, pickupRange: 60, armor: 0 });
+      const playerSpeedRef = useRef(2.5); // Track actual speed to prevent accumulation
       const [screenShake, setScreenShake] = useState(0);
       const [combo, setCombo] = useState(0);
       const [comboTimer, setComboTimer] = useState(0);
@@ -415,6 +416,7 @@
         levelUpQueueRef.current = 0;
         setWeapons([{ ...WEAPONS.spatula, level: 1, damageBonus: 1, cooldownBonus: 1, sizeBonus: 1 }]);
         setPlayerStats({ speedBonus: 1, maxHp: 350, hp: 350, pickupRange: 60, armor: 0 }); // Increased starting HP
+        playerSpeedRef.current = BASE_PLAYER_SPEED; // Reset speed ref
         gameRef.current = {
           player: { x: 0, y: 0, facing: 1 },
           enemies: [],
@@ -491,6 +493,11 @@
           window.removeEventListener('touchend', handleTouchEnd);
         };
       }, [gameState]);
+
+      // Sync pause ref with showUpgrade state
+      useEffect(() => {
+        pausedForUpgradeRef.current = showUpgrade;
+      }, [showUpgrade]);
 
       // Show leaderboard on game over
       useEffect(() => {
@@ -595,14 +602,15 @@
         };
 
         const gameLoop = (currentTime) => {
-          // Always render, but pause game logic when upgrade screen is shown
+          // Update pause ref from state
           pausedForUpgradeRef.current = showUpgrade;
           
+          // PAUSE CHECK - Must be first check
           if (showUpgrade || pausedForUpgradeRef.current) {
-            // Still render the game in background (frozen state)
+            // Still render the game in background (frozen state) but NO updates
             renderGame();
             animationId = requestAnimationFrame(gameLoop);
-            return;
+            return; // Exit early - don't update anything
           }
           
           if (gameState !== 'playing') {
@@ -618,12 +626,16 @@
           
           // Only update if enough time has passed (16.67ms for 60fps)
           if (elapsed >= FRAME_TIME) {
-            // Cap to prevent huge jumps
-            const cappedElapsed = Math.min(elapsed, FRAME_TIME * 3); // Max 3 frames worth
+            // Cap to prevent huge jumps - stricter cap
+            const cappedElapsed = Math.min(elapsed, FRAME_TIME * 2); // Max 2 frames worth (was 3)
             const updateCount = Math.floor(cappedElapsed / FRAME_TIME);
             
-            // Run game updates
+            // Run game updates - but check pause again inside
             for (let i = 0; i < updateCount; i++) {
+              // Double-check pause state before each update
+              if (showUpgrade || pausedForUpgradeRef.current) {
+                break; // Stop updating if paused
+              }
               updateGame(1.0); // Always use 1.0 delta
             }
             
@@ -633,7 +645,10 @@
           // Always render (smooth visuals)
           renderGame();
           
-          if (!gameOverRef.current) {
+          if (!gameOverRef.current && !showUpgrade && !pausedForUpgradeRef.current) {
+            animationId = requestAnimationFrame(gameLoop);
+          } else if (!gameOverRef.current) {
+            // Still continue loop if paused (to render frozen state)
             animationId = requestAnimationFrame(gameLoop);
           }
         };
@@ -661,7 +676,10 @@
           
           if (dx !== 0 || dy !== 0) {
             const len = Math.hypot(dx, dy);
-            const speed = BASE_PLAYER_SPEED * (playerStats.speedBonus || 1);
+            // Cap speed bonus to prevent excessive speed - use ref to prevent closure issues
+            const currentSpeedBonus = Math.min(playerStats.speedBonus || 1, 1.35);
+            playerSpeedRef.current = BASE_PLAYER_SPEED * currentSpeedBonus;
+            const speed = playerSpeedRef.current;
             game.player.x += (dx / len) * speed * delta;
             game.player.y += (dy / len) * speed * delta;
             game.player.facing = dx !== 0 ? Math.sign(dx) : game.player.facing;
