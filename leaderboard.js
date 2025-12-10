@@ -191,7 +191,8 @@ async function getAllLeaderboards() {
       'survivors',
       'bubble-pop',
       'dungeon-delver',
-      'fishing-frenzy'
+      'fishing-frenzy',
+      'jellyfishing'
     ];
 
     const leaderboards = {};

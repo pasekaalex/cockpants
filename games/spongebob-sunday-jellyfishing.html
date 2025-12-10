@@ -1,0 +1,2265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SpongeBob Sunday Jellyfishing | $COCKPANTS Games 🪼</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../leaderboard.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Bangers&family=Fredoka+One&family=Luckiest+Guy&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            overflow: hidden;
+            font-family: 'Fredoka One', cursive;
+            background: #006994;
+            cursor: none;
+        }
+        
+        #game-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+        
+        canvas {
+            display: block;
+        }
+        
+        #custom-cursor {
+            position: fixed;
+            width: 40px;
+            height: 40px;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.3));
+            transition: transform 0.1s ease;
+        }
+        
+        #ui-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        
+        /* Top HUD */
+        #top-hud {
+            position: absolute;
+            top: 15px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 0 20px;
+        }
+        
+        .hud-panel {
+            background: linear-gradient(135deg, rgba(255,215,0,0.95) 0%, rgba(255,165,0,0.95) 100%);
+            padding: 12px 25px;
+            border-radius: 20px;
+            border: 3px solid #8B4513;
+            box-shadow: 0 4px 0 #8B4513, 0 8px 15px rgba(0,0,0,0.3);
+        }
+        
+        .hud-label {
+            font-family: 'Bangers', cursive;
+            font-size: 0.9rem;
+            color: #8B4513;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .hud-value {
+            font-family: 'Luckiest Guy', cursive;
+            font-size: 1.8rem;
+            color: #FF1493;
+            text-shadow: 2px 2px 0 #8B4513;
+        }
+        
+        #score-panel {
+            text-align: center;
+            min-width: 150px;
+        }
+        
+        #combo-panel {
+            text-align: center;
+            min-width: 120px;
+            opacity: 0;
+            transform: scale(0.8);
+            transition: all 0.3s ease;
+        }
+        
+        #combo-panel.active {
+            opacity: 1;
+            transform: scale(1);
+        }
+        
+        #combo-panel .hud-value {
+            color: #00FFFF;
+        }
+        
+        #timer-panel {
+            text-align: center;
+            min-width: 130px;
+        }
+        
+        #timer-panel .hud-value {
+            color: #32CD32;
+        }
+        
+        #timer-panel.warning .hud-value {
+            color: #FF4500;
+            animation: pulse 0.5s ease infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        /* Wave indicator */
+        #wave-indicator {
+            position: absolute;
+            top: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'Luckiest Guy', cursive;
+            font-size: 3rem;
+            color: #FFD700;
+            text-shadow: 3px 3px 0 #FF6B6B, 6px 6px 0 #8B4513;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 100;
+        }
+        
+        #wave-indicator.show {
+            animation: waveAnnounce 2s ease forwards;
+        }
+        
+        @keyframes waveAnnounce {
+            0% { opacity: 0; transform: translateX(-50%) scale(0.5); }
+            20% { opacity: 1; transform: translateX(-50%) scale(1.2); }
+            80% { opacity: 1; transform: translateX(-50%) scale(1); }
+            100% { opacity: 0; transform: translateX(-50%) scale(0.8); }
+        }
+        
+        /* Power-ups display */
+        #powerups-display {
+            position: absolute;
+            bottom: 100px;
+            left: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .powerup-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(0,0,0,0.5);
+            padding: 8px 15px;
+            border-radius: 25px;
+            opacity: 0;
+            transform: translateX(-50px);
+            transition: all 0.3s ease;
+        }
+        
+        .powerup-item.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        .powerup-icon {
+            font-size: 1.5rem;
+        }
+        
+        .powerup-timer {
+            width: 80px;
+            height: 8px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .powerup-timer-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00FF00, #FFFF00);
+            transition: width 0.1s linear;
+        }
+        
+        /* Jellyfish counter */
+        #jelly-types {
+            position: absolute;
+            top: 100px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .jelly-type {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(0,0,0,0.4);
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            color: white;
+        }
+        
+        .jelly-dot {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+        }
+        
+        /* Health bar */
+        #health-container {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+        }
+        
+        .health-heart {
+            font-size: 2rem;
+            filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.5));
+            transition: all 0.3s ease;
+        }
+        
+        .health-heart.lost {
+            filter: grayscale(100%);
+            opacity: 0.3;
+            transform: scale(0.8);
+        }
+        
+        .health-heart.hit {
+            animation: heartHit 0.5s ease;
+        }
+        
+        @keyframes heartHit {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.3) rotate(10deg); }
+        }
+        
+        /* Catch effects */
+        .catch-popup {
+            position: absolute;
+            font-family: 'Bangers', cursive;
+            font-size: 2rem;
+            pointer-events: none;
+            animation: popupFloat 1s ease forwards;
+            z-index: 50;
+            text-shadow: 2px 2px 0 #000;
+        }
+        
+        @keyframes popupFloat {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-80px) scale(1.5); }
+        }
+        
+        /* Title screen */
+        #title-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, 
+                #87CEEB 0%, 
+                #4ECDC4 20%,
+                #006994 50%,
+                #004466 80%,
+                #002233 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            pointer-events: auto;
+            z-index: 200;
+            cursor: auto;
+        }
+        
+        .title-wrapper {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        #title-screen h1 {
+            font-family: 'Luckiest Guy', cursive;
+            font-size: clamp(2.5rem, 8vw, 5rem);
+            color: #FFD700;
+            text-shadow: 
+                4px 4px 0 #FF6B6B,
+                8px 8px 0 #8B4513,
+                12px 12px 30px rgba(0,0,0,0.5);
+            animation: titleBounce 3s ease-in-out infinite;
+            line-height: 1.1;
+        }
+        
+        #title-screen h2 {
+            font-family: 'Bangers', cursive;
+            font-size: clamp(1.5rem, 5vw, 3rem);
+            color: #FF69B4;
+            text-shadow: 3px 3px 0 #8B4513;
+            margin-top: 10px;
+            letter-spacing: 3px;
+        }
+        
+        @keyframes titleBounce {
+            0%, 100% { transform: rotate(-1deg) translateY(0); }
+            25% { transform: rotate(1deg) translateY(-5px); }
+            50% { transform: rotate(-1deg) translateY(0); }
+            75% { transform: rotate(1deg) translateY(-3px); }
+        }
+        
+        .menu-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .menu-btn {
+            font-family: 'Luckiest Guy', cursive;
+            font-size: 1.5rem;
+            padding: 18px 50px;
+            background: linear-gradient(135deg, #FF69B4 0%, #FF1493 100%);
+            color: white;
+            border: 4px solid #8B4513;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 6px 0 #8B4513, 0 10px 20px rgba(0,0,0,0.3);
+            transition: all 0.1s ease;
+            text-shadow: 2px 2px 0 #8B4513;
+            letter-spacing: 2px;
+        }
+        
+        .menu-btn:hover {
+            transform: translateY(3px);
+            box-shadow: 0 3px 0 #8B4513, 0 6px 15px rgba(0,0,0,0.3);
+            filter: brightness(1.1);
+        }
+        
+        .menu-btn:active {
+            transform: translateY(6px);
+            box-shadow: 0 0 0 #8B4513, 0 3px 10px rgba(0,0,0,0.3);
+        }
+        
+        .menu-btn.secondary {
+            background: linear-gradient(135deg, #4ECDC4 0%, #44A08D 100%);
+            font-size: 1.2rem;
+            padding: 12px 35px;
+        }
+        
+        #instructions-box {
+            background: rgba(0,0,0,0.4);
+            padding: 20px 30px;
+            border-radius: 20px;
+            max-width: 500px;
+            text-align: center;
+        }
+        
+        #instructions-box h3 {
+            font-family: 'Bangers', cursive;
+            color: #FFD700;
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+        }
+        
+        #instructions-box p {
+            color: white;
+            font-size: 1rem;
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+        
+        .key-hint {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 4px 12px;
+            border-radius: 8px;
+            margin: 2px;
+            font-size: 0.9rem;
+        }
+        
+        .jelly-legend {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: white;
+            font-size: 0.85rem;
+        }
+        
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        
+        /* Game over screen */
+        #game-over-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            pointer-events: auto;
+            z-index: 200;
+            cursor: auto;
+        }
+        
+        #game-over-screen.show {
+            display: flex;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        #game-over-screen h1 {
+            font-family: 'Luckiest Guy', cursive;
+            font-size: 4rem;
+            color: #FF6B6B;
+            text-shadow: 4px 4px 0 #8B4513;
+            margin-bottom: 20px;
+        }
+        
+        .final-stats {
+            background: linear-gradient(135deg, rgba(255,215,0,0.9) 0%, rgba(255,165,0,0.9) 100%);
+            padding: 30px 50px;
+            border-radius: 25px;
+            border: 4px solid #8B4513;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 40px;
+            margin: 10px 0;
+        }
+        
+        .stat-label {
+            font-family: 'Bangers', cursive;
+            color: #8B4513;
+            font-size: 1.2rem;
+        }
+        
+        .stat-value {
+            font-family: 'Luckiest Guy', cursive;
+            color: #FF1493;
+            font-size: 1.5rem;
+        }
+        
+        .high-score-badge {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #8B4513;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-family: 'Bangers', cursive;
+            font-size: 1rem;
+            margin-top: 10px;
+            display: none;
+        }
+        
+        .high-score-badge.show {
+            display: inline-block;
+            animation: bounce 0.5s ease infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+        
+        /* Pause menu */
+        #pause-menu {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            pointer-events: auto;
+            z-index: 150;
+            cursor: auto;
+        }
+        
+        #pause-menu.show {
+            display: flex;
+        }
+        
+        #pause-menu h1 {
+            font-family: 'Luckiest Guy', cursive;
+            font-size: 3rem;
+            color: #FFD700;
+            text-shadow: 3px 3px 0 #8B4513;
+            margin-bottom: 30px;
+        }
+        
+        /* Decorative elements */
+        .floating-element {
+            position: absolute;
+            pointer-events: none;
+            opacity: 0.6;
+            animation: floatAround 20s linear infinite;
+        }
+        
+        @keyframes floatAround {
+            0% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+            100% { transform: translateY(0) rotate(360deg); }
+        }
+        
+        .bubble {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.9), rgba(255,255,255,0.1));
+            border: 1px solid rgba(255,255,255,0.4);
+            animation: bubbleFloat linear forwards;
+            pointer-events: none;
+        }
+        
+        @keyframes bubbleFloat {
+            0% { transform: translateY(0) translateX(0) scale(1); opacity: 0.8; }
+            100% { transform: translateY(-100vh) translateX(var(--drift)) scale(0.3); opacity: 0; }
+        }
+        
+        /* Mobile controls */
+        #mobile-controls {
+            position: absolute;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: none;
+            gap: 10px;
+            pointer-events: auto;
+        }
+        
+        @media (max-width: 768px) {
+            #mobile-controls {
+                display: flex;
+            }
+            
+            #jelly-types {
+                display: none;
+            }
+            
+            .hud-panel {
+                padding: 8px 15px;
+            }
+            
+            .hud-value {
+                font-size: 1.4rem;
+            }
+        }
+        
+        .mobile-btn {
+            width: 65px;
+            height: 65px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.9), rgba(255, 165, 0, 0.9));
+            border: 3px solid #8B4513;
+            font-size: 1.8rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            box-shadow: 0 4px 0 #8B4513;
+            transition: all 0.1s ease;
+        }
+        
+        .mobile-btn:active {
+            background: linear-gradient(135deg, rgba(255, 105, 180, 0.9), rgba(255, 20, 147, 0.9));
+            transform: translateY(4px);
+            box-shadow: 0 0 0 #8B4513;
+        }
+        
+        .mobile-btn-row {
+            display: flex;
+            gap: 60px;
+        }
+        
+        /* Screen shake */
+        .screen-shake {
+            animation: shake 0.3s ease;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-10px); }
+            40% { transform: translateX(10px); }
+            60% { transform: translateX(-5px); }
+            80% { transform: translateX(5px); }
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <!-- Custom cursor -->
+        <svg id="custom-cursor" viewBox="0 0 40 40">
+            <circle cx="20" cy="20" r="18" fill="none" stroke="#FFD700" stroke-width="3"/>
+            <circle cx="20" cy="20" r="5" fill="#FF69B4"/>
+        </svg>
+        
+        <div id="ui-overlay">
+            <!-- Top HUD -->
+            <div id="top-hud">
+                <div id="timer-panel" class="hud-panel">
+                    <div class="hud-label">⏱️ Time</div>
+                    <div class="hud-value" id="timer">2:00</div>
+                </div>
+                
+                <div id="score-panel" class="hud-panel">
+                    <div class="hud-label">🦑 Score</div>
+                    <div class="hud-value" id="score">0</div>
+                </div>
+                
+                <div id="combo-panel" class="hud-panel">
+                    <div class="hud-label">🔥 Combo</div>
+                    <div class="hud-value" id="combo">x1</div>
+                </div>
+            </div>
+            
+            <!-- Wave indicator -->
+            <div id="wave-indicator">WAVE 1</div>
+            
+            <!-- Power-ups display -->
+            <div id="powerups-display">
+                <div class="powerup-item" id="powerup-speed">
+                    <span class="powerup-icon">⚡</span>
+                    <div class="powerup-timer">
+                        <div class="powerup-timer-fill" style="width: 100%"></div>
+                    </div>
+                </div>
+                <div class="powerup-item" id="powerup-magnet">
+                    <span class="powerup-icon">🧲</span>
+                    <div class="powerup-timer">
+                        <div class="powerup-timer-fill" style="width: 100%"></div>
+                    </div>
+                </div>
+                <div class="powerup-item" id="powerup-double">
+                    <span class="powerup-icon">✨</span>
+                    <div class="powerup-timer">
+                        <div class="powerup-timer-fill" style="width: 100%"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Jellyfish types caught -->
+            <div id="jelly-types">
+                <div class="jelly-type">
+                    <div class="jelly-dot" style="background: #FF69B4;"></div>
+                    <span>Pink: <span id="pink-count">0</span></span>
+                </div>
+                <div class="jelly-type">
+                    <div class="jelly-dot" style="background: #00BFFF;"></div>
+                    <span>Blue: <span id="blue-count">0</span></span>
+                </div>
+                <div class="jelly-type">
+                    <div class="jelly-dot" style="background: #FFD700;"></div>
+                    <span>Gold: <span id="gold-count">0</span></span>
+                </div>
+                <div class="jelly-type">
+                    <div class="jelly-dot" style="background: #FF4500; box-shadow: 0 0 10px #FF4500;"></div>
+                    <span>Queen: <span id="queen-count">0</span></span>
+                </div>
+            </div>
+            
+            <!-- Health -->
+            <div id="health-container">
+                <span class="health-heart" id="heart-1">❤️</span>
+                <span class="health-heart" id="heart-2">❤️</span>
+                <span class="health-heart" id="heart-3">❤️</span>
+            </div>
+            
+            <!-- Mobile controls -->
+            <div id="mobile-controls">
+                <button class="mobile-btn" data-dir="left">⬅️</button>
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <button class="mobile-btn" data-dir="up">⬆️</button>
+                    <button class="mobile-btn" data-dir="down">⬇️</button>
+                </div>
+                <button class="mobile-btn" data-dir="right">➡️</button>
+            </div>
+        </div>
+        
+        <!-- Title Screen -->
+        <div id="title-screen">
+            <div class="title-wrapper">
+                <h1>🧽 SPONGEBOB<br>SUNDAY<br>JELLYFISHING 🧽</h1>
+                <h2>🦑 BIKINI BOTTOM EDITION 🦑</h2>
+            </div>
+            
+            <div class="menu-buttons">
+                <button class="menu-btn" id="start-btn">🎮 START GAME</button>
+                <button class="menu-btn secondary" id="how-to-btn">❓ HOW TO PLAY</button>
+            </div>
+            
+            <div id="instructions-box">
+                <h3>🎯 CATCH JELLYFISH!</h3>
+                <p>Use <span class="key-hint">WASD</span> or <span class="key-hint">Arrow Keys</span> to move</p>
+                <p>Press <span class="key-hint">SPACE</span> to dash! Press <span class="key-hint">ESC</span> to pause</p>
+                <p>⚠️ Avoid the <strong style="color:#FF4500">angry red jellyfish</strong> - they sting!</p>
+                
+                <div class="jelly-legend">
+                    <div class="legend-item">
+                        <div class="legend-dot" style="background: #FF69B4;"></div>
+                        <span>+10 pts</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-dot" style="background: #00BFFF;"></div>
+                        <span>+25 pts</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-dot" style="background: #FFD700;"></div>
+                        <span>+50 pts</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-dot" style="background: #FF4500; box-shadow: 0 0 5px #FF4500;"></div>
+                        <span>+100 pts (QUEEN)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Game Over Screen -->
+        <div id="game-over-screen">
+            <h1>⏰ TIME'S UP! ⏰</h1>
+            <div class="final-stats">
+                <div class="stat-row">
+                    <span class="stat-label">Final Score:</span>
+                    <span class="stat-value" id="final-score">0</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Jellyfish Caught:</span>
+                    <span class="stat-value" id="final-caught">0</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Max Combo:</span>
+                    <span class="stat-value" id="final-combo">x1</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Best Wave:</span>
+                    <span class="stat-value" id="final-wave">1</span>
+                </div>
+                <div class="high-score-badge" id="high-score-badge">🏆 NEW HIGH SCORE! 🏆</div>
+            </div>
+            <div class="menu-buttons">
+                <button class="menu-btn" id="restart-btn">🔄 PLAY AGAIN</button>
+                <button class="menu-btn" id="leaderboard-btn">🏆 LEADERBOARD</button>
+                <button class="menu-btn secondary" id="menu-btn">🏠 MAIN MENU</button>
+            </div>
+        </div>
+        
+        <!-- Pause Menu -->
+        <div id="pause-menu">
+            <h1>⏸️ PAUSED</h1>
+            <div class="menu-buttons">
+                <button class="menu-btn" id="resume-btn">▶️ RESUME</button>
+                <button class="menu-btn secondary" id="quit-btn">🚪 QUIT TO MENU</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // ==================== GAME CONFIGURATION ====================
+        const CONFIG = {
+            GAME_DURATION: 120, // seconds
+            WAVE_DURATION: 20,
+            BASE_PLAYER_SPEED: 0.18,
+            DASH_SPEED: 0.5,
+            DASH_DURATION: 200,
+            DASH_COOLDOWN: 1000,
+            BOUNDS: 14,
+            COMBO_TIMEOUT: 2000,
+            POWERUP_DURATION: 8000,
+            
+            JELLYFISH_TYPES: {
+                PINK: { color: 0xFF69B4, points: 10, speed: 0.015, spawnWeight: 50 },
+                BLUE: { color: 0x00BFFF, points: 25, speed: 0.025, spawnWeight: 30 },
+                GOLD: { color: 0xFFD700, points: 50, speed: 0.035, spawnWeight: 15 },
+                QUEEN: { color: 0xFF4500, points: 100, speed: 0.02, spawnWeight: 5, glow: true, size: 1.5 }
+            },
+            
+            ANGRY_JELLYFISH: { color: 0xFF0000, speed: 0.04, damage: 1 }
+        };
+
+        // ==================== GAME STATE ====================
+        const gameState = {
+            running: false,
+            paused: false,
+            score: 0,
+            combo: 1,
+            maxCombo: 1,
+            comboTimer: null,
+            health: 3,
+            wave: 1,
+            timeRemaining: CONFIG.GAME_DURATION,
+            jellyfishCaught: { pink: 0, blue: 0, gold: 0, queen: 0 },
+            totalCaught: 0,
+            highScore: parseInt(localStorage.getItem('jellyfishHighScore')) || 0,
+            
+            powerups: {
+                speed: { active: false, timer: null, remaining: 0 },
+                magnet: { active: false, timer: null, remaining: 0 },
+                double: { active: false, timer: null, remaining: 0 }
+            },
+            
+            dash: {
+                active: false,
+                cooldown: false,
+                lastDash: 0
+            }
+        };
+
+        const playerPos = { x: 0, z: 0 };
+        const keys = {};
+        const jellyfish = [];
+        const angryJellyfish = [];
+        const powerupItems = [];
+        const particles = [];
+
+        // ==================== THREE.JS SETUP ====================
+        const scene = new THREE.Scene();
+        scene.fog = new THREE.Fog(0x006994, 15, 40);
+        
+        const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 20, 16);
+        camera.lookAt(0, 0, 0);
+        
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.setClearColor(0x006994, 1);
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        document.getElementById('game-container').insertBefore(renderer.domElement, document.getElementById('ui-overlay'));
+
+        // ==================== LIGHTING ====================
+        const ambientLight = new THREE.AmbientLight(0x4488aa, 0.5);
+        scene.add(ambientLight);
+
+        const sunLight = new THREE.DirectionalLight(0xffffcc, 1.2);
+        sunLight.position.set(15, 30, 15);
+        sunLight.castShadow = true;
+        sunLight.shadow.mapSize.width = 2048;
+        sunLight.shadow.mapSize.height = 2048;
+        sunLight.shadow.camera.near = 0.5;
+        sunLight.shadow.camera.far = 100;
+        sunLight.shadow.camera.left = -30;
+        sunLight.shadow.camera.right = 30;
+        sunLight.shadow.camera.top = 30;
+        sunLight.shadow.camera.bottom = -30;
+        scene.add(sunLight);
+
+        const causticLight = new THREE.PointLight(0x88ccff, 0.5, 30);
+        causticLight.position.set(0, 15, 0);
+        scene.add(causticLight);
+
+        // ==================== ENVIRONMENT ====================
+        // Ground
+        const groundGeometry = new THREE.PlaneGeometry(50, 50, 50, 50);
+        const groundMaterial = new THREE.MeshLambertMaterial({ 
+            color: 0x3CB371,
+            side: THREE.DoubleSide
+        });
+        const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+        ground.rotation.x = -Math.PI / 2;
+        ground.position.y = -0.5;
+        ground.receiveShadow = true;
+        scene.add(ground);
+
+        // Add varied grass and flowers
+        function createGrass() {
+            const grassColors = [0x228B22, 0x2E8B57, 0x32CD32, 0x006400];
+            for (let i = 0; i < 200; i++) {
+                const grassGeometry = new THREE.ConeGeometry(0.08 + Math.random() * 0.05, 0.3 + Math.random() * 0.3, 4);
+                const grassMaterial = new THREE.MeshLambertMaterial({ 
+                    color: grassColors[Math.floor(Math.random() * grassColors.length)] 
+                });
+                const grass = new THREE.Mesh(grassGeometry, grassMaterial);
+                grass.position.set(
+                    (Math.random() - 0.5) * 45,
+                    -0.35,
+                    (Math.random() - 0.5) * 45
+                );
+                grass.rotation.y = Math.random() * Math.PI;
+                scene.add(grass);
+            }
+        }
+        createGrass();
+
+        // Flowers
+        function createFlower(x, z) {
+            const group = new THREE.Group();
+            
+            // Stem
+            const stemGeometry = new THREE.CylinderGeometry(0.03, 0.03, 0.5, 6);
+            const stemMaterial = new THREE.MeshLambertMaterial({ color: 0x228B22 });
+            const stem = new THREE.Mesh(stemGeometry, stemMaterial);
+            stem.position.y = 0;
+            group.add(stem);
+            
+            // Petals
+            const petalColors = [0xFF69B4, 0xFFFF00, 0xFF6347, 0x9370DB, 0x00CED1];
+            const petalColor = petalColors[Math.floor(Math.random() * petalColors.length)];
+            
+            for (let i = 0; i < 5; i++) {
+                const petalGeometry = new THREE.SphereGeometry(0.1, 8, 8);
+                petalGeometry.scale(1, 0.3, 1);
+                const petalMaterial = new THREE.MeshLambertMaterial({ color: petalColor });
+                const petal = new THREE.Mesh(petalGeometry, petalMaterial);
+                const angle = (i / 5) * Math.PI * 2;
+                petal.position.set(Math.cos(angle) * 0.12, 0.25, Math.sin(angle) * 0.12);
+                group.add(petal);
+            }
+            
+            // Center
+            const centerGeometry = new THREE.SphereGeometry(0.08, 8, 8);
+            const centerMaterial = new THREE.MeshLambertMaterial({ color: 0xFFD700 });
+            const center = new THREE.Mesh(centerGeometry, centerMaterial);
+            center.position.y = 0.25;
+            group.add(center);
+            
+            group.position.set(x, -0.25, z);
+            return group;
+        }
+
+        for (let i = 0; i < 40; i++) {
+            const flower = createFlower(
+                (Math.random() - 0.5) * 40,
+                (Math.random() - 0.5) * 40
+            );
+            scene.add(flower);
+        }
+
+        // Coral decorations
+        function createCoral(x, z) {
+            const group = new THREE.Group();
+            const coralColors = [0xFF6B6B, 0xFF8E53, 0xFFBF69, 0x95E1D3];
+            const color = coralColors[Math.floor(Math.random() * coralColors.length)];
+            
+            for (let i = 0; i < 3 + Math.floor(Math.random() * 3); i++) {
+                const height = 0.5 + Math.random() * 1;
+                const branchGeometry = new THREE.CylinderGeometry(0.05, 0.15, height, 6);
+                const branchMaterial = new THREE.MeshLambertMaterial({ color: color });
+                const branch = new THREE.Mesh(branchGeometry, branchMaterial);
+                branch.position.set(
+                    (Math.random() - 0.5) * 0.5,
+                    height / 2 - 0.3,
+                    (Math.random() - 0.5) * 0.5
+                );
+                branch.rotation.x = (Math.random() - 0.5) * 0.3;
+                branch.rotation.z = (Math.random() - 0.5) * 0.3;
+                group.add(branch);
+            }
+            
+            group.position.set(x, -0.2, z);
+            return group;
+        }
+
+        for (let i = 0; i < 15; i++) {
+            const angle = (i / 15) * Math.PI * 2;
+            const distance = 12 + Math.random() * 8;
+            const coral = createCoral(
+                Math.cos(angle) * distance,
+                Math.sin(angle) * distance
+            );
+            scene.add(coral);
+        }
+
+        // Pineapple house (SpongeBob's home)
+        function createPineappleHouse() {
+            const group = new THREE.Group();
+            
+            // Main body
+            const bodyGeometry = new THREE.SphereGeometry(2, 16, 16);
+            bodyGeometry.scale(1, 1.3, 1);
+            const bodyMaterial = new THREE.MeshLambertMaterial({ color: 0xFFA500 });
+            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+            body.position.y = 1.5;
+            body.castShadow = true;
+            group.add(body);
+            
+            // Pineapple texture (diamonds)
+            const diamondMaterial = new THREE.MeshLambertMaterial({ color: 0xCC8400 });
+            for (let row = 0; row < 5; row++) {
+                const rowAngle = (row / 5) * Math.PI - Math.PI / 2 + 0.3;
+                const rowRadius = Math.cos(rowAngle) * 2;
+                const diamondsInRow = Math.floor(8 * Math.abs(Math.cos(rowAngle)));
+                for (let i = 0; i < diamondsInRow; i++) {
+                    const angle = (i / diamondsInRow) * Math.PI * 2;
+                    const diamondGeometry = new THREE.OctahedronGeometry(0.15, 0);
+                    const diamond = new THREE.Mesh(diamondGeometry, diamondMaterial);
+                    diamond.position.set(
+                        Math.cos(angle) * rowRadius,
+                        1.5 + Math.sin(rowAngle) * 2.6,
+                        Math.sin(angle) * rowRadius
+                    );
+                    group.add(diamond);
+                }
+            }
+            
+            // Leaves
+            const leafMaterial = new THREE.MeshLambertMaterial({ color: 0x228B22 });
+            for (let i = 0; i < 5; i++) {
+                const leafGeometry = new THREE.ConeGeometry(0.3, 1.5, 4);
+                const leaf = new THREE.Mesh(leafGeometry, leafMaterial);
+                const angle = (i / 5) * Math.PI * 2;
+                leaf.position.set(
+                    Math.cos(angle) * 0.3,
+                    4 + Math.random() * 0.3,
+                    Math.sin(angle) * 0.3
+                );
+                leaf.rotation.x = (Math.random() - 0.5) * 0.5;
+                leaf.rotation.z = Math.cos(angle) * 0.3;
+                group.add(leaf);
+            }
+            
+            // Door
+            const doorGeometry = new THREE.BoxGeometry(0.6, 0.8, 0.1);
+            const doorMaterial = new THREE.MeshLambertMaterial({ color: 0x4169E1 });
+            const door = new THREE.Mesh(doorGeometry, doorMaterial);
+            door.position.set(0, 0.4, 2.05);
+            group.add(door);
+            
+            // Windows
+            const windowGeometry = new THREE.CircleGeometry(0.25, 16);
+            const windowMaterial = new THREE.MeshLambertMaterial({ color: 0x87CEEB });
+            [-1, 1].forEach(side => {
+                const window = new THREE.Mesh(windowGeometry, windowMaterial);
+                window.position.set(side * 1.2, 1.8, 1.6);
+                window.lookAt(side * 2, 1.8, 3);
+                group.add(window);
+            });
+            
+            return group;
+        }
+
+        const pineappleHouse = createPineappleHouse();
+        pineappleHouse.position.set(-18, 0, -15);
+        pineappleHouse.rotation.y = Math.PI / 4;
+        scene.add(pineappleHouse);
+
+        // Patrick's rock
+        function createPatricksRock() {
+            const geometry = new THREE.DodecahedronGeometry(2, 0);
+            geometry.scale(1.5, 0.7, 1.2);
+            const material = new THREE.MeshLambertMaterial({ color: 0xD2691E });
+            const rock = new THREE.Mesh(geometry, material);
+            rock.position.y = 0.5;
+            rock.castShadow = true;
+            return rock;
+        }
+
+        const patricksRock = createPatricksRock();
+        patricksRock.position.set(18, 0, -12);
+        scene.add(patricksRock);
+
+        // Squidward's house (Easter Island head style)
+        function createSquidwardsHouse() {
+            const group = new THREE.Group();
+            
+            // Main head
+            const headGeometry = new THREE.CylinderGeometry(1.2, 1.5, 4, 6);
+            const headMaterial = new THREE.MeshLambertMaterial({ color: 0x4682B4 });
+            const head = new THREE.Mesh(headGeometry, headMaterial);
+            head.position.y = 2;
+            head.castShadow = true;
+            group.add(head);
+            
+            // Nose
+            const noseGeometry = new THREE.CylinderGeometry(0.15, 0.3, 1.5, 6);
+            const nose = new THREE.Mesh(noseGeometry, headMaterial);
+            nose.position.set(0, 2.5, 1.3);
+            nose.rotation.x = Math.PI / 2;
+            group.add(nose);
+            
+            // Eyes (windows)
+            const eyeGeometry = new THREE.BoxGeometry(0.4, 0.6, 0.1);
+            const eyeMaterial = new THREE.MeshLambertMaterial({ color: 0xFFFF00 });
+            [-0.5, 0.5].forEach(side => {
+                const eye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+                eye.position.set(side, 3, 1.2);
+                group.add(eye);
+            });
+            
+            // Door
+            const doorGeometry = new THREE.BoxGeometry(0.8, 1.2, 0.1);
+            const doorMaterial = new THREE.MeshLambertMaterial({ color: 0x8B4513 });
+            const door = new THREE.Mesh(doorGeometry, doorMaterial);
+            door.position.set(0, 0.6, 1.5);
+            group.add(door);
+            
+            return group;
+        }
+
+        const squidwardsHouse = createSquidwardsHouse();
+        squidwardsHouse.position.set(-18, 0, 10);
+        squidwardsHouse.rotation.y = -Math.PI / 6;
+        scene.add(squidwardsHouse);
+
+        // ==================== SPONGEBOB CHARACTER ====================
+        let spongebob;
+
+        function createSpongeBob() {
+            const group = new THREE.Group();
+
+            // Body
+            const bodyGeometry = new THREE.BoxGeometry(1.3, 2, 0.7);
+            const bodyMaterial = new THREE.MeshLambertMaterial({ color: 0xFFFF00 });
+            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+            body.position.y = 1;
+            body.castShadow = true;
+            group.add(body);
+
+            // Holes
+            const holeMaterial = new THREE.MeshLambertMaterial({ color: 0xBBBB00 });
+            const holePositions = [
+                [-0.3, 1.3, 0.36], [0.2, 1.5, 0.36], [-0.1, 0.8, 0.36],
+                [0.35, 1.1, 0.36], [-0.4, 0.6, 0.36], [0.1, 1.1, 0.36]
+            ];
+            holePositions.forEach(pos => {
+                const holeGeometry = new THREE.CircleGeometry(0.08, 8);
+                const hole = new THREE.Mesh(holeGeometry, holeMaterial);
+                hole.position.set(...pos);
+                group.add(hole);
+            });
+
+            // Eyes
+            const eyeWhiteGeometry = new THREE.SphereGeometry(0.22, 16, 16);
+            const eyeWhiteMaterial = new THREE.MeshLambertMaterial({ color: 0xFFFFFF });
+            
+            const leftEyeWhite = new THREE.Mesh(eyeWhiteGeometry, eyeWhiteMaterial);
+            leftEyeWhite.position.set(-0.22, 1.55, 0.4);
+            group.add(leftEyeWhite);
+
+            const rightEyeWhite = new THREE.Mesh(eyeWhiteGeometry, eyeWhiteMaterial);
+            rightEyeWhite.position.set(0.22, 1.55, 0.4);
+            group.add(rightEyeWhite);
+
+            // Irises
+            const irisGeometry = new THREE.SphereGeometry(0.12, 16, 16);
+            const irisMaterial = new THREE.MeshLambertMaterial({ color: 0x1E90FF });
+            
+            const leftIris = new THREE.Mesh(irisGeometry, irisMaterial);
+            leftIris.position.set(-0.22, 1.55, 0.55);
+            leftIris.name = 'leftIris';
+            group.add(leftIris);
+
+            const rightIris = new THREE.Mesh(irisGeometry, irisMaterial);
+            rightIris.position.set(0.22, 1.55, 0.55);
+            rightIris.name = 'rightIris';
+            group.add(rightIris);
+
+            // Pupils
+            const pupilGeometry = new THREE.SphereGeometry(0.05, 16, 16);
+            const pupilMaterial = new THREE.MeshLambertMaterial({ color: 0x000000 });
+            
+            const leftPupil = new THREE.Mesh(pupilGeometry, pupilMaterial);
+            leftPupil.position.set(-0.22, 1.55, 0.65);
+            group.add(leftPupil);
+
+            const rightPupil = new THREE.Mesh(pupilGeometry, pupilMaterial);
+            rightPupil.position.set(0.22, 1.55, 0.65);
+            group.add(rightPupil);
+
+            // Eyelashes
+            const lashMaterial = new THREE.MeshLambertMaterial({ color: 0x000000 });
+            [-0.22, 0.22].forEach(x => {
+                for (let i = 0; i < 3; i++) {
+                    const lashGeometry = new THREE.CylinderGeometry(0.01, 0.01, 0.15, 4);
+                    const lash = new THREE.Mesh(lashGeometry, lashMaterial);
+                    lash.position.set(x + (i - 1) * 0.08, 1.8, 0.45);
+                    lash.rotation.x = -0.3;
+                    group.add(lash);
+                }
+            });
+
+            // Nose
+            const noseGeometry = new THREE.SphereGeometry(0.08, 8, 8);
+            const noseMaterial = new THREE.MeshLambertMaterial({ color: 0xFFFF00 });
+            const nose = new THREE.Mesh(noseGeometry, noseMaterial);
+            nose.position.set(0, 1.35, 0.4);
+            group.add(nose);
+
+            // Mouth (smile)
+            const smileGeometry = new THREE.TorusGeometry(0.18, 0.03, 8, 16, Math.PI);
+            const smileMaterial = new THREE.MeshLambertMaterial({ color: 0x000000 });
+            const smile = new THREE.Mesh(smileGeometry, smileMaterial);
+            smile.position.set(0, 1.1, 0.38);
+            smile.rotation.x = Math.PI;
+            smile.rotation.z = Math.PI;
+            group.add(smile);
+
+            // Cheeks
+            const cheekGeometry = new THREE.CircleGeometry(0.1, 16);
+            const cheekMaterial = new THREE.MeshLambertMaterial({ color: 0xFFB6C1 });
+            [-0.4, 0.4].forEach(x => {
+                const cheek = new THREE.Mesh(cheekGeometry, cheekMaterial);
+                cheek.position.set(x, 1.2, 0.36);
+                group.add(cheek);
+            });
+
+            // Teeth
+            const teethGeometry = new THREE.BoxGeometry(0.15, 0.1, 0.05);
+            const teethMaterial = new THREE.MeshLambertMaterial({ color: 0xFFFFFF });
+            [-0.08, 0.08].forEach(x => {
+                const tooth = new THREE.Mesh(teethGeometry, teethMaterial);
+                tooth.position.set(x, 1.0, 0.38);
+                group.add(tooth);
+            });
+
+            // Pants
+            const pantsGeometry = new THREE.BoxGeometry(1.32, 0.55, 0.72);
+            const pantsMaterial = new THREE.MeshLambertMaterial({ color: 0x8B4513 });
+            const pants = new THREE.Mesh(pantsGeometry, pantsMaterial);
+            pants.position.y = 0.28;
+            pants.castShadow = true;
+            group.add(pants);
+
+            // Belt
+            const beltGeometry = new THREE.BoxGeometry(1.35, 0.1, 0.75);
+            const beltMaterial = new THREE.MeshLambertMaterial({ color: 0x000000 });
+            const belt = new THREE.Mesh(beltGeometry, beltMaterial);
+            belt.position.y = 0.5;
+            group.add(belt);
+
+            // Shirt
+            const shirtGeometry = new THREE.BoxGeometry(1.31, 0.15, 0.71);
+            const shirtMaterial = new THREE.MeshLambertMaterial({ color: 0xFFFFFF });
+            const shirt = new THREE.Mesh(shirtGeometry, shirtMaterial);
+            shirt.position.y = 0.08;
+            group.add(shirt);
+
+            // Tie
+            const tieGeometry = new THREE.BoxGeometry(0.15, 0.4, 0.1);
+            const tieMaterial = new THREE.MeshLambertMaterial({ color: 0xFF0000 });
+            const tie = new THREE.Mesh(tieGeometry, tieMaterial);
+            tie.position.set(0, 0.1, 0.4);
+            group.add(tie);
+
+            // Legs
+            const legGeometry = new THREE.CylinderGeometry(0.08, 0.08, 0.4, 8);
+            const legMaterial = new THREE.MeshLambertMaterial({ color: 0xFFFF00 });
+            
+            const leftLeg = new THREE.Mesh(legGeometry, legMaterial);
+            leftLeg.position.set(-0.25, -0.2, 0);
+            leftLeg.name = 'leftLeg';
+            group.add(leftLeg);
+
+            const rightLeg = new THREE.Mesh(legGeometry, legMaterial);
+            rightLeg.position.set(0.25, -0.2, 0);
+            rightLeg.name = 'rightLeg';
+            group.add(rightLeg);
+
+            // Socks
+            const sockGeometry = new THREE.CylinderGeometry(0.1, 0.1, 0.25, 8);
+            const sockMaterial = new THREE.MeshLambertMaterial({ color: 0xFFFFFF });
+            
+            [-0.25, 0.25].forEach((x, i) => {
+                const sock = new THREE.Mesh(sockGeometry, sockMaterial);
+                sock.position.set(x, -0.45, 0);
+                group.add(sock);
+                
+                // Red stripes
+                const stripeMaterial = new THREE.MeshLambertMaterial({ color: 0xFF0000 });
+                for (let j = 0; j < 2; j++) {
+                    const stripeGeometry = new THREE.CylinderGeometry(0.101, 0.101, 0.03, 8);
+                    const stripe = new THREE.Mesh(stripeGeometry, stripeMaterial);
+                    stripe.position.set(x, -0.4 - j * 0.08, 0);
+                    group.add(stripe);
+                }
+            });
+
+            // Shoes
+            const shoeGeometry = new THREE.BoxGeometry(0.25, 0.12, 0.35);
+            const shoeMaterial = new THREE.MeshLambertMaterial({ color: 0x000000 });
+            
+            [-0.25, 0.25].forEach(x => {
+                const shoe = new THREE.Mesh(shoeGeometry, shoeMaterial);
+                shoe.position.set(x, -0.62, 0.05);
+                shoe.castShadow = true;
+                group.add(shoe);
+            });
+
+            // Net
+            const netGroup = new THREE.Group();
+            
+            // Handle
+            const handleGeometry = new THREE.CylinderGeometry(0.04, 0.04, 2.2, 8);
+            const handleMaterial = new THREE.MeshLambertMaterial({ color: 0x8B4513 });
+            const handle = new THREE.Mesh(handleGeometry, handleMaterial);
+            handle.rotation.x = Math.PI / 3.5;
+            handle.position.set(0.9, 1.3, -0.4);
+            netGroup.add(handle);
+
+            // Ring
+            const ringGeometry = new THREE.TorusGeometry(0.45, 0.04, 8, 32);
+            const ringMaterial = new THREE.MeshLambertMaterial({ color: 0x8B4513 });
+            const ring = new THREE.Mesh(ringGeometry, ringMaterial);
+            ring.position.set(1.4, 2.3, -1);
+            ring.rotation.x = Math.PI / 2;
+            netGroup.add(ring);
+
+            // Net mesh
+            const netMeshGeometry = new THREE.ConeGeometry(0.45, 0.7, 16, 1, true);
+            const netMeshMaterial = new THREE.MeshBasicMaterial({ 
+                color: 0xFFFFFF, 
+                transparent: true, 
+                opacity: 0.4,
+                side: THREE.DoubleSide,
+                wireframe: true
+            });
+            const netMesh = new THREE.Mesh(netMeshGeometry, netMeshMaterial);
+            netMesh.position.set(1.4, 1.95, -1);
+            netGroup.add(netMesh);
+            
+            netGroup.name = 'net';
+            group.add(netGroup);
+
+            return group;
+        }
+
+        spongebob = createSpongeBob();
+        scene.add(spongebob);
+
+        // ==================== JELLYFISH ====================
+        function createJellyfish(type = 'PINK') {
+            const config = CONFIG.JELLYFISH_TYPES[type];
+            const group = new THREE.Group();
+            const scale = config.size || 1;
+
+            // Head
+            const headGeometry = new THREE.SphereGeometry(0.5 * scale, 16, 16, 0, Math.PI * 2, 0, Math.PI / 2);
+            const headMaterial = new THREE.MeshLambertMaterial({ 
+                color: config.color,
+                transparent: true,
+                opacity: 0.85,
+                emissive: config.glow ? config.color : 0x000000,
+                emissiveIntensity: config.glow ? 0.3 : 0
+            });
+            const head = new THREE.Mesh(headGeometry, headMaterial);
+            head.rotation.x = Math.PI;
+            group.add(head);
+
+            // Inner glow for special jellyfish
+            if (config.glow) {
+                const glowGeometry = new THREE.SphereGeometry(0.35 * scale, 16, 16);
+                const glowMaterial = new THREE.MeshBasicMaterial({ 
+                    color: 0xFFFFFF,
+                    transparent: true,
+                    opacity: 0.4
+                });
+                const glow = new THREE.Mesh(glowGeometry, glowMaterial);
+                glow.position.y = 0.1;
+                group.add(glow);
+            }
+
+            // Spots
+            const spotMaterial = new THREE.MeshLambertMaterial({ 
+                color: 0xFFFFFF, 
+                transparent: true, 
+                opacity: 0.5 
+            });
+            for (let i = 0; i < 4; i++) {
+                const spotGeometry = new THREE.CircleGeometry(0.08 * scale, 8);
+                const spot = new THREE.Mesh(spotGeometry, spotMaterial);
+                const angle = (i / 4) * Math.PI * 2 + Math.random() * 0.5;
+                spot.position.set(
+                    Math.cos(angle) * 0.25 * scale, 
+                    0.15 * scale, 
+                    Math.sin(angle) * 0.25 * scale
+                );
+                spot.lookAt(0, 0, 0);
+                group.add(spot);
+            }
+
+            // Tentacles
+            const tentacleMaterial = new THREE.MeshLambertMaterial({ 
+                color: config.color,
+                transparent: true,
+                opacity: 0.7
+            });
+            
+            for (let i = 0; i < 8; i++) {
+                const length = (0.6 + Math.random() * 0.4) * scale;
+                const tentacleGeometry = new THREE.CylinderGeometry(0.025 * scale, 0.015 * scale, length, 6);
+                const tentacle = new THREE.Mesh(tentacleGeometry, tentacleMaterial);
+                const angle = (i / 8) * Math.PI * 2;
+                tentacle.position.set(
+                    Math.cos(angle) * 0.25 * scale,
+                    -length / 2,
+                    Math.sin(angle) * 0.25 * scale
+                );
+                tentacle.name = 'tentacle';
+                group.add(tentacle);
+            }
+
+            // Position
+            group.position.set(
+                (Math.random() - 0.5) * CONFIG.BOUNDS * 2,
+                2.5 + Math.random() * 2,
+                (Math.random() - 0.5) * CONFIG.BOUNDS * 2
+            );
+
+            group.userData = {
+                type: type,
+                config: config,
+                baseY: group.position.y,
+                floatOffset: Math.random() * Math.PI * 2,
+                floatSpeed: 1 + Math.random() * 0.5,
+                moveAngle: Math.random() * Math.PI * 2,
+                moveSpeed: config.speed * (0.8 + Math.random() * 0.4),
+                pulseOffset: Math.random() * Math.PI * 2
+            };
+
+            return group;
+        }
+
+        function createAngryJellyfish() {
+            const group = new THREE.Group();
+            const config = CONFIG.ANGRY_JELLYFISH;
+
+            // Head - angry red
+            const headGeometry = new THREE.SphereGeometry(0.55, 16, 16, 0, Math.PI * 2, 0, Math.PI / 2);
+            const headMaterial = new THREE.MeshLambertMaterial({ 
+                color: config.color,
+                emissive: 0xFF0000,
+                emissiveIntensity: 0.3
+            });
+            const head = new THREE.Mesh(headGeometry, headMaterial);
+            head.rotation.x = Math.PI;
+            group.add(head);
+
+            // Angry eyes
+            const eyeGeometry = new THREE.SphereGeometry(0.1, 8, 8);
+            const eyeMaterial = new THREE.MeshBasicMaterial({ color: 0xFFFFFF });
+            const pupilGeometry = new THREE.SphereGeometry(0.05, 8, 8);
+            const pupilMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
+            
+            [-0.15, 0.15].forEach(x => {
+                const eye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+                eye.position.set(x, 0.2, 0.4);
+                group.add(eye);
+                
+                const pupil = new THREE.Mesh(pupilGeometry, pupilMaterial);
+                pupil.position.set(x, 0.2, 0.48);
+                group.add(pupil);
+            });
+
+            // Angry eyebrows
+            const browGeometry = new THREE.BoxGeometry(0.15, 0.03, 0.02);
+            const browMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
+            [-0.15, 0.15].forEach((x, i) => {
+                const brow = new THREE.Mesh(browGeometry, browMaterial);
+                brow.position.set(x, 0.32, 0.45);
+                brow.rotation.z = i === 0 ? 0.4 : -0.4;
+                group.add(brow);
+            });
+
+            // Electric tentacles
+            const tentacleMaterial = new THREE.MeshLambertMaterial({ 
+                color: 0xFF4500,
+                emissive: 0xFF0000,
+                emissiveIntensity: 0.2
+            });
+            
+            for (let i = 0; i < 6; i++) {
+                const tentacleGeometry = new THREE.CylinderGeometry(0.03, 0.02, 0.8, 6);
+                const tentacle = new THREE.Mesh(tentacleGeometry, tentacleMaterial);
+                const angle = (i / 6) * Math.PI * 2;
+                tentacle.position.set(
+                    Math.cos(angle) * 0.3,
+                    -0.4,
+                    Math.sin(angle) * 0.3
+                );
+                tentacle.name = 'tentacle';
+                group.add(tentacle);
+            }
+
+            // Position at edge
+            const spawnAngle = Math.random() * Math.PI * 2;
+            group.position.set(
+                Math.cos(spawnAngle) * (CONFIG.BOUNDS + 5),
+                2 + Math.random() * 2,
+                Math.sin(spawnAngle) * (CONFIG.BOUNDS + 5)
+            );
+
+            group.userData = {
+                baseY: group.position.y,
+                floatOffset: Math.random() * Math.PI * 2,
+                targetPlayer: true,
+                speed: config.speed
+            };
+
+            return group;
+        }
+
+        // ==================== POWERUPS ====================
+        function createPowerup(type) {
+            const group = new THREE.Group();
+            
+            const colors = {
+                speed: 0x00FF00,
+                magnet: 0xFF00FF,
+                double: 0xFFD700
+            };
+            
+            const icons = {
+                speed: '⚡',
+                magnet: '🧲',
+                double: '✨'
+            };
+
+            // Outer ring
+            const ringGeometry = new THREE.TorusGeometry(0.4, 0.08, 8, 32);
+            const ringMaterial = new THREE.MeshLambertMaterial({ 
+                color: colors[type],
+                emissive: colors[type],
+                emissiveIntensity: 0.5
+            });
+            const ring = new THREE.Mesh(ringGeometry, ringMaterial);
+            ring.rotation.x = Math.PI / 2;
+            group.add(ring);
+
+            // Inner sphere
+            const sphereGeometry = new THREE.SphereGeometry(0.25, 16, 16);
+            const sphereMaterial = new THREE.MeshLambertMaterial({ 
+                color: 0xFFFFFF,
+                transparent: true,
+                opacity: 0.8
+            });
+            const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+            group.add(sphere);
+
+            // Position
+            group.position.set(
+                (Math.random() - 0.5) * CONFIG.BOUNDS * 1.5,
+                1.5 + Math.random(),
+                (Math.random() - 0.5) * CONFIG.BOUNDS * 1.5
+            );
+
+            group.userData = {
+                type: type,
+                rotationSpeed: 0.02 + Math.random() * 0.02,
+                bobOffset: Math.random() * Math.PI * 2
+            };
+
+            return group;
+        }
+
+        // ==================== PARTICLES ====================
+        function createCatchParticles(position, color) {
+            const particleCount = 15;
+            for (let i = 0; i < particleCount; i++) {
+                const geometry = new THREE.SphereGeometry(0.08, 8, 8);
+                const material = new THREE.MeshBasicMaterial({ 
+                    color: color,
+                    transparent: true,
+                    opacity: 1
+                });
+                const particle = new THREE.Mesh(geometry, material);
+                particle.position.copy(position);
+                
+                particle.userData = {
+                    velocity: new THREE.Vector3(
+                        (Math.random() - 0.5) * 0.3,
+                        Math.random() * 0.2 + 0.1,
+                        (Math.random() - 0.5) * 0.3
+                    ),
+                    life: 1,
+                    decay: 0.02 + Math.random() * 0.02
+                };
+                
+                particles.push(particle);
+                scene.add(particle);
+            }
+        }
+
+        // ==================== SPAWN FUNCTIONS ====================
+        function spawnJellyfish() {
+            const weights = Object.entries(CONFIG.JELLYFISH_TYPES).map(([type, config]) => ({
+                type,
+                weight: config.spawnWeight
+            }));
+            
+            const totalWeight = weights.reduce((sum, w) => sum + w.weight, 0);
+            let random = Math.random() * totalWeight;
+            
+            let selectedType = 'PINK';
+            for (const w of weights) {
+                random -= w.weight;
+                if (random <= 0) {
+                    selectedType = w.type;
+                    break;
+                }
+            }
+            
+            const jelly = createJellyfish(selectedType);
+            jellyfish.push(jelly);
+            scene.add(jelly);
+        }
+
+        function spawnAngryJellyfish() {
+            if (angryJellyfish.length < Math.min(3, gameState.wave)) {
+                const angry = createAngryJellyfish();
+                angryJellyfish.push(angry);
+                scene.add(angry);
+            }
+        }
+
+        function spawnPowerup() {
+            if (powerupItems.length < 2 && Math.random() < 0.3) {
+                const types = ['speed', 'magnet', 'double'];
+                const type = types[Math.floor(Math.random() * types.length)];
+                const powerup = createPowerup(type);
+                powerupItems.push(powerup);
+                scene.add(powerup);
+            }
+        }
+
+        // Initial spawn
+        for (let i = 0; i < 10; i++) {
+            spawnJellyfish();
+        }
+
+        // ==================== INPUT HANDLING ====================
+        document.addEventListener('keydown', (e) => {
+            keys[e.key.toLowerCase()] = true;
+            
+            if (e.key === ' ' && gameState.running && !gameState.paused) {
+                e.preventDefault();
+                attemptDash();
+            }
+            
+            if (e.key === 'Escape' && gameState.running) {
+                togglePause();
+            }
+            
+            if (['w', 'a', 's', 'd', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright'].includes(e.key.toLowerCase())) {
+                e.preventDefault();
+            }
+        });
+
+        document.addEventListener('keyup', (e) => {
+            keys[e.key.toLowerCase()] = false;
+        });
+
+        // Mobile controls
+        document.querySelectorAll('.mobile-btn').forEach(btn => {
+            const dir = btn.dataset.dir;
+            
+            ['touchstart', 'mousedown'].forEach(event => {
+                btn.addEventListener(event, (e) => {
+                    e.preventDefault();
+                    if (dir === 'left') keys['a'] = true;
+                    if (dir === 'right') keys['d'] = true;
+                    if (dir === 'up') keys['w'] = true;
+                    if (dir === 'down') keys['s'] = true;
+                });
+            });
+            
+            ['touchend', 'mouseup', 'mouseleave'].forEach(event => {
+                btn.addEventListener(event, (e) => {
+                    e.preventDefault();
+                    if (dir === 'left') keys['a'] = false;
+                    if (dir === 'right') keys['d'] = false;
+                    if (dir === 'up') keys['w'] = false;
+                    if (dir === 'down') keys['s'] = false;
+                });
+            });
+        });
+
+        // Custom cursor
+        const cursor = document.getElementById('custom-cursor');
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+        });
+
+        // ==================== GAME FUNCTIONS ====================
+        function attemptDash() {
+            const now = Date.now();
+            if (!gameState.dash.cooldown && now - gameState.dash.lastDash > CONFIG.DASH_COOLDOWN) {
+                gameState.dash.active = true;
+                gameState.dash.lastDash = now;
+                
+                setTimeout(() => {
+                    gameState.dash.active = false;
+                }, CONFIG.DASH_DURATION);
+            }
+        }
+
+        function togglePause() {
+            gameState.paused = !gameState.paused;
+            document.getElementById('pause-menu').classList.toggle('show', gameState.paused);
+        }
+
+        function activatePowerup(type) {
+            const powerup = gameState.powerups[type];
+            
+            if (powerup.timer) {
+                clearTimeout(powerup.timer);
+            }
+            
+            powerup.active = true;
+            powerup.remaining = CONFIG.POWERUP_DURATION;
+            
+            document.getElementById(`powerup-${type}`).classList.add('active');
+            
+            powerup.timer = setTimeout(() => {
+                powerup.active = false;
+                document.getElementById(`powerup-${type}`).classList.remove('active');
+            }, CONFIG.POWERUP_DURATION);
+        }
+
+        function addScore(points, position) {
+            const multiplier = gameState.powerups.double.active ? 2 : 1;
+            const comboMultiplier = gameState.combo;
+            const totalPoints = points * multiplier * comboMultiplier;
+            
+            gameState.score += totalPoints;
+            gameState.totalCaught++;
+            
+            // Update combo
+            gameState.combo = Math.min(gameState.combo + 1, 10);
+            gameState.maxCombo = Math.max(gameState.maxCombo, gameState.combo);
+            
+            if (gameState.comboTimer) clearTimeout(gameState.comboTimer);
+            gameState.comboTimer = setTimeout(() => {
+                gameState.combo = 1;
+                document.getElementById('combo-panel').classList.remove('active');
+            }, CONFIG.COMBO_TIMEOUT);
+            
+            // Update UI
+            document.getElementById('score').textContent = gameState.score;
+            document.getElementById('combo').textContent = `x${gameState.combo}`;
+            document.getElementById('combo-panel').classList.add('active');
+            
+            // Show popup
+            showScorePopup(totalPoints, position);
+        }
+
+        function showScorePopup(points, position3D) {
+            const vector = position3D.clone();
+            vector.project(camera);
+            const x = (vector.x * 0.5 + 0.5) * window.innerWidth;
+            const y = (-vector.y * 0.5 + 0.5) * window.innerHeight;
+            
+            const popup = document.createElement('div');
+            popup.className = 'catch-popup';
+            popup.textContent = `+${points}`;
+            popup.style.left = x + 'px';
+            popup.style.top = y + 'px';
+            popup.style.color = points >= 100 ? '#FFD700' : points >= 50 ? '#00BFFF' : '#FF69B4';
+            
+            document.getElementById('ui-overlay').appendChild(popup);
+            
+            setTimeout(() => popup.remove(), 1000);
+        }
+
+        function takeDamage() {
+            if (gameState.health <= 0) return;
+            
+            gameState.health--;
+            
+            const hearts = document.querySelectorAll('.health-heart');
+            hearts[gameState.health].classList.add('lost', 'hit');
+            
+            // Screen shake
+            document.getElementById('game-container').classList.add('screen-shake');
+            setTimeout(() => {
+                document.getElementById('game-container').classList.remove('screen-shake');
+            }, 300);
+            
+            if (gameState.health <= 0) {
+                endGame();
+            }
+        }
+
+        function updateTimer() {
+            if (!gameState.running || gameState.paused) return;
+            
+            gameState.timeRemaining--;
+            
+            const minutes = Math.floor(gameState.timeRemaining / 60);
+            const seconds = gameState.timeRemaining % 60;
+            document.getElementById('timer').textContent = 
+                `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            
+            // Warning when low time
+            document.getElementById('timer-panel').classList.toggle('warning', gameState.timeRemaining <= 30);
+            
+            // Wave progression
+            const waveNumber = Math.floor((CONFIG.GAME_DURATION - gameState.timeRemaining) / CONFIG.WAVE_DURATION) + 1;
+            if (waveNumber > gameState.wave) {
+                gameState.wave = waveNumber;
+                showWaveIndicator(waveNumber);
+                
+                // Spawn more jellyfish and angry ones
+                for (let i = 0; i < 3; i++) spawnJellyfish();
+                spawnAngryJellyfish();
+            }
+            
+            if (gameState.timeRemaining <= 0) {
+                endGame();
+            }
+        }
+
+        function showWaveIndicator(wave) {
+            const indicator = document.getElementById('wave-indicator');
+            indicator.textContent = `WAVE ${wave}`;
+            indicator.classList.remove('show');
+            void indicator.offsetWidth; // Trigger reflow
+            indicator.classList.add('show');
+        }
+
+        function endGame() {
+            gameState.running = false;
+            
+            // Update high score
+            const isHighScore = gameState.score > gameState.highScore;
+            if (isHighScore) {
+                gameState.highScore = gameState.score;
+                localStorage.setItem('jellyfishHighScore', gameState.score);
+            }
+            
+            // Show game over screen
+            document.getElementById('final-score').textContent = gameState.score;
+            document.getElementById('final-caught').textContent = gameState.totalCaught;
+            document.getElementById('final-combo').textContent = `x${gameState.maxCombo}`;
+            document.getElementById('final-wave').textContent = gameState.wave;
+            document.getElementById('high-score-badge').classList.toggle('show', isHighScore);
+            document.getElementById('game-over-screen').classList.add('show');
+            
+            // Submit to leaderboard after a short delay
+            setTimeout(() => {
+                if (typeof showLeaderboardModal !== 'undefined') {
+                    showLeaderboardModal('jellyfishing', 'SpongeBob Sunday Jellyfishing', gameState.score);
+                }
+            }, 1000);
+        }
+
+        function resetGame() {
+            gameState.score = 0;
+            gameState.combo = 1;
+            gameState.maxCombo = 1;
+            gameState.health = 3;
+            gameState.wave = 1;
+            gameState.timeRemaining = CONFIG.GAME_DURATION;
+            gameState.totalCaught = 0;
+            gameState.jellyfishCaught = { pink: 0, blue: 0, gold: 0, queen: 0 };
+            gameState.paused = false;
+            
+            // Reset powerups
+            Object.values(gameState.powerups).forEach(p => {
+                p.active = false;
+                if (p.timer) clearTimeout(p.timer);
+            });
+            document.querySelectorAll('.powerup-item').forEach(el => el.classList.remove('active'));
+            
+            // Reset UI
+            document.getElementById('score').textContent = '0';
+            document.getElementById('combo').textContent = 'x1';
+            document.getElementById('timer').textContent = '2:00';
+            document.getElementById('combo-panel').classList.remove('active');
+            document.getElementById('timer-panel').classList.remove('warning');
+            
+            // Reset hearts
+            document.querySelectorAll('.health-heart').forEach(h => {
+                h.classList.remove('lost', 'hit');
+            });
+            
+            // Reset counts
+            ['pink', 'blue', 'gold', 'queen'].forEach(type => {
+                document.getElementById(`${type}-count`).textContent = '0';
+            });
+            
+            // Clear entities
+            jellyfish.forEach(j => scene.remove(j));
+            jellyfish.length = 0;
+            angryJellyfish.forEach(a => scene.remove(a));
+            angryJellyfish.length = 0;
+            powerupItems.forEach(p => scene.remove(p));
+            powerupItems.length = 0;
+            particles.forEach(p => scene.remove(p));
+            particles.length = 0;
+            
+            // Respawn jellyfish
+            for (let i = 0; i < 10; i++) {
+                spawnJellyfish();
+            }
+            
+            // Reset player position
+            playerPos.x = 0;
+            playerPos.z = 0;
+            spongebob.position.set(0, 0, 0);
+            spongebob.rotation.y = 0;
+        }
+
+        function startGame() {
+            resetGame();
+            gameState.running = true;
+            document.getElementById('title-screen').classList.add('hidden');
+            document.getElementById('game-over-screen').classList.remove('show');
+            showWaveIndicator(1);
+        }
+
+        // ==================== BUBBLES ====================
+        function createBubble() {
+            const bubble = document.createElement('div');
+            bubble.className = 'bubble';
+            const size = 8 + Math.random() * 25;
+            bubble.style.width = size + 'px';
+            bubble.style.height = size + 'px';
+            bubble.style.left = Math.random() * 100 + '%';
+            bubble.style.bottom = '0';
+            bubble.style.setProperty('--drift', (Math.random() - 0.5) * 100 + 'px');
+            bubble.style.animationDuration = (6 + Math.random() * 6) + 's';
+            document.getElementById('ui-overlay').appendChild(bubble);
+            
+            setTimeout(() => bubble.remove(), 12000);
+        }
+
+        setInterval(createBubble, 400);
+
+        // ==================== GAME LOOP ====================
+        let lastTime = 0;
+        let timerAccumulator = 0;
+        let spawnAccumulator = 0;
+
+        function animate(time) {
+            requestAnimationFrame(animate);
+            
+            const deltaTime = Math.min((time - lastTime) / 1000, 0.1);
+            lastTime = time;
+
+            if (gameState.running && !gameState.paused) {
+                // Timer
+                timerAccumulator += deltaTime;
+                if (timerAccumulator >= 1) {
+                    timerAccumulator = 0;
+                    updateTimer();
+                }
+                
+                // Spawning
+                spawnAccumulator += deltaTime;
+                if (spawnAccumulator >= 3) {
+                    spawnAccumulator = 0;
+                    if (jellyfish.length < 12 + gameState.wave * 2) {
+                        spawnJellyfish();
+                    }
+                    spawnPowerup();
+                    if (Math.random() < 0.2 + gameState.wave * 0.05) {
+                        spawnAngryJellyfish();
+                    }
+                }
+
+                // Player movement
+                let speed = CONFIG.BASE_PLAYER_SPEED;
+                if (gameState.dash.active) speed = CONFIG.DASH_SPEED;
+                if (gameState.powerups.speed.active) speed *= 1.5;
+
+                let moveX = 0, moveZ = 0;
+                if (keys['w'] || keys['arrowup']) moveZ -= speed;
+                if (keys['s'] || keys['arrowdown']) moveZ += speed;
+                if (keys['a'] || keys['arrowleft']) moveX -= speed;
+                if (keys['d'] || keys['arrowright']) moveX += speed;
+
+                // Normalize diagonal movement
+                if (moveX !== 0 && moveZ !== 0) {
+                    const factor = 0.707;
+                    moveX *= factor;
+                    moveZ *= factor;
+                }
+
+                playerPos.x = Math.max(-CONFIG.BOUNDS, Math.min(CONFIG.BOUNDS, playerPos.x + moveX));
+                playerPos.z = Math.max(-CONFIG.BOUNDS, Math.min(CONFIG.BOUNDS, playerPos.z + moveZ));
+
+                spongebob.position.x = playerPos.x;
+                spongebob.position.z = playerPos.z;
+
+                // Rotate towards movement
+                if (moveX !== 0 || moveZ !== 0) {
+                    const targetRotation = Math.atan2(moveX, moveZ);
+                    spongebob.rotation.y = THREE.MathUtils.lerp(spongebob.rotation.y, targetRotation, 0.1);
+                    
+                    // Bounce animation
+                    spongebob.position.y = Math.abs(Math.sin(time * 0.012)) * 0.25;
+                    
+                    // Leg animation
+                    const leftLeg = spongebob.getObjectByName('leftLeg');
+                    const rightLeg = spongebob.getObjectByName('rightLeg');
+                    if (leftLeg && rightLeg) {
+                        leftLeg.rotation.x = Math.sin(time * 0.015) * 0.5;
+                        rightLeg.rotation.x = -Math.sin(time * 0.015) * 0.5;
+                    }
+                } else {
+                    spongebob.position.y = Math.sin(time * 0.003) * 0.05;
+                }
+
+                // Dash visual
+                if (gameState.dash.active) {
+                    spongebob.position.y += 0.3;
+                }
+
+                // Net position for collision
+                const netWorldPos = new THREE.Vector3(1.4, 2.3, -1);
+                netWorldPos.applyMatrix4(spongebob.matrixWorld);
+
+                // Update jellyfish
+                jellyfish.forEach((jelly, index) => {
+                    const data = jelly.userData;
+                    
+                    // Floating
+                    jelly.position.y = data.baseY + Math.sin(time * 0.002 * data.floatSpeed + data.floatOffset) * 0.4;
+                    
+                    // Movement
+                    let moveTowardsPlayer = gameState.powerups.magnet.active;
+                    
+                    if (moveTowardsPlayer) {
+                        const dx = spongebob.position.x - jelly.position.x;
+                        const dz = spongebob.position.z - jelly.position.z;
+                        const dist = Math.sqrt(dx * dx + dz * dz);
+                        if (dist > 0.5) {
+                            jelly.position.x += (dx / dist) * 0.05;
+                            jelly.position.z += (dz / dist) * 0.05;
+                        }
+                    } else {
+                        jelly.position.x += Math.cos(data.moveAngle) * data.moveSpeed;
+                        jelly.position.z += Math.sin(data.moveAngle) * data.moveSpeed;
+                        
+                        // Random direction change
+                        if (Math.random() < 0.005) {
+                            data.moveAngle += (Math.random() - 0.5) * 0.5;
+                        }
+                    }
+                    
+                    // Wrap around
+                    const wrapBound = CONFIG.BOUNDS + 3;
+                    if (jelly.position.x > wrapBound) jelly.position.x = -wrapBound;
+                    if (jelly.position.x < -wrapBound) jelly.position.x = wrapBound;
+                    if (jelly.position.z > wrapBound) jelly.position.z = -wrapBound;
+                    if (jelly.position.z < -wrapBound) jelly.position.z = wrapBound;
+                    
+                    // Wobble
+                    jelly.rotation.x = Math.sin(time * 0.003 + data.floatOffset) * 0.15;
+                    jelly.rotation.z = Math.cos(time * 0.003 + data.floatOffset) * 0.15;
+                    
+                    // Pulsing for special types
+                    if (data.config.glow) {
+                        const pulse = 0.9 + Math.sin(time * 0.005 + data.pulseOffset) * 0.1;
+                        jelly.scale.setScalar(pulse * (data.config.size || 1));
+                    }
+                    
+                    // Tentacle animation
+                    jelly.children.forEach((child, i) => {
+                        if (child.name === 'tentacle') {
+                            child.rotation.x = Math.sin(time * 0.004 + i) * 0.3;
+                            child.rotation.z = Math.cos(time * 0.004 + i * 0.5) * 0.2;
+                        }
+                    });
+                    
+                    // Collision with net
+                    const dx = jelly.position.x - netWorldPos.x;
+                    const dy = jelly.position.y - netWorldPos.y;
+                    const dz = jelly.position.z - netWorldPos.z;
+                    const distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
+                    
+                    const catchRadius = 1.2 + (gameState.powerups.magnet.active ? 0.5 : 0);
+                    
+                    if (distance < catchRadius) {
+                        // Caught!
+                        const typeKey = data.type.toLowerCase();
+                        gameState.jellyfishCaught[typeKey]++;
+                        document.getElementById(`${typeKey}-count`).textContent = gameState.jellyfishCaught[typeKey];
+                        
+                        addScore(data.config.points, jelly.position.clone());
+                        createCatchParticles(jelly.position.clone(), data.config.color);
+                        
+                        scene.remove(jelly);
+                        jellyfish.splice(index, 1);
+                        
+                        setTimeout(spawnJellyfish, 500);
+                    }
+                });
+
+                // Update angry jellyfish
+                angryJellyfish.forEach((angry, index) => {
+                    const data = angry.userData;
+                    
+                    // Chase player
+                    const dx = spongebob.position.x - angry.position.x;
+                    const dz = spongebob.position.z - angry.position.z;
+                    const dist = Math.sqrt(dx * dx + dz * dz);
+                    
+                    if (dist > 0.5) {
+                        angry.position.x += (dx / dist) * data.speed;
+                        angry.position.z += (dz / dist) * data.speed;
+                    }
+                    
+                    // Float
+                    angry.position.y = data.baseY + Math.sin(time * 0.003 + data.floatOffset) * 0.3;
+                    
+                    // Wobble aggressively
+                    angry.rotation.x = Math.sin(time * 0.005) * 0.2;
+                    angry.rotation.z = Math.cos(time * 0.005) * 0.2;
+                    
+                    // Collision with player
+                    const playerDist = Math.sqrt(
+                        Math.pow(angry.position.x - spongebob.position.x, 2) +
+                        Math.pow(angry.position.z - spongebob.position.z, 2)
+                    );
+                    
+                    if (playerDist < 1.2 && !gameState.dash.active) {
+                        takeDamage();
+                        
+                        // Respawn angry jellyfish at edge
+                        const spawnAngle = Math.random() * Math.PI * 2;
+                        angry.position.set(
+                            Math.cos(spawnAngle) * (CONFIG.BOUNDS + 5),
+                            2 + Math.random() * 2,
+                            Math.sin(spawnAngle) * (CONFIG.BOUNDS + 5)
+                        );
+                        angry.userData.baseY = angry.position.y;
+                    }
+                    
+                    // Remove if too far
+                    if (dist > CONFIG.BOUNDS * 3) {
+                        scene.remove(angry);
+                        angryJellyfish.splice(index, 1);
+                    }
+                });
+
+                // Update powerup items
+                powerupItems.forEach((powerup, index) => {
+                    const data = powerup.userData;
+                    
+                    powerup.rotation.y += data.rotationSpeed;
+                    powerup.position.y = 1.5 + Math.sin(time * 0.003 + data.bobOffset) * 0.3;
+                    
+                    // Collision
+                    const dx = powerup.position.x - spongebob.position.x;
+                    const dz = powerup.position.z - spongebob.position.z;
+                    const dist = Math.sqrt(dx * dx + dz * dz);
+                    
+                    if (dist < 1.5) {
+                        activatePowerup(data.type);
+                        createCatchParticles(powerup.position.clone(), powerup.children[0].material.color.getHex());
+                        scene.remove(powerup);
+                        powerupItems.splice(index, 1);
+                    }
+                });
+
+                // Update particles
+                particles.forEach((particle, index) => {
+                    particle.position.add(particle.userData.velocity);
+                    particle.userData.velocity.y -= 0.01;
+                    particle.userData.life -= particle.userData.decay;
+                    particle.material.opacity = particle.userData.life;
+                    particle.scale.setScalar(particle.userData.life);
+                    
+                    if (particle.userData.life <= 0) {
+                        scene.remove(particle);
+                        particles.splice(index, 1);
+                    }
+                });
+
+                // Update powerup timers UI
+                Object.entries(gameState.powerups).forEach(([type, data]) => {
+                    if (data.active) {
+                        data.remaining -= deltaTime * 1000;
+                        const percent = (data.remaining / CONFIG.POWERUP_DURATION) * 100;
+                        document.querySelector(`#powerup-${type} .powerup-timer-fill`).style.width = `${percent}%`;
+                    }
+                });
+            }
+
+            // Caustic light animation
+            causticLight.intensity = 0.4 + Math.sin(time * 0.002) * 0.2;
+            causticLight.position.x = Math.sin(time * 0.001) * 5;
+            causticLight.position.z = Math.cos(time * 0.001) * 5;
+
+            renderer.render(scene, camera);
+        }
+
+        animate(0);
+
+        // ==================== EVENT LISTENERS ====================
+        document.getElementById('start-btn').addEventListener('click', startGame);
+        document.getElementById('restart-btn').addEventListener('click', startGame);
+        document.getElementById('resume-btn').addEventListener('click', togglePause);
+        
+        document.getElementById('leaderboard-btn').addEventListener('click', () => {
+            if (typeof showLeaderboardModal !== 'undefined') {
+                showLeaderboardModal('jellyfishing', 'SpongeBob Sunday Jellyfishing', gameState.score);
+            }
+        });
+        
+        document.getElementById('menu-btn').addEventListener('click', () => {
+            document.getElementById('game-over-screen').classList.remove('show');
+            document.getElementById('title-screen').classList.remove('hidden');
+            resetGame();
+        });
+        
+        document.getElementById('quit-btn').addEventListener('click', () => {
+            document.getElementById('pause-menu').classList.remove('show');
+            document.getElementById('title-screen').classList.remove('hidden');
+            gameState.running = false;
+            resetGame();
+        });
+
+        // Resize handler
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>
