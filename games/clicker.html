@@ -1662,7 +1662,7 @@
     }
     
     function getPrestigeMultiplier() {
-      let mult = 1 + (gameState.prestigePoints * 0.1); // Each star = +10%
+      let mult = 1 + (gameState.prestigePoints * 0.2); // Each star = +20% (increased from 10%)
       
       // Add prestige upgrade bonuses
       prestigeUpgrades.forEach(p => {
@@ -1802,7 +1802,27 @@
       // Require 9 quadrillion pumps to ascend
       if (gameState.totalPumps < 9000000000000000) return 0;
       // Gain 1 ascension per 9 quadrillion pumps
-      return Math.floor(gameState.totalPumps / 9000000000000000);
+      const ascensions = Math.floor(gameState.totalPumps / 9000000000000000);
+      return ascensions;
+    }
+    
+    function calculateStarsFromAscension(ascensions) {
+      // Base: 25 stars per ascension
+      // Bonus: +5 stars per previous ascension (scaling reward)
+      const baseStars = 25;
+      const bonusStars = gameState.totalAscensions * 5;
+      return (baseStars + bonusStars) * ascensions;
+    }
+    
+    function calculateTotalStarsForNextAscension(ascensionsToGain) {
+      // Calculate stars for the next ascension(s) before actually ascending
+      const baseStars = 25;
+      let totalStars = 0;
+      for (let i = 0; i < ascensionsToGain; i++) {
+        const bonusStars = (gameState.totalAscensions + i) * 5;
+        totalStars += baseStars + bonusStars;
+      }
+      return totalStars;
     }
     
     function showPrestigePanel() {
@@ -1817,6 +1837,9 @@
         return;
       }
       
+      // Calculate stars before resetting (using current ascension count)
+      const starsGained = calculateTotalStarsForNextAscension(gain);
+      
       // Show ascension animation
       const overlay = document.getElementById('ascensionOverlay');
       overlay.classList.add('active');
@@ -1824,8 +1847,8 @@
       setTimeout(() => {
         // Grant ascension (1 per 9 quadrillion)
         gameState.totalAscensions += gain;
-        // Prestige points based on ascensions
-        gameState.prestigePoints += gain;
+        // Prestige points based on ascensions (scaling rewards)
+        gameState.prestigePoints += starsGained;
         
         // Reset progress but keep prestige stuff
         gameState.totalPumps = 0;
@@ -1843,7 +1866,7 @@
         saveGame();
         
         overlay.classList.remove('active');
-        showNotification('⭐', `ASCENDED! +${gain} Ascension${gain > 1 ? 's' : ''}!<br>Total: ${gameState.totalAscensions} Ascensions`, true);
+        showNotification('⭐', `ASCENDED! +${gain} Ascension${gain > 1 ? 's' : ''}!<br>+${starsGained} Stars!<br>Total: ${gameState.totalAscensions} Ascensions`, true);
         
         // Auto-submit to leaderboard with ascension count
         const savedUsername = localStorage.getItem('clickerUsername');
@@ -1893,7 +1916,8 @@
       
       // Update prestige panel info
       const gain = calculatePrestigeGain();
-      document.getElementById('prestigeGain').textContent = gain;
+      const starsGained = gain > 0 ? calculateTotalStarsForNextAscension(gain) : 0;
+      document.getElementById('prestigeGain').textContent = starsGained > 0 ? starsGained : gain;
       document.getElementById('currentPrestigeMultiplier').textContent = getPrestigeMultiplier().toFixed(1);
       const doPrestigeBtn = document.getElementById('doPrestige');
       doPrestigeBtn.disabled = gain < 1;
