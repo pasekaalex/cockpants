@@ -360,8 +360,9 @@
                 const excessXp = prev - currentXpToLevel;
                 setLevel(l => l + 1);
                 setXpToLevel(x => Math.floor(x * 1.2));
+                // CRITICAL: Set pause ref FIRST, before state update
+                pausedForUpgradeRef.current = true; // Pause game IMMEDIATELY
                 setShowUpgrade(true);
-                pausedForUpgradeRef.current = true; // Pause game
                 generateUpgrades();
                 if (soundManagerRef.current) {
                   soundManagerRef.current.play('levelup', { volume: 0.5 });
@@ -494,9 +495,15 @@
         };
       }, [gameState]);
 
-      // Sync pause ref with showUpgrade state
+      // Sync pause ref with showUpgrade state - CRITICAL for pause to work
       useEffect(() => {
         pausedForUpgradeRef.current = showUpgrade;
+        // Force immediate update
+        if (showUpgrade) {
+          pausedForUpgradeRef.current = true;
+        } else {
+          pausedForUpgradeRef.current = false;
+        }
       }, [showUpgrade]);
 
       // Show leaderboard on game over
@@ -655,11 +662,18 @@
         
         const updateGame = (delta) => {
           // PAUSE: Don't update game logic when upgrade screen is showing
-          if (showUpgrade || pausedForUpgradeRef.current) {
-            return; // Exit early - game is paused
+          // Check ref first (always up-to-date), then state as fallback
+          // This MUST be the first check - no exceptions
+          if (pausedForUpgradeRef.current === true) {
+            return; // Exit immediately - game is paused - DO NOT UPDATE ANYTHING
+          }
+          if (showUpgrade === true) {
+            pausedForUpgradeRef.current = true; // Sync ref if state is true
+            return; // Exit immediately - game is paused - DO NOT UPDATE ANYTHING
           }
           
           const game = gameRef.current;
+          if (!game) return; // Safety check
           const keys = game.keys;
           
           // Player movement
@@ -836,8 +850,9 @@
                 // Trigger level-up
                 setLevel(l => l + 1);
                 setXpToLevel(x => Math.floor(x * 1.2));
+                // CRITICAL: Set pause ref FIRST, before state update
+                pausedForUpgradeRef.current = true; // Pause game IMMEDIATELY
                 setShowUpgrade(true);
-                pausedForUpgradeRef.current = true; // Pause game
                 generateUpgrades();
                 if (soundManagerRef.current) {
                   soundManagerRef.current.play('levelup', { volume: 0.5 });

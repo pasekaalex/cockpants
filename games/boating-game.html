@@ -694,8 +694,8 @@
     };
 
     const scene = new THREE.Scene();
-    // Enhanced fog with gradient
-    scene.fog = new THREE.FogExp2(0x1e5a7a, 0.08); // Exponential fog for better depth
+    // Enhanced fog with gradient - reduced density for better visibility
+    scene.fog = new THREE.FogExp2(0x1e5a7a, 0.05); // Reduced from 0.08 to 0.05 for better visibility
     scene.background = new THREE.Color(0x1e5a7a);
     
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -1002,13 +1002,6 @@
     const boat = boatGroup;
     boat.position.y = 1;
     boat.userData.propeller = propGroup;
-    boat.userData.wakeParticles = { 
-      positions: wakePositions, 
-      sizes: wakeSizes, 
-      count: 0, 
-      geometry: wakeGeometry,
-      points: wakeParticles
-    };
     scene.add(boat);
 
     const obstacles = [];
@@ -1601,49 +1594,6 @@
         causticLight.intensity = 0.4 + Math.sin(time * 2) * 0.2;
         causticLight.position.x = Math.sin(time * 0.5) * 5;
         causticLight.position.z = Math.cos(time * 0.5) * 5;
-      }
-      
-      // Update wake particles
-      if (gameState.playing && boat.userData.wakeParticles) {
-        const wake = boat.userData.wakeParticles;
-        const wakePos = boat.position;
-        
-        // Add new wake particle
-        if (Math.random() < 0.3) {
-          const index = wake.count * 3;
-          if (index < wake.positions.length - 3) {
-            wake.positions[index] = wakePos.x + (Math.random() - 0.5) * 0.5;
-            wake.positions[index + 1] = -0.3;
-            wake.positions[index + 2] = wakePos.z + 1.5;
-            wake.sizes[wake.count] = 0.5;
-            wake.count = Math.min(wake.count + 1, maxWakeParticles - 1);
-          }
-        }
-        
-        // Update existing particles
-        for (let i = 0; i < wake.count; i++) {
-          const idx = i * 3;
-          wake.positions[idx + 2] += gameState.speed * 60 * delta * 0.5; // Move backward
-          wake.sizes[i] *= 0.98; // Shrink
-          wake.sizes[i] = Math.max(wake.sizes[i], 0.1);
-          
-          // Remove if too far or too small
-          if (wake.positions[idx + 2] > 5 || wake.sizes[i] < 0.1) {
-            // Shift array
-            for (let j = i; j < wake.count - 1; j++) {
-              wake.positions[j * 3] = wake.positions[(j + 1) * 3];
-              wake.positions[j * 3 + 1] = wake.positions[(j + 1) * 3 + 1];
-              wake.positions[j * 3 + 2] = wake.positions[(j + 1) * 3 + 2];
-              wake.sizes[j] = wake.sizes[j + 1];
-            }
-            wake.count--;
-            i--;
-          }
-        }
-        
-        wake.geometry.attributes.position.needsUpdate = true;
-        wake.geometry.attributes.size.needsUpdate = true;
-        wake.geometry.setDrawRange(0, wake.count);
       }
       
       if (!gameState.playing) {
