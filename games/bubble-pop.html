@@ -1,0 +1,1249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bubble Buddy Bubble Pop | $COCKPANTS Games 🫧</title>
+  <meta name="description" content="Pop bubbles with Bubble Buddy! Match colors and clear the board!">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../leaderboard.js"></script>
+  <script src="../sounds.js"></script>
+  <style>
+    @font-face {
+      font-family: 'Krabby Patty';
+      src: url('../Krabby Patty.ttf') format('truetype');
+    }
+    
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: 'Krabby Patty', Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #4facfe 75%, #00f2fe 100%);
+      background-size: 400% 400%;
+      animation: gradientShift 15s ease infinite;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      overflow: hidden;
+      position: relative;
+    }
+    
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background-image: url('https://i.imgur.com/q8Qd5PK.jpeg');
+      background-size: cover;
+      background-position: center;
+      opacity: 0.15;
+      z-index: 0;
+      pointer-events: none;
+      mix-blend-mode: overlay;
+    }
+    
+    body::after {
+      content: '';
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.3), transparent 50%),
+                  radial-gradient(circle at 80% 80%, rgba(255, 119, 198, 0.3), transparent 50%);
+      z-index: 0;
+      pointer-events: none;
+      animation: pulse 8s ease-in-out infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 0.5; }
+      50% { opacity: 1; }
+    }
+    
+    /* BACK BUTTON */
+    .back-btn {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      color: #fff;
+      padding: 12px 24px;
+      font-family: 'Krabby Patty', Arial, sans-serif;
+      font-size: 18px;
+      cursor: pointer;
+      border-radius: 15px;
+      text-decoration: none;
+      z-index: 1000;
+      transition: all 0.3s;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
+    
+    .back-btn:hover {
+      transform: translateY(-2px);
+      background: rgba(255, 255, 255, 0.2);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+    }
+    
+    /* LEADERBOARD BUTTON */
+    .leaderboard-btn {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: linear-gradient(135deg, rgba(255, 215, 0, 0.9), rgba(255, 165, 0, 0.9));
+      backdrop-filter: blur(10px);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      color: #000;
+      padding: 12px 24px;
+      font-family: 'Krabby Patty', Arial, sans-serif;
+      font-size: 18px;
+      cursor: pointer;
+      border-radius: 15px;
+      z-index: 1000;
+      transition: all 0.3s;
+      font-weight: bold;
+      box-shadow: 0 8px 32px rgba(255, 215, 0, 0.3);
+    }
+    
+    .leaderboard-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 40px rgba(255, 215, 0, 0.5);
+    }
+    
+    /* GAME CONTAINER */
+    .game-container {
+      position: relative;
+      z-index: 1;
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(20px);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-radius: 30px;
+      padding: 25px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3),
+                  0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+    }
+    
+    /* UI BAR */
+    .ui-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding: 15px 25px;
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
+    
+    .ui-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 15px;
+      min-width: 120px;
+      transition: all 0.3s;
+    }
+    
+    .ui-item:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateY(-2px);
+    }
+    
+    .ui-label {
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.7);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 600;
+    }
+    
+    .ui-value {
+      font-size: 28px;
+      font-weight: bold;
+      background: linear-gradient(135deg, #FFD700, #FFA500);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+    }
+    
+    /* CANVAS */
+    #gameCanvas {
+      display: block;
+      background: linear-gradient(180deg, rgba(102, 126, 234, 0.3) 0%, rgba(118, 75, 162, 0.3) 100%);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 20px;
+      cursor: crosshair;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2),
+                  inset 0 0 60px rgba(255, 255, 255, 0.1);
+    }
+    
+    /* SHOOTER */
+    .shooter-container {
+      position: relative;
+      margin-top: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 90px;
+    }
+    
+    .shooter {
+      width: 70px;
+      height: 70px;
+      background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.9), rgba(76, 175, 80, 0.8));
+      border: 3px solid rgba(255, 255, 255, 0.5);
+      border-radius: 50%;
+      position: relative;
+      transition: transform 0.1s;
+      box-shadow: 0 8px 32px rgba(76, 175, 80, 0.4),
+                  0 0 0 4px rgba(255, 255, 255, 0.1),
+                  inset 0 2px 10px rgba(255, 255, 255, 0.3);
+      animation: shooterPulse 2s ease-in-out infinite;
+    }
+    
+    @keyframes shooterPulse {
+      0%, 100% { box-shadow: 0 8px 32px rgba(76, 175, 80, 0.4), 0 0 0 4px rgba(255, 255, 255, 0.1), inset 0 2px 10px rgba(255, 255, 255, 0.3); }
+      50% { box-shadow: 0 12px 40px rgba(76, 175, 80, 0.6), 0 0 0 6px rgba(255, 255, 255, 0.2), inset 0 2px 10px rgba(255, 255, 255, 0.4); }
+    }
+    
+    .shooter::before {
+      content: '🫧';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 36px;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+    }
+    
+    /* MENU SCREEN */
+    .menu-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.95), rgba(118, 75, 162, 0.95));
+      backdrop-filter: blur(20px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      animation: fadeIn 0.5s ease-out;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    .menu-screen.hidden {
+      display: none;
+    }
+    
+    .menu-title {
+      font-size: 72px;
+      background: linear-gradient(135deg, #FFD700, #FFA500, #FF6B6B);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 20px;
+      text-align: center;
+      text-shadow: 0 0 40px rgba(255, 215, 0, 0.5);
+      filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+      animation: titleGlow 3s ease-in-out infinite;
+    }
+    
+    @keyframes titleGlow {
+      0%, 100% { filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3)) drop-shadow(0 0 20px rgba(255, 215, 0, 0.3)); }
+      50% { filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3)) drop-shadow(0 0 40px rgba(255, 215, 0, 0.6)); }
+    }
+    
+    .menu-icon {
+      font-size: 140px;
+      margin-bottom: 30px;
+      animation: float 3s ease-in-out infinite;
+      filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.3));
+    }
+    
+    @keyframes float {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-25px) rotate(5deg); }
+    }
+    
+    .menu-btn {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
+      backdrop-filter: blur(10px);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      color: #fff;
+      padding: 18px 45px;
+      font-family: 'Krabby Patty', Arial, sans-serif;
+      font-size: 24px;
+      cursor: pointer;
+      border-radius: 20px;
+      margin: 12px;
+      transition: all 0.3s;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      font-weight: 600;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .menu-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+      transition: left 0.5s;
+    }
+    
+    .menu-btn:hover::before {
+      left: 100%;
+    }
+    
+    .menu-btn:hover {
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 12px 40px rgba(255, 255, 255, 0.3);
+      border-color: rgba(255, 255, 255, 0.5);
+    }
+    
+    /* GAME OVER SCREEN */
+    .game-over-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, rgba(255, 68, 68, 0.95), rgba(200, 0, 0, 0.95));
+      backdrop-filter: blur(20px);
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      animation: fadeIn 0.5s ease-out;
+    }
+    
+    .game-over-screen.show {
+      display: flex;
+    }
+    
+    .game-over-title {
+      font-size: 64px;
+      color: #fff;
+      text-shadow: 0 0 30px rgba(255, 255, 255, 0.8),
+                   0 4px 8px rgba(0, 0, 0, 0.5);
+      margin-bottom: 20px;
+      animation: shake 0.5s ease-out;
+    }
+    
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-10px); }
+      75% { transform: translateX(10px); }
+    }
+    
+    .final-score {
+      font-size: 42px;
+      background: linear-gradient(135deg, #FFD700, #FFA500);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 30px;
+      filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+    }
+    
+    /* PARTICLE EFFECTS */
+    .particle {
+      position: fixed;
+      pointer-events: none;
+      z-index: 1500;
+      font-size: 20px;
+      animation: particleFly 1s ease-out forwards;
+    }
+    
+    @keyframes particleFly {
+      0% { opacity: 1; transform: translate(0, 0) scale(1) rotate(0deg); }
+      100% { opacity: 0; transform: translate(var(--tx), var(--ty)) scale(0) rotate(360deg); }
+    }
+    
+    /* MOBILE SUPPORT */
+    @media (max-width: 768px) {
+      body {
+        touch-action: none;
+        -webkit-tap-highlight-color: transparent;
+        user-select: none;
+      }
+      
+      .back-btn, .leaderboard-btn {
+        padding: 10px 16px;
+        font-size: 16px;
+        top: 15px;
+      }
+      
+      .back-btn {
+        left: 15px;
+      }
+      
+      .leaderboard-btn {
+        right: 15px;
+      }
+      
+      .game-container {
+        padding: 12px;
+        width: 98vw;
+        max-width: 98vw;
+        border-radius: 20px;
+      }
+      
+      #gameCanvas {
+        width: 100%;
+        height: auto;
+        max-height: 60vh;
+        touch-action: none;
+      }
+      
+      .ui-bar {
+        padding: 10px 15px;
+        margin-bottom: 12px;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      
+      .ui-item {
+        min-width: 80px;
+        padding: 8px 12px;
+        flex: 1;
+      }
+      
+      .ui-label {
+        font-size: 10px;
+      }
+      
+      .ui-value {
+        font-size: 20px;
+      }
+      
+      .shooter-container {
+        height: 70px;
+        margin-top: 12px;
+      }
+      
+      .shooter {
+        width: 60px;
+        height: 60px;
+      }
+      
+      .shooter::before {
+        font-size: 30px;
+      }
+      
+      .menu-title {
+        font-size: 42px;
+        line-height: 1.2;
+      }
+      
+      .menu-icon {
+        font-size: 100px;
+      }
+      
+      .menu-btn {
+        font-size: 18px;
+        padding: 15px 30px;
+        width: 90%;
+        max-width: 300px;
+      }
+      
+      .game-over-title {
+        font-size: 48px;
+      }
+      
+      .final-score {
+        font-size: 32px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .ui-bar {
+        flex-direction: column;
+        gap: 8px;
+      }
+      
+      .ui-item {
+        width: 100%;
+        flex-direction: row;
+        justify-content: space-between;
+        padding: 10px 15px;
+      }
+      
+      .menu-title {
+        font-size: 36px;
+      }
+      
+      .menu-icon {
+        font-size: 80px;
+      }
+    }
+    
+    /* Prevent text selection on mobile */
+    * {
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+    
+    /* Touch feedback */
+    .menu-btn:active {
+      transform: scale(0.95);
+    }
+    
+    .back-btn:active, .leaderboard-btn:active {
+      transform: scale(0.95);
+    }
+  </style>
+</head>
+<body>
+  <a href="../index.html" class="back-btn">⬅️ MENU</a>
+  <button class="leaderboard-btn" onclick="openLeaderboard()">🏆 LEADERBOARD</button>
+  
+  <div class="menu-screen" id="menuScreen">
+    <div class="menu-icon">🫧</div>
+    <h1 class="menu-title">BUBBLE BUDDY<br>BUBBLE POP</h1>
+    <button class="menu-btn" onclick="startGame()">🎮 START GAME</button>
+    <div style="color: #fff; text-align: center; margin-top: 20px; max-width: 500px; padding: 0 20px;">
+      <p style="font-size: 18px; margin-bottom: 10px; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">🎯 Match 3+ bubbles of the same color!</p>
+      <p style="font-size: 14px; color: rgba(255,255,255,0.8);">Click or tap to aim and shoot. Clear all bubbles to win!</p>
+    </div>
+  </div>
+  
+  <div class="game-over-screen" id="gameOverScreen">
+    <div class="game-over-title">GAME OVER</div>
+    <div class="final-score" id="finalScore">Score: 0</div>
+    <button class="menu-btn" onclick="restartGame()">🔄 PLAY AGAIN</button>
+    <button class="menu-btn" onclick="openLeaderboard()">🏆 LEADERBOARD</button>
+  </div>
+  
+  <div class="game-container">
+    <div class="ui-bar">
+      <div class="ui-item">
+        <div class="ui-label">SCORE</div>
+        <div class="ui-value" id="scoreDisplay">0</div>
+      </div>
+      <div class="ui-item">
+        <div class="ui-label">LEVEL</div>
+        <div class="ui-value" id="levelDisplay">1</div>
+      </div>
+      <div class="ui-item">
+        <div class="ui-label">BUBBLES LEFT</div>
+        <div class="ui-value" id="bubblesLeftDisplay">0</div>
+      </div>
+    </div>
+    
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+    
+    <div class="shooter-container">
+      <div class="shooter" id="shooter"></div>
+    </div>
+  </div>
+  
+  <script>
+    // =====================
+    // SOUND MANAGER
+    // =====================
+    let soundManager = null;
+    
+    // Initialize sound manager
+    if (typeof SoundManager !== 'undefined') {
+      soundManager = new SoundManager();
+      soundManager.loadAll({
+        shoot: '../audio/cash.mp3',
+        pop: '../audio/money.mp3',
+        match: '../audio/victory.mp3',
+        levelup: '../audio/ohyeah.mp3',
+        gameover: '../audio/scream.mp3',
+        floating: '../audio/gary.mp3'
+      });
+    } else if (typeof window.soundManager !== 'undefined') {
+      soundManager = window.soundManager;
+    }
+    
+    function playSound(name, options = {}) {
+      if (soundManager && typeof soundManager.play === 'function') {
+        soundManager.play(name, options);
+      }
+    }
+    
+    // =====================
+    // GAME STATE
+    // =====================
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    // Adjust canvas size for mobile
+    function resizeCanvas() {
+      const container = canvas.parentElement;
+      const maxWidth = Math.min(800, window.innerWidth - 40);
+      const maxHeight = Math.min(600, window.innerHeight * 0.6);
+      
+      if (window.innerWidth < 768) {
+        canvas.width = maxWidth;
+        canvas.height = maxHeight;
+      } else {
+        canvas.width = 800;
+        canvas.height = 600;
+      }
+      
+      // Update shooter position
+      gameState.SHOOTER_Y = canvas.height - 50;
+      gameState.SHOOTER_X = canvas.width / 2;
+    }
+    
+    let gameState = {
+      score: 0,
+      level: 1,
+      bubbles: [],
+      nextBubble: null,
+      shooterAngle: 0,
+      isShooting: false,
+      shotBubble: null,
+      gameOver: false,
+      bubblesLeft: 0,
+      particles: [],
+      mouseX: 0,
+      mouseY: 0,
+      SHOOTER_Y: canvas.height - 50,
+      SHOOTER_X: canvas.width / 2,
+      touchStartX: 0,
+      touchStartY: 0
+    };
+    
+    const BUBBLE_COLORS = [
+      { main: '#FF6B6B', light: '#FF8E8E', dark: '#E55555' },
+      { main: '#4ECDC4', light: '#6EDDD6', dark: '#3AB5AE' },
+      { main: '#FFE66D', light: '#FFED8A', dark: '#E6D05C' },
+      { main: '#95E1D3', light: '#B0EDE1', dark: '#7AD1C2' },
+      { main: '#F38181', light: '#F59A9A', dark: '#E16868' },
+      { main: '#AA96DA', light: '#C2B3E8', dark: '#9279C8' }
+    ];
+    
+    // Responsive bubble size
+    const isMobile = window.innerWidth < 768;
+    const BUBBLE_RADIUS = isMobile ? 18 : 25;
+    const ROWS = isMobile ? 8 : 10;
+    const COLS = isMobile ? 12 : 15;
+    const BUBBLE_SPACING = BUBBLE_RADIUS * 2.1;
+    const SHOT_SPEED = 8;
+    
+    // =====================
+    // PARTICLE SYSTEM
+    // =====================
+    function createParticles(x, y, color, count = 8) {
+      for (let i = 0; i < count; i++) {
+        const angle = (Math.PI * 2 * i) / count;
+        const speed = 3 + Math.random() * 2;
+        gameState.particles.push({
+          x: x,
+          y: y,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed,
+          color: color,
+          size: 4 + Math.random() * 4,
+          life: 1.0,
+          decay: 0.02 + Math.random() * 0.02
+        });
+      }
+    }
+    
+    function updateParticles() {
+      gameState.particles = gameState.particles.filter(p => {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.life -= p.decay;
+        p.vx *= 0.98;
+        p.vy *= 0.98;
+        return p.life > 0;
+      });
+    }
+    
+    function drawParticles() {
+      gameState.particles.forEach(p => {
+        ctx.save();
+        ctx.globalAlpha = p.life;
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      });
+    }
+    
+    // =====================
+    // INITIALIZE GAME
+    // =====================
+    function initGame() {
+      gameState.bubbles = [];
+      gameState.score = 0;
+      gameState.level = 1;
+      gameState.isShooting = false;
+      gameState.shotBubble = null;
+      gameState.gameOver = false;
+      gameState.particles = [];
+      
+      createBubbleGrid();
+      gameState.nextBubble = createRandomBubble();
+      updateUI();
+    }
+    
+    function createBubbleGrid() {
+      gameState.bubbles = [];
+      const startY = 50;
+      
+      for (let row = 0; row < ROWS; row++) {
+        for (let col = 0; col < COLS; col++) {
+          const x = col * BUBBLE_SPACING + (row % 2 === 1 ? BUBBLE_SPACING / 2 : 0) + BUBBLE_RADIUS + 50;
+          const y = row * BUBBLE_SPACING + startY;
+          
+          if (Math.random() > 0.3) {
+            const colorIndex = Math.floor(Math.random() * BUBBLE_COLORS.length);
+            gameState.bubbles.push({
+              x: x,
+              y: y,
+              color: BUBBLE_COLORS[colorIndex],
+              radius: BUBBLE_RADIUS,
+              row: row,
+              col: col,
+              scale: 1,
+              popAnimation: 0
+            });
+          }
+        }
+      }
+      
+      gameState.bubblesLeft = gameState.bubbles.length;
+    }
+    
+    function createRandomBubble() {
+      const colorIndex = Math.floor(Math.random() * BUBBLE_COLORS.length);
+      return {
+        x: gameState.SHOOTER_X,
+        y: gameState.SHOOTER_Y,
+        color: BUBBLE_COLORS[colorIndex],
+        radius: BUBBLE_RADIUS,
+        vx: 0,
+        vy: 0
+      };
+    }
+    
+    // =====================
+    // GAME LOGIC
+    // =====================
+    function handleClick(e) {
+      if (gameState.gameOver || gameState.isShooting) return;
+      
+      const rect = canvas.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const clickY = e.clientY - rect.top;
+      
+      shootBubble(clickX, clickY);
+    }
+    
+    function shootBubble(targetX, targetY) {
+      if (gameState.isShooting || !gameState.nextBubble) return;
+      
+      playSound('shoot', { volume: 0.3 });
+      
+      gameState.isShooting = true;
+      gameState.shotBubble = {
+        ...gameState.nextBubble,
+        vx: (targetX - gameState.SHOOTER_X) / 50,
+        vy: (targetY - gameState.SHOOTER_Y) / 50
+      };
+      
+      const speed = Math.sqrt(gameState.shotBubble.vx ** 2 + gameState.shotBubble.vy ** 2);
+      gameState.shotBubble.vx = (gameState.shotBubble.vx / speed) * SHOT_SPEED;
+      gameState.shotBubble.vy = (gameState.shotBubble.vy / speed) * SHOT_SPEED;
+      
+      gameState.nextBubble = createRandomBubble();
+    }
+    
+    function updateShotBubble() {
+      if (!gameState.shotBubble) return;
+      
+      gameState.shotBubble.x += gameState.shotBubble.vx;
+      gameState.shotBubble.y += gameState.shotBubble.vy;
+      
+      if (gameState.shotBubble.x - gameState.shotBubble.radius <= 0 || 
+          gameState.shotBubble.x + gameState.shotBubble.radius >= canvas.width) {
+        gameState.shotBubble.vx *= -1;
+      }
+      
+      if (gameState.shotBubble.y - gameState.shotBubble.radius <= 0) {
+        attachBubbleToGrid();
+        return;
+      }
+      
+      for (let bubble of gameState.bubbles) {
+        const dist = Math.hypot(
+          gameState.shotBubble.x - bubble.x,
+          gameState.shotBubble.y - bubble.y
+        );
+        
+        if (dist < BUBBLE_RADIUS * 2) {
+          attachBubbleToGrid();
+          return;
+        }
+      }
+    }
+    
+    function attachBubbleToGrid() {
+      if (!gameState.shotBubble) return;
+      
+      let nearestBubble = null;
+      let minDist = Infinity;
+      
+      for (let bubble of gameState.bubbles) {
+        const dist = Math.hypot(
+          gameState.shotBubble.x - bubble.x,
+          gameState.shotBubble.y - bubble.y
+        );
+        if (dist < minDist) {
+          minDist = dist;
+          nearestBubble = bubble;
+        }
+      }
+      
+      let row = Math.floor((gameState.shotBubble.y - 50) / BUBBLE_SPACING);
+      let col = Math.floor((gameState.shotBubble.x - 50) / BUBBLE_SPACING);
+      
+      if (nearestBubble) {
+        row = nearestBubble.row;
+        col = nearestBubble.col;
+      }
+      
+      const x = col * BUBBLE_SPACING + (row % 2 === 1 ? BUBBLE_SPACING / 2 : 0) + BUBBLE_RADIUS + 50;
+      const y = row * BUBBLE_SPACING + 50;
+      
+      gameState.bubbles.push({
+        x: x,
+        y: y,
+        color: gameState.shotBubble.color,
+        radius: BUBBLE_RADIUS,
+        row: row,
+        col: col,
+        scale: 1,
+        popAnimation: 0
+      });
+      
+      gameState.shotBubble = null;
+      gameState.isShooting = false;
+      gameState.bubblesLeft = gameState.bubbles.length;
+      
+      checkMatches();
+      
+      if (gameState.bubbles.length === 0) {
+        nextLevel();
+      }
+      
+      checkLoseCondition();
+    }
+    
+    function checkMatches() {
+      const matched = new Set();
+      const toCheck = [...gameState.bubbles];
+      
+      function findMatches(bubble, visited = new Set()) {
+        if (visited.has(bubble)) return [];
+        visited.add(bubble);
+        
+        const matches = [bubble];
+        const neighbors = getNeighbors(bubble);
+        
+        for (let neighbor of neighbors) {
+          if (neighbor.color.main === bubble.color.main && !visited.has(neighbor)) {
+            matches.push(...findMatches(neighbor, visited));
+          }
+        }
+        
+        return matches;
+      }
+      
+      for (let bubble of toCheck) {
+        if (matched.has(bubble)) continue;
+        
+        const matches = findMatches(bubble);
+        if (matches.length >= 3) {
+          matches.forEach(b => matched.add(b));
+        }
+      }
+      
+      if (matched.size >= 3) {
+        // Create particles for each matched bubble
+        matched.forEach(bubble => {
+          createParticles(bubble.x, bubble.y, bubble.color.main, 6);
+        });
+        
+        // Play sound based on match size
+        if (matched.size >= 5) {
+          playSound('match', { volume: 0.5 });
+        } else {
+          playSound('pop', { volume: 0.4 });
+        }
+        
+        gameState.bubbles = gameState.bubbles.filter(b => !matched.has(b));
+        gameState.bubblesLeft = gameState.bubbles.length;
+        
+        const points = matched.size * 10 * gameState.level;
+        gameState.score += points;
+        
+        checkFloatingBubbles();
+        
+        if (gameState.bubbles.length === 0) {
+          nextLevel();
+        }
+        
+        updateUI();
+      }
+    }
+    
+    function getNeighbors(bubble) {
+      const neighbors = [];
+      const offsets = [
+        [-1, -1], [0, -1], [1, -1],
+        [-1, 0], [1, 0],
+        [-1, 1], [0, 1], [1, 1]
+      ];
+      
+      for (let [dx, dy] of offsets) {
+        const neighborRow = bubble.row + dy;
+        const neighborCol = bubble.col + dx;
+        
+        const neighbor = gameState.bubbles.find(b => 
+          b.row === neighborRow && b.col === neighborCol
+        );
+        
+        if (neighbor) {
+          neighbors.push(neighbor);
+        }
+      }
+      
+      return neighbors;
+    }
+    
+    function checkFloatingBubbles() {
+      const connected = new Set();
+      const topBubbles = gameState.bubbles.filter(b => b.row === 0);
+      
+      function markConnected(bubble) {
+        if (connected.has(bubble)) return;
+        connected.add(bubble);
+        
+        const neighbors = getNeighbors(bubble);
+        neighbors.forEach(n => markConnected(n));
+      }
+      
+      topBubbles.forEach(b => markConnected(b));
+      
+      const floating = gameState.bubbles.filter(b => !connected.has(b));
+      if (floating.length > 0) {
+        floating.forEach(bubble => {
+          createParticles(bubble.x, bubble.y, bubble.color.main, 4);
+        });
+        
+        playSound('floating', { volume: 0.3 });
+        
+        gameState.bubbles = gameState.bubbles.filter(b => connected.has(b));
+        gameState.bubblesLeft = gameState.bubbles.length;
+        gameState.score += floating.length * 20 * gameState.level;
+        updateUI();
+      }
+    }
+    
+    function checkLoseCondition() {
+      const lowestBubble = Math.max(...gameState.bubbles.map(b => b.y));
+      if (lowestBubble > canvas.height - 150) {
+        endGame();
+      }
+    }
+    
+    function nextLevel() {
+      gameState.level++;
+      createBubbleGrid();
+      gameState.score += 1000 * gameState.level;
+      updateUI();
+      
+      playSound('levelup', { volume: 0.6 });
+    }
+    
+    function endGame() {
+      gameState.gameOver = true;
+      document.getElementById('finalScore').textContent = `Score: ${gameState.score.toLocaleString()}`;
+      document.getElementById('gameOverScreen').classList.add('show');
+      
+      playSound('gameover', { volume: 0.4 });
+      
+      if (typeof showLeaderboardModal === 'function') {
+        setTimeout(() => {
+          showLeaderboardModal('bubble-pop', 'Bubble Buddy Bubble Pop', gameState.score);
+        }, 1000);
+      }
+    }
+    
+    // =====================
+    // RENDERING
+    // =====================
+    function drawBubble(x, y, color, radius, scale = 1) {
+      const r = radius * scale;
+      
+      // Shadow
+      ctx.save();
+      ctx.shadowBlur = 15;
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+      ctx.shadowOffsetY = 3;
+      
+      // Main bubble
+      const gradient = ctx.createRadialGradient(
+        x - r * 0.3, y - r * 0.3, 0,
+        x, y, r
+      );
+      gradient.addColorStop(0, color.light);
+      gradient.addColorStop(0.5, color.main);
+      gradient.addColorStop(1, color.dark);
+      
+      ctx.beginPath();
+      ctx.arc(x, y, r, 0, Math.PI * 2);
+      ctx.fillStyle = gradient;
+      ctx.fill();
+      
+      // Border
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      
+      // Highlight
+      const highlightGradient = ctx.createRadialGradient(
+        x - r * 0.3, y - r * 0.3, 0,
+        x - r * 0.3, y - r * 0.3, r * 0.6
+      );
+      highlightGradient.addColorStop(0, 'rgba(255, 255, 255, 0.6)');
+      highlightGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+      
+      ctx.beginPath();
+      ctx.arc(x - r * 0.3, y - r * 0.3, r * 0.5, 0, Math.PI * 2);
+      ctx.fillStyle = highlightGradient;
+      ctx.fill();
+      
+      // Glow
+      ctx.shadowBlur = 20;
+      ctx.shadowColor = color.main;
+      ctx.shadowOffsetY = 0;
+      ctx.beginPath();
+      ctx.arc(x, y, r, 0, Math.PI * 2);
+      ctx.stroke();
+      
+      ctx.restore();
+    }
+    
+    function render() {
+      // Clear with gradient
+      const bgGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+      bgGradient.addColorStop(0, 'rgba(102, 126, 234, 0.2)');
+      bgGradient.addColorStop(1, 'rgba(118, 75, 162, 0.2)');
+      ctx.fillStyle = bgGradient;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      // Draw bubbles
+      gameState.bubbles.forEach(bubble => {
+        drawBubble(bubble.x, bubble.y, bubble.color, bubble.radius, bubble.scale);
+      });
+      
+      // Draw shot bubble
+      if (gameState.shotBubble) {
+        drawBubble(
+          gameState.shotBubble.x,
+          gameState.shotBubble.y,
+          gameState.shotBubble.color,
+          gameState.shotBubble.radius
+        );
+      }
+      
+      // Draw particles
+      drawParticles();
+      
+      // Draw next bubble preview
+      if (gameState.nextBubble && !gameState.isShooting) {
+        ctx.save();
+        ctx.globalAlpha = 0.8;
+        drawBubble(gameState.SHOOTER_X, gameState.SHOOTER_Y - 45, gameState.nextBubble.color, gameState.nextBubble.radius);
+        ctx.restore();
+      }
+      
+      // Draw aim line
+      if (!gameState.isShooting && gameState.nextBubble && (gameState.mouseX > 0 || gameState.mouseY > 0)) {
+        const aimGradient = ctx.createLinearGradient(gameState.SHOOTER_X, gameState.SHOOTER_Y, gameState.mouseX, gameState.mouseY);
+        aimGradient.addColorStop(0, 'rgba(255, 215, 0, 0.8)');
+        aimGradient.addColorStop(1, 'rgba(255, 215, 0, 0.2)');
+        
+        ctx.strokeStyle = aimGradient;
+        ctx.lineWidth = 3;
+        ctx.setLineDash([8, 4]);
+        ctx.beginPath();
+        ctx.moveTo(gameState.SHOOTER_X, gameState.SHOOTER_Y);
+        ctx.lineTo(gameState.mouseX, gameState.mouseY);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        
+        // Aim dot
+        ctx.fillStyle = 'rgba(255, 215, 0, 0.6)';
+        ctx.beginPath();
+        ctx.arc(gameState.mouseX, gameState.mouseY, 5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+    
+    // =====================
+    // GAME LOOP
+    // =====================
+    function gameLoop() {
+      if (!gameState.gameOver) {
+        updateShotBubble();
+        updateParticles();
+        render();
+      }
+      requestAnimationFrame(gameLoop);
+    }
+    
+    // =====================
+    // UI UPDATES
+    // =====================
+    function updateUI() {
+      document.getElementById('scoreDisplay').textContent = gameState.score.toLocaleString();
+      document.getElementById('levelDisplay').textContent = gameState.level;
+      document.getElementById('bubblesLeftDisplay').textContent = gameState.bubblesLeft;
+    }
+    
+    // =====================
+    // EVENT HANDLERS
+    // =====================
+    function getCanvasPosition(e) {
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = canvas.width / rect.width;
+      const scaleY = canvas.height / rect.height;
+      
+      let clientX, clientY;
+      if (e.touches) {
+        clientX = e.touches[0].clientX;
+        clientY = e.touches[0].clientY;
+      } else {
+        clientX = e.clientX;
+        clientY = e.clientY;
+      }
+      
+      return {
+        x: (clientX - rect.left) * scaleX,
+        y: (clientY - rect.top) * scaleY
+      };
+    }
+    
+    canvas.addEventListener('click', handleClick);
+    
+    // Touch support
+    canvas.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      const pos = getCanvasPosition(e);
+      gameState.touchStartX = pos.x;
+      gameState.touchStartY = pos.y;
+      gameState.mouseX = pos.x;
+      gameState.mouseY = pos.y;
+    }, { passive: false });
+    
+    canvas.addEventListener('touchend', (e) => {
+      e.preventDefault();
+      if (!gameState.gameOver && !gameState.isShooting) {
+        const pos = getCanvasPosition(e);
+        shootBubble(pos.x, pos.y);
+      }
+    }, { passive: false });
+    
+    canvas.addEventListener('touchmove', (e) => {
+      e.preventDefault();
+      if (gameState.gameOver || gameState.isShooting) return;
+      const pos = getCanvasPosition(e);
+      gameState.mouseX = pos.x;
+      gameState.mouseY = pos.y;
+      gameState.shooterAngle = Math.atan2(gameState.mouseY - gameState.SHOOTER_Y, gameState.mouseX - gameState.SHOOTER_X);
+    }, { passive: false });
+    
+    canvas.addEventListener('mousemove', (e) => {
+      if (gameState.gameOver || gameState.isShooting) return;
+      const pos = getCanvasPosition(e);
+      gameState.mouseX = pos.x;
+      gameState.mouseY = pos.y;
+      gameState.shooterAngle = Math.atan2(gameState.mouseY - gameState.SHOOTER_Y, gameState.mouseX - gameState.SHOOTER_X);
+    });
+    
+    // =====================
+    // GAME CONTROL
+    // =====================
+    function startGame() {
+      document.getElementById('menuScreen').classList.add('hidden');
+      initGame();
+      gameLoop();
+    }
+    
+    function restartGame() {
+      document.getElementById('gameOverScreen').classList.remove('show');
+      document.getElementById('menuScreen').classList.remove('hidden');
+    }
+    
+    function openLeaderboard() {
+      if (typeof showLeaderboardModal === 'function') {
+        showLeaderboardModal('bubble-pop', 'Bubble Buddy Bubble Pop', gameState.score || 0);
+      }
+    }
+    
+    // Handle window resize
+    window.addEventListener('resize', () => {
+      resizeCanvas();
+      if (gameState.bubbles.length > 0) {
+        // Recalculate bubble positions if needed
+        createBubbleGrid();
+      }
+    });
+    
+    window.addEventListener('load', () => {
+      resizeCanvas();
+      // Game starts with menu screen
+    });
+    
+    // Prevent zoom on double tap (mobile)
+    let lastTouchEnd = 0;
+    document.addEventListener('touchend', (e) => {
+      const now = Date.now();
+      if (now - lastTouchEnd <= 300) {
+        e.preventDefault();
+      }
+      lastTouchEnd = now;
+    }, false);
+  </script>
+</body>
+</html>
