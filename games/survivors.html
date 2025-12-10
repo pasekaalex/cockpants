@@ -19,7 +19,7 @@
     
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     body { 
-      background: #000; 
+      background: linear-gradient(135deg, #0a1628 0%, #1a2a4a 50%, #0d1a2f 100%);
       overflow: hidden;
       font-family: 'Krabby Patty', Arial, sans-serif;
       touch-action: none;
@@ -41,9 +41,10 @@
       width: 100%;
       height: 100%;
       border-radius: 50%;
-      background: rgba(0, 0, 0, 0.5);
-      border: 3px solid rgba(255, 215, 0, 0.6);
+      background: rgba(0, 0, 0, 0.6);
+      border: 3px solid rgba(255, 215, 0, 0.7);
       position: relative;
+      box-shadow: 0 0 20px rgba(255, 215, 0, 0.3), inset 0 0 15px rgba(0, 0, 0, 0.5);
     }
     
     .joystick-stick {
@@ -51,12 +52,13 @@
       width: 50px;
       height: 50px;
       border-radius: 50%;
-      background: rgba(255, 215, 0, 0.8);
+      background: linear-gradient(145deg, rgba(255, 215, 0, 0.9), rgba(255, 165, 0, 0.8));
       border: 2px solid #FFD700;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
       pointer-events: none;
+      box-shadow: 0 4px 15px rgba(255, 215, 0, 0.5);
     }
     
     @media (max-width: 768px) {
@@ -65,20 +67,111 @@
     
     @keyframes comboPulse {
       0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.2); }
+      50% { transform: scale(1.08); }
     }
     
     @keyframes bossWarning {
       0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-      50% { transform: translate(-50%, -50%) scale(1.1); opacity: 0.9; }
+      50% { transform: translate(-50%, -50%) scale(1.05); opacity: 0.95; }
+    }
+
+    @keyframes levelUpGlow {
+      0%, 100% { box-shadow: 0 0 30px rgba(255, 215, 0, 0.5); }
+      50% { box-shadow: 0 0 60px rgba(255, 215, 0, 0.9), 0 0 100px rgba(255, 215, 0, 0.4); }
+    }
+
+    @keyframes upgradeCardHover {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(-5px); }
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
     }
     
     .combo-display {
-      animation: comboPulse 0.3s ease-in-out infinite;
+      animation: comboPulse 0.5s ease-in-out infinite;
     }
     
     .boss-warning {
       animation: bossWarning 0.5s ease-in-out infinite;
+    }
+
+    .upgrade-modal {
+      animation: fadeInUp 0.3s ease-out;
+    }
+
+    .upgrade-card {
+      transition: all 0.2s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .upgrade-card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+      transform: rotate(45deg);
+      transition: all 0.5s;
+    }
+
+    .upgrade-card:hover::before {
+      left: 100%;
+    }
+
+    .upgrade-card:hover {
+      transform: translateY(-5px) scale(1.02);
+      box-shadow: 0 10px 30px rgba(255, 215, 0, 0.3);
+    }
+
+    .game-paused-overlay {
+      backdrop-filter: blur(4px);
+    }
+
+    .stat-bar {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-bar::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 50%;
+      background: linear-gradient(180deg, rgba(255,255,255,0.2) 0%, transparent 100%);
+      pointer-events: none;
+    }
+
+    .weapon-slot {
+      transition: all 0.2s ease;
+    }
+
+    .weapon-slot:hover {
+      transform: scale(1.1);
+      box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+    }
+
+    .hud-panel {
+      backdrop-filter: blur(10px);
+      background: linear-gradient(135deg, rgba(0, 20, 40, 0.9), rgba(0, 10, 30, 0.95));
+      border: 2px solid rgba(255, 215, 0, 0.6);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+
+    .game-canvas {
+      box-shadow: 0 0 40px rgba(0, 150, 255, 0.2), inset 0 0 100px rgba(0, 100, 200, 0.1);
     }
   </style>
 </head>
@@ -490,8 +583,15 @@
         };
 
         const gameLoop = (currentTime) => {
-          // Pause game loop when upgrade screen is shown
-          if (showUpgrade || gameState !== 'playing') {
+          // Always render, but pause game logic when upgrade screen is shown
+          if (showUpgrade) {
+            // Still render the game in background (frozen state)
+            renderGame();
+            animationId = requestAnimationFrame(gameLoop);
+            return;
+          }
+          
+          if (gameState !== 'playing') {
             animationId = requestAnimationFrame(gameLoop);
             return;
           }
@@ -581,7 +681,7 @@
             });
             setBossWarning(true);
             setTimeout(() => setBossWarning(false), 3000);
-            setScreenShake(20);
+            setScreenShake(8); // Reduced from 20
           }
           
           // Time - count fixed updates, 60 updates = 1 second
@@ -638,7 +738,7 @@
                   if (e.isElite || Math.random() < 0.1) {
                     const weaponKeys = Object.keys(WEAPONS);
                     game.chests.push({ x: e.x, y: e.y, weapon: weaponKeys[Math.floor(Math.random() * weaponKeys.length)] });
-                    setScreenShake(15);
+                    setScreenShake(5); // Reduced from 15
                   }
                   setKills(k => k + 1);
                   setCombo(c => c + 1);
@@ -656,7 +756,7 @@
             const dist = Math.hypot(game.player.x - e.x, game.player.y - e.y);
             if (dist < (PLAYER_SIZE + ENEMY_SIZE * (e.scale || 1)) / 2) {
               const dmg = Math.max(0.3, 0.7 - playerStats.armor * 0.05) * delta; // Reduced damage (30% less)
-              setScreenShake(8);
+              setScreenShake(3); // Reduced from 8 - much subtler
               if (soundManagerRef.current) {
                 soundManagerRef.current.play('hit', { volume: 0.2 });
               }
@@ -777,69 +877,161 @@
         const renderGame = () => {
           const game = gameRef.current;
           
-          // Screen shake
-          const shakeX = screenShake > 0 ? (Math.random() - 0.5) * screenShake : 0;
-          const shakeY = screenShake > 0 ? (Math.random() - 0.5) * screenShake : 0;
+          // Screen shake - very subtle
+          const shakeIntensity = Math.min(screenShake * 0.5, 4); // Cap shake intensity
+          const shakeX = screenShake > 0 ? (Math.random() - 0.5) * shakeIntensity : 0;
+          const shakeY = screenShake > 0 ? (Math.random() - 0.5) * shakeIntensity : 0;
           
           ctx.save();
           ctx.translate(shakeX, shakeY);
           
-          // RENDER
-          const bgGradient = ctx.createLinearGradient(0, 0, 0, GAME_HEIGHT);
-          bgGradient.addColorStop(0, '#0a1628');
-          bgGradient.addColorStop(0.5, '#0d2137');
-          bgGradient.addColorStop(1, '#0a1628');
+          // RENDER - Enhanced underwater background
+          const bgGradient = ctx.createRadialGradient(GAME_WIDTH/2, GAME_HEIGHT/2, 0, GAME_WIDTH/2, GAME_HEIGHT/2, GAME_WIDTH);
+          bgGradient.addColorStop(0, '#0d2847');
+          bgGradient.addColorStop(0.5, '#0a1e3a');
+          bgGradient.addColorStop(1, '#061428');
           ctx.fillStyle = bgGradient;
           ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
           
-          // Animated background stars
           const now = performance.now();
-          ctx.fillStyle = 'rgba(135, 206, 250, 0.15)';
-          for (let i = 0; i < 30; i++) {
-            const bx = ((i * 137 + now / 50) % (GAME_WIDTH + 100)) - 50;
-            const by = ((i * 89 + now / 30) % (GAME_HEIGHT + 100)) - 50;
+          
+          // Animated underwater caustics (light rays)
+          ctx.globalAlpha = 0.03;
+          for (let i = 0; i < 5; i++) {
+            const rayX = ((i * 200 + now / 30) % (GAME_WIDTH + 200)) - 100;
+            ctx.fillStyle = '#87CEEB';
             ctx.beginPath();
-            ctx.arc(bx, by, 2 + (i % 3), 0, Math.PI * 2);
+            ctx.moveTo(rayX, 0);
+            ctx.lineTo(rayX + 80, GAME_HEIGHT);
+            ctx.lineTo(rayX + 120, GAME_HEIGHT);
+            ctx.lineTo(rayX + 40, 0);
+            ctx.closePath();
+            ctx.fill();
+          }
+          ctx.globalAlpha = 1;
+          
+          // Animated background bubbles/particles
+          ctx.fillStyle = 'rgba(135, 206, 250, 0.12)';
+          for (let i = 0; i < 40; i++) {
+            const bx = ((i * 137 + now / 60) % (GAME_WIDTH + 100)) - 50;
+            const by = ((i * 89 + now / 40) % (GAME_HEIGHT + 100)) - 50;
+            const size = 1.5 + (i % 4);
+            ctx.beginPath();
+            ctx.arc(bx, by, size, 0, Math.PI * 2);
             ctx.fill();
           }
           
-          // Grid
-          ctx.strokeStyle = 'rgba(0, 191, 255, 0.08)';
-          ctx.lineWidth = 1;
+          // Floating kelp/seaweed in background
+          ctx.fillStyle = 'rgba(34, 139, 34, 0.1)';
+          for (let i = 0; i < 8; i++) {
+            const kelpX = (i * 120) - (game.camera.x * 0.1) % 120;
+            const sway = Math.sin(now / 1000 + i) * 10;
+            ctx.beginPath();
+            ctx.moveTo(kelpX, GAME_HEIGHT);
+            ctx.quadraticCurveTo(kelpX + sway, GAME_HEIGHT - 80, kelpX + sway * 0.5, GAME_HEIGHT - 150);
+            ctx.quadraticCurveTo(kelpX, GAME_HEIGHT - 100, kelpX, GAME_HEIGHT);
+            ctx.fill();
+          }
+          
+          // Grid with gradient fade
           const gridSize = 60;
           for (let x = -game.camera.x % gridSize; x < GAME_WIDTH; x += gridSize) {
+            const distFromCenter = Math.abs(x - GAME_WIDTH / 2) / (GAME_WIDTH / 2);
+            ctx.strokeStyle = `rgba(0, 191, 255, ${0.08 * (1 - distFromCenter * 0.5)})`;
+            ctx.lineWidth = 1;
             ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, GAME_HEIGHT); ctx.stroke();
           }
           for (let y = -game.camera.y % gridSize; y < GAME_HEIGHT; y += gridSize) {
+            const distFromCenter = Math.abs(y - GAME_HEIGHT / 2) / (GAME_HEIGHT / 2);
+            ctx.strokeStyle = `rgba(0, 191, 255, ${0.08 * (1 - distFromCenter * 0.5)})`;
+            ctx.lineWidth = 1;
             ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(GAME_WIDTH, y); ctx.stroke();
           }
           
-          // XP orbs (pineapples)
+          // XP orbs (glowing gems)
           game.xpOrbs.forEach(orb => {
             const sx = orb.x - game.camera.x, sy = orb.y - game.camera.y;
+            if (sx < -20 || sx > GAME_WIDTH + 20 || sy < -20 || sy > GAME_HEIGHT + 20) return;
+            
+            // Outer glow
+            const orbGlow = ctx.createRadialGradient(sx, sy, 0, sx, sy, 12);
+            orbGlow.addColorStop(0, 'rgba(255, 215, 0, 0.6)');
+            orbGlow.addColorStop(0.5, 'rgba(255, 215, 0, 0.2)');
+            orbGlow.addColorStop(1, 'rgba(255, 215, 0, 0)');
+            ctx.fillStyle = orbGlow;
+            ctx.beginPath();
+            ctx.arc(sx, sy, 12, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Main orb with pulsing
+            const pulse = 1 + Math.sin(now / 200 + orb.x) * 0.15;
             ctx.fillStyle = '#FFD700';
             ctx.beginPath();
-            ctx.ellipse(sx, sy, 6, 8, 0, 0, Math.PI * 2);
+            ctx.ellipse(sx, sy, 5 * pulse, 7 * pulse, 0, 0, Math.PI * 2);
             ctx.fill();
-            ctx.fillStyle = '#228B22';
-            ctx.fillRect(sx - 2, sy - 12, 4, 5);
+            
+            // Highlight
+            ctx.fillStyle = 'rgba(255, 255, 200, 0.8)';
+            ctx.beginPath();
+            ctx.ellipse(sx - 2, sy - 3, 2, 2.5, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Leaf
+            ctx.fillStyle = '#32CD32';
+            ctx.beginPath();
+            ctx.ellipse(sx, sy - 9 * pulse, 2, 4, 0, 0, Math.PI * 2);
+            ctx.fill();
           });
           
-          // Chests
+          // Chests with enhanced visuals
           game.chests.forEach(chest => {
             const sx = chest.x - game.camera.x, sy = chest.y - game.camera.y;
-            ctx.shadowColor = '#FFD700';
-            ctx.shadowBlur = 15;
-            ctx.fillStyle = '#8B4513';
-            ctx.fillRect(sx - 12, sy - 8, 24, 16);
+            if (sx < -30 || sx > GAME_WIDTH + 30 || sy < -30 || sy > GAME_HEIGHT + 30) return;
+            
+            // Glow effect
+            const chestGlow = ctx.createRadialGradient(sx, sy, 0, sx, sy, 30);
+            chestGlow.addColorStop(0, 'rgba(255, 215, 0, 0.4)');
+            chestGlow.addColorStop(0.5, 'rgba(255, 215, 0, 0.15)');
+            chestGlow.addColorStop(1, 'rgba(255, 215, 0, 0)');
+            ctx.fillStyle = chestGlow;
+            ctx.beginPath();
+            ctx.arc(sx, sy, 30, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Chest body
+            const chestGradient = ctx.createLinearGradient(sx - 14, sy - 10, sx + 14, sy + 10);
+            chestGradient.addColorStop(0, '#A0522D');
+            chestGradient.addColorStop(0.5, '#8B4513');
+            chestGradient.addColorStop(1, '#654321');
+            ctx.fillStyle = chestGradient;
+            ctx.fillRect(sx - 14, sy - 10, 28, 20);
+            
+            // Chest lid
+            ctx.fillStyle = '#A0522D';
+            ctx.beginPath();
+            ctx.ellipse(sx, sy - 10, 14, 5, 0, Math.PI, Math.PI * 2);
+            ctx.fill();
+            
+            // Gold trim
+            ctx.strokeStyle = '#FFD700';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(sx - 14, sy - 10, 28, 20);
+            
+            // Lock
             ctx.fillStyle = '#FFD700';
             ctx.beginPath();
-            ctx.arc(sx, sy, 4, 0, Math.PI * 2);
+            ctx.arc(sx, sy, 5, 0, Math.PI * 2);
             ctx.fill();
-            ctx.shadowBlur = 0;
-            ctx.font = '14px Arial';
+            ctx.fillStyle = '#8B4513';
+            ctx.beginPath();
+            ctx.arc(sx, sy + 1, 2, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Weapon emoji floating above
+            const float = Math.sin(now / 300) * 3;
+            ctx.font = '16px Arial';
             ctx.textAlign = 'center';
-            ctx.fillText(WEAPONS[chest.weapon]?.emoji || '📦', sx, sy - 15);
+            ctx.fillText(WEAPONS[chest.weapon]?.emoji || '📦', sx, sy - 20 + float);
           });
           
           // Draw Enemies with Art
@@ -1286,53 +1478,157 @@
         }
       };
 
-      // MENU
+      // MENU - Enhanced
       if (gameState === 'menu') {
         return (
-          <div className="flex flex-col items-center justify-center h-screen" style={{ background: 'linear-gradient(180deg, #0a1628 0%, #1a3a5c 100%)' }}>
-            <div className="text-6xl font-black mb-2" style={{ color: '#FFD700', textShadow: '3px 3px 0 #000' }}>$COCKPANTS</div>
-            <div className="text-3xl text-cyan-300 mb-8">SURVIVORS</div>
-            <div className="text-8xl mb-8">🧽</div>
-            <button onClick={startGame} className="px-10 py-4 text-2xl font-bold rounded-xl" style={{ background: 'linear-gradient(180deg, #FFD700, #FFA500)', color: '#000' }}>
-              🎮 START GAME
-            </button>
-            <div className="mt-8 text-cyan-200 text-center">
-              <p>WASD / Arrows to move</p>
-              <p>Auto-attack enemies</p>
-              <p>Collect XP to level up!</p>
+          <div className="flex flex-col items-center justify-center h-screen relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #0a1628 0%, #1a3a5c 50%, #0d2040 100%)' }}>
+            {/* Animated background particles */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+              {Array.from({ length: 20 }).map((_, i) => (
+                <div 
+                  key={i}
+                  className="absolute rounded-full opacity-20"
+                  style={{
+                    width: 4 + Math.random() * 8 + 'px',
+                    height: 4 + Math.random() * 8 + 'px',
+                    background: '#87CEEB',
+                    left: Math.random() * 100 + '%',
+                    top: Math.random() * 100 + '%',
+                    animation: `pulse ${2 + Math.random() * 3}s ease-in-out infinite`,
+                    animationDelay: Math.random() * 2 + 's'
+                  }}
+                />
+              ))}
+            </div>
+            
+            <div className="relative z-10 flex flex-col items-center">
+              <div className="text-7xl font-black mb-1 tracking-tight" style={{ 
+                color: '#FFD700', 
+                textShadow: '4px 4px 0 #000, 0 0 40px rgba(255, 215, 0, 0.5)',
+                letterSpacing: '-2px'
+              }}>
+                $COCKPANTS
+              </div>
+              <div className="text-4xl font-bold text-cyan-300 mb-6" style={{ textShadow: '0 0 20px rgba(100, 200, 255, 0.5)' }}>
+                SURVIVORS
+              </div>
+              
+              <div className="text-9xl mb-8 transform hover:scale-110 transition-transform" style={{ filter: 'drop-shadow(0 0 20px rgba(255, 215, 0, 0.4))' }}>
+                🧽
+              </div>
+              
+              <button 
+                onClick={startGame} 
+                className="px-12 py-5 text-2xl font-bold rounded-2xl transform hover:scale-105 transition-all relative overflow-hidden group"
+                style={{ 
+                  background: 'linear-gradient(145deg, #FFD700, #FFA500)', 
+                  color: '#000',
+                  boxShadow: '0 6px 0 #CC8400, 0 10px 30px rgba(255, 165, 0, 0.4)'
+                }}
+              >
+                <span className="relative z-10">🎮 START GAME</span>
+                <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity" />
+              </button>
+              
+              <div className="mt-10 text-cyan-200 text-center space-y-2 p-6 rounded-xl" style={{ background: 'rgba(0, 20, 40, 0.6)', backdropFilter: 'blur(10px)' }}>
+                <p className="text-lg">🎯 <span className="text-white font-bold">WASD</span> or <span className="text-white font-bold">Arrows</span> to move</p>
+                <p className="text-lg">⚔️ Auto-attack nearby enemies</p>
+                <p className="text-lg">⭐ Collect XP to level up & unlock upgrades!</p>
+              </div>
             </div>
           </div>
         );
       }
 
-      // GAME OVER
+      // GAME OVER - Enhanced
       if (gameState === 'gameover') {
         return (
-          <div className="flex flex-col items-center justify-center h-screen" style={{ background: 'linear-gradient(180deg, #1a0a0a, #2d1515)' }}>
-            <div className="text-5xl font-black mb-4" style={{ color: '#FF4444' }}>GAME OVER</div>
-            <div className="text-7xl mb-6">💀</div>
-            <div className="bg-black/50 rounded-xl p-6 mb-6 text-white">
-              <div className="flex justify-between gap-8 text-lg">
-                <span>Score:</span><span className="text-yellow-400 font-bold">{score.toLocaleString()}</span>
-              </div>
-              <div className="flex justify-between gap-8 text-lg">
-                <span>Level:</span><span className="text-green-400 font-bold">{level}</span>
-              </div>
-              <div className="flex justify-between gap-8 text-lg">
-                <span>Time:</span><span className="text-cyan-400 font-bold">{formatTime(time)}</span>
-              </div>
-              <div className="flex justify-between gap-8 text-lg">
-                <span>Kills:</span><span className="text-red-400 font-bold">{kills}</span>
-              </div>
+          <div className="flex flex-col items-center justify-center h-screen relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #1a0808 0%, #2d1515 50%, #1a0505 100%)' }}>
+            {/* Animated red particles */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-30">
+              {Array.from({ length: 15 }).map((_, i) => (
+                <div 
+                  key={i}
+                  className="absolute rounded-full"
+                  style={{
+                    width: 3 + Math.random() * 6 + 'px',
+                    height: 3 + Math.random() * 6 + 'px',
+                    background: '#FF4444',
+                    left: Math.random() * 100 + '%',
+                    top: Math.random() * 100 + '%',
+                    animation: `pulse ${2 + Math.random() * 2}s ease-in-out infinite`
+                  }}
+                />
+              ))}
             </div>
-            <div className="flex gap-4">
-              <button onClick={() => { if (typeof showLeaderboardModal === 'function') showLeaderboardModal('survivors', '$COCKPANTS Survivors', score); }}
-                className="px-8 py-3 text-xl font-bold rounded-xl" style={{ background: '#4A90E2', color: '#FFF' }}>
-                🏆 LEADERBOARD
-              </button>
-              <button onClick={startGame} className="px-8 py-3 text-xl font-bold rounded-xl" style={{ background: 'linear-gradient(180deg, #FFD700, #FFA500)', color: '#000' }}>
-                🔄 TRY AGAIN
-              </button>
+
+            <div className="relative z-10 flex flex-col items-center">
+              <div className="text-6xl font-black mb-4" style={{ 
+                color: '#FF4444', 
+                textShadow: '4px 4px 0 #000, 0 0 30px rgba(255, 68, 68, 0.5)'
+              }}>
+                GAME OVER
+              </div>
+              <div className="text-8xl mb-8" style={{ filter: 'drop-shadow(0 0 20px rgba(255, 68, 68, 0.4))' }}>💀</div>
+              
+              <div className="rounded-2xl p-8 mb-8 text-white space-y-3" style={{ 
+                background: 'linear-gradient(145deg, rgba(0,0,0,0.7), rgba(30,10,10,0.8))',
+                border: '2px solid rgba(255, 215, 0, 0.5)',
+                boxShadow: '0 10px 40px rgba(0, 0, 0, 0.5)',
+                minWidth: '280px'
+              }}>
+                <div className="flex justify-between gap-10 text-xl">
+                  <span className="text-gray-400">Score</span>
+                  <span className="text-yellow-400 font-bold" style={{ textShadow: '0 0 10px rgba(255, 215, 0, 0.5)' }}>{score.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between gap-10 text-xl">
+                  <span className="text-gray-400">Level</span>
+                  <span className="text-green-400 font-bold">{level}</span>
+                </div>
+                <div className="flex justify-between gap-10 text-xl">
+                  <span className="text-gray-400">Time</span>
+                  <span className="text-cyan-400 font-bold">{formatTime(time)}</span>
+                </div>
+                <div className="flex justify-between gap-10 text-xl">
+                  <span className="text-gray-400">Kills</span>
+                  <span className="text-red-400 font-bold">{kills}</span>
+                </div>
+                {weapons.length > 1 && (
+                  <div className="pt-3 border-t border-gray-700">
+                    <div className="text-gray-500 text-sm mb-2">Weapons Used:</div>
+                    <div className="flex gap-2 justify-center">
+                      {weapons.map((w, i) => (
+                        <span key={i} className="text-2xl" title={w.name}>{w.emoji}</span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+              
+              <div className="flex gap-4">
+                <button 
+                  onClick={() => { if (typeof showLeaderboardModal === 'function') showLeaderboardModal('survivors', '$COCKPANTS Survivors', score); }}
+                  className="px-8 py-4 text-xl font-bold rounded-xl transform hover:scale-105 transition-all"
+                  style={{ 
+                    background: 'linear-gradient(145deg, #4A90E2, #357ABD)', 
+                    color: '#FFF',
+                    boxShadow: '0 4px 0 #2868A0, 0 6px 20px rgba(74, 144, 226, 0.3)'
+                  }}
+                >
+                  🏆 LEADERBOARD
+                </button>
+                <button 
+                  onClick={startGame} 
+                  className="px-8 py-4 text-xl font-bold rounded-xl transform hover:scale-105 transition-all"
+                  style={{ 
+                    background: 'linear-gradient(145deg, #FFD700, #FFA500)', 
+                    color: '#000',
+                    boxShadow: '0 4px 0 #CC8400, 0 6px 20px rgba(255, 165, 0, 0.3)'
+                  }}
+                >
+                  🔄 TRY AGAIN
+                </button>
+              </div>
             </div>
           </div>
         );
@@ -1379,47 +1675,94 @@
             🚪 QUIT & SAVE
           </button>
           
-          {/* UI Bar Above Game */}
-          <div className="w-full max-w-4xl mb-2 flex justify-between items-center px-4 py-2 rounded-lg" style={{ background: 'rgba(0, 0, 0, 0.8)', border: '2px solid #FFD700' }}>
+          {/* UI Bar Above Game - Enhanced */}
+          <div className="w-full max-w-4xl mb-2 flex justify-between items-center px-5 py-3 rounded-xl hud-panel">
             {/* Left Side - Score & Info */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-5">
               <div>
-                <div className="text-lg font-bold" style={{ color: '#FFD700' }}>$COCKPANTS</div>
-                <div className="text-white text-sm">Score: <span className="text-yellow-400">{score.toLocaleString()}</span></div>
-                <div className="text-white/70 text-xs">⏱️ {formatTime(time)} | 💀 {kills} {combo > 0 && <span className="text-yellow-400">| 🔥 {combo}x</span>}</div>
+                <div className="text-xl font-black tracking-wide" style={{ color: '#FFD700', textShadow: '0 0 10px rgba(255, 215, 0, 0.4)' }}>$COCKPANTS</div>
+                <div className="text-white text-sm font-medium">Score: <span className="text-yellow-400 font-bold">{score.toLocaleString()}</span></div>
+                <div className="text-white/80 text-xs flex items-center gap-2">
+                  <span>⏱️ {formatTime(time)}</span>
+                  <span className="text-gray-500">|</span>
+                  <span>💀 {kills}</span>
+                  {combo > 0 && <>
+                    <span className="text-gray-500">|</span>
+                    <span className="text-orange-400 font-bold">🔥 {combo}x</span>
+                  </>}
+                </div>
               </div>
               
-              {/* HP Bar */}
+              {/* HP Bar - Enhanced */}
               <div>
-                <div className="text-red-400 text-xs font-bold mb-1">❤️ {Math.floor(playerStats.hp)}/{playerStats.maxHp}</div>
-                <div className="w-40 h-4 bg-black/70 rounded-full border border-red-500/50 overflow-hidden">
-                  <div className="h-full transition-all" style={{ 
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-red-400 text-xs font-bold">❤️ HEALTH</span>
+                  <span className="text-white text-xs">{Math.floor(playerStats.hp)}/{playerStats.maxHp}</span>
+                </div>
+                <div className="stat-bar w-44 h-5 bg-black/70 rounded-full border border-red-500/50 overflow-hidden relative">
+                  <div className="h-full transition-all duration-200 rounded-full" style={{ 
                     width: `${(playerStats.hp / playerStats.maxHp) * 100}%`,
-                    background: playerStats.hp / playerStats.maxHp > 0.5 ? '#22c55e' : playerStats.hp / playerStats.maxHp > 0.25 ? '#eab308' : '#dc2626'
+                    background: playerStats.hp / playerStats.maxHp > 0.5 
+                      ? 'linear-gradient(90deg, #22c55e, #4ade80)' 
+                      : playerStats.hp / playerStats.maxHp > 0.25 
+                        ? 'linear-gradient(90deg, #eab308, #facc15)' 
+                        : 'linear-gradient(90deg, #dc2626, #ef4444)',
+                    boxShadow: playerStats.hp / playerStats.maxHp <= 0.25 ? '0 0 10px rgba(239, 68, 68, 0.5)' : 'none'
                   }} />
                 </div>
+                {playerStats.armor > 0 && (
+                  <div className="text-xs text-blue-400 mt-0.5">🛡️ +{playerStats.armor} Armor</div>
+                )}
               </div>
             </div>
             
             {/* Right Side - Level & Weapons */}
-            <div className="flex items-center gap-4">
-              {/* Level & XP */}
+            <div className="flex items-center gap-5">
+              {/* Level & XP - Enhanced */}
               <div className="text-right">
-                <div className="text-green-400 font-bold">Level {level}</div>
-                <div className="w-32 h-3 bg-black/70 rounded-full border border-green-500/50 overflow-hidden">
-                  <div className="h-full bg-green-500" style={{ width: `${(xp / xpToLevel) * 100}%` }} />
+                <div className="text-green-400 font-bold text-lg" style={{ textShadow: '0 0 8px rgba(34, 197, 94, 0.4)' }}>
+                  Level {level}
                 </div>
-                <div className="text-xs text-green-300/70">{xp}/{xpToLevel} XP</div>
+                <div className="stat-bar w-36 h-4 bg-black/70 rounded-full border border-green-500/50 overflow-hidden relative">
+                  <div className="h-full rounded-full transition-all duration-300" style={{ 
+                    width: `${(xp / xpToLevel) * 100}%`,
+                    background: 'linear-gradient(90deg, #22c55e, #86efac)'
+                  }} />
+                </div>
+                <div className="text-xs text-green-300/80 mt-0.5">{xp} / {xpToLevel} XP</div>
               </div>
               
-              {/* Weapons */}
+              {/* Weapons - Enhanced */}
               <div>
-                <div className="text-xs text-gray-400 mb-1 text-center">WEAPONS</div>
-                <div className="flex gap-1">
+                <div className="text-xs text-gray-400 mb-1.5 text-center uppercase tracking-wider">Weapons</div>
+                <div className="flex gap-1.5">
                   {weapons.map((w, i) => (
-                    <div key={i} className="w-10 h-10 rounded-lg flex flex-col items-center justify-center text-lg" style={{ background: 'rgba(0,0,0,0.7)', border: `2px solid ${w.color}` }}>
+                    <div 
+                      key={i} 
+                      className="weapon-slot w-11 h-11 rounded-lg flex flex-col items-center justify-center text-lg relative"
+                      style={{ 
+                        background: 'linear-gradient(145deg, rgba(0,0,0,0.8), rgba(20,30,50,0.9))', 
+                        border: `2px solid ${w.color}`,
+                        boxShadow: `0 0 10px ${w.color}40`
+                      }}
+                    >
                       {w.emoji}
-                      <span className="text-[8px] text-white/70">Lv.{w.level}</span>
+                      <span className="absolute -bottom-0.5 text-[9px] text-white/80 font-bold bg-black/60 px-1 rounded">
+                        {w.level}
+                      </span>
+                    </div>
+                  ))}
+                  {/* Empty weapon slots */}
+                  {Array.from({ length: Math.max(0, 6 - weapons.length) }).map((_, i) => (
+                    <div 
+                      key={`empty-${i}`}
+                      className="w-11 h-11 rounded-lg flex items-center justify-center text-gray-600"
+                      style={{ 
+                        background: 'rgba(0,0,0,0.3)', 
+                        border: '2px dashed rgba(100,100,100,0.3)'
+                      }}
+                    >
+                      +
                     </div>
                   ))}
                 </div>
@@ -1427,23 +1770,73 @@
             </div>
           </div>
           
-          {/* Game Canvas */}
-          <canvas ref={canvasRef} width={GAME_WIDTH} height={GAME_HEIGHT} className="rounded-lg" style={{ border: '3px solid #FFD700', maxWidth: '100vw', maxHeight: 'calc(100vh - 120px)' }} />
+          {/* Game Canvas - Enhanced */}
+          <canvas 
+            ref={canvasRef} 
+            width={GAME_WIDTH} 
+            height={GAME_HEIGHT} 
+            className="rounded-xl game-canvas" 
+            style={{ 
+              border: '3px solid rgba(255, 215, 0, 0.7)', 
+              maxWidth: '100vw', 
+              maxHeight: 'calc(100vh - 140px)',
+              boxShadow: '0 0 30px rgba(0, 100, 200, 0.3), inset 0 0 50px rgba(0, 50, 100, 0.2)'
+            }} 
+          />
           
-          {/* Upgrade Modal */}
+          {/* Upgrade Modal - Enhanced */}
           {showUpgrade && (
-            <div className="absolute inset-0 bg-black/85 flex items-center justify-center z-20">
-              <div className="p-6 rounded-xl" style={{ background: '#1a2a3a', border: '2px solid #FFD700' }}>
-                <div className="text-3xl font-bold text-center mb-2" style={{ color: '#FFD700' }}>🎉 LEVEL UP! 🎉</div>
-                <div className="text-cyan-300/70 text-center mb-4">Choose an upgrade</div>
-                <div className="flex gap-3">
+            <div className="absolute inset-0 bg-black/90 game-paused-overlay flex items-center justify-center z-20">
+              <div className="upgrade-modal p-8 rounded-2xl relative" style={{ 
+                background: 'linear-gradient(145deg, #1a2a4a, #0d1a2f)', 
+                border: '3px solid #FFD700',
+                boxShadow: '0 0 50px rgba(255, 215, 0, 0.3), inset 0 0 30px rgba(0, 100, 200, 0.2)'
+              }}>
+                {/* PAUSED indicator */}
+                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 px-4 py-1 rounded-full text-sm font-bold" style={{ background: '#FFD700', color: '#000' }}>
+                  ⏸️ GAME PAUSED
+                </div>
+                
+                <div className="text-4xl font-bold text-center mb-2" style={{ 
+                  color: '#FFD700', 
+                  textShadow: '0 0 20px rgba(255, 215, 0, 0.5)',
+                  animation: 'levelUpGlow 2s ease-in-out infinite'
+                }}>
+                  🎉 LEVEL {level}! 🎉
+                </div>
+                <div className="text-cyan-300 text-center mb-6 text-lg">Choose your upgrade</div>
+                
+                {/* Queued level-ups indicator */}
+                {levelUpQueueRef.current > 0 && (
+                  <div className="text-center mb-4 text-yellow-400 text-sm animate-pulse">
+                    +{levelUpQueueRef.current} more level-up{levelUpQueueRef.current > 1 ? 's' : ''} queued!
+                  </div>
+                )}
+                
+                <div className="flex gap-4">
                   {upgradeOptions.map((opt, i) => (
-                    <button key={i} onClick={() => selectUpgrade(opt)} className="p-4 rounded-xl border-2 hover:border-yellow-400 w-36" style={{ background: '#0d1a2a', borderColor: 'rgba(100, 200, 255, 0.3)' }}>
-                      <div className="text-3xl mb-2">{opt.emoji}</div>
-                      <div className="text-white font-bold text-sm">{opt.desc}</div>
-                      <div className="text-cyan-300/60 text-xs">{opt.subdesc}</div>
+                    <button 
+                      key={i} 
+                      onClick={() => selectUpgrade(opt)} 
+                      className="upgrade-card p-5 rounded-xl w-40 cursor-pointer"
+                      style={{ 
+                        background: 'linear-gradient(145deg, #152035, #0a1525)', 
+                        border: '2px solid rgba(100, 200, 255, 0.4)',
+                        boxShadow: '0 4px 15px rgba(0, 0, 0, 0.3)'
+                      }}
+                    >
+                      <div className="text-4xl mb-3 transform transition-transform">{opt.emoji}</div>
+                      <div className="text-white font-bold text-base mb-1">{opt.desc}</div>
+                      <div className="text-cyan-400/70 text-xs">{opt.subdesc}</div>
+                      {opt.stat === 'weapon' && (
+                        <div className="mt-2 text-xs text-yellow-400 font-bold">✨ NEW WEAPON!</div>
+                      )}
                     </button>
                   ))}
+                </div>
+                
+                <div className="text-center mt-4 text-gray-500 text-xs">
+                  Click an upgrade to continue
                 </div>
               </div>
             </div>

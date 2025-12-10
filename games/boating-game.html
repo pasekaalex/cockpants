@@ -30,6 +30,99 @@
       width: 100vw;
       height: 100vh;
     }
+
+    /* Underwater overlay effect */
+    .underwater-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 50;
+      background: 
+        radial-gradient(ellipse at 50% 0%, rgba(135, 206, 235, 0.15) 0%, transparent 60%),
+        linear-gradient(180deg, rgba(0, 100, 150, 0.1) 0%, rgba(0, 50, 80, 0.2) 100%);
+      animation: underwaterWave 8s ease-in-out infinite;
+    }
+
+    @keyframes underwaterWave {
+      0%, 100% { opacity: 0.7; }
+      50% { opacity: 1; }
+    }
+
+    .light-rays {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 45;
+      background: 
+        linear-gradient(170deg, rgba(255,255,200,0.1) 0%, transparent 30%),
+        linear-gradient(160deg, rgba(255,255,200,0.08) 0%, transparent 25%),
+        linear-gradient(180deg, rgba(255,255,200,0.05) 0%, transparent 20%);
+      animation: lightRayMove 12s ease-in-out infinite;
+    }
+
+    @keyframes lightRayMove {
+      0%, 100% { transform: translateX(-5%); opacity: 0.6; }
+      50% { transform: translateX(5%); opacity: 1; }
+    }
+
+    .damage-flash {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 60;
+      background: radial-gradient(circle, rgba(255,0,0,0.4) 0%, rgba(255,0,0,0.2) 50%, transparent 70%);
+      opacity: 0;
+      transition: opacity 0.1s;
+    }
+
+    .damage-flash.active {
+      opacity: 1;
+      animation: damageFlash 0.3s ease-out;
+    }
+
+    @keyframes damageFlash {
+      0% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+
+    .speed-lines {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 55;
+      background: repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent 48%,
+        rgba(255,255,255,0.03) 49%,
+        rgba(255,255,255,0.03) 51%,
+        transparent 52%
+      );
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .speed-lines.active {
+      opacity: 1;
+      animation: speedLinesMove 0.1s linear infinite;
+    }
+
+    @keyframes speedLinesMove {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(50px); }
+    }
     
     .hud {
       position: fixed;
@@ -43,27 +136,48 @@
     }
     
     .stat-box {
-      background: linear-gradient(135deg, rgba(0,50,100,0.9), rgba(0,30,60,0.9));
+      background: linear-gradient(135deg, rgba(0,50,100,0.95), rgba(0,30,60,0.95));
       border: 3px solid #00D4FF;
-      border-radius: 12px;
-      padding: 10px 20px;
+      border-radius: 15px;
+      padding: 12px 22px;
       color: #00D4FF;
       font-size: 20px;
       text-shadow: 0 0 10px rgba(0,212,255,0.8);
-      backdrop-filter: blur(5px);
-      box-shadow: 0 0 20px rgba(0,212,255,0.3);
+      backdrop-filter: blur(8px);
+      box-shadow: 0 0 25px rgba(0,212,255,0.4), inset 0 0 15px rgba(0,212,255,0.1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-box::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+      animation: statBoxShine 3s ease-in-out infinite;
+    }
+
+    @keyframes statBoxShine {
+      0%, 100% { transform: translateX(-100%) rotate(45deg); }
+      50% { transform: translateX(100%) rotate(45deg); }
     }
 
     .stat-label {
-      font-size: 12px;
-      opacity: 0.8;
+      font-size: 11px;
+      opacity: 0.9;
       display: block;
+      text-transform: uppercase;
+      letter-spacing: 1px;
     }
 
     .stat-value {
-      font-size: 24px;
+      font-size: 26px;
       font-weight: bold;
       display: block;
+      text-shadow: 0 0 15px currentColor;
     }
 
     .speed-indicator {
@@ -358,6 +472,95 @@
       display: block;
     }
 
+    .depth-indicator {
+      position: fixed;
+      left: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 12px;
+      height: 200px;
+      background: linear-gradient(180deg, 
+        rgba(135,206,235,0.8) 0%, 
+        rgba(0,100,150,0.8) 50%, 
+        rgba(0,50,80,0.9) 100%);
+      border-radius: 6px;
+      border: 2px solid rgba(255,255,255,0.3);
+      z-index: 100;
+      box-shadow: 0 0 15px rgba(0,200,255,0.3);
+    }
+
+    .depth-marker {
+      position: absolute;
+      left: -8px;
+      width: 28px;
+      height: 4px;
+      background: #FFD700;
+      border-radius: 2px;
+      box-shadow: 0 0 10px rgba(255,215,0,0.8);
+      transition: top 0.3s ease;
+    }
+
+    .warning-indicator {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 72px;
+      color: #FF4444;
+      text-shadow: 0 0 30px rgba(255,68,68,0.8);
+      z-index: 150;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .warning-indicator.active {
+      animation: warningPulse 0.5s ease-in-out 3;
+    }
+
+    @keyframes warningPulse {
+      0%, 100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+      50% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+    }
+
+    .mini-map {
+      position: fixed;
+      bottom: 120px;
+      left: 20px;
+      width: 100px;
+      height: 100px;
+      background: rgba(0,30,60,0.8);
+      border: 2px solid #00D4FF;
+      border-radius: 10px;
+      z-index: 100;
+      overflow: hidden;
+      box-shadow: 0 0 15px rgba(0,212,255,0.3);
+    }
+
+    .mini-map-player {
+      position: absolute;
+      bottom: 20px;
+      width: 8px;
+      height: 12px;
+      background: #FF6B6B;
+      border-radius: 2px;
+      transform: translateX(-50%);
+      box-shadow: 0 0 8px rgba(255,107,107,0.8);
+      transition: left 0.1s ease;
+    }
+
+    .mini-map-dot {
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      transition: all 0.1s ease;
+    }
+
+    .mini-map-obstacle { background: #FF4444; box-shadow: 0 0 5px rgba(255,68,68,0.8); }
+    .mini-map-jelly { background: #FF69B4; box-shadow: 0 0 5px rgba(255,105,180,0.8); }
+    .mini-map-powerup { background: #00FF88; box-shadow: 0 0 5px rgba(0,255,136,0.8); }
+
     .back-btn {
       position: fixed;
       top: 20px;
@@ -388,6 +591,23 @@
   </style>
 </head>
 <body>
+  <!-- Visual Effect Overlays -->
+  <div class="underwater-overlay"></div>
+  <div class="light-rays"></div>
+  <div class="damage-flash" id="damageFlash"></div>
+  <div class="speed-lines" id="speedLines"></div>
+  <div class="warning-indicator" id="warningIndicator">⚠️</div>
+
+  <!-- Depth Indicator -->
+  <div class="depth-indicator">
+    <div class="depth-marker" id="depthMarker"></div>
+  </div>
+
+  <!-- Mini Map -->
+  <div class="mini-map" id="miniMap">
+    <div class="mini-map-player" id="miniMapPlayer"></div>
+  </div>
+
   <div class="menu-screen" id="menuScreen">
     <h1 class="game-title">🚤 BOATING SCHOOL CHAOS 🚤</h1>
     <p class="menu-subtitle">Navigate the Underwater Course!</p>
@@ -573,39 +793,167 @@
       bubbles.push(bubble);
     }
 
-    // Player boat
+    // Enhanced Player Boat - Mrs. Puff's Boating School Style
     const boatGroup = new THREE.Group();
     
-    const hullGeo = new THREE.BoxGeometry(1.2, 0.6, 1.8);
-    const hullMat = new THREE.MeshPhongMaterial({ color: 0xFF6B6B, shininess: 50 });
+    // Main hull with gradient effect
+    const hullGeo = new THREE.BoxGeometry(1.4, 0.7, 2.2);
+    const hullMat = new THREE.MeshPhongMaterial({ 
+      color: 0xFF5252, 
+      shininess: 80,
+      specular: 0x444444
+    });
     const hull = new THREE.Mesh(hullGeo, hullMat);
     boatGroup.add(hull);
     
-    const bowGeo = new THREE.ConeGeometry(0.6, 0.9, 8);
-    const bowMat = new THREE.MeshPhongMaterial({ color: 0xFF6B6B, shininess: 50 });
+    // Hull bottom (darker)
+    const hullBottomGeo = new THREE.BoxGeometry(1.3, 0.3, 2.1);
+    const hullBottomMat = new THREE.MeshPhongMaterial({ color: 0xCC3333, shininess: 50 });
+    const hullBottom = new THREE.Mesh(hullBottomGeo, hullBottomMat);
+    hullBottom.position.y = -0.35;
+    boatGroup.add(hullBottom);
+    
+    // Bow (front pointy part)
+    const bowGeo = new THREE.ConeGeometry(0.7, 1.1, 8);
+    const bowMat = new THREE.MeshPhongMaterial({ color: 0xFF5252, shininess: 80 });
     const bow = new THREE.Mesh(bowGeo, bowMat);
     bow.rotation.z = -Math.PI / 2;
-    bow.position.z = -1.35;
+    bow.position.z = -1.65;
     boatGroup.add(bow);
+
+    // Bow stripe
+    const bowStripeGeo = new THREE.TorusGeometry(0.5, 0.08, 8, 16, Math.PI);
+    const bowStripeMat = new THREE.MeshPhongMaterial({ color: 0xFFD700 });
+    const bowStripe = new THREE.Mesh(bowStripeGeo, bowStripeMat);
+    bowStripe.rotation.y = Math.PI / 2;
+    bowStripe.position.z = -1.3;
+    bowStripe.position.y = 0.1;
+    boatGroup.add(bowStripe);
     
-    const cabinGeo = new THREE.BoxGeometry(0.5, 0.9, 0.6);
-    const cabinMat = new THREE.MeshPhongMaterial({ color: 0xFFFFFF, shininess: 70 });
+    // Cabin/cockpit
+    const cabinGeo = new THREE.BoxGeometry(0.9, 1.0, 0.8);
+    const cabinMat = new THREE.MeshPhongMaterial({ 
+      color: 0xFFFFFF, 
+      shininess: 100,
+      transparent: true,
+      opacity: 0.95
+    });
     const cabin = new THREE.Mesh(cabinGeo, cabinMat);
-    cabin.position.y = 0.75;
-    cabin.position.z = 0.4;
+    cabin.position.y = 0.85;
+    cabin.position.z = 0.3;
     boatGroup.add(cabin);
 
-    // Add propeller
-    const propGeo = new THREE.BoxGeometry(0.1, 0.05, 0.8);
-    const propMat = new THREE.MeshPhongMaterial({ color: 0x444444 });
-    const prop = new THREE.Mesh(propGeo, propMat);
-    prop.position.z = 1.2;
-    prop.position.y = -0.2;
-    boatGroup.add(prop);
+    // Cabin roof
+    const roofGeo = new THREE.BoxGeometry(1.0, 0.15, 0.9);
+    const roofMat = new THREE.MeshPhongMaterial({ color: 0x333333, shininess: 60 });
+    const roof = new THREE.Mesh(roofGeo, roofMat);
+    roof.position.y = 1.42;
+    roof.position.z = 0.3;
+    boatGroup.add(roof);
+
+    // Windshield
+    const windshieldGeo = new THREE.PlaneGeometry(0.85, 0.6);
+    const windshieldMat = new THREE.MeshPhongMaterial({ 
+      color: 0x87CEEB, 
+      shininess: 150,
+      transparent: true,
+      opacity: 0.5,
+      side: THREE.DoubleSide
+    });
+    const windshield = new THREE.Mesh(windshieldGeo, windshieldMat);
+    windshield.position.y = 1.0;
+    windshield.position.z = -0.12;
+    windshield.rotation.x = 0.2;
+    boatGroup.add(windshield);
+
+    // Steering wheel
+    const wheelGeo = new THREE.TorusGeometry(0.15, 0.03, 8, 16);
+    const wheelMat = new THREE.MeshPhongMaterial({ color: 0x8B4513 });
+    const wheel = new THREE.Mesh(wheelGeo, wheelMat);
+    wheel.position.y = 0.7;
+    wheel.position.z = 0.1;
+    wheel.rotation.x = -0.3;
+    boatGroup.add(wheel);
+
+    // Side rails
+    [-0.65, 0.65].forEach(x => {
+      const railGeo = new THREE.CylinderGeometry(0.04, 0.04, 1.8, 8);
+      const railMat = new THREE.MeshPhongMaterial({ color: 0xC0C0C0, shininess: 100 });
+      const rail = new THREE.Mesh(railGeo, railMat);
+      rail.rotation.x = Math.PI / 2;
+      rail.position.set(x, 0.5, -0.2);
+      boatGroup.add(rail);
+
+      // Rail posts
+      [-0.7, 0.1, 0.7].forEach(z => {
+        const postGeo = new THREE.CylinderGeometry(0.03, 0.03, 0.4, 8);
+        const post = new THREE.Mesh(postGeo, railMat);
+        post.position.set(x, 0.5, z);
+        boatGroup.add(post);
+      });
+    });
+
+    // Motor housing
+    const motorGeo = new THREE.BoxGeometry(0.5, 0.6, 0.4);
+    const motorMat = new THREE.MeshPhongMaterial({ color: 0x333333, shininess: 40 });
+    const motor = new THREE.Mesh(motorGeo, motorMat);
+    motor.position.set(0, 0.1, 1.2);
+    boatGroup.add(motor);
+
+    // Propeller shaft
+    const shaftGeo = new THREE.CylinderGeometry(0.05, 0.05, 0.5, 8);
+    const shaftMat = new THREE.MeshPhongMaterial({ color: 0x666666 });
+    const shaft = new THREE.Mesh(shaftGeo, shaftMat);
+    shaft.rotation.x = Math.PI / 2;
+    shaft.position.set(0, -0.2, 1.4);
+    boatGroup.add(shaft);
+
+    // Propeller blades
+    const propGroup = new THREE.Group();
+    for (let i = 0; i < 3; i++) {
+      const bladeGeo = new THREE.BoxGeometry(0.08, 0.4, 0.02);
+      const bladeMat = new THREE.MeshPhongMaterial({ color: 0xC0C0C0, shininess: 100 });
+      const blade = new THREE.Mesh(bladeGeo, bladeMat);
+      blade.rotation.z = (i * Math.PI * 2) / 3;
+      blade.position.y = 0.15 * Math.sin(blade.rotation.z);
+      propGroup.add(blade);
+    }
+    propGroup.position.set(0, -0.2, 1.65);
+    boatGroup.add(propGroup);
+    
+    // Wake trail emitter position marker
+    const wakeMarker = new THREE.Object3D();
+    wakeMarker.position.set(0, -0.3, 1.5);
+    boatGroup.add(wakeMarker);
+
+    // Headlights
+    [-0.4, 0.4].forEach(x => {
+      const lightGeo = new THREE.SphereGeometry(0.1, 8, 8);
+      const lightMat = new THREE.MeshBasicMaterial({ color: 0xFFFF88 });
+      const headlight = new THREE.Mesh(lightGeo, lightMat);
+      headlight.position.set(x, 0.2, -1.1);
+      boatGroup.add(headlight);
+
+      // Light glow
+      const glowGeo = new THREE.SphereGeometry(0.15, 8, 8);
+      const glowMat = new THREE.MeshBasicMaterial({ 
+        color: 0xFFFF88, 
+        transparent: true, 
+        opacity: 0.3 
+      });
+      const glow = new THREE.Mesh(glowGeo, glowMat);
+      glow.position.set(x, 0.2, -1.1);
+      boatGroup.add(glow);
+    });
     
     const boat = boatGroup;
     boat.position.y = 1;
+    boat.userData.propeller = propGroup;
     scene.add(boat);
+
+    // Wake/trail particles
+    const wakeParticles = [];
+    const maxWakeParticles = 50;
 
     const obstacles = [];
     const collectibles = [];
