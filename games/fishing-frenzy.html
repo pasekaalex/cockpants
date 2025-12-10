@@ -1512,7 +1512,8 @@
       boatLevel: 1,
       collection: {},
       animationIntervals: [],
-      bubbleInterval: null
+      bubbleInterval: null,
+      totalMoneyEarned: 0  // Track total money earned (not current money)
     };
     
     // =====================
@@ -1567,6 +1568,15 @@
         icon: '🍍',
         fish: ['small-fish', 'jellyfish', 'seaweed', 'shell'],
         rareChance: 0.12
+      },
+      {
+        id: 'rock-bottom',
+        name: 'Rock Bottom',
+        description: 'The deepest depths - extreme fishing',
+        icon: '🪨',
+        fish: ['rock-bottom-fish', 'cave-fish', 'crystal-fish', 'ancient-treasure'],
+        rareChance: 0.35,
+        requiresBoat: 5
       }
     ];
     
@@ -1588,7 +1598,17 @@
       'treasure': { name: 'Treasure Chest', icon: '💎', value: 1000, rarity: 'epic', weight: '20-50 lbs' },
       'krabby-patty-fish': { name: 'Krabby Patty Fish', icon: '🍔', value: 300, rarity: 'rare', weight: '5-12 lbs' },
       'money-fish': { name: 'Money Fish', icon: '💰', value: 400, rarity: 'rare', weight: '3-8 lbs' },
-      'gold-fish': { name: 'Gold Fish', icon: '🪙', value: 250, rarity: 'rare', weight: '2-6 lbs' }
+      'gold-fish': { name: 'Gold Fish', icon: '🪙', value: 250, rarity: 'rare', weight: '2-6 lbs' },
+      'starfish': { name: 'Starfish', icon: '⭐', value: 60, rarity: 'uncommon', weight: '1-4 lbs' },
+      'seahorse': { name: 'Seahorse', icon: '🐴', value: 90, rarity: 'uncommon', weight: '0.5-2 lbs' },
+      'octopus': { name: 'Octopus', icon: '🐙', value: 180, rarity: 'rare', weight: '8-15 lbs' },
+      'shark': { name: 'Shark', icon: '🦈', value: 600, rarity: 'epic', weight: '100-300 lbs' },
+      'dolphin': { name: 'Dolphin', icon: '🐬', value: 350, rarity: 'rare', weight: '50-150 lbs' },
+      'turtle': { name: 'Sea Turtle', icon: '🐢', value: 200, rarity: 'rare', weight: '30-80 lbs' },
+      'rock-bottom-fish': { name: 'Rock Bottom Fish', icon: '🪨', value: 800, rarity: 'epic', weight: '15-30 lbs' },
+      'cave-fish': { name: 'Cave Fish', icon: '🕳️', value: 700, rarity: 'epic', weight: '10-25 lbs' },
+      'crystal-fish': { name: 'Crystal Fish', icon: '💎', value: 1500, rarity: 'legendary', weight: '5-15 lbs' },
+      'ancient-treasure': { name: 'Ancient Treasure', icon: '🏺', value: 3000, rarity: 'legendary', weight: '50-200 lbs' }
     };
     
     // =====================
@@ -1636,6 +1656,26 @@
     }
     
     
+    function isSpotComplete(spot) {
+      if (!gameState.collection) return false;
+      
+      // Get all unique fish from this spot
+      var spotFish = spot.fish || [];
+      var allCaught = true;
+      
+      spotFish.forEach(fishKey => {
+        var fish = fishTypes[fishKey];
+        if (fish && fish.name) {
+          var caught = gameState.collection[fish.name] || 0;
+          if (caught === 0) {
+            allCaught = false;
+          }
+        }
+      });
+      
+      return allCaught && spotFish.length > 0;
+    }
+    
     function renderFishingSpots() {
       var container = document.getElementById('fishingSpots');
       container.innerHTML = '';
@@ -1643,15 +1683,36 @@
       fishingSpots.forEach(spot => {
         var spotEl = document.createElement('div');
         spotEl.className = 'fishing-spot';
+        
+        var isComplete = isSpotComplete(spot);
+        if (isComplete) {
+          spotEl.classList.add('complete');
+        }
+        
         if (spot.requiresBoat && gameState.boatLevel < spot.requiresBoat) {
           spotEl.style.opacity = '0.5';
           spotEl.style.cursor = 'not-allowed';
         }
+        
+        var completionText = '';
+        if (isComplete) {
+          var spotFish = spot.fish || [];
+          var caughtCount = 0;
+          spotFish.forEach(fishKey => {
+            var fish = fishTypes[fishKey];
+            if (fish && gameState.collection[fish.name]) {
+              caughtCount++;
+            }
+          });
+          completionText = `<div style="color: #FFD700; font-size: 11px; margin-top: 5px; font-weight: bold;">✨ 100% COMPLETE (${caughtCount}/${spotFish.length})</div>`;
+        }
+        
         spotEl.innerHTML = `
           <div class="spot-name">${spot.icon} ${spot.name}</div>
           <div class="spot-desc">${spot.description}</div>
           ${spot.requiresBoat && gameState.boatLevel < spot.requiresBoat ? 
             `<div style="color: #ff4444; font-size: 11px; margin-top: 5px;">Requires Boat Level ${spot.requiresBoat}</div>` : ''}
+          ${completionText}
         `;
         spotEl.onclick = () => selectSpot(spot);
         container.appendChild(spotEl);
@@ -1819,6 +1880,28 @@
         // Add shells
         for (var i = 0; i < 3; i++) {
           setTimeout(() => createDecor('🐚', 'driftSlow'), i * 2500);
+        }
+        
+      } else if (spot.id === 'rock-bottom') {
+        // Rock Bottom - dark and mysterious with crystals
+        for (var i = 0; i < 3; i++) {
+          setTimeout(() => createDeepSeaCreature(), i * 3000);
+        }
+        var interval7 = setInterval(() => {
+          if (gameState.currentSpot && gameState.currentSpot.id === 'rock-bottom') {
+            createDeepSeaCreature();
+          } else {
+            clearInterval(interval7);
+          }
+        }, 6000);
+        gameState.animationIntervals.push(interval7);
+        
+        // Add crystals and rocks
+        for (var i = 0; i < 5; i++) {
+          setTimeout(() => createDecor('💎', 'deepSeaGlow'), i * 2000);
+        }
+        for (var i = 0; i < 3; i++) {
+          setTimeout(() => createDecor('🪨', 'driftSlow'), i * 2500);
         }
       }
       
@@ -2217,6 +2300,7 @@
     
     function completeCatch(fish, value) {
       gameState.money += value;
+      gameState.totalMoneyEarned += value;  // Track total earnings
       gameState.totalCaught++;
       
       if (fish.rarity === 'rare' || fish.rarity === 'epic' || fish.rarity === 'legendary') {
@@ -2287,9 +2371,10 @@
       
       document.getElementById('castBtn').disabled = false;
       
-      updateUI();
-      updateCollectionPreview();
-      saveGameState();
+        updateUI();
+        updateCollectionPreview();
+        renderFishingSpots(); // Update to show gold if complete
+        saveGameState();
       
       if (typeof soundManager !== 'undefined' && soundManager.play) {
         soundManager.play('ohyeah');
@@ -2477,7 +2562,8 @@
         { spot: fishingSpots[2], x: 80, y: 40 }, // Chum Bucket - top right
         { spot: fishingSpots[3], x: 15, y: 70 }, // Deep Sea Trench - bottom left
         { spot: fishingSpots[4], x: 50, y: 80 }, // Krusty Krab - bottom center
-        { spot: fishingSpots[5], x: 85, y: 60 }  // Pineapple House - bottom right
+        { spot: fishingSpots[5], x: 85, y: 60 }, // Pineapple House - bottom right
+        { spot: fishingSpots[6], x: 10, y: 50 }   // Rock Bottom - far left center
       ];
       
       mapLocations.forEach(({ spot, x, y }) => {
@@ -2486,12 +2572,17 @@
         
         var isLocked = spot.requiresBoat && gameState.boatLevel < spot.requiresBoat;
         var isActive = gameState.currentSpot && gameState.currentSpot.id === spot.id;
+        var isComplete = isSpotComplete(spot);
         
         if (isLocked) {
           locationEl.classList.add('locked');
         }
         if (isActive) {
           locationEl.classList.add('active');
+        }
+        if (isComplete) {
+          locationEl.style.filter = 'drop-shadow(0 0 20px rgba(255, 215, 0, 1))';
+          locationEl.style.animation = 'mapLocationActive 1.5s ease-in-out infinite';
         }
         
         locationEl.style.left = x + '%';
@@ -2556,7 +2647,8 @@
         rodLevel: gameState.rodLevel,
         baitLevel: gameState.baitLevel,
         boatLevel: gameState.boatLevel,
-        collection: gameState.collection
+        collection: gameState.collection,
+        totalMoneyEarned: gameState.totalMoneyEarned
       }));
     }
     
@@ -2572,12 +2664,25 @@
           gameState.baitLevel = data.baitLevel || 1;
           gameState.boatLevel = data.boatLevel || 1;
           gameState.collection = data.collection || {};
+          gameState.totalMoneyEarned = data.totalMoneyEarned || 0;
+          
+          // Migrate old saves: estimate totalMoneyEarned from current money if not set
+          if (!data.totalMoneyEarned && gameState.money > 0) {
+            // Rough estimate: assume they spent some on upgrades
+            var upgradeCost = 0;
+            if (gameState.rodLevel > 1) upgradeCost += 100;
+            if (gameState.baitLevel > 1) upgradeCost += 150;
+            if (gameState.boatLevel > 1) upgradeCost += 500;
+            gameState.totalMoneyEarned = gameState.money + upgradeCost;
+          }
         } catch (e) {
           console.error('Error loading game state:', e);
           gameState.collection = {};
+          gameState.totalMoneyEarned = 0;
         }
       } else {
         gameState.collection = {};
+        gameState.totalMoneyEarned = 0;
       }
     }
     
@@ -2586,8 +2691,55 @@
       gameState.collection = {};
     }
     
+    function calculateScore() {
+      // Comprehensive scoring system for fishing game
+      var score = 0;
+      
+      // Base points from total fish caught (shows activity)
+      score += gameState.totalCaught * 50;
+      
+      // Rare fish bonus (shows skill/luck)
+      score += gameState.rareFishCaught * 500;
+      
+      // Collection completion bonus (shows dedication)
+      var totalFish = Object.keys(fishTypes).length;
+      var caughtFish = gameState.collection ? Object.keys(gameState.collection).length : 0;
+      var collectionPercent = totalFish > 0 ? (caughtFish / totalFish) * 100 : 0;
+      score += Math.floor(collectionPercent * 1000); // Up to 100,000 points for 100% collection
+      
+      // Location completion bonus (shows exploration)
+      var completedLocations = 0;
+      fishingSpots.forEach(spot => {
+        if (isSpotComplete(spot)) {
+          completedLocations++;
+        }
+      });
+      score += completedLocations * 5000; // 5,000 points per completed location
+      
+      // Upgrade investment bonus (shows progression)
+      var totalUpgradeLevels = (gameState.rodLevel - 1) + (gameState.baitLevel - 1) + (gameState.boatLevel - 1);
+      score += totalUpgradeLevels * 200; // 200 points per upgrade level
+      
+      // Total money earned bonus (shows economic success)
+      score += Math.floor(gameState.totalMoneyEarned * 0.1); // 10% of total money earned
+      
+      // Legendary fish bonus (extra points for legendary catches)
+      var legendaryCount = 0;
+      if (gameState.collection) {
+        Object.keys(gameState.collection).forEach(fishName => {
+          var fish = Object.values(fishTypes).find(f => f.name === fishName);
+          if (fish && fish.rarity === 'legendary') {
+            legendaryCount += gameState.collection[fishName] || 0;
+          }
+        });
+      }
+      score += legendaryCount * 2000; // 2,000 points per legendary fish
+      
+      return Math.floor(score);
+    }
+    
     function openLeaderboard() {
-      var score = gameState.money + (gameState.totalCaught * 10) + (gameState.rareFishCaught * 100);
+      var score = calculateScore();
       if (typeof showLeaderboardModal !== 'undefined') {
         showLeaderboardModal('fishing-frenzy', 'Bikini Bottom Fishing Frenzy', score);
       }
