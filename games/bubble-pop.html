@@ -371,6 +371,7 @@
       height: 100%;
       background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
       transition: left 0.5s;
+      pointer-events: none;
     }
     
     .menu-btn:hover::before {
@@ -654,28 +655,46 @@
   
   <script>
     // =====================
+    // DEFINE STARTGAME IMMEDIATELY
+    // =====================
+    // This ensures the function exists even if other code fails
+    window.startGame = function() {
+      console.log('startGame placeholder - real function will replace this');
+    };
+    window.restartGame = function() {};
+    window.openLeaderboard = function() {};
+    
+    // =====================
     // SOUND MANAGER
     // =====================
     let soundManager = null;
     
-    // Initialize sound manager
-    if (typeof SoundManager !== 'undefined') {
-      soundManager = new SoundManager();
-      soundManager.loadAll({
-        shoot: '../audio/cash.mp3',
-        pop: '../audio/money.mp3',
-        match: '../audio/victory.mp3',
-        levelup: '../audio/ohyeah.mp3',
-        gameover: '../audio/scream.mp3',
-        floating: '../audio/gary.mp3'
-      });
-    } else if (typeof window.soundManager !== 'undefined') {
-      soundManager = window.soundManager;
+    // Initialize sound manager (wrapped in try-catch to prevent blocking)
+    try {
+      if (typeof SoundManager !== 'undefined') {
+        soundManager = new SoundManager();
+        soundManager.loadAll({
+          shoot: '../audio/cash.mp3',
+          pop: '../audio/money.mp3',
+          match: '../audio/victory.mp3',
+          levelup: '../audio/ohyeah.mp3',
+          gameover: '../audio/scream.mp3',
+          floating: '../audio/gary.mp3'
+        });
+      } else if (typeof window.soundManager !== 'undefined') {
+        soundManager = window.soundManager;
+      }
+    } catch (err) {
+      console.warn('Sound manager initialization failed:', err);
     }
     
     function playSound(name, options = {}) {
-      if (soundManager && typeof soundManager.play === 'function') {
-        soundManager.play(name, options);
+      try {
+        if (soundManager && typeof soundManager.play === 'function') {
+          soundManager.play(name, options);
+        }
+      } catch (err) {
+        console.warn('Sound play failed:', err);
       }
     }
     
@@ -801,6 +820,7 @@
     // INITIALIZE GAME
     // =====================
     function initGame() {
+      // Reset game state
       gameState.bubbles = [];
       gameState.score = 0;
       gameState.level = 1;
@@ -808,9 +828,17 @@
       gameState.shotBubble = null;
       gameState.gameOver = false;
       gameState.particles = [];
-      gameState.mouseX = gameState.SHOOTER_X;
-      gameState.mouseY = gameState.SHOOTER_Y;
       
+      // Ensure shooter position is set
+      if (!gameState.SHOOTER_X || !gameState.SHOOTER_Y) {
+        gameState.SHOOTER_X = canvas.width / 2;
+        gameState.SHOOTER_Y = canvas.height - 50;
+      }
+      
+      gameState.mouseX = gameState.SHOOTER_X;
+      gameState.mouseY = gameState.SHOOTER_Y - 100; // Aim upward by default
+      
+      // Create bubble grid and shooter bubble
       createBubbleGrid();
       gameState.nextBubble = createRandomBubble();
       updateUI();
@@ -1081,6 +1109,7 @@
     }
     
     function checkLoseCondition() {
+      if (gameState.bubbles.length === 0) return;
       const lowestBubble = Math.max(...gameState.bubbles.map(b => b.y));
       if (lowestBubble > canvas.height - 150) {
         endGame();
@@ -1226,6 +1255,8 @@
     // GAME LOOP
     // =====================
     function gameLoop() {
+      if (!gameState.gameLoopRunning) return;
+      
       if (!gameState.gameOver) {
         updateShotBubble();
         updateParticles();
@@ -1252,9 +1283,13 @@
       const scaleY = canvas.height / rect.height;
       
       let clientX, clientY;
-      if (e.touches) {
+      // For touch events, use touches for touchstart/touchmove, changedTouches for touchend
+      if (e.touches && e.touches.length > 0) {
         clientX = e.touches[0].clientX;
         clientY = e.touches[0].clientY;
+      } else if (e.changedTouches && e.changedTouches.length > 0) {
+        clientX = e.changedTouches[0].clientX;
+        clientY = e.changedTouches[0].clientY;
       } else {
         clientX = e.clientX;
         clientY = e.clientY;
@@ -1307,70 +1342,55 @@
     // GAME CONTROL
     // =====================
     function startGame() {
-      console.log('startGame called');
       try {
-        console.log('Hiding menu screen...');
+        // Hide menu
         const menuScreen = document.getElementById('menuScreen');
         if (menuScreen) {
           menuScreen.classList.add('hidden');
-          console.log('Menu screen hidden');
-        } else {
-          console.error('Menu screen element not found!');
         }
         
-        // Show character images when game starts
-        const chars = document.querySelectorAll('.character-image');
-        chars.forEach(char => {
+        // Show character images
+        document.querySelectorAll('.character-image').forEach(char => {
           char.style.opacity = '0.6';
         });
         
-        console.log('Resizing canvas...');
-        // Initialize canvas first
+        // Setup canvas
         resizeCanvas();
         
-        console.log('Initializing game...');
-        // Initialize game
+        // Initialize game state
         initGame();
         
-        console.log('Starting game loop...');
-        // Start game loop if not already running
+        // Start game loop
         if (!gameState.gameLoopRunning) {
           gameState.gameLoopRunning = true;
-          gameLoop();
-          console.log('Game loop started');
-        } else {
-          console.log('Game loop already running');
+          requestAnimationFrame(gameLoop);
         }
       } catch (error) {
         console.error('Error starting game:', error);
-        console.error('Error stack:', error.stack);
-        alert('Error starting game: ' + error.message + '. Please check console for details.');
+        alert('Error starting game. Check console (F12) for details.');
       }
     }
-    
-    // Functions will be made globally accessible at the end
+    // Make immediately accessible
+    window.startGame = startGame;
     
     function restartGame() {
       gameState.gameLoopRunning = false;
+      gameState.gameOver = false;
       document.getElementById('gameOverScreen').classList.remove('show');
       document.getElementById('menuScreen').classList.remove('hidden');
       
-      // Hide character images when returning to menu
-      const chars = document.querySelectorAll('.character-image');
-      chars.forEach(char => {
+      // Hide character images
+      document.querySelectorAll('.character-image').forEach(char => {
         char.style.opacity = '0';
       });
     }
+    window.restartGame = restartGame;
     
     function openLeaderboard() {
       if (typeof showLeaderboardModal === 'function') {
         showLeaderboardModal('bubble-pop', 'Bubble Buddy Bubble Pop', gameState.score || 0);
       }
     }
-    
-    // Make all functions globally accessible
-    window.startGame = startGame;
-    window.restartGame = restartGame;
     window.openLeaderboard = openLeaderboard;
     
     // Handle window resize
@@ -1382,35 +1402,31 @@
       }
     });
     
-    window.addEventListener('load', () => {
+    // Initialize on DOM ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initOnLoad);
+    } else {
+      initOnLoad();
+    }
+    
+    function initOnLoad() {
       // Initial canvas setup
       resizeCanvas();
       
       // Hide character images on menu screen
-      const chars = document.querySelectorAll('.character-image');
-      chars.forEach(char => {
+      document.querySelectorAll('.character-image').forEach(char => {
         char.style.opacity = '0';
       });
       
-      // Ensure functions are accessible
-      console.log('startGame function available:', typeof window.startGame);
-      
-      // Add event listener to start button as backup
+      // Add click listener to start button (backup for onclick)
       const startBtn = document.getElementById('startGameBtn');
       if (startBtn) {
-        startBtn.addEventListener('click', (e) => {
+        startBtn.addEventListener('click', function(e) {
           e.preventDefault();
-          e.stopPropagation();
-          console.log('Start button clicked via event listener');
           startGame();
         });
-        console.log('Start button event listener attached');
-      } else {
-        console.error('Start button not found!');
       }
-      
-      // Game starts with menu screen
-    });
+    }
     
     // Prevent zoom on double tap (mobile)
     let lastTouchEnd = 0;
