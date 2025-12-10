@@ -14,7 +14,7 @@
       src: url('../Krabby Patty.ttf') format('truetype');
     }
     
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
     
     body {
       font-family: 'Krabby Patty', Arial, sans-serif;
@@ -27,7 +27,6 @@
       justify-content: center;
       min-height: 100vh;
       overflow: hidden;
-      position: relative;
     }
     
     @keyframes gradientShift {
@@ -36,38 +35,6 @@
       100% { background-position: 0% 50%; }
     }
     
-    body::before {
-      content: '';
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background-image: url('https://i.imgur.com/q8Qd5PK.jpeg');
-      background-size: cover;
-      background-position: center;
-      opacity: 0.15;
-      z-index: 0;
-      pointer-events: none;
-      mix-blend-mode: overlay;
-    }
-    
-    body::after {
-      content: '';
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.3), transparent 50%),
-                  radial-gradient(circle at 80% 80%, rgba(255, 119, 198, 0.3), transparent 50%);
-      z-index: 0;
-      pointer-events: none;
-      animation: pulse 8s ease-in-out infinite;
-    }
-    
-    @keyframes pulse {
-      0%, 100% { opacity: 0.5; }
-      50% { opacity: 1; }
-    }
-    
-    /* BACK BUTTON */
     .back-btn {
       position: fixed;
       top: 20px;
@@ -83,23 +50,13 @@
       border-radius: 15px;
       text-decoration: none;
       z-index: 1000;
-      transition: all 0.3s;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
     }
     
-    .back-btn:hover {
-      transform: translateY(-2px);
-      background: rgba(255, 255, 255, 0.2);
-      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
-    }
-    
-    /* LEADERBOARD BUTTON */
     .leaderboard-btn {
       position: fixed;
       top: 20px;
       right: 20px;
       background: linear-gradient(135deg, rgba(255, 215, 0, 0.9), rgba(255, 165, 0, 0.9));
-      backdrop-filter: blur(10px);
       border: 2px solid rgba(255, 255, 255, 0.3);
       color: #000;
       padding: 12px 24px;
@@ -108,74 +65,9 @@
       cursor: pointer;
       border-radius: 15px;
       z-index: 1000;
-      transition: all 0.3s;
       font-weight: bold;
-      box-shadow: 0 8px 32px rgba(255, 215, 0, 0.3);
     }
     
-    .leaderboard-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 12px 40px rgba(255, 215, 0, 0.5);
-    }
-    
-    /* CHARACTER IMAGES */
-    .character-image {
-      position: fixed;
-      z-index: 500;
-      pointer-events: none;
-      opacity: 0.6;
-      transition: opacity 0.3s;
-      filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.3));
-    }
-    
-    .character-image.left {
-      left: 20px;
-      bottom: 20px;
-      max-width: 120px;
-      animation: characterFloat 4s ease-in-out infinite;
-    }
-    
-    .character-image.right {
-      right: 20px;
-      bottom: 20px;
-      max-width: 120px;
-      animation: characterFloat 4s ease-in-out infinite;
-      animation-delay: 1s;
-    }
-    
-    .character-image.center {
-      left: 50%;
-      bottom: 20px;
-      transform: translateX(-50%);
-      max-width: 100px;
-      animation: characterFloat 4s ease-in-out infinite;
-      animation-delay: 2s;
-    }
-    
-    @keyframes characterFloat {
-      0%, 100% { transform: translateY(0) translateX(-50%) rotate(0deg); }
-      50% { transform: translateY(-15px) translateX(-50%) rotate(2deg); }
-    }
-    
-    .character-image.left {
-      animation-name: characterFloatLeft;
-    }
-    
-    @keyframes characterFloatLeft {
-      0%, 100% { transform: translateY(0) rotate(0deg); }
-      50% { transform: translateY(-15px) rotate(-2deg); }
-    }
-    
-    .character-image.right {
-      animation-name: characterFloatRight;
-    }
-    
-    @keyframes characterFloatRight {
-      0%, 100% { transform: translateY(0) rotate(0deg); }
-      50% { transform: translateY(-15px) rotate(2deg); }
-    }
-    
-    /* GAME CONTAINER */
     .game-container {
       position: relative;
       z-index: 1;
@@ -184,22 +76,15 @@
       border: 2px solid rgba(255, 255, 255, 0.2);
       border-radius: 30px;
       padding: 25px;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3),
-                  0 0 0 1px rgba(255, 255, 255, 0.1) inset;
     }
     
-    /* UI BAR */
     .ui-bar {
       display: flex;
       justify-content: space-between;
-      align-items: center;
       margin-bottom: 20px;
       padding: 15px 25px;
       background: rgba(255, 255, 255, 0.08);
-      backdrop-filter: blur(10px);
       border-radius: 20px;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
     }
     
     .ui-item {
@@ -211,51 +96,32 @@
       background: rgba(255, 255, 255, 0.05);
       border-radius: 15px;
       min-width: 120px;
-      transition: all 0.3s;
-    }
-    
-    .ui-item:hover {
-      background: rgba(255, 255, 255, 0.1);
-      transform: translateY(-2px);
     }
     
     .ui-label {
       font-size: 11px;
       color: rgba(255, 255, 255, 0.7);
       text-transform: uppercase;
-      letter-spacing: 1px;
-      font-weight: 600;
     }
     
     .ui-value {
       font-size: 28px;
       font-weight: bold;
-      background: linear-gradient(135deg, #FFD700, #FFA500);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      text-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
-      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+      color: #FFD700;
     }
     
-    /* CANVAS */
     #gameCanvas {
       display: block;
       background: linear-gradient(180deg, rgba(102, 126, 234, 0.3) 0%, rgba(118, 75, 162, 0.3) 100%);
       border: 2px solid rgba(255, 255, 255, 0.3);
       border-radius: 20px;
       cursor: crosshair;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2),
-                  inset 0 0 60px rgba(255, 255, 255, 0.1);
     }
     
-    /* SHOOTER */
     .shooter-container {
-      position: relative;
       margin-top: 20px;
       display: flex;
       justify-content: center;
-      align-items: center;
       height: 90px;
     }
     
@@ -265,30 +131,12 @@
       background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.9), rgba(76, 175, 80, 0.8));
       border: 3px solid rgba(255, 255, 255, 0.5);
       border-radius: 50%;
-      position: relative;
-      transition: transform 0.1s;
-      box-shadow: 0 8px 32px rgba(76, 175, 80, 0.4),
-                  0 0 0 4px rgba(255, 255, 255, 0.1),
-                  inset 0 2px 10px rgba(255, 255, 255, 0.3);
-      animation: shooterPulse 2s ease-in-out infinite;
-    }
-    
-    @keyframes shooterPulse {
-      0%, 100% { box-shadow: 0 8px 32px rgba(76, 175, 80, 0.4), 0 0 0 4px rgba(255, 255, 255, 0.1), inset 0 2px 10px rgba(255, 255, 255, 0.3); }
-      50% { box-shadow: 0 12px 40px rgba(76, 175, 80, 0.6), 0 0 0 6px rgba(255, 255, 255, 0.2), inset 0 2px 10px rgba(255, 255, 255, 0.4); }
-    }
-    
-    .shooter::before {
-      content: '🫧';
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
       font-size: 36px;
-      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
     }
     
-    /* MENU SCREEN */
     .menu-screen {
       position: fixed;
       top: 0;
@@ -296,57 +144,32 @@
       width: 100%;
       height: 100%;
       background: linear-gradient(135deg, rgba(102, 126, 234, 0.95), rgba(118, 75, 162, 0.95));
-      backdrop-filter: blur(20px);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       z-index: 2000;
-      animation: fadeIn 0.5s ease-out;
-    }
-    
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
     }
     
     .menu-screen.hidden {
-      display: none;
+      display: none !important;
     }
     
     .menu-title {
       font-size: 72px;
-      background: linear-gradient(135deg, #FFD700, #FFA500, #FF6B6B);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      color: #FFD700;
       margin-bottom: 20px;
       text-align: center;
-      text-shadow: 0 0 40px rgba(255, 215, 0, 0.5);
-      filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
-      animation: titleGlow 3s ease-in-out infinite;
-    }
-    
-    @keyframes titleGlow {
-      0%, 100% { filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3)) drop-shadow(0 0 20px rgba(255, 215, 0, 0.3)); }
-      50% { filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3)) drop-shadow(0 0 40px rgba(255, 215, 0, 0.6)); }
+      text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
     }
     
     .menu-icon {
       font-size: 140px;
       margin-bottom: 30px;
-      animation: float 3s ease-in-out infinite;
-      filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.3));
-    }
-    
-    @keyframes float {
-      0%, 100% { transform: translateY(0) rotate(0deg); }
-      50% { transform: translateY(-25px) rotate(5deg); }
     }
     
     .menu-btn {
       background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
-      backdrop-filter: blur(10px);
       border: 2px solid rgba(255, 255, 255, 0.3);
       color: #fff;
       padding: 18px 45px;
@@ -355,36 +178,13 @@
       cursor: pointer;
       border-radius: 20px;
       margin: 12px;
-      transition: all 0.3s;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-      font-weight: 600;
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .menu-btn::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-      transition: left 0.5s;
-      pointer-events: none;
-    }
-    
-    .menu-btn:hover::before {
-      left: 100%;
     }
     
     .menu-btn:hover {
-      transform: translateY(-3px) scale(1.05);
-      box-shadow: 0 12px 40px rgba(255, 255, 255, 0.3);
-      border-color: rgba(255, 255, 255, 0.5);
+      transform: scale(1.05);
+      background: rgba(255, 255, 255, 0.3);
     }
     
-    /* GAME OVER SCREEN */
     .game-over-screen {
       position: fixed;
       top: 0;
@@ -392,13 +192,11 @@
       width: 100%;
       height: 100%;
       background: linear-gradient(135deg, rgba(255, 68, 68, 0.95), rgba(200, 0, 0, 0.95));
-      backdrop-filter: blur(20px);
       display: none;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       z-index: 2000;
-      animation: fadeIn 0.5s ease-out;
     }
     
     .game-over-screen.show {
@@ -408,194 +206,36 @@
     .game-over-title {
       font-size: 64px;
       color: #fff;
-      text-shadow: 0 0 30px rgba(255, 255, 255, 0.8),
-                   0 4px 8px rgba(0, 0, 0, 0.5);
       margin-bottom: 20px;
-      animation: shake 0.5s ease-out;
-    }
-    
-    @keyframes shake {
-      0%, 100% { transform: translateX(0); }
-      25% { transform: translateX(-10px); }
-      75% { transform: translateX(10px); }
     }
     
     .final-score {
       font-size: 42px;
-      background: linear-gradient(135deg, #FFD700, #FFA500);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      color: #FFD700;
       margin-bottom: 30px;
-      filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
     }
     
-    /* PARTICLE EFFECTS */
-    .particle {
+    .character-image {
       position: fixed;
+      z-index: 500;
       pointer-events: none;
-      z-index: 1500;
-      font-size: 20px;
-      animation: particleFly 1s ease-out forwards;
+      opacity: 0;
+      max-width: 120px;
+      transition: opacity 0.3s;
     }
     
-    @keyframes particleFly {
-      0% { opacity: 1; transform: translate(0, 0) scale(1) rotate(0deg); }
-      100% { opacity: 0; transform: translate(var(--tx), var(--ty)) scale(0) rotate(360deg); }
-    }
+    .character-image.left { left: 20px; bottom: 20px; }
+    .character-image.right { right: 20px; bottom: 20px; }
+    .character-image.center { left: 50%; bottom: 20px; transform: translateX(-50%); max-width: 100px; }
     
-    /* MOBILE SUPPORT */
     @media (max-width: 768px) {
-      body {
-        touch-action: none;
-        -webkit-tap-highlight-color: transparent;
-        user-select: none;
-      }
-      
-      .back-btn, .leaderboard-btn {
-        padding: 10px 16px;
-        font-size: 16px;
-        top: 15px;
-      }
-      
-      .back-btn {
-        left: 15px;
-      }
-      
-      .leaderboard-btn {
-        right: 15px;
-      }
-      
-      .game-container {
-        padding: 12px;
-        width: 98vw;
-        max-width: 98vw;
-        border-radius: 20px;
-      }
-      
-      #gameCanvas {
-        width: 100%;
-        height: auto;
-        max-height: 60vh;
-        touch-action: none;
-      }
-      
-      .ui-bar {
-        padding: 10px 15px;
-        margin-bottom: 12px;
-        flex-wrap: wrap;
-        gap: 8px;
-      }
-      
-      .ui-item {
-        min-width: 80px;
-        padding: 8px 12px;
-        flex: 1;
-      }
-      
-      .ui-label {
-        font-size: 10px;
-      }
-      
-      .ui-value {
-        font-size: 20px;
-      }
-      
-      .shooter-container {
-        height: 70px;
-        margin-top: 12px;
-      }
-      
-      .shooter {
-        width: 60px;
-        height: 60px;
-      }
-      
-      .shooter::before {
-        font-size: 30px;
-      }
-      
-      .menu-title {
-        font-size: 42px;
-        line-height: 1.2;
-      }
-      
-      .menu-icon {
-        font-size: 100px;
-      }
-      
-      .menu-btn {
-        font-size: 18px;
-        padding: 15px 30px;
-        width: 90%;
-        max-width: 300px;
-      }
-      
-      .game-over-title {
-        font-size: 48px;
-      }
-      
-      .final-score {
-        font-size: 32px;
-      }
-    }
-    
-    @media (max-width: 480px) {
-      .ui-bar {
-        flex-direction: column;
-        gap: 8px;
-      }
-      
-      .ui-item {
-        width: 100%;
-        flex-direction: row;
-        justify-content: space-between;
-        padding: 10px 15px;
-      }
-      
-      .menu-title {
-        font-size: 36px;
-      }
-      
-      .menu-icon {
-        font-size: 80px;
-      }
-      
-      .character-image {
-        max-width: 80px !important;
-        opacity: 0.4;
-      }
-      
-      .character-image.left {
-        left: 10px;
-        bottom: 10px;
-      }
-      
-      .character-image.right {
-        right: 10px;
-        bottom: 10px;
-      }
-      
-      .character-image.center {
-        bottom: 10px;
-      }
-    }
-    
-    /* Prevent text selection on mobile */
-    * {
-      -webkit-user-select: none;
-      -moz-user-select: none;
-      -ms-user-select: none;
-      user-select: none;
-    }
-    
-    /* Touch feedback */
-    .menu-btn:active {
-      transform: scale(0.95);
-    }
-    
-    .back-btn:active, .leaderboard-btn:active {
-      transform: scale(0.95);
+      .game-container { padding: 12px; width: 98vw; }
+      #gameCanvas { width: 100%; height: auto; }
+      .menu-title { font-size: 42px; }
+      .menu-icon { font-size: 100px; }
+      .menu-btn { font-size: 18px; padding: 15px 30px; }
+      .ui-value { font-size: 20px; }
+      .character-image { max-width: 80px; }
     }
   </style>
 </head>
@@ -607,28 +247,27 @@
     <div class="menu-icon">🫧</div>
     <h1 class="menu-title">BUBBLE BUDDY<br>BUBBLE POP</h1>
     <div style="display: flex; justify-content: center; gap: 20px; margin: 20px 0; flex-wrap: wrap;">
-      <img src="https://i.imgur.com/PA0NHpg.png" alt="SpongeBob & Bubble Buddy" style="max-width: 150px; height: auto; border-radius: 15px; box-shadow: 0 8px 32px rgba(0,0,0,0.3); animation: float 3s ease-in-out infinite; animation-delay: 0s;" />
-      <img src="https://i.imgur.com/znHCHsf.png" alt="Squidward & Bubble Buddy" style="max-width: 150px; height: auto; border-radius: 15px; box-shadow: 0 8px 32px rgba(0,0,0,0.3); animation: float 3s ease-in-out infinite; animation-delay: 0.5s;" />
-      <img src="https://i.imgur.com/U4fJepp.png" alt="Bubble Buddy drinking soda" style="max-width: 150px; height: auto; border-radius: 15px; box-shadow: 0 8px 32px rgba(0,0,0,0.3); animation: float 3s ease-in-out infinite; animation-delay: 1s;" />
+      <img src="https://i.imgur.com/PA0NHpg.png" alt="SpongeBob & Bubble Buddy" style="max-width: 150px; height: auto; border-radius: 15px;" />
+      <img src="https://i.imgur.com/znHCHsf.png" alt="Squidward & Bubble Buddy" style="max-width: 150px; height: auto; border-radius: 15px;" />
+      <img src="https://i.imgur.com/U4fJepp.png" alt="Bubble Buddy drinking soda" style="max-width: 150px; height: auto; border-radius: 15px;" />
     </div>
-    <button class="menu-btn" id="startGameBtn" onclick="startGame()">🎮 START GAME</button>
+    <button class="menu-btn" id="startBtn">🎮 START GAME</button>
     <div style="color: #fff; text-align: center; margin-top: 20px; max-width: 500px; padding: 0 20px;">
-      <p style="font-size: 18px; margin-bottom: 10px; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">🎯 Match 3+ bubbles of the same color!</p>
-      <p style="font-size: 14px; color: rgba(255,255,255,0.8);">Click or tap to aim and shoot. Clear all bubbles to win!</p>
+      <p style="font-size: 18px; margin-bottom: 10px;">🎯 Match 3+ bubbles of the same color!</p>
+      <p style="font-size: 14px; color: rgba(255,255,255,0.8);">Click or tap to aim and shoot.</p>
     </div>
   </div>
   
   <div class="game-over-screen" id="gameOverScreen">
     <div class="game-over-title">GAME OVER</div>
     <div class="final-score" id="finalScore">Score: 0</div>
-    <button class="menu-btn" onclick="restartGame()">🔄 PLAY AGAIN</button>
-    <button class="menu-btn" onclick="openLeaderboard()">🏆 LEADERBOARD</button>
+    <button class="menu-btn" id="restartBtn">🔄 PLAY AGAIN</button>
+    <button class="menu-btn" id="leaderboardBtn">🏆 LEADERBOARD</button>
   </div>
   
-  <!-- Character Images -->
-  <img src="https://i.imgur.com/PA0NHpg.png" alt="SpongeBob & Bubble Buddy" class="character-image left" id="charLeft" />
-  <img src="https://i.imgur.com/znHCHsf.png" alt="Squidward & Bubble Buddy" class="character-image right" id="charRight" />
-  <img src="https://i.imgur.com/U4fJepp.png" alt="Bubble Buddy drinking soda" class="character-image center" id="charCenter" />
+  <img src="https://i.imgur.com/PA0NHpg.png" alt="" class="character-image left" />
+  <img src="https://i.imgur.com/znHCHsf.png" alt="" class="character-image right" />
+  <img src="https://i.imgur.com/U4fJepp.png" alt="" class="character-image center" />
   
   <div class="game-container">
     <div class="ui-bar">
@@ -641,802 +280,495 @@
         <div class="ui-value" id="levelDisplay">1</div>
       </div>
       <div class="ui-item">
-        <div class="ui-label">BUBBLES LEFT</div>
-        <div class="ui-value" id="bubblesLeftDisplay">0</div>
+        <div class="ui-label">BUBBLES</div>
+        <div class="ui-value" id="bubblesDisplay">0</div>
       </div>
     </div>
-    
     <canvas id="gameCanvas" width="800" height="600"></canvas>
-    
     <div class="shooter-container">
-      <div class="shooter" id="shooter"></div>
+      <div class="shooter">🫧</div>
     </div>
   </div>
-  
+
   <script>
-    // =====================
-    // DEFINE STARTGAME IMMEDIATELY
-    // =====================
-    // This ensures the function exists even if other code fails
-    window.startGame = function() {
-      console.log('startGame placeholder - real function will replace this');
-    };
-    window.restartGame = function() {};
-    window.openLeaderboard = function() {};
+    // GAME VARIABLES
+    var canvas, ctx;
+    var score = 0;
+    var level = 1;
+    var bubbles = [];
+    var shotBubble = null;
+    var nextBubble = null;
+    var isShooting = false;
+    var gameOver = false;
+    var gameRunning = false;
+    var mouseX = 400;
+    var mouseY = 300;
+    var SHOOTER_X = 400;
+    var SHOOTER_Y = 550;
     
-    // =====================
-    // SOUND MANAGER
-    // =====================
-    let soundManager = null;
+    var BUBBLE_RADIUS = 20;
+    var BUBBLE_SPACING = 42;
+    var ROWS = 8;
+    var COLS = 15;
+    var SHOT_SPEED = 12;
     
-    // Initialize sound manager (wrapped in try-catch to prevent blocking)
-    try {
-      if (typeof SoundManager !== 'undefined') {
-        soundManager = new SoundManager();
-        soundManager.loadAll({
-          shoot: '../audio/cash.mp3',
-          pop: '../audio/money.mp3',
-          match: '../audio/victory.mp3',
-          levelup: '../audio/ohyeah.mp3',
-          gameover: '../audio/scream.mp3',
-          floating: '../audio/gary.mp3'
-        });
-      } else if (typeof window.soundManager !== 'undefined') {
-        soundManager = window.soundManager;
-      }
-    } catch (err) {
-      console.warn('Sound manager initialization failed:', err);
-    }
-    
-    function playSound(name, options = {}) {
-      try {
-        if (soundManager && typeof soundManager.play === 'function') {
-          soundManager.play(name, options);
-        }
-      } catch (err) {
-        console.warn('Sound play failed:', err);
-      }
-    }
-    
-    // =====================
-    // GAME STATE
-    // =====================
-    const canvas = document.getElementById('gameCanvas');
-    const ctx = canvas.getContext('2d');
-    
-    // Game constants (will be recalculated on resize)
-    let BUBBLE_RADIUS = 25;
-    let ROWS = 10;
-    let COLS = 15;
-    let BUBBLE_SPACING = BUBBLE_RADIUS * 2.1;
-    const SHOT_SPEED = 8;
-    
-    // Update constants based on screen size
-    function updateGameConstants() {
-      const isMobile = window.innerWidth < 768;
-      BUBBLE_RADIUS = isMobile ? 18 : 25;
-      ROWS = isMobile ? 8 : 10;
-      COLS = isMobile ? 12 : 15;
-      BUBBLE_SPACING = BUBBLE_RADIUS * 2.1;
-    }
-    
-    // Initialize constants
-    updateGameConstants();
-    
-    // Adjust canvas size for mobile
-    function resizeCanvas() {
-      updateGameConstants();
-      
-      const container = canvas.parentElement;
-      const maxWidth = Math.min(800, window.innerWidth - 40);
-      const maxHeight = Math.min(600, window.innerHeight * 0.6);
-      
-      if (window.innerWidth < 768) {
-        canvas.width = maxWidth;
-        canvas.height = maxHeight;
-      } else {
-        canvas.width = 800;
-        canvas.height = 600;
-      }
-      
-      // Update shooter position
-      gameState.SHOOTER_Y = canvas.height - 50;
-      gameState.SHOOTER_X = canvas.width / 2;
-    }
-    
-    let gameState = {
-      score: 0,
-      level: 1,
-      bubbles: [],
-      nextBubble: null,
-      shooterAngle: 0,
-      isShooting: false,
-      shotBubble: null,
-      gameOver: false,
-      bubblesLeft: 0,
-      particles: [],
-      mouseX: 0,
-      mouseY: 0,
-      SHOOTER_Y: 0,
-      SHOOTER_X: 0,
-      touchStartX: 0,
-      touchStartY: 0,
-      gameLoopRunning: false
-    };
-    
-    const BUBBLE_COLORS = [
-      { main: '#FF6B6B', light: '#FF8E8E', dark: '#E55555' },
-      { main: '#4ECDC4', light: '#6EDDD6', dark: '#3AB5AE' },
-      { main: '#FFE66D', light: '#FFED8A', dark: '#E6D05C' },
-      { main: '#95E1D3', light: '#B0EDE1', dark: '#7AD1C2' },
-      { main: '#F38181', light: '#F59A9A', dark: '#E16868' },
-      { main: '#AA96DA', light: '#C2B3E8', dark: '#9279C8' }
+    var COLORS = [
+      {main: '#FF6B6B', light: '#FF8E8E'},
+      {main: '#4ECDC4', light: '#6EDDD6'},
+      {main: '#FFE66D', light: '#FFED8A'},
+      {main: '#95E1D3', light: '#B0EDE1'},
+      {main: '#F38181', light: '#F59A9A'},
+      {main: '#AA96DA', light: '#C2B3E8'}
     ];
     
-    // =====================
-    // PARTICLE SYSTEM
-    // =====================
-    function createParticles(x, y, color, count = 8) {
-      for (let i = 0; i < count; i++) {
-        const angle = (Math.PI * 2 * i) / count;
-        const speed = 3 + Math.random() * 2;
-        gameState.particles.push({
-          x: x,
-          y: y,
-          vx: Math.cos(angle) * speed,
-          vy: Math.sin(angle) * speed,
-          color: color,
-          size: 4 + Math.random() * 4,
-          life: 1.0,
-          decay: 0.02 + Math.random() * 0.02
-        });
+    // INITIALIZATION
+    function init() {
+      canvas = document.getElementById('gameCanvas');
+      if (!canvas) {
+        console.error('Canvas not found!');
+        return;
       }
+      ctx = canvas.getContext('2d');
+      
+      // Set canvas size
+      if (window.innerWidth < 768) {
+        canvas.width = Math.min(700, window.innerWidth - 40);
+        canvas.height = 500;
+        BUBBLE_RADIUS = 16;
+        BUBBLE_SPACING = 34;
+        COLS = 12;
+        ROWS = 7;
+      }
+      
+      SHOOTER_X = canvas.width / 2;
+      SHOOTER_Y = canvas.height - 50;
+      
+      // Event listeners
+      document.getElementById('startBtn').addEventListener('click', startGame);
+      document.getElementById('restartBtn').addEventListener('click', restartGame);
+      document.getElementById('leaderboardBtn').addEventListener('click', openLeaderboard);
+      
+      canvas.addEventListener('click', handleCanvasClick);
+      canvas.addEventListener('mousemove', handleMouseMove);
+      canvas.addEventListener('touchstart', handleTouch, {passive: false});
+      canvas.addEventListener('touchmove', handleTouchMove, {passive: false});
+      canvas.addEventListener('touchend', handleTouchEnd, {passive: false});
+      
+      console.log('Game initialized!');
     }
     
-    function updateParticles() {
-      gameState.particles = gameState.particles.filter(p => {
-        p.x += p.vx;
-        p.y += p.vy;
-        p.life -= p.decay;
-        p.vx *= 0.98;
-        p.vy *= 0.98;
-        return p.life > 0;
+    function startGame() {
+      console.log('Starting game...');
+      document.getElementById('menuScreen').classList.add('hidden');
+      
+      // Show character images
+      document.querySelectorAll('.character-image').forEach(function(img) {
+        img.style.opacity = '0.6';
       });
-    }
-    
-    function drawParticles() {
-      gameState.particles.forEach(p => {
-        ctx.save();
-        ctx.globalAlpha = p.life;
-        ctx.fillStyle = p.color;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
-      });
-    }
-    
-    // =====================
-    // INITIALIZE GAME
-    // =====================
-    function initGame() {
+      
       // Reset game state
-      gameState.bubbles = [];
-      gameState.score = 0;
-      gameState.level = 1;
-      gameState.isShooting = false;
-      gameState.shotBubble = null;
-      gameState.gameOver = false;
-      gameState.particles = [];
+      score = 0;
+      level = 1;
+      bubbles = [];
+      shotBubble = null;
+      isShooting = false;
+      gameOver = false;
+      gameRunning = true;
       
-      // Ensure shooter position is set
-      if (!gameState.SHOOTER_X || !gameState.SHOOTER_Y) {
-        gameState.SHOOTER_X = canvas.width / 2;
-        gameState.SHOOTER_Y = canvas.height - 50;
-      }
-      
-      gameState.mouseX = gameState.SHOOTER_X;
-      gameState.mouseY = gameState.SHOOTER_Y - 100; // Aim upward by default
-      
-      // Create bubble grid and shooter bubble
       createBubbleGrid();
-      gameState.nextBubble = createRandomBubble();
+      nextBubble = createBubble(SHOOTER_X, SHOOTER_Y);
       updateUI();
+      
+      requestAnimationFrame(gameLoop);
+    }
+    
+    function restartGame() {
+      document.getElementById('gameOverScreen').classList.remove('show');
+      document.getElementById('menuScreen').classList.remove('hidden');
+      document.querySelectorAll('.character-image').forEach(function(img) {
+        img.style.opacity = '0';
+      });
+      gameRunning = false;
+    }
+    
+    function openLeaderboard() {
+      if (typeof showLeaderboardModal === 'function') {
+        showLeaderboardModal('bubble-pop', 'Bubble Buddy Bubble Pop', score);
+      }
     }
     
     function createBubbleGrid() {
-      gameState.bubbles = [];
-      const startY = 50;
-      
-      for (let row = 0; row < ROWS; row++) {
-        for (let col = 0; col < COLS; col++) {
-          const x = col * BUBBLE_SPACING + (row % 2 === 1 ? BUBBLE_SPACING / 2 : 0) + BUBBLE_RADIUS + 50;
-          const y = row * BUBBLE_SPACING + startY;
+      bubbles = [];
+      for (var row = 0; row < ROWS; row++) {
+        for (var col = 0; col < COLS; col++) {
+          var x = col * BUBBLE_SPACING + (row % 2 === 1 ? BUBBLE_SPACING / 2 : 0) + BUBBLE_RADIUS + 30;
+          var y = row * BUBBLE_SPACING + 40;
           
-          if (Math.random() > 0.3) {
-            const colorIndex = Math.floor(Math.random() * BUBBLE_COLORS.length);
-            gameState.bubbles.push({
+          if (x + BUBBLE_RADIUS < canvas.width - 20 && Math.random() > 0.25) {
+            var colorIdx = Math.floor(Math.random() * COLORS.length);
+            bubbles.push({
               x: x,
               y: y,
-              color: BUBBLE_COLORS[colorIndex],
-              radius: BUBBLE_RADIUS,
+              color: COLORS[colorIdx],
               row: row,
               col: col,
-              scale: 1,
-              popAnimation: 0
+              radius: BUBBLE_RADIUS
             });
           }
         }
       }
-      
-      gameState.bubblesLeft = gameState.bubbles.length;
     }
     
-    function createRandomBubble() {
-      const colorIndex = Math.floor(Math.random() * BUBBLE_COLORS.length);
+    function createBubble(x, y) {
+      var colorIdx = Math.floor(Math.random() * COLORS.length);
       return {
-        x: gameState.SHOOTER_X,
-        y: gameState.SHOOTER_Y,
-        color: BUBBLE_COLORS[colorIndex],
+        x: x,
+        y: y,
+        color: COLORS[colorIdx],
         radius: BUBBLE_RADIUS,
         vx: 0,
         vy: 0
       };
     }
     
-    // =====================
-    // GAME LOGIC
-    // =====================
-    function handleClick(e) {
-      if (gameState.gameOver || gameState.isShooting) return;
+    function handleCanvasClick(e) {
+      if (gameOver || isShooting || !nextBubble) return;
       
-      const rect = canvas.getBoundingClientRect();
-      const clickX = e.clientX - rect.left;
-      const clickY = e.clientY - rect.top;
+      var rect = canvas.getBoundingClientRect();
+      var clickX = (e.clientX - rect.left) * (canvas.width / rect.width);
+      var clickY = (e.clientY - rect.top) * (canvas.height / rect.height);
       
-      shootBubble(clickX, clickY);
+      shoot(clickX, clickY);
     }
     
-    function shootBubble(targetX, targetY) {
-      if (gameState.isShooting || !gameState.nextBubble) return;
+    function handleMouseMove(e) {
+      if (gameOver || isShooting) return;
+      var rect = canvas.getBoundingClientRect();
+      mouseX = (e.clientX - rect.left) * (canvas.width / rect.width);
+      mouseY = (e.clientY - rect.top) * (canvas.height / rect.height);
+    }
+    
+    function handleTouch(e) {
+      e.preventDefault();
+      var rect = canvas.getBoundingClientRect();
+      var touch = e.touches[0];
+      mouseX = (touch.clientX - rect.left) * (canvas.width / rect.width);
+      mouseY = (touch.clientY - rect.top) * (canvas.height / rect.height);
+    }
+    
+    function handleTouchMove(e) {
+      e.preventDefault();
+      handleTouch(e);
+    }
+    
+    function handleTouchEnd(e) {
+      e.preventDefault();
+      if (gameOver || isShooting || !nextBubble) return;
+      shoot(mouseX, mouseY);
+    }
+    
+    function shoot(targetX, targetY) {
+      if (targetY >= SHOOTER_Y - 20) return; // Don't shoot downward
       
-      playSound('shoot', { volume: 0.3 });
-      
-      gameState.isShooting = true;
-      gameState.shotBubble = {
-        ...gameState.nextBubble,
-        vx: (targetX - gameState.SHOOTER_X) / 50,
-        vy: (targetY - gameState.SHOOTER_Y) / 50
+      isShooting = true;
+      shotBubble = {
+        x: SHOOTER_X,
+        y: SHOOTER_Y,
+        color: nextBubble.color,
+        radius: BUBBLE_RADIUS,
+        vx: 0,
+        vy: 0
       };
       
-      const speed = Math.sqrt(gameState.shotBubble.vx ** 2 + gameState.shotBubble.vy ** 2);
-      gameState.shotBubble.vx = (gameState.shotBubble.vx / speed) * SHOT_SPEED;
-      gameState.shotBubble.vy = (gameState.shotBubble.vy / speed) * SHOT_SPEED;
+      var dx = targetX - SHOOTER_X;
+      var dy = targetY - SHOOTER_Y;
+      var dist = Math.sqrt(dx * dx + dy * dy);
       
-      gameState.nextBubble = createRandomBubble();
+      shotBubble.vx = (dx / dist) * SHOT_SPEED;
+      shotBubble.vy = (dy / dist) * SHOT_SPEED;
+      
+      nextBubble = createBubble(SHOOTER_X, SHOOTER_Y);
+      
+      // Play sound
+      if (typeof soundManager !== 'undefined' && soundManager.play) {
+        soundManager.play('cash');
+      }
     }
     
     function updateShotBubble() {
-      if (!gameState.shotBubble) return;
+      if (!shotBubble) return;
       
-      gameState.shotBubble.x += gameState.shotBubble.vx;
-      gameState.shotBubble.y += gameState.shotBubble.vy;
+      shotBubble.x += shotBubble.vx;
+      shotBubble.y += shotBubble.vy;
       
-      if (gameState.shotBubble.x - gameState.shotBubble.radius <= 0 || 
-          gameState.shotBubble.x + gameState.shotBubble.radius >= canvas.width) {
-        gameState.shotBubble.vx *= -1;
+      // Wall bounce
+      if (shotBubble.x - BUBBLE_RADIUS <= 0 || shotBubble.x + BUBBLE_RADIUS >= canvas.width) {
+        shotBubble.vx *= -1;
+        shotBubble.x = Math.max(BUBBLE_RADIUS, Math.min(canvas.width - BUBBLE_RADIUS, shotBubble.x));
       }
       
-      if (gameState.shotBubble.y - gameState.shotBubble.radius <= 0) {
-        attachBubbleToGrid();
+      // Ceiling hit
+      if (shotBubble.y - BUBBLE_RADIUS <= 0) {
+        attachBubble();
         return;
       }
       
-      for (let bubble of gameState.bubbles) {
-        const dist = Math.hypot(
-          gameState.shotBubble.x - bubble.x,
-          gameState.shotBubble.y - bubble.y
-        );
+      // Check collision with other bubbles
+      for (var i = 0; i < bubbles.length; i++) {
+        var b = bubbles[i];
+        var dx = shotBubble.x - b.x;
+        var dy = shotBubble.y - b.y;
+        var dist = Math.sqrt(dx * dx + dy * dy);
         
         if (dist < BUBBLE_RADIUS * 2) {
-          attachBubbleToGrid();
+          attachBubble();
           return;
         }
       }
     }
     
-    function attachBubbleToGrid() {
-      if (!gameState.shotBubble) return;
+    function attachBubble() {
+      if (!shotBubble) return;
       
-      let nearestBubble = null;
-      let minDist = Infinity;
+      // Snap to grid
+      var row = Math.round((shotBubble.y - 40) / BUBBLE_SPACING);
+      var col = Math.round((shotBubble.x - BUBBLE_RADIUS - 30 - (row % 2 === 1 ? BUBBLE_SPACING / 2 : 0)) / BUBBLE_SPACING);
       
-      for (let bubble of gameState.bubbles) {
-        const dist = Math.hypot(
-          gameState.shotBubble.x - bubble.x,
-          gameState.shotBubble.y - bubble.y
-        );
-        if (dist < minDist) {
-          minDist = dist;
-          nearestBubble = bubble;
-        }
-      }
+      row = Math.max(0, row);
+      col = Math.max(0, Math.min(COLS - 1, col));
       
-      let row = Math.floor((gameState.shotBubble.y - 50) / BUBBLE_SPACING);
-      let col = Math.floor((gameState.shotBubble.x - 50) / BUBBLE_SPACING);
+      var x = col * BUBBLE_SPACING + (row % 2 === 1 ? BUBBLE_SPACING / 2 : 0) + BUBBLE_RADIUS + 30;
+      var y = row * BUBBLE_SPACING + 40;
       
-      if (nearestBubble) {
-        row = nearestBubble.row;
-        col = nearestBubble.col;
-      }
-      
-      const x = col * BUBBLE_SPACING + (row % 2 === 1 ? BUBBLE_SPACING / 2 : 0) + BUBBLE_RADIUS + 50;
-      const y = row * BUBBLE_SPACING + 50;
-      
-      gameState.bubbles.push({
+      bubbles.push({
         x: x,
         y: y,
-        color: gameState.shotBubble.color,
-        radius: BUBBLE_RADIUS,
+        color: shotBubble.color,
         row: row,
         col: col,
-        scale: 1,
-        popAnimation: 0
+        radius: BUBBLE_RADIUS
       });
       
-      gameState.shotBubble = null;
-      gameState.isShooting = false;
-      gameState.bubblesLeft = gameState.bubbles.length;
+      shotBubble = null;
+      isShooting = false;
       
       checkMatches();
-      
-      if (gameState.bubbles.length === 0) {
-        nextLevel();
-      }
-      
-      checkLoseCondition();
+      checkFloating();
+      checkWinLose();
+      updateUI();
     }
     
     function checkMatches() {
-      const matched = new Set();
-      const toCheck = [...gameState.bubbles];
+      var lastBubble = bubbles[bubbles.length - 1];
+      if (!lastBubble) return;
       
-      function findMatches(bubble, visited = new Set()) {
-        if (visited.has(bubble)) return [];
-        visited.add(bubble);
+      var matched = [];
+      var visited = [];
+      
+      function findMatches(bubble) {
+        if (visited.indexOf(bubble) !== -1) return;
+        visited.push(bubble);
+        matched.push(bubble);
         
-        const matches = [bubble];
-        const neighbors = getNeighbors(bubble);
-        
-        for (let neighbor of neighbors) {
-          if (neighbor.color.main === bubble.color.main && !visited.has(neighbor)) {
-            matches.push(...findMatches(neighbor, visited));
+        for (var i = 0; i < bubbles.length; i++) {
+          var b = bubbles[i];
+          if (visited.indexOf(b) !== -1) continue;
+          if (b.color.main !== bubble.color.main) continue;
+          
+          var dx = b.x - bubble.x;
+          var dy = b.y - bubble.y;
+          var dist = Math.sqrt(dx * dx + dy * dy);
+          
+          if (dist < BUBBLE_SPACING + 5) {
+            findMatches(b);
           }
         }
-        
-        return matches;
       }
       
-      for (let bubble of toCheck) {
-        if (matched.has(bubble)) continue;
-        
-        const matches = findMatches(bubble);
-        if (matches.length >= 3) {
-          matches.forEach(b => matched.add(b));
-        }
-      }
+      findMatches(lastBubble);
       
-      if (matched.size >= 3) {
-        // Create particles for each matched bubble
-        matched.forEach(bubble => {
-          createParticles(bubble.x, bubble.y, bubble.color.main, 6);
-        });
-        
-        // Play sound based on match size
-        if (matched.size >= 5) {
-          playSound('match', { volume: 0.5 });
-        } else {
-          playSound('pop', { volume: 0.4 });
+      if (matched.length >= 3) {
+        for (var i = 0; i < matched.length; i++) {
+          var idx = bubbles.indexOf(matched[i]);
+          if (idx !== -1) {
+            bubbles.splice(idx, 1);
+          }
         }
+        score += matched.length * 10 * level;
         
-        gameState.bubbles = gameState.bubbles.filter(b => !matched.has(b));
-        gameState.bubblesLeft = gameState.bubbles.length;
-        
-        const points = matched.size * 10 * gameState.level;
-        gameState.score += points;
-        
-        checkFloatingBubbles();
-        
-        if (gameState.bubbles.length === 0) {
-          nextLevel();
+        if (typeof soundManager !== 'undefined' && soundManager.play) {
+          soundManager.play('money');
         }
-        
-        updateUI();
       }
     }
     
-    function getNeighbors(bubble) {
-      const neighbors = [];
-      const offsets = [
-        [-1, -1], [0, -1], [1, -1],
-        [-1, 0], [1, 0],
-        [-1, 1], [0, 1], [1, 1]
-      ];
+    function checkFloating() {
+      var connected = [];
       
-      for (let [dx, dy] of offsets) {
-        const neighborRow = bubble.row + dy;
-        const neighborCol = bubble.col + dx;
-        
-        const neighbor = gameState.bubbles.find(b => 
-          b.row === neighborRow && b.col === neighborCol
-        );
-        
-        if (neighbor) {
-          neighbors.push(neighbor);
-        }
-      }
-      
-      return neighbors;
-    }
-    
-    function checkFloatingBubbles() {
-      const connected = new Set();
-      const topBubbles = gameState.bubbles.filter(b => b.row === 0);
-      
+      // Find all bubbles connected to top
       function markConnected(bubble) {
-        if (connected.has(bubble)) return;
-        connected.add(bubble);
+        if (connected.indexOf(bubble) !== -1) return;
+        connected.push(bubble);
         
-        const neighbors = getNeighbors(bubble);
-        neighbors.forEach(n => markConnected(n));
+        for (var i = 0; i < bubbles.length; i++) {
+          var b = bubbles[i];
+          if (connected.indexOf(b) !== -1) continue;
+          
+          var dx = b.x - bubble.x;
+          var dy = b.y - bubble.y;
+          var dist = Math.sqrt(dx * dx + dy * dy);
+          
+          if (dist < BUBBLE_SPACING + 5) {
+            markConnected(b);
+          }
+        }
       }
       
-      topBubbles.forEach(b => markConnected(b));
+      // Start from top row
+      for (var i = 0; i < bubbles.length; i++) {
+        if (bubbles[i].row === 0) {
+          markConnected(bubbles[i]);
+        }
+      }
       
-      const floating = gameState.bubbles.filter(b => !connected.has(b));
+      // Remove floating bubbles
+      var floating = [];
+      for (var i = bubbles.length - 1; i >= 0; i--) {
+        if (connected.indexOf(bubbles[i]) === -1) {
+          floating.push(bubbles[i]);
+          bubbles.splice(i, 1);
+        }
+      }
+      
       if (floating.length > 0) {
-        floating.forEach(bubble => {
-          createParticles(bubble.x, bubble.y, bubble.color.main, 4);
-        });
-        
-        playSound('floating', { volume: 0.3 });
-        
-        gameState.bubbles = gameState.bubbles.filter(b => connected.has(b));
-        gameState.bubblesLeft = gameState.bubbles.length;
-        gameState.score += floating.length * 20 * gameState.level;
-        updateUI();
+        score += floating.length * 20 * level;
       }
     }
     
-    function checkLoseCondition() {
-      if (gameState.bubbles.length === 0) return;
-      const lowestBubble = Math.max(...gameState.bubbles.map(b => b.y));
-      if (lowestBubble > canvas.height - 150) {
-        endGame();
+    function checkWinLose() {
+      if (bubbles.length === 0) {
+        level++;
+        createBubbleGrid();
+        score += 1000 * level;
+        if (typeof soundManager !== 'undefined' && soundManager.play) {
+          soundManager.play('ohyeah');
+        }
+        return;
       }
-    }
-    
-    function nextLevel() {
-      gameState.level++;
-      createBubbleGrid();
-      gameState.score += 1000 * gameState.level;
-      updateUI();
       
-      playSound('levelup', { volume: 0.6 });
+      // Check if bubbles reached bottom
+      for (var i = 0; i < bubbles.length; i++) {
+        if (bubbles[i].y > canvas.height - 150) {
+          endGame();
+          return;
+        }
+      }
     }
     
     function endGame() {
-      gameState.gameOver = true;
-      document.getElementById('finalScore').textContent = `Score: ${gameState.score.toLocaleString()}`;
+      gameOver = true;
+      gameRunning = false;
+      document.getElementById('finalScore').textContent = 'Score: ' + score.toLocaleString();
       document.getElementById('gameOverScreen').classList.add('show');
       
-      playSound('gameover', { volume: 0.4 });
-      
-      if (typeof showLeaderboardModal === 'function') {
-        setTimeout(() => {
-          showLeaderboardModal('bubble-pop', 'Bubble Buddy Bubble Pop', gameState.score);
-        }, 1000);
+      if (typeof soundManager !== 'undefined' && soundManager.play) {
+        soundManager.play('scream');
       }
+      
+      setTimeout(function() {
+        if (typeof showLeaderboardModal === 'function') {
+          showLeaderboardModal('bubble-pop', 'Bubble Buddy Bubble Pop', score);
+        }
+      }, 1000);
     }
     
-    // =====================
-    // RENDERING
-    // =====================
-    function drawBubble(x, y, color, radius, scale = 1) {
-      const r = radius * scale;
-      
+    function updateUI() {
+      document.getElementById('scoreDisplay').textContent = score.toLocaleString();
+      document.getElementById('levelDisplay').textContent = level;
+      document.getElementById('bubblesDisplay').textContent = bubbles.length;
+    }
+    
+    function drawBubble(x, y, color, radius) {
       // Shadow
-      ctx.save();
-      ctx.shadowBlur = 15;
-      ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
-      ctx.shadowOffsetY = 3;
+      ctx.beginPath();
+      ctx.arc(x + 2, y + 2, radius, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(0,0,0,0.2)';
+      ctx.fill();
       
       // Main bubble
-      const gradient = ctx.createRadialGradient(
-        x - r * 0.3, y - r * 0.3, 0,
-        x, y, r
-      );
+      var gradient = ctx.createRadialGradient(x - radius * 0.3, y - radius * 0.3, 0, x, y, radius);
       gradient.addColorStop(0, color.light);
-      gradient.addColorStop(0.5, color.main);
-      gradient.addColorStop(1, color.dark);
+      gradient.addColorStop(1, color.main);
       
       ctx.beginPath();
-      ctx.arc(x, y, r, 0, Math.PI * 2);
+      ctx.arc(x, y, radius, 0, Math.PI * 2);
       ctx.fillStyle = gradient;
       ctx.fill();
       
-      // Border
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
-      ctx.lineWidth = 2;
-      ctx.stroke();
-      
       // Highlight
-      const highlightGradient = ctx.createRadialGradient(
-        x - r * 0.3, y - r * 0.3, 0,
-        x - r * 0.3, y - r * 0.3, r * 0.6
-      );
-      highlightGradient.addColorStop(0, 'rgba(255, 255, 255, 0.6)');
-      highlightGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
-      
       ctx.beginPath();
-      ctx.arc(x - r * 0.3, y - r * 0.3, r * 0.5, 0, Math.PI * 2);
-      ctx.fillStyle = highlightGradient;
+      ctx.arc(x - radius * 0.3, y - radius * 0.3, radius * 0.3, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(255,255,255,0.5)';
       ctx.fill();
-      
-      // Glow
-      ctx.shadowBlur = 20;
-      ctx.shadowColor = color.main;
-      ctx.shadowOffsetY = 0;
-      ctx.beginPath();
-      ctx.arc(x, y, r, 0, Math.PI * 2);
-      ctx.stroke();
-      
-      ctx.restore();
     }
     
     function render() {
-      // Clear with gradient
-      const bgGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-      bgGradient.addColorStop(0, 'rgba(102, 126, 234, 0.2)');
-      bgGradient.addColorStop(1, 'rgba(118, 75, 162, 0.2)');
-      ctx.fillStyle = bgGradient;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      // Clear
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
       
-      // Draw bubbles
-      gameState.bubbles.forEach(bubble => {
-        drawBubble(bubble.x, bubble.y, bubble.color, bubble.radius, bubble.scale);
-      });
+      // Draw grid bubbles
+      for (var i = 0; i < bubbles.length; i++) {
+        var b = bubbles[i];
+        drawBubble(b.x, b.y, b.color, b.radius);
+      }
       
       // Draw shot bubble
-      if (gameState.shotBubble) {
-        drawBubble(
-          gameState.shotBubble.x,
-          gameState.shotBubble.y,
-          gameState.shotBubble.color,
-          gameState.shotBubble.radius
-        );
+      if (shotBubble) {
+        drawBubble(shotBubble.x, shotBubble.y, shotBubble.color, shotBubble.radius);
       }
-      
-      // Draw particles
-      drawParticles();
       
       // Draw next bubble preview
-      if (gameState.nextBubble && !gameState.isShooting) {
-        ctx.save();
-        ctx.globalAlpha = 0.8;
-        drawBubble(gameState.SHOOTER_X, gameState.SHOOTER_Y - 45, gameState.nextBubble.color, gameState.nextBubble.radius);
-        ctx.restore();
-      }
-      
-      // Draw aim line
-      if (!gameState.isShooting && gameState.nextBubble && (gameState.mouseX > 0 || gameState.mouseY > 0)) {
-        const aimGradient = ctx.createLinearGradient(gameState.SHOOTER_X, gameState.SHOOTER_Y, gameState.mouseX, gameState.mouseY);
-        aimGradient.addColorStop(0, 'rgba(255, 215, 0, 0.8)');
-        aimGradient.addColorStop(1, 'rgba(255, 215, 0, 0.2)');
+      if (nextBubble && !isShooting) {
+        ctx.globalAlpha = 0.7;
+        drawBubble(SHOOTER_X, SHOOTER_Y - 40, nextBubble.color, nextBubble.radius);
+        ctx.globalAlpha = 1;
         
-        ctx.strokeStyle = aimGradient;
-        ctx.lineWidth = 3;
-        ctx.setLineDash([8, 4]);
-        ctx.beginPath();
-        ctx.moveTo(gameState.SHOOTER_X, gameState.SHOOTER_Y);
-        ctx.lineTo(gameState.mouseX, gameState.mouseY);
-        ctx.stroke();
-        ctx.setLineDash([]);
-        
-        // Aim dot
-        ctx.fillStyle = 'rgba(255, 215, 0, 0.6)';
-        ctx.beginPath();
-        ctx.arc(gameState.mouseX, gameState.mouseY, 5, 0, Math.PI * 2);
-        ctx.fill();
+        // Draw aim line
+        if (mouseY < SHOOTER_Y - 20) {
+          ctx.strokeStyle = 'rgba(255, 215, 0, 0.5)';
+          ctx.lineWidth = 2;
+          ctx.setLineDash([5, 5]);
+          ctx.beginPath();
+          ctx.moveTo(SHOOTER_X, SHOOTER_Y);
+          ctx.lineTo(mouseX, mouseY);
+          ctx.stroke();
+          ctx.setLineDash([]);
+        }
       }
     }
     
-    // =====================
-    // GAME LOOP
-    // =====================
     function gameLoop() {
-      if (!gameState.gameLoopRunning) return;
+      if (!gameRunning) return;
       
-      if (!gameState.gameOver) {
+      if (!gameOver) {
         updateShotBubble();
-        updateParticles();
         render();
       }
+      
       requestAnimationFrame(gameLoop);
     }
     
-    // =====================
-    // UI UPDATES
-    // =====================
-    function updateUI() {
-      document.getElementById('scoreDisplay').textContent = gameState.score.toLocaleString();
-      document.getElementById('levelDisplay').textContent = gameState.level;
-      document.getElementById('bubblesLeftDisplay').textContent = gameState.bubblesLeft;
-    }
-    
-    // =====================
-    // EVENT HANDLERS
-    // =====================
-    function getCanvasPosition(e) {
-      const rect = canvas.getBoundingClientRect();
-      const scaleX = canvas.width / rect.width;
-      const scaleY = canvas.height / rect.height;
-      
-      let clientX, clientY;
-      // For touch events, use touches for touchstart/touchmove, changedTouches for touchend
-      if (e.touches && e.touches.length > 0) {
-        clientX = e.touches[0].clientX;
-        clientY = e.touches[0].clientY;
-      } else if (e.changedTouches && e.changedTouches.length > 0) {
-        clientX = e.changedTouches[0].clientX;
-        clientY = e.changedTouches[0].clientY;
-      } else {
-        clientX = e.clientX;
-        clientY = e.clientY;
-      }
-      
-      return {
-        x: (clientX - rect.left) * scaleX,
-        y: (clientY - rect.top) * scaleY
-      };
-    }
-    
-    canvas.addEventListener('click', handleClick);
-    
-    // Touch support
-    canvas.addEventListener('touchstart', (e) => {
-      e.preventDefault();
-      const pos = getCanvasPosition(e);
-      gameState.touchStartX = pos.x;
-      gameState.touchStartY = pos.y;
-      gameState.mouseX = pos.x;
-      gameState.mouseY = pos.y;
-    }, { passive: false });
-    
-    canvas.addEventListener('touchend', (e) => {
-      e.preventDefault();
-      if (!gameState.gameOver && !gameState.isShooting) {
-        const pos = getCanvasPosition(e);
-        shootBubble(pos.x, pos.y);
-      }
-    }, { passive: false });
-    
-    canvas.addEventListener('touchmove', (e) => {
-      e.preventDefault();
-      if (gameState.gameOver || gameState.isShooting) return;
-      const pos = getCanvasPosition(e);
-      gameState.mouseX = pos.x;
-      gameState.mouseY = pos.y;
-      gameState.shooterAngle = Math.atan2(gameState.mouseY - gameState.SHOOTER_Y, gameState.mouseX - gameState.SHOOTER_X);
-    }, { passive: false });
-    
-    canvas.addEventListener('mousemove', (e) => {
-      if (gameState.gameOver || gameState.isShooting) return;
-      const pos = getCanvasPosition(e);
-      gameState.mouseX = pos.x;
-      gameState.mouseY = pos.y;
-      gameState.shooterAngle = Math.atan2(gameState.mouseY - gameState.SHOOTER_Y, gameState.mouseX - gameState.SHOOTER_X);
-    });
-    
-    // =====================
-    // GAME CONTROL
-    // =====================
-    function startGame() {
-      try {
-        // Hide menu
-        const menuScreen = document.getElementById('menuScreen');
-        if (menuScreen) {
-          menuScreen.classList.add('hidden');
-        }
-        
-        // Show character images
-        document.querySelectorAll('.character-image').forEach(char => {
-          char.style.opacity = '0.6';
-        });
-        
-        // Setup canvas
-        resizeCanvas();
-        
-        // Initialize game state
-        initGame();
-        
-        // Start game loop
-        if (!gameState.gameLoopRunning) {
-          gameState.gameLoopRunning = true;
-          requestAnimationFrame(gameLoop);
-        }
-      } catch (error) {
-        console.error('Error starting game:', error);
-        alert('Error starting game. Check console (F12) for details.');
-      }
-    }
-    // Make immediately accessible
-    window.startGame = startGame;
-    
-    function restartGame() {
-      gameState.gameLoopRunning = false;
-      gameState.gameOver = false;
-      document.getElementById('gameOverScreen').classList.remove('show');
-      document.getElementById('menuScreen').classList.remove('hidden');
-      
-      // Hide character images
-      document.querySelectorAll('.character-image').forEach(char => {
-        char.style.opacity = '0';
-      });
-    }
-    window.restartGame = restartGame;
-    
-    function openLeaderboard() {
-      if (typeof showLeaderboardModal === 'function') {
-        showLeaderboardModal('bubble-pop', 'Bubble Buddy Bubble Pop', gameState.score || 0);
-      }
-    }
-    window.openLeaderboard = openLeaderboard;
-    
-    // Handle window resize
-    window.addEventListener('resize', () => {
-      if (!gameState.gameOver && gameState.bubbles.length > 0) {
-        resizeCanvas();
-        // Recalculate bubble positions
-        createBubbleGrid();
-      }
-    });
-    
-    // Initialize on DOM ready
+    // Start when DOM is ready
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', initOnLoad);
+      document.addEventListener('DOMContentLoaded', init);
     } else {
-      initOnLoad();
+      init();
     }
     
-    function initOnLoad() {
-      // Initial canvas setup
-      resizeCanvas();
-      
-      // Hide character images on menu screen
-      document.querySelectorAll('.character-image').forEach(char => {
-        char.style.opacity = '0';
-      });
-      
-      // Add click listener to start button (backup for onclick)
-      const startBtn = document.getElementById('startGameBtn');
-      if (startBtn) {
-        startBtn.addEventListener('click', function(e) {
-          e.preventDefault();
-          startGame();
-        });
-      }
-    }
-    
-    // Prevent zoom on double tap (mobile)
-    let lastTouchEnd = 0;
-    document.addEventListener('touchend', (e) => {
-      const now = Date.now();
-      if (now - lastTouchEnd <= 300) {
-        e.preventDefault();
-      }
-      lastTouchEnd = now;
-    }, false);
+    // Global functions for onclick handlers
+    window.startGame = startGame;
+    window.restartGame = restartGame;
+    window.openLeaderboard = openLeaderboard;
   </script>
 </body>
 </html>
