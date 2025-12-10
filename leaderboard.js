@@ -188,7 +188,8 @@ async function getAllLeaderboards() {
       'krusty-krab-rush',
       'krusty-tycoon',
       'survivors',
-      'bubble-pop'
+      'bubble-pop',
+      'dungeon-delver'
     ];
 
     const leaderboards = {};

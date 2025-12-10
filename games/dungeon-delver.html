@@ -1,0 +1,1328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bikini Bottom Dungeon Delver | $COCKPANTS Games 🗡️</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../leaderboard.js"></script>
+  <script src="../sounds.js"></script>
+  <style>
+    @font-face {
+      font-family: 'Krabby Patty';
+      src: url('../Krabby Patty.ttf') format('truetype');
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      user-select: none;
+    }
+    
+    body {
+      font-family: 'Krabby Patty', Arial, sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      color: #fff;
+      overflow: hidden;
+      position: fixed;
+      width: 100%;
+      height: 100%;
+    }
+    
+    .game-container {
+      display: grid;
+      grid-template-columns: 300px 1fr 300px;
+      grid-template-rows: 80px 1fr;
+      height: 100vh;
+      gap: 10px;
+      padding: 10px;
+    }
+    
+    .header {
+      grid-column: 1 / -1;
+      background: rgba(0,0,0,0.6);
+      border: 2px solid #4a90e2;
+      border-radius: 10px;
+      padding: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 0 20px rgba(74, 144, 226, 0.3);
+    }
+    
+    .header h1 {
+      font-size: 32px;
+      background: linear-gradient(135deg, #4a90e2, #7b68ee, #ff6b6b);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 0 30px rgba(74, 144, 226, 0.5);
+    }
+    
+    .header-buttons {
+      display: flex;
+      gap: 10px;
+    }
+    
+    .btn {
+      padding: 10px 20px;
+      background: linear-gradient(135deg, #4a90e2, #7b68ee);
+      border: 2px solid #fff;
+      color: #fff;
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: 'Krabby Patty', Arial, sans-serif;
+      font-size: 16px;
+      font-weight: bold;
+      transition: all 0.3s;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }
+    
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(74, 144, 226, 0.5);
+    }
+    
+    .btn:active {
+      transform: translateY(0);
+    }
+    
+    .sidebar {
+      background: rgba(0,0,0,0.7);
+      border: 2px solid #4a90e2;
+      border-radius: 10px;
+      padding: 15px;
+      overflow-y: auto;
+      box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+    }
+    
+    .sidebar h2 {
+      font-size: 20px;
+      margin-bottom: 15px;
+      color: #4a90e2;
+      text-align: center;
+      border-bottom: 2px solid #4a90e2;
+      padding-bottom: 10px;
+    }
+    
+    .stat-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px;
+      margin: 5px 0;
+      background: rgba(74, 144, 226, 0.1);
+      border-radius: 5px;
+      border-left: 3px solid #4a90e2;
+    }
+    
+    .stat-label {
+      color: #aaa;
+      font-size: 14px;
+    }
+    
+    .stat-value {
+      color: #fff;
+      font-weight: bold;
+      font-size: 16px;
+    }
+    
+    .stat-bar {
+      width: 100%;
+      height: 20px;
+      background: rgba(0,0,0,0.5);
+      border-radius: 10px;
+      overflow: hidden;
+      margin: 5px 0;
+      border: 1px solid #4a90e2;
+    }
+    
+    .stat-bar-fill {
+      height: 100%;
+      transition: width 0.3s;
+      border-radius: 10px;
+    }
+    
+    .hp-bar { background: linear-gradient(90deg, #ff4444, #ff6666); }
+    .mp-bar { background: linear-gradient(90deg, #4444ff, #6666ff); }
+    .xp-bar { background: linear-gradient(90deg, #44ff44, #66ff66); }
+    
+    .main-area {
+      background: rgba(0,0,0,0.8);
+      border: 2px solid #4a90e2;
+      border-radius: 10px;
+      padding: 20px;
+      overflow-y: auto;
+      position: relative;
+      box-shadow: inset 0 0 30px rgba(0,0,0,0.5);
+    }
+    
+    .dungeon-grid {
+      display: grid;
+      gap: 2px;
+      margin: 0 auto;
+      max-width: 800px;
+    }
+    
+    .cell {
+      width: 40px;
+      height: 40px;
+      background: #2a2a3e;
+      border: 1px solid #1a1a2e;
+      border-radius: 3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+    
+    .cell.wall {
+      background: #1a1a1a;
+      border-color: #000;
+    }
+    
+    .cell.floor {
+      background: #3a3a4e;
+    }
+    
+    .cell.player {
+      background: #4a90e2;
+      box-shadow: 0 0 15px #4a90e2;
+      border-color: #fff;
+      animation: pulse 1s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+    
+    .cell.enemy {
+      background: #ff4444;
+      box-shadow: 0 0 10px #ff4444;
+      border-color: #fff;
+    }
+    
+    .cell.item {
+      background: #ffaa00;
+      box-shadow: 0 0 10px #ffaa00;
+      border-color: #fff;
+    }
+    
+    .cell.stairs {
+      background: #7b68ee;
+      box-shadow: 0 0 15px #7b68ee;
+      border-color: #fff;
+    }
+    
+    .cell.visible {
+      opacity: 1;
+    }
+    
+    .cell.hidden {
+      opacity: 0.2;
+    }
+    
+    .combat-log {
+      background: rgba(0,0,0,0.7);
+      border: 2px solid #4a90e2;
+      border-radius: 10px;
+      padding: 15px;
+      max-height: 200px;
+      overflow-y: auto;
+      margin-top: 15px;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    
+    .log-entry {
+      margin: 5px 0;
+      padding: 5px;
+      border-radius: 3px;
+    }
+    
+    .log-entry.damage { background: rgba(255,68,68,0.2); }
+    .log-entry.heal { background: rgba(68,255,68,0.2); }
+    .log-entry.info { background: rgba(74,144,226,0.2); }
+    .log-entry.loot { background: rgba(255,170,0,0.2); }
+    
+    .inventory {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 5px;
+      margin-top: 10px;
+    }
+    
+    .inv-slot {
+      aspect-ratio: 1;
+      background: rgba(74,144,226,0.2);
+      border: 2px solid #4a90e2;
+      border-radius: 5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 20px;
+      transition: all 0.2s;
+    }
+    
+    .inv-slot:hover {
+      background: rgba(74,144,226,0.4);
+      transform: scale(1.1);
+    }
+    
+    .inv-slot.empty {
+      opacity: 0.3;
+    }
+    
+    .menu-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.95);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    
+    .menu-screen.hidden {
+      display: none;
+    }
+    
+    .character-select {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+      max-width: 800px;
+      margin: 30px 0;
+    }
+    
+    .char-card {
+      background: rgba(74,144,226,0.2);
+      border: 3px solid #4a90e2;
+      border-radius: 15px;
+      padding: 20px;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-align: center;
+    }
+    
+    .char-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 30px rgba(74,144,226,0.5);
+      border-color: #fff;
+    }
+    
+    .char-card.selected {
+      background: rgba(74,144,226,0.4);
+      border-color: #fff;
+      box-shadow: 0 0 30px rgba(74,144,226,0.8);
+    }
+    
+    .char-icon {
+      font-size: 80px;
+      margin-bottom: 10px;
+    }
+    
+    .char-name {
+      font-size: 24px;
+      margin-bottom: 10px;
+      color: #4a90e2;
+    }
+    
+    .char-stats {
+      font-size: 14px;
+      color: #aaa;
+      text-align: left;
+    }
+    
+    .action-buttons {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 15px;
+    }
+    
+    .action-btn {
+      padding: 15px;
+      background: linear-gradient(135deg, #4a90e2, #7b68ee);
+      border: 2px solid #fff;
+      color: #fff;
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: 'Krabby Patty', Arial, sans-serif;
+      font-size: 16px;
+      font-weight: bold;
+      transition: all 0.3s;
+    }
+    
+    .action-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(74,144,226,0.5);
+    }
+    
+    .action-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    .tooltip {
+      position: absolute;
+      background: rgba(0,0,0,0.9);
+      border: 2px solid #4a90e2;
+      border-radius: 5px;
+      padding: 10px;
+      z-index: 1000;
+      pointer-events: none;
+      font-size: 12px;
+      max-width: 200px;
+    }
+    
+    .game-over-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.95);
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+    }
+    
+    .game-over-screen.show {
+      display: flex;
+    }
+    
+    .game-over-title {
+      font-size: 64px;
+      color: #ff4444;
+      margin-bottom: 20px;
+      text-shadow: 0 0 30px #ff4444;
+    }
+    
+    .final-stats {
+      font-size: 24px;
+      margin: 20px 0;
+      text-align: center;
+    }
+    
+    @media (max-width: 1200px) {
+      .game-container {
+        grid-template-columns: 250px 1fr 250px;
+      }
+    }
+    
+    @media (max-width: 900px) {
+      .game-container {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto auto;
+      }
+      
+      .header {
+        grid-column: 1;
+      }
+      
+      .sidebar {
+        display: none;
+      }
+      
+      .cell {
+        width: 30px;
+        height: 30px;
+        font-size: 18px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="menu-screen" id="menuScreen">
+    <h1 style="font-size: 48px; margin-bottom: 20px; background: linear-gradient(135deg, #4a90e2, #7b68ee, #ff6b6b); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+      🗡️ BIKINI BOTTOM<br>DUNGEON DELVER 🗡️
+    </h1>
+    <p style="font-size: 20px; margin-bottom: 30px; color: #aaa;">Choose your character and descend into the depths!</p>
+    <div class="character-select" id="charSelect"></div>
+    <button class="btn" id="startBtn" style="margin-top: 30px; padding: 15px 40px; font-size: 20px;">START ADVENTURE</button>
+  </div>
+  
+  <div class="game-over-screen" id="gameOverScreen">
+    <div class="game-over-title">GAME OVER</div>
+    <div class="final-stats" id="finalStats"></div>
+    <button class="btn" id="restartBtn" style="margin-top: 20px; padding: 15px 40px; font-size: 20px;">PLAY AGAIN</button>
+    <button class="btn" id="leaderboardBtn" style="margin-top: 10px; padding: 15px 40px; font-size: 20px;">LEADERBOARD</button>
+  </div>
+  
+  <div class="game-container">
+    <div class="header">
+      <h1>🗡️ Dungeon Delver</h1>
+      <div class="header-buttons">
+        <button class="btn" id="backBtn">⬅️ MENU</button>
+        <button class="btn" id="leaderboardBtn2">🏆 LEADERBOARD</button>
+      </div>
+    </div>
+    
+    <div class="sidebar" id="playerStats">
+      <h2>CHARACTER</h2>
+      <div id="charInfo"></div>
+      <div class="stat-item">
+        <span class="stat-label">Level</span>
+        <span class="stat-value" id="playerLevel">1</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Floor</span>
+        <span class="stat-value" id="currentFloor">1</span>
+      </div>
+      <div class="stat-bar">
+        <div class="stat-bar-fill hp-bar" id="hpBar" style="width: 100%"></div>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">HP</span>
+        <span class="stat-value" id="hpText">100/100</span>
+      </div>
+      <div class="stat-bar">
+        <div class="stat-bar-fill mp-bar" id="mpBar" style="width: 100%"></div>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">MP</span>
+        <span class="stat-value" id="mpText">50/50</span>
+      </div>
+      <div class="stat-bar">
+        <div class="stat-bar-fill xp-bar" id="xpBar" style="width: 0%"></div>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">XP</span>
+        <span class="stat-value" id="xpText">0/100</span>
+      </div>
+      <h2 style="margin-top: 20px;">STATS</h2>
+      <div class="stat-item">
+        <span class="stat-label">Attack</span>
+        <span class="stat-value" id="attackStat">10</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Defense</span>
+        <span class="stat-value" id="defenseStat">5</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Speed</span>
+        <span class="stat-value" id="speedStat">5</span>
+      </div>
+      <h2 style="margin-top: 20px;">INVENTORY</h2>
+      <div class="inventory" id="inventory"></div>
+    </div>
+    
+    <div class="main-area" id="mainArea">
+      <div class="dungeon-grid" id="dungeonGrid"></div>
+      <div class="combat-log" id="combatLog"></div>
+      <div class="action-buttons" id="actionButtons"></div>
+    </div>
+    
+    <div class="sidebar" id="enemyStats">
+      <h2>ENEMY</h2>
+      <div id="enemyInfo"></div>
+      <div class="stat-bar">
+        <div class="stat-bar-fill hp-bar" id="enemyHpBar" style="width: 100%"></div>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">HP</span>
+        <span class="stat-value" id="enemyHpText">-/-</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Attack</span>
+        <span class="stat-value" id="enemyAttack">-</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Defense</span>
+        <span class="stat-value" id="enemyDefense">-</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // =====================
+    // GAME STATE
+    // =====================
+    var game = {
+      player: null,
+      dungeon: null,
+      currentFloor: 1,
+      gridSize: 20,
+      selectedChar: null,
+      inCombat: false,
+      currentEnemy: null,
+      inventory: [],
+      combatLog: [],
+      gameOver: false
+    };
+    
+    // =====================
+    // CHARACTER CLASSES
+    // =====================
+    var characters = {
+      spongebob: {
+        name: 'SpongeBob',
+        icon: '🧽',
+        hp: 120,
+        maxHp: 120,
+        mp: 60,
+        maxMp: 60,
+        attack: 12,
+        defense: 6,
+        speed: 7,
+        xp: 0,
+        xpToNext: 100,
+        level: 1,
+        description: 'Optimistic and energetic. High HP and Speed.'
+      },
+      patrick: {
+        name: 'Patrick',
+        icon: '⭐',
+        hp: 150,
+        maxHp: 150,
+        mp: 40,
+        maxMp: 40,
+        attack: 15,
+        defense: 8,
+        speed: 3,
+        xp: 0,
+        xpToNext: 100,
+        level: 1,
+        description: 'Strong and tough. High HP and Attack, but slow.'
+      },
+      sandy: {
+        name: 'Sandy',
+        icon: '🤠',
+        hp: 100,
+        maxHp: 100,
+        mp: 80,
+        maxMp: 80,
+        attack: 10,
+        defense: 5,
+        speed: 10,
+        xp: 0,
+        xpToNext: 100,
+        level: 1,
+        description: 'Fast and agile. High Speed and MP for abilities.'
+      },
+      squidward: {
+        name: 'Squidward',
+        icon: '🎷',
+        hp: 90,
+        maxHp: 90,
+        mp: 100,
+        maxMp: 100,
+        attack: 8,
+        defense: 4,
+        speed: 6,
+        xp: 0,
+        xpToNext: 100,
+        level: 1,
+        description: 'Balanced mage. High MP for powerful abilities.'
+      }
+    };
+    
+    // =====================
+    // ENEMY TYPES
+    // =====================
+    var enemyTypes = {
+      jellyfish: { name: 'Jellyfish', icon: '🪼', hp: 30, maxHp: 30, attack: 5, defense: 2, speed: 4, xp: 15, floor: 1 },
+      robot: { name: 'Plankton Bot', icon: '🤖', hp: 50, maxHp: 50, attack: 8, defense: 4, speed: 3, xp: 25, floor: 2 },
+      seaHorse: { name: 'Sea Horse', icon: '🐴', hp: 70, maxHp: 70, attack: 10, defense: 5, speed: 6, xp: 40, floor: 3 },
+      krabs: { name: 'Krab', icon: '🦀', hp: 100, maxHp: 100, attack: 12, defense: 8, speed: 2, xp: 60, floor: 4 },
+      boss: { name: 'Dungeon Boss', icon: '👹', hp: 200, maxHp: 200, attack: 20, defense: 10, speed: 5, xp: 200, floor: 5 }
+    };
+    
+    // =====================
+    // ITEM TYPES
+    // =====================
+    var itemTypes = {
+      healthPotion: { name: 'Health Potion', icon: '🧪', type: 'consumable', effect: 'heal', value: 50 },
+      manaPotion: { name: 'Mana Potion', icon: '💧', type: 'consumable', effect: 'mana', value: 30 },
+      sword: { name: 'Rusty Sword', icon: '⚔️', type: 'weapon', stat: 'attack', value: 5 },
+      armor: { name: 'Leather Armor', icon: '🛡️', type: 'armor', stat: 'defense', value: 3 },
+      krabbyPatty: { name: 'Krabby Patty', icon: '🍔', type: 'consumable', effect: 'heal', value: 100 }
+    };
+    
+    // =====================
+    // DUNGEON GENERATION
+    // =====================
+    function generateDungeon(floor) {
+      var size = game.gridSize;
+      var grid = [];
+      
+      // Initialize grid
+      for (var y = 0; y < size; y++) {
+        grid[y] = [];
+        for (var x = 0; x < size; x++) {
+          grid[y][x] = { type: 'wall', visible: false, explored: false };
+        }
+      }
+      
+      // Generate rooms and corridors (simplified)
+      var rooms = [];
+      var numRooms = 5 + Math.floor(floor / 2);
+      
+      for (var i = 0; i < numRooms; i++) {
+        var roomW = 3 + Math.floor(Math.random() * 4);
+        var roomH = 3 + Math.floor(Math.random() * 4);
+        var roomX = 1 + Math.floor(Math.random() * (size - roomW - 2));
+        var roomY = 1 + Math.floor(Math.random() * (size - roomH - 2));
+        
+        // Check overlap
+        var overlap = false;
+        for (var j = 0; j < rooms.length; j++) {
+          var r = rooms[j];
+          if (roomX < r.x + r.w + 1 && roomX + roomW + 1 > r.x &&
+              roomY < r.y + r.h + 1 && roomY + roomH + 1 > r.y) {
+            overlap = true;
+            break;
+          }
+        }
+        
+        if (!overlap) {
+          rooms.push({ x: roomX, y: roomY, w: roomW, h: roomH });
+          
+          // Carve room
+          for (var ry = roomY; ry < roomY + roomH; ry++) {
+            for (var rx = roomX; rx < roomX + roomW; rx++) {
+              if (grid[ry] && grid[ry][rx]) {
+                grid[ry][rx].type = 'floor';
+              }
+            }
+          }
+        }
+      }
+      
+      // Connect rooms with corridors
+      for (var i = 1; i < rooms.length; i++) {
+        var prev = rooms[i-1];
+        var curr = rooms[i];
+        
+        var px = Math.floor(prev.x + prev.w / 2);
+        var py = Math.floor(prev.y + prev.h / 2);
+        var cx = Math.floor(curr.x + curr.w / 2);
+        var cy = Math.floor(curr.y + curr.h / 2);
+        
+        // Horizontal corridor
+        for (var x = Math.min(px, cx); x <= Math.max(px, cx); x++) {
+          if (grid[py] && grid[py][x]) {
+            grid[py][x].type = 'floor';
+          }
+        }
+        
+        // Vertical corridor
+        for (var y = Math.min(py, cy); y <= Math.max(py, cy); y++) {
+          if (grid[y] && grid[y][cx]) {
+            grid[y][cx].type = 'floor';
+          }
+        }
+      }
+      
+      // Place player in first room
+      if (rooms.length > 0) {
+        var startRoom = rooms[0];
+        game.playerX = Math.floor(startRoom.x + startRoom.w / 2);
+        game.playerY = Math.floor(startRoom.y + startRoom.h / 2);
+      } else {
+        game.playerX = Math.floor(size / 2);
+        game.playerY = Math.floor(size / 2);
+      }
+      
+      // Place stairs in last room
+      if (rooms.length > 0) {
+        var endRoom = rooms[rooms.length - 1];
+        var stairsX = Math.floor(endRoom.x + endRoom.w / 2);
+        var stairsY = Math.floor(endRoom.y + endRoom.h / 2);
+        grid[stairsY][stairsX].type = 'stairs';
+        grid[stairsY][stairsX].stairs = true;
+      }
+      
+      // Place enemies
+      var enemyCount = 3 + Math.floor(floor * 1.5);
+      for (var i = 0; i < enemyCount; i++) {
+        var placed = false;
+        var attempts = 0;
+        while (!placed && attempts < 50) {
+          var ex = Math.floor(Math.random() * size);
+          var ey = Math.floor(Math.random() * size);
+          
+          if (grid[ey] && grid[ey][ex] && grid[ey][ex].type === 'floor' &&
+              (ex !== game.playerX || ey !== game.playerY) &&
+              !grid[ey][ex].enemy && !grid[ey][ex].stairs) {
+            var enemyType = getEnemyForFloor(floor);
+            grid[ey][ex].enemy = {
+              type: enemyType.name,
+              icon: enemyType.icon,
+              hp: enemyType.hp,
+              maxHp: enemyType.maxHp,
+              attack: enemyType.attack,
+              defense: enemyType.defense,
+              speed: enemyType.speed,
+              xp: enemyType.xp
+            };
+            placed = true;
+          }
+          attempts++;
+        }
+      }
+      
+      // Place items
+      var itemCount = 2 + Math.floor(floor / 2);
+      for (var i = 0; i < itemCount; i++) {
+        var placed = false;
+        var attempts = 0;
+        while (!placed && attempts < 50) {
+          var ix = Math.floor(Math.random() * size);
+          var iy = Math.floor(Math.random() * size);
+          
+          if (grid[iy] && grid[iy][ix] && grid[iy][ix].type === 'floor' &&
+              !grid[iy][ix].enemy && !grid[iy][ix].item && !grid[iy][ix].stairs) {
+            var itemKeys = Object.keys(itemTypes);
+            var itemKey = itemKeys[Math.floor(Math.random() * itemKeys.length)];
+            grid[iy][ix].item = JSON.parse(JSON.stringify(itemTypes[itemKey]));
+            placed = true;
+          }
+          attempts++;
+        }
+      }
+      
+      return grid;
+    }
+    
+    function getEnemyForFloor(floor) {
+      if (floor >= 5 && Math.random() < 0.1) {
+        return enemyTypes.boss;
+      }
+      if (floor >= 4) return enemyTypes.krabs;
+      if (floor >= 3) return enemyTypes.seaHorse;
+      if (floor >= 2) return enemyTypes.robot;
+      return enemyTypes.jellyfish;
+    }
+    
+    // =====================
+    // RENDERING
+    // =====================
+    function renderDungeon() {
+      var grid = game.dungeon;
+      var gridEl = document.getElementById('dungeonGrid');
+      gridEl.innerHTML = '';
+      gridEl.style.gridTemplateColumns = 'repeat(' + game.gridSize + ', 1fr)';
+      
+      // Update visibility
+      updateVisibility();
+      
+      for (var y = 0; y < game.gridSize; y++) {
+        for (var x = 0; x < game.gridSize; x++) {
+          var cell = grid[y][x];
+          var cellEl = document.createElement('div');
+          cellEl.className = 'cell';
+          
+          if (cell.visible || cell.explored) {
+            cell.explored = true;
+            
+            if (x === game.playerX && y === game.playerY) {
+              cellEl.className += ' player';
+              cellEl.textContent = game.player.icon;
+            } else if (cell.enemy && cell.visible) {
+              cellEl.className += ' enemy';
+              cellEl.textContent = cell.enemy.icon;
+            } else if (cell.item && cell.visible) {
+              cellEl.className += ' item';
+              cellEl.textContent = cell.item.icon;
+            } else if (cell.stairs && cell.visible) {
+              cellEl.className += ' stairs';
+              cellEl.textContent = '⬇️';
+            } else if (cell.type === 'floor') {
+              cellEl.className += ' floor';
+            } else {
+              cellEl.className += ' wall';
+            }
+            
+            if (!cell.visible) {
+              cellEl.className += ' hidden';
+            }
+          } else {
+            cellEl.className += ' wall hidden';
+          }
+          
+          if (cell.visible || cell.explored) {
+            cellEl.addEventListener('click', function() {
+              movePlayer(x, y);
+            });
+          }
+          
+          gridEl.appendChild(cellEl);
+        }
+      }
+    }
+    
+    function updateVisibility() {
+      var range = 5;
+      for (var y = 0; y < game.gridSize; y++) {
+        for (var x = 0; x < game.gridSize; x++) {
+          var dist = Math.abs(x - game.playerX) + Math.abs(y - game.playerY);
+          game.dungeon[y][x].visible = dist <= range;
+        }
+      }
+    }
+    
+    function updateUI() {
+      var p = game.player;
+      
+      document.getElementById('charInfo').innerHTML = '<div style="font-size: 48px; text-align: center; margin-bottom: 10px;">' + p.icon + '</div><div style="text-align: center; font-size: 18px; color: #4a90e2;">' + p.name + '</div>';
+      document.getElementById('playerLevel').textContent = p.level;
+      document.getElementById('currentFloor').textContent = game.currentFloor;
+      
+      var hpPercent = (p.hp / p.maxHp) * 100;
+      document.getElementById('hpBar').style.width = hpPercent + '%';
+      document.getElementById('hpText').textContent = p.hp + '/' + p.maxHp;
+      
+      var mpPercent = (p.mp / p.maxMp) * 100;
+      document.getElementById('mpBar').style.width = mpPercent + '%';
+      document.getElementById('mpText').textContent = p.mp + '/' + p.maxMp;
+      
+      var xpPercent = (p.xp / p.xpToNext) * 100;
+      document.getElementById('xpBar').style.width = xpPercent + '%';
+      document.getElementById('xpText').textContent = p.xp + '/' + p.xpToNext;
+      
+      document.getElementById('attackStat').textContent = p.attack;
+      document.getElementById('defenseStat').textContent = p.defense;
+      document.getElementById('speedStat').textContent = p.speed;
+      
+      renderInventory();
+      
+      if (game.currentEnemy) {
+        var e = game.currentEnemy;
+        document.getElementById('enemyInfo').innerHTML = '<div style="font-size: 48px; text-align: center; margin-bottom: 10px;">' + e.icon + '</div><div style="text-align: center; font-size: 18px; color: #ff4444;">' + e.type + '</div>';
+        var enemyHpPercent = (e.hp / e.maxHp) * 100;
+        document.getElementById('enemyHpBar').style.width = enemyHpPercent + '%';
+        document.getElementById('enemyHpText').textContent = e.hp + '/' + e.maxHp;
+        document.getElementById('enemyAttack').textContent = e.attack;
+        document.getElementById('enemyDefense').textContent = e.defense;
+      } else {
+        document.getElementById('enemyInfo').innerHTML = '';
+        document.getElementById('enemyHpBar').style.width = '0%';
+        document.getElementById('enemyHpText').textContent = '-/-';
+        document.getElementById('enemyAttack').textContent = '-';
+        document.getElementById('enemyDefense').textContent = '-';
+      }
+    }
+    
+    function renderInventory() {
+      var invEl = document.getElementById('inventory');
+      invEl.innerHTML = '';
+      
+      for (var i = 0; i < 16; i++) {
+        var slot = document.createElement('div');
+        slot.className = 'inv-slot';
+        
+        if (game.inventory[i]) {
+          slot.textContent = game.inventory[i].icon;
+          slot.title = game.inventory[i].name;
+          slot.addEventListener('click', function(idx) {
+            return function() {
+              useItem(idx);
+            };
+          }(i));
+        } else {
+          slot.className += ' empty';
+        }
+        
+        invEl.appendChild(slot);
+      }
+    }
+    
+    function addLog(message, type) {
+      game.combatLog.push({ message: message, type: type || 'info' });
+      if (game.combatLog.length > 50) {
+        game.combatLog.shift();
+      }
+      
+      var logEl = document.getElementById('combatLog');
+      logEl.innerHTML = '';
+      for (var i = game.combatLog.length - 1; i >= 0; i--) {
+        var entry = document.createElement('div');
+        entry.className = 'log-entry ' + game.combatLog[i].type;
+        entry.textContent = game.combatLog[i].message;
+        logEl.appendChild(entry);
+      }
+    }
+    
+    // =====================
+    // GAME MECHANICS
+    // =====================
+    function movePlayer(tx, ty) {
+      if (game.inCombat || game.gameOver) return;
+      
+      var dx = tx - game.playerX;
+      var dy = ty - game.playerY;
+      var dist = Math.abs(dx) + Math.abs(dy);
+      
+      if (dist !== 1) return; // Only move one cell
+      
+      var targetCell = game.dungeon[ty][tx];
+      if (!targetCell || targetCell.type === 'wall') return;
+      
+      // Check for enemy
+      if (targetCell.enemy) {
+        startCombat(targetCell.enemy, tx, ty);
+        return;
+      }
+      
+      // Check for item
+      if (targetCell.item) {
+        pickUpItem(tx, ty);
+      }
+      
+      // Check for stairs
+      if (targetCell.stairs) {
+        nextFloor();
+        return;
+      }
+      
+      // Move player
+      game.playerX = tx;
+      game.playerY = ty;
+      
+      renderDungeon();
+      updateUI();
+    }
+    
+    function pickUpItem(x, y) {
+      var item = game.dungeon[y][x].item;
+      if (!item) return;
+      
+      if (game.inventory.length < 16) {
+        game.inventory.push(item);
+        game.dungeon[y][x].item = null;
+        addLog('Picked up ' + item.name + '!', 'loot');
+        
+        if (typeof soundManager !== 'undefined' && soundManager.play) {
+          soundManager.play('money');
+        }
+      } else {
+        addLog('Inventory full!', 'info');
+      }
+    }
+    
+    function useItem(index) {
+      if (!game.inventory[index]) return;
+      
+      var item = game.inventory[index];
+      
+      if (item.type === 'consumable') {
+        if (item.effect === 'heal') {
+          var heal = Math.min(item.value, game.player.maxHp - game.player.hp);
+          game.player.hp += heal;
+          addLog('Used ' + item.name + '! Restored ' + heal + ' HP.', 'heal');
+        } else if (item.effect === 'mana') {
+          var mana = Math.min(item.value, game.player.maxMp - game.player.mp);
+          game.player.mp += mana;
+          addLog('Used ' + item.name + '! Restored ' + mana + ' MP.', 'heal');
+        }
+        
+        game.inventory.splice(index, 1);
+        updateUI();
+        
+        if (typeof soundManager !== 'undefined' && soundManager.play) {
+          soundManager.play('cash');
+        }
+      } else if (item.type === 'weapon' || item.type === 'armor') {
+        // Equip item (simplified - just add stats)
+        game.player[item.stat] += item.value;
+        game.inventory.splice(index, 1);
+        addLog('Equipped ' + item.name + '!', 'info');
+        updateUI();
+      }
+    }
+    
+    function startCombat(enemy, x, y) {
+      game.inCombat = true;
+      game.currentEnemy = JSON.parse(JSON.stringify(enemy));
+      game.currentEnemy.x = x;
+      game.currentEnemy.y = y;
+      
+      addLog('Combat started! ' + enemy.type + ' appears!', 'info');
+      updateUI();
+      renderActionButtons();
+      
+      if (typeof soundManager !== 'undefined' && soundManager.play) {
+        soundManager.play('scream');
+      }
+    }
+    
+    function endCombat() {
+      if (game.currentEnemy) {
+        var x = game.currentEnemy.x;
+        var y = game.currentEnemy.y;
+        game.dungeon[y][x].enemy = null;
+      }
+      
+      game.inCombat = false;
+      game.currentEnemy = null;
+      updateUI();
+      renderActionButtons();
+      renderDungeon();
+    }
+    
+    function playerAttack() {
+      if (!game.inCombat || !game.currentEnemy) return;
+      
+      var damage = Math.max(1, game.player.attack - game.currentEnemy.defense + Math.floor(Math.random() * 5));
+      game.currentEnemy.hp -= damage;
+      addLog(game.player.name + ' attacks for ' + damage + ' damage!', 'damage');
+      
+      if (game.currentEnemy.hp <= 0) {
+        var xp = game.currentEnemy.xp;
+        game.player.xp += xp;
+        addLog('Enemy defeated! Gained ' + xp + ' XP!', 'info');
+        
+        // Check level up
+        while (game.player.xp >= game.player.xpToNext) {
+          levelUp();
+        }
+        
+        endCombat();
+        updateUI();
+        
+        if (typeof soundManager !== 'undefined' && soundManager.play) {
+          soundManager.play('victory');
+        }
+      } else {
+        enemyAttack();
+      }
+      
+      updateUI();
+    }
+    
+    function enemyAttack() {
+      if (!game.currentEnemy) return;
+      
+      var damage = Math.max(1, game.currentEnemy.attack - game.player.defense + Math.floor(Math.random() * 3));
+      game.player.hp -= damage;
+      addLog(game.currentEnemy.type + ' attacks for ' + damage + ' damage!', 'damage');
+      
+      if (game.player.hp <= 0) {
+        gameOver();
+      }
+      
+      updateUI();
+    }
+    
+    function levelUp() {
+      game.player.xp -= game.player.xpToNext;
+      game.player.level++;
+      game.player.xpToNext = Math.floor(game.player.xpToNext * 1.5);
+      
+      game.player.maxHp += 20;
+      game.player.hp = game.player.maxHp;
+      game.player.maxMp += 10;
+      game.player.mp = game.player.maxMp;
+      game.player.attack += 3;
+      game.player.defense += 2;
+      game.player.speed += 1;
+      
+      addLog('LEVEL UP! You are now level ' + game.player.level + '!', 'heal');
+      
+      if (typeof soundManager !== 'undefined' && soundManager.play) {
+        soundManager.play('ohyeah');
+      }
+    }
+    
+    function nextFloor() {
+      game.currentFloor++;
+      addLog('Descending to floor ' + game.currentFloor + '...', 'info');
+      game.dungeon = generateDungeon(game.currentFloor);
+      renderDungeon();
+      updateUI();
+      
+      if (typeof soundManager !== 'undefined' && soundManager.play) {
+        soundManager.play('ready');
+      }
+    }
+    
+    function gameOver() {
+      game.gameOver = true;
+      game.inCombat = false;
+      
+      var score = game.currentFloor * 1000 + game.player.level * 100 + game.player.xp;
+      
+      document.getElementById('finalStats').innerHTML = 
+        '<div>Reached Floor: ' + game.currentFloor + '</div>' +
+        '<div>Level Reached: ' + game.player.level + '</div>' +
+        '<div>Final Score: ' + score.toLocaleString() + '</div>';
+      
+      document.getElementById('gameOverScreen').classList.add('show');
+      
+      setTimeout(function() {
+        if (typeof showLeaderboardModal === 'function') {
+          showLeaderboardModal('dungeon-delver', 'Bikini Bottom Dungeon Delver', score);
+        }
+      }, 1000);
+      
+      if (typeof soundManager !== 'undefined' && soundManager.play) {
+        soundManager.play('scream');
+      }
+    }
+    
+    function renderActionButtons() {
+      var btnEl = document.getElementById('actionButtons');
+      btnEl.innerHTML = '';
+      
+      if (game.inCombat) {
+        var attackBtn = document.createElement('button');
+        attackBtn.className = 'action-btn';
+        attackBtn.textContent = '⚔️ ATTACK';
+        attackBtn.onclick = playerAttack;
+        btnEl.appendChild(attackBtn);
+        
+        var runBtn = document.createElement('button');
+        runBtn.className = 'action-btn';
+        runBtn.textContent = '🏃 RUN';
+        runBtn.onclick = function() {
+          if (Math.random() < 0.5) {
+            addLog('Successfully ran away!', 'info');
+            endCombat();
+          } else {
+            addLog('Failed to run away!', 'damage');
+            enemyAttack();
+          }
+        };
+        btnEl.appendChild(runBtn);
+      } else {
+        var waitBtn = document.createElement('button');
+        waitBtn.className = 'action-btn';
+        waitBtn.textContent = '⏸️ WAIT';
+        waitBtn.onclick = function() {
+          addLog('You wait...', 'info');
+        };
+        btnEl.appendChild(waitBtn);
+      }
+    }
+    
+    // =====================
+    // INITIALIZATION
+    // =====================
+    function initCharacterSelect() {
+      var selectEl = document.getElementById('charSelect');
+      selectEl.innerHTML = '';
+      
+      for (var key in characters) {
+        var char = characters[key];
+        var card = document.createElement('div');
+        card.className = 'char-card';
+        card.innerHTML = 
+          '<div class="char-icon">' + char.icon + '</div>' +
+          '<div class="char-name">' + char.name + '</div>' +
+          '<div class="char-stats">' +
+          'HP: ' + char.maxHp + ' | MP: ' + char.maxMp + '<br>' +
+          'ATK: ' + char.attack + ' | DEF: ' + char.defense + ' | SPD: ' + char.speed + '<br>' +
+          '<small>' + char.description + '</small>' +
+          '</div>';
+        
+        card.addEventListener('click', function(ch) {
+          return function() {
+            document.querySelectorAll('.char-card').forEach(function(c) {
+              c.classList.remove('selected');
+            });
+            ch.classList.add('selected');
+            game.selectedChar = key;
+          };
+        }(card));
+        
+        selectEl.appendChild(card);
+      }
+    }
+    
+    function startGame() {
+      if (!game.selectedChar) {
+        alert('Please select a character!');
+        return;
+      }
+      
+      game.player = JSON.parse(JSON.stringify(characters[game.selectedChar]));
+      game.currentFloor = 1;
+      game.dungeon = generateDungeon(game.currentFloor);
+      game.inventory = [];
+      game.combatLog = [];
+      game.gameOver = false;
+      
+      document.getElementById('menuScreen').classList.add('hidden');
+      
+      addLog('Welcome to the dungeon, ' + game.player.name + '!', 'info');
+      renderDungeon();
+      updateUI();
+      renderActionButtons();
+    }
+    
+    function restartGame() {
+      document.getElementById('gameOverScreen').classList.remove('show');
+      document.getElementById('menuScreen').classList.remove('hidden');
+      game.selectedChar = null;
+      document.querySelectorAll('.char-card').forEach(function(c) {
+        c.classList.remove('selected');
+      });
+    }
+    
+    // =====================
+    // KEYBOARD CONTROLS
+    // =====================
+    document.addEventListener('keydown', function(e) {
+      if (game.gameOver || game.inCombat) return;
+      
+      var nx = game.playerX;
+      var ny = game.playerY;
+      
+      if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') {
+        ny--;
+      } else if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') {
+        ny++;
+      } else if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
+        nx--;
+      } else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
+        nx++;
+      } else {
+        return;
+      }
+      
+      if (nx >= 0 && nx < game.gridSize && ny >= 0 && ny < game.gridSize) {
+        movePlayer(nx, ny);
+      }
+    });
+    
+    // =====================
+    // EVENT LISTENERS
+    // =====================
+    document.getElementById('startBtn').addEventListener('click', startGame);
+    document.getElementById('restartBtn').addEventListener('click', restartGame);
+    document.getElementById('leaderboardBtn').addEventListener('click', function() {
+      if (typeof showLeaderboardModal === 'function') {
+        var score = game.currentFloor * 1000 + (game.player ? game.player.level * 100 : 0);
+        showLeaderboardModal('dungeon-delver', 'Bikini Bottom Dungeon Delver', score);
+      }
+    });
+    document.getElementById('leaderboardBtn2').addEventListener('click', function() {
+      if (typeof showLeaderboardModal === 'function') {
+        var score = game.currentFloor * 1000 + (game.player ? game.player.level * 100 : 0);
+        showLeaderboardModal('dungeon-delver', 'Bikini Bottom Dungeon Delver', score);
+      }
+    });
+    document.getElementById('backBtn').addEventListener('click', function() {
+      if (confirm('Return to menu? Progress will be lost.')) {
+        document.getElementById('menuScreen').classList.remove('hidden');
+        restartGame();
+      }
+    });
+    
+    // Initialize
+    initCharacterSelect();
+  </script>
+</body>
+</html>
+
