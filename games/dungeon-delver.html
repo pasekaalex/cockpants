@@ -173,24 +173,45 @@
       align-items: center;
       justify-content: center;
       font-size: 24px;
-      transition: all 0.2s;
+      transition: all 0.3s;
       cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .cell::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at center, rgba(255,255,255,0.1), transparent);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    
+    .cell:hover::before {
+      opacity: 1;
     }
     
     .cell.wall {
       background: #1a1a1a;
       border-color: #000;
+      background-image: repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(0,0,0,0.3) 2px, rgba(0,0,0,0.3) 4px);
     }
     
     .cell.floor {
       background: #3a3a4e;
+      background-image: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.05), transparent 50%);
     }
     
     .cell.player {
-      background: #4a90e2;
-      box-shadow: 0 0 15px #4a90e2;
+      background: linear-gradient(135deg, #4a90e2, #7b68ee);
+      box-shadow: 0 0 20px #4a90e2, 0 0 40px rgba(74, 144, 226, 0.5);
       border-color: #fff;
-      animation: pulse 1s infinite;
+      animation: pulse 1s infinite, playerGlow 2s ease-in-out infinite;
+      z-index: 10;
     }
     
     @keyframes pulse {
@@ -198,22 +219,63 @@
       50% { transform: scale(1.1); }
     }
     
+    @keyframes playerGlow {
+      0%, 100% { box-shadow: 0 0 20px #4a90e2, 0 0 40px rgba(74, 144, 226, 0.5); }
+      50% { box-shadow: 0 0 30px #4a90e2, 0 0 60px rgba(74, 144, 226, 0.8); }
+    }
+    
     .cell.enemy {
-      background: #ff4444;
-      box-shadow: 0 0 10px #ff4444;
+      background: linear-gradient(135deg, #ff4444, #cc0000);
+      box-shadow: 0 0 15px #ff4444, 0 0 30px rgba(255, 68, 68, 0.5);
       border-color: #fff;
+      animation: enemyPulse 1.5s ease-in-out infinite;
+    }
+    
+    @keyframes enemyPulse {
+      0%, 100% { transform: scale(1); box-shadow: 0 0 15px #ff4444, 0 0 30px rgba(255, 68, 68, 0.5); }
+      50% { transform: scale(1.05); box-shadow: 0 0 20px #ff4444, 0 0 40px rgba(255, 68, 68, 0.7); }
     }
     
     .cell.item {
-      background: #ffaa00;
-      box-shadow: 0 0 10px #ffaa00;
+      background: linear-gradient(135deg, #ffaa00, #ff8800);
+      box-shadow: 0 0 15px #ffaa00, 0 0 30px rgba(255, 170, 0, 0.5);
       border-color: #fff;
+      animation: itemFloat 2s ease-in-out infinite;
+    }
+    
+    @keyframes itemFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-3px); }
     }
     
     .cell.stairs {
-      background: #7b68ee;
-      box-shadow: 0 0 15px #7b68ee;
+      background: linear-gradient(135deg, #7b68ee, #5a4fcf);
+      box-shadow: 0 0 20px #7b68ee, 0 0 40px rgba(123, 104, 238, 0.5);
       border-color: #fff;
+      animation: stairsGlow 3s ease-in-out infinite;
+    }
+    
+    @keyframes stairsGlow {
+      0%, 100% { box-shadow: 0 0 20px #7b68ee, 0 0 40px rgba(123, 104, 238, 0.5); }
+      50% { box-shadow: 0 0 30px #7b68ee, 0 0 60px rgba(123, 104, 238, 0.8); }
+    }
+    
+    .particle {
+      position: fixed;
+      pointer-events: none;
+      font-size: 20px;
+      z-index: 2000;
+      animation: particleFloat 1s ease-out forwards;
+      text-shadow: 0 0 10px currentColor;
+    }
+    
+    @keyframes particleFloat {
+      0% { opacity: 1; transform: translateY(0) scale(1) rotate(0deg); }
+      100% { opacity: 0; transform: translateY(-60px) scale(1.5) rotate(360deg); }
+    }
+    
+    .main-area {
+      position: relative;
     }
     
     .cell.visible {
@@ -743,18 +805,52 @@
         grid[stairsY][stairsX].stairs = true;
       }
       
+      // Helper function to check if cell is in a tunnel (has 2 or fewer floor neighbors)
+      function isTunnel(x, y) {
+        var floorNeighbors = 0;
+        var neighbors = [[x-1,y], [x+1,y], [x,y-1], [x,y+1]];
+        for (var n = 0; n < neighbors.length; n++) {
+          var nx = neighbors[n][0];
+          var ny = neighbors[n][1];
+          if (nx >= 0 && nx < size && ny >= 0 && ny < size && grid[ny][nx].type === 'floor') {
+            floorNeighbors++;
+          }
+        }
+        return floorNeighbors <= 2;
+      }
+      
+      // Helper function to check if adjacent cells have enemies
+      function hasAdjacentEnemy(x, y) {
+        var neighbors = [[x-1,y], [x+1,y], [x,y-1], [x,y+1]];
+        for (var n = 0; n < neighbors.length; n++) {
+          var nx = neighbors[n][0];
+          var ny = neighbors[n][1];
+          if (nx >= 0 && nx < size && ny >= 0 && ny < size && grid[ny][nx].enemy) {
+            return true;
+          }
+        }
+        return false;
+      }
+      
       // Place enemies
       var enemyCount = 3 + Math.floor(floor * 1.5);
       for (var i = 0; i < enemyCount; i++) {
         var placed = false;
         var attempts = 0;
-        while (!placed && attempts < 50) {
+        while (!placed && attempts < 100) {
           var ex = Math.floor(Math.random() * size);
           var ey = Math.floor(Math.random() * size);
           
           if (grid[ey] && grid[ey][ex] && grid[ey][ex].type === 'floor' &&
               (ex !== game.playerX || ey !== game.playerY) &&
               !grid[ey][ex].enemy && !grid[ey][ex].stairs) {
+            
+            // If in a tunnel, don't place if adjacent to another enemy
+            if (isTunnel(ex, ey) && hasAdjacentEnemy(ex, ey)) {
+              attempts++;
+              continue;
+            }
+            
             var enemyType = getEnemyForFloor(floor);
             grid[ey][ex].enemy = {
               type: enemyType.name,
@@ -772,8 +868,8 @@
         }
       }
       
-      // Place items
-      var itemCount = 2 + Math.floor(floor / 2);
+      // Place items (prioritize health potions)
+      var itemCount = 3 + Math.floor(floor / 2);
       for (var i = 0; i < itemCount; i++) {
         var placed = false;
         var attempts = 0;
@@ -784,7 +880,16 @@
           if (grid[iy] && grid[iy][ix] && grid[iy][ix].type === 'floor' &&
               !grid[iy][ix].enemy && !grid[iy][ix].item && !grid[iy][ix].stairs) {
             var itemKeys = Object.keys(itemTypes);
-            var itemKey = itemKeys[Math.floor(Math.random() * itemKeys.length)];
+            // 40% chance for health potion, 20% for krabby patty, rest random
+            var itemKey;
+            var rand = Math.random();
+            if (rand < 0.4) {
+              itemKey = 'healthPotion';
+            } else if (rand < 0.6) {
+              itemKey = 'krabbyPatty';
+            } else {
+              itemKey = itemKeys[Math.floor(Math.random() * itemKeys.length)];
+            }
             grid[iy][ix].item = JSON.parse(JSON.stringify(itemTypes[itemKey]));
             placed = true;
           }
@@ -1003,6 +1108,9 @@
         game.dungeon[y][x].item = null;
         addLog('Picked up ' + item.name + '!', 'loot');
         
+        // Visual effect
+        createParticle(x * 40 + 20, y * 40 + 20, item.icon);
+        
         if (typeof soundManager !== 'undefined' && soundManager.play) {
           soundManager.play('money');
         }
@@ -1049,6 +1157,14 @@
       game.currentEnemy.y = y;
       
       addLog('Combat started! ' + enemy.type + ' appears!', 'info');
+      
+      // Combat visual effect
+      for (var i = 0; i < 10; i++) {
+        setTimeout(function() {
+          createParticle(x * 40 + 20, y * 40 + 20, '⚔️');
+        }, i * 50);
+      }
+      
       updateUI();
       renderActionButtons();
       
@@ -1078,10 +1194,24 @@
       game.currentEnemy.hp -= damage;
       addLog(game.player.name + ' attacks for ' + damage + ' damage!', 'damage');
       
+      // Visual effect
+      if (game.currentEnemy.x !== undefined && game.currentEnemy.y !== undefined) {
+        createParticle(game.currentEnemy.x * 40 + 20, game.currentEnemy.y * 40 + 20, '⚔️');
+      }
+      
       if (game.currentEnemy.hp <= 0) {
         var xp = game.currentEnemy.xp;
         game.player.xp += xp;
         addLog('Enemy defeated! Gained ' + xp + ' XP!', 'info');
+        
+        // Victory particles
+        if (game.currentEnemy.x !== undefined && game.currentEnemy.y !== undefined) {
+          for (var i = 0; i < 5; i++) {
+            setTimeout(function() {
+              createParticle(game.currentEnemy.x * 40 + 20, game.currentEnemy.y * 40 + 20, '⭐');
+            }, i * 100);
+          }
+        }
         
         // Check level up
         while (game.player.xp >= game.player.xpToNext) {
@@ -1138,9 +1268,18 @@
     function nextFloor() {
       game.currentFloor++;
       addLog('Descending to floor ' + game.currentFloor + '...', 'info');
+      
+      // Floor transition effect
+      for (var i = 0; i < 20; i++) {
+        setTimeout(function() {
+          createParticle(game.playerX * 40 + 20, game.playerY * 40 + 20, '✨');
+        }, i * 50);
+      }
+      
       game.dungeon = generateDungeon(game.currentFloor);
       renderDungeon();
       updateUI();
+      renderActionButtons();
       
       if (typeof soundManager !== 'undefined' && soundManager.play) {
         soundManager.play('ready');
@@ -1203,7 +1342,50 @@
           addLog('You wait...', 'info');
         };
         btnEl.appendChild(waitBtn);
+        
+        // Heal button (uses MP)
+        var healBtn = document.createElement('button');
+        healBtn.className = 'action-btn';
+        healBtn.textContent = '💚 HEAL (10 MP)';
+        healBtn.onclick = function() {
+          if (game.player.mp >= 10 && game.player.hp < game.player.maxHp) {
+            var healAmount = Math.min(30 + game.player.level * 5, game.player.maxHp - game.player.hp);
+            game.player.hp += healAmount;
+            game.player.mp -= 10;
+            addLog('You heal for ' + healAmount + ' HP!', 'heal');
+            createParticle(game.playerX * 40 + 20, game.playerY * 40 + 20, '💚');
+            updateUI();
+            
+            if (typeof soundManager !== 'undefined' && soundManager.play) {
+              soundManager.play('gary');
+            }
+          } else if (game.player.mp < 10) {
+            addLog('Not enough MP!', 'info');
+          } else {
+            addLog('Already at full health!', 'info');
+          }
+        };
+        if (game.player.mp < 10 || game.player.hp >= game.player.maxHp) {
+          healBtn.disabled = true;
+        }
+        btnEl.appendChild(healBtn);
       }
+    }
+    
+    function createParticle(x, y, emoji) {
+      var particle = document.createElement('div');
+      particle.className = 'particle';
+      particle.textContent = emoji;
+      var gridEl = document.getElementById('dungeonGrid');
+      var rect = gridEl.getBoundingClientRect();
+      particle.style.left = (rect.left + x - window.scrollX) + 'px';
+      particle.style.top = (rect.top + y - window.scrollY) + 'px';
+      document.body.appendChild(particle);
+      setTimeout(function() {
+        if (particle.parentNode) {
+          particle.remove();
+        }
+      }, 1000);
     }
     
     // =====================
