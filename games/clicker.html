@@ -1170,6 +1170,7 @@
   
   <div class="flash" id="flash"></div>
   <div class="stroke-banner" id="strokeBanner">🔥 STROKE MODE 🔥</div>
+  <div class="stroke-banner" id="ultraStrokeBanner" style="background: linear-gradient(135deg, #ff00ff, #00ffff, #ffff00); font-size: 48px; z-index: 9998;">⚡ ULTRA STROKE MODE ⚡</div>
   <div class="feeling-it-text" id="feelingItText">ARE YOU FEELING IT NOW MR. KRABS?!</div>
   <div class="krabs-container" id="krabsContainer"></div>
   <img class="reaction-image" id="reactionImage" src="" alt="">
@@ -1312,6 +1313,8 @@
     let comboTimeout;
     let shrinkTimeout;
     let strokeMode = false;
+    let ultraStrokeMode = false;
+    let ultraStrokeTimeout;
     let strokeParticleInterval;
     let feelingItActive = false;
     let feelingItTimeout;
@@ -1543,6 +1546,7 @@
     const multiplierEl = document.getElementById('multiplier');
     const flashEl = document.getElementById('flash');
     const strokeBanner = document.getElementById('strokeBanner');
+    const ultraStrokeBanner = document.getElementById('ultraStrokeBanner');
     const colorFlash = document.getElementById('colorFlash');
     const notification = document.getElementById('notification');
     const bgMusic = document.getElementById('bgMusic');
@@ -2095,14 +2099,21 @@
           e.target.closest('.golden-pants') ||
           e.target.closest('.leaderboard-btn')) return;
       
-      gameState.totalPumps += gameState.pumpsPerClick;
-      gameState.lifetimePumps += gameState.pumpsPerClick;
+      // Apply ultra stroke multiplier to clicks (10x)
+      const clickMultiplier = ultraStrokeMode ? 10 : 1;
+      const pumpsFromClick = gameState.pumpsPerClick * clickMultiplier;
       
-      const dollarsEarned = gameState.pumpsPerClick * gameState.dollarsPerPump;
+      gameState.totalPumps += pumpsFromClick;
+      gameState.lifetimePumps += pumpsFromClick;
+      
+      const dollarsEarned = pumpsFromClick * gameState.dollarsPerPump;
       gameState.dollars += dollarsEarned;
       
-      gameState.combo++;
-      if (gameState.combo > gameState.maxCombo) gameState.maxCombo = gameState.combo;
+      // Only increase combo if not in ultra stroke mode (prevents infinite combo)
+      if (!ultraStrokeMode) {
+        gameState.combo++;
+        if (gameState.combo > gameState.maxCombo) gameState.maxCombo = gameState.combo;
+      }
       
       pumpScale = Math.min(pumpScale + 0.05, 2.5);
       spinner.style.setProperty('--pump-scale', pumpScale);
@@ -2156,6 +2167,12 @@
         multiplierEl.classList.add('boosted');
       }
       
+      // Check for ultra stroke mode activation (200x combo)
+      if (gameState.combo >= 200 && !ultraStrokeMode) {
+        activateUltraStrokeMode();
+        return; // Don't update combo display while in ultra stroke
+      }
+      
       if (gameState.combo >= 50 && !strokeMode) {
         activateStrokeMode();
       }
@@ -2204,6 +2221,56 @@
       if (strokeParticleInterval) clearInterval(strokeParticleInterval);
       
       if (typeof soundManager !== 'undefined') soundManager.play('ohyeah');
+    }
+    
+    function activateUltraStrokeMode() {
+      ultraStrokeMode = true;
+      gameState.combo = 0; // Reset combo to prevent infinite
+      comboDisplay.classList.remove('visible', 'stroke-active');
+      ultraStrokeBanner.classList.add('visible');
+      spinner.classList.add('stroke-mode');
+      colorFlash.classList.add('active');
+      document.body.classList.add('shake');
+      
+      // Deactivate regular stroke mode if active
+      if (strokeMode) {
+        deactivateStrokeMode();
+      }
+      
+      if (typeof soundManager !== 'undefined') {
+        soundManager.play('feelit');
+        soundManager.play('ohyeah');
+      }
+      
+      // Ultra stroke mode lasts 30 seconds
+      clearTimeout(ultraStrokeTimeout);
+      ultraStrokeTimeout = setTimeout(() => {
+        deactivateUltraStrokeMode();
+      }, 30000);
+      
+      // Enhanced particle effects
+      if (strokeParticleInterval) clearInterval(strokeParticleInterval);
+      strokeParticleInterval = setInterval(() => {
+        for (let i = 0; i < 30; i++) {
+          createParticle(Math.random() * window.innerWidth, Math.random() * window.innerHeight);
+        }
+      }, 50);
+    }
+    
+    function deactivateUltraStrokeMode() {
+      ultraStrokeMode = false;
+      ultraStrokeBanner.classList.remove('visible');
+      spinner.classList.remove('stroke-mode');
+      colorFlash.classList.remove('active');
+      document.body.classList.remove('shake');
+      if (strokeParticleInterval) clearInterval(strokeParticleInterval);
+      
+      if (typeof soundManager !== 'undefined') soundManager.play('ohyeah');
+      
+      // Reset combo display
+      gameState.combo = 0;
+      comboDisplay.classList.remove('visible', 'stroke-active');
+      multiplierEl.textContent = '1x Multiplier';
     }
     
     // =====================
@@ -2315,13 +2382,17 @@
     // AUTO TICK
     // =====================
     setInterval(() => {
+      // Apply ultra stroke multiplier (4x) to auto income
+      const autoMultiplier = ultraStrokeMode ? 4 : 1;
+      
       if (gameState.pumpsPerSecond > 0) {
-        gameState.totalPumps += gameState.pumpsPerSecond;
-        gameState.lifetimePumps += gameState.pumpsPerSecond;
-        gameState.dollars += gameState.pumpsPerSecond * gameState.dollarsPerPump;
+        const pumpsGained = gameState.pumpsPerSecond * autoMultiplier;
+        gameState.totalPumps += pumpsGained;
+        gameState.lifetimePumps += pumpsGained;
+        gameState.dollars += pumpsGained * gameState.dollarsPerPump;
       }
       if (gameState.dollarsPerSecond > 0) {
-        gameState.dollars += gameState.dollarsPerSecond;
+        gameState.dollars += gameState.dollarsPerSecond * autoMultiplier;
       }
       updateDisplays();
       checkAchievements();
