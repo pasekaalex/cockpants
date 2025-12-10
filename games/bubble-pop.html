@@ -27,6 +27,20 @@
       justify-content: center;
       min-height: 100vh;
       overflow: hidden;
+      position: relative;
+    }
+    
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at 20% 30%, rgba(255,255,255,0.15) 0%, transparent 40%),
+                  radial-gradient(circle at 80% 70%, rgba(255,255,255,0.1) 0%, transparent 40%);
+      pointer-events: none;
+      z-index: 0;
     }
     
     @keyframes gradientShift {
@@ -220,13 +234,64 @@
       z-index: 500;
       pointer-events: none;
       opacity: 0;
-      max-width: 120px;
-      transition: opacity 0.3s;
+      max-width: 140px;
+      transition: opacity 0.5s;
+      filter: drop-shadow(0 5px 15px rgba(0,0,0,0.4));
     }
     
-    .character-image.left { left: 20px; bottom: 20px; }
-    .character-image.right { right: 20px; bottom: 20px; }
-    .character-image.center { left: 50%; bottom: 20px; transform: translateX(-50%); max-width: 100px; }
+    .character-image.center {
+      right: 20px;
+      bottom: 20px;
+      animation: bubbleBuddyFloat 4s ease-in-out infinite;
+    }
+    
+    @keyframes bubbleBuddyFloat {
+      0%, 100% { transform: translateY(0) rotate(-2deg); }
+      50% { transform: translateY(-15px) rotate(2deg); }
+    }
+    
+    /* Menu images with swaying animation */
+    .menu-images {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      margin: 20px 0;
+      flex-wrap: wrap;
+    }
+    
+    .menu-image {
+      max-width: 150px;
+      height: auto;
+      border-radius: 15px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    }
+    
+    .menu-image.sway-left {
+      animation: swayLeft 3s ease-in-out infinite;
+    }
+    
+    .menu-image.sway-right {
+      animation: swayRight 3s ease-in-out infinite;
+    }
+    
+    .menu-image.sway-center {
+      animation: swayCenter 2.5s ease-in-out infinite;
+    }
+    
+    @keyframes swayLeft {
+      0%, 100% { transform: rotate(-3deg) translateY(0); }
+      50% { transform: rotate(3deg) translateY(-10px); }
+    }
+    
+    @keyframes swayRight {
+      0%, 100% { transform: rotate(3deg) translateY(0); }
+      50% { transform: rotate(-3deg) translateY(-10px); }
+    }
+    
+    @keyframes swayCenter {
+      0%, 100% { transform: scale(1) translateY(0); }
+      50% { transform: scale(1.05) translateY(-8px); }
+    }
     
     @media (max-width: 768px) {
       .game-container { padding: 12px; width: 98vw; }
@@ -235,7 +300,9 @@
       .menu-icon { font-size: 100px; }
       .menu-btn { font-size: 18px; padding: 15px 30px; }
       .ui-value { font-size: 20px; }
-      .character-image { max-width: 80px; }
+      .character-image { max-width: 80px; right: 10px; bottom: 10px; }
+      .menu-images { gap: 15px; }
+      .menu-image { max-width: 100px; }
     }
   </style>
 </head>
@@ -246,10 +313,10 @@
   <div class="menu-screen" id="menuScreen">
     <div class="menu-icon">🫧</div>
     <h1 class="menu-title">BUBBLE BUDDY<br>BUBBLE POP</h1>
-    <div style="display: flex; justify-content: center; gap: 20px; margin: 20px 0; flex-wrap: wrap;">
-      <img src="https://i.imgur.com/PA0NHpg.png" alt="SpongeBob & Bubble Buddy" style="max-width: 150px; height: auto; border-radius: 15px;" />
-      <img src="https://i.imgur.com/znHCHsf.png" alt="Squidward & Bubble Buddy" style="max-width: 150px; height: auto; border-radius: 15px;" />
-      <img src="https://i.imgur.com/U4fJepp.png" alt="Bubble Buddy drinking soda" style="max-width: 150px; height: auto; border-radius: 15px;" />
+    <div class="menu-images">
+      <img src="https://i.imgur.com/PA0NHpg.png" alt="SpongeBob & Bubble Buddy" class="menu-image sway-left" />
+      <img src="https://i.imgur.com/U4fJepp.png" alt="Bubble Buddy drinking soda" class="menu-image sway-center" />
+      <img src="https://i.imgur.com/znHCHsf.png" alt="Squidward & Bubble Buddy" class="menu-image sway-right" />
     </div>
     <button class="menu-btn" id="startBtn">🎮 START GAME</button>
     <div style="color: #fff; text-align: center; margin-top: 20px; max-width: 500px; padding: 0 20px;">
@@ -265,9 +332,8 @@
     <button class="menu-btn" id="leaderboardBtn">🏆 LEADERBOARD</button>
   </div>
   
-  <img src="https://i.imgur.com/PA0NHpg.png" alt="" class="character-image left" />
-  <img src="https://i.imgur.com/znHCHsf.png" alt="" class="character-image right" />
-  <img src="https://i.imgur.com/U4fJepp.png" alt="" class="character-image center" />
+  <!-- Bubble Buddy drinking soda - shown during gameplay -->
+  <img src="https://i.imgur.com/U4fJepp.png" alt="Bubble Buddy" class="character-image center" id="gameCharacter" />
   
   <div class="game-container">
     <div class="ui-bar">
@@ -312,13 +378,14 @@
     var COLS = 15;
     var SHOT_SPEED = 12;
     
+    // More distinct, vibrant colors
     var COLORS = [
-      {main: '#FF6B6B', light: '#FF8E8E'},
-      {main: '#4ECDC4', light: '#6EDDD6'},
-      {main: '#FFE66D', light: '#FFED8A'},
-      {main: '#95E1D3', light: '#B0EDE1'},
-      {main: '#F38181', light: '#F59A9A'},
-      {main: '#AA96DA', light: '#C2B3E8'}
+      {main: '#FF0000', light: '#FF6666'},  // Bright Red
+      {main: '#00CC00', light: '#66FF66'},  // Bright Green
+      {main: '#0066FF', light: '#66AAFF'},  // Bright Blue
+      {main: '#FFCC00', light: '#FFEE66'},  // Bright Yellow
+      {main: '#FF00FF', light: '#FF88FF'},  // Magenta/Pink
+      {main: '#FF6600', light: '#FFAA66'}   // Orange
     ];
     
     // INITIALIZATION
@@ -361,10 +428,11 @@
       console.log('Starting game...');
       document.getElementById('menuScreen').classList.add('hidden');
       
-      // Show character images
-      document.querySelectorAll('.character-image').forEach(function(img) {
-        img.style.opacity = '0.6';
-      });
+      // Show Bubble Buddy during gameplay
+      var gameChar = document.getElementById('gameCharacter');
+      if (gameChar) {
+        gameChar.style.opacity = '0.7';
+      }
       
       // Reset game state
       score = 0;
@@ -385,9 +453,13 @@
     function restartGame() {
       document.getElementById('gameOverScreen').classList.remove('show');
       document.getElementById('menuScreen').classList.remove('hidden');
-      document.querySelectorAll('.character-image').forEach(function(img) {
-        img.style.opacity = '0';
-      });
+      
+      // Hide Bubble Buddy
+      var gameChar = document.getElementById('gameCharacter');
+      if (gameChar) {
+        gameChar.style.opacity = '0';
+      }
+      
       gameRunning = false;
     }
     
@@ -689,15 +761,22 @@
     }
     
     function drawBubble(x, y, color, radius) {
-      // Shadow
+      // Outer glow
       ctx.beginPath();
-      ctx.arc(x + 2, y + 2, radius, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(0,0,0,0.2)';
+      ctx.arc(x, y, radius + 3, 0, Math.PI * 2);
+      ctx.fillStyle = color.main + '44'; // Semi-transparent glow
       ctx.fill();
       
-      // Main bubble
+      // Shadow
+      ctx.beginPath();
+      ctx.arc(x + 2, y + 3, radius, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(0,0,0,0.25)';
+      ctx.fill();
+      
+      // Main bubble with gradient
       var gradient = ctx.createRadialGradient(x - radius * 0.3, y - radius * 0.3, 0, x, y, radius);
       gradient.addColorStop(0, color.light);
+      gradient.addColorStop(0.7, color.main);
       gradient.addColorStop(1, color.main);
       
       ctx.beginPath();
@@ -705,10 +784,21 @@
       ctx.fillStyle = gradient;
       ctx.fill();
       
-      // Highlight
+      // Border for definition
+      ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      
+      // Main highlight
       ctx.beginPath();
-      ctx.arc(x - radius * 0.3, y - radius * 0.3, radius * 0.3, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(255,255,255,0.5)';
+      ctx.arc(x - radius * 0.3, y - radius * 0.35, radius * 0.35, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(255,255,255,0.6)';
+      ctx.fill();
+      
+      // Small secondary highlight
+      ctx.beginPath();
+      ctx.arc(x + radius * 0.2, y + radius * 0.2, radius * 0.15, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(255,255,255,0.3)';
       ctx.fill();
     }
     
