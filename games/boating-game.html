@@ -1267,8 +1267,14 @@
         }
         boat.children.forEach(part => {
           if (part.material) {
-            part.material.emissive.setHex(0x00FFFF);
-            part.material.emissiveIntensity = 0.5;
+            if (part.material.emissive) {
+              if (part.material.emissive.setHex) {
+                part.material.emissive.setHex(0x00FFFF);
+              } else {
+                part.material.emissive = new THREE.Color(0x00FFFF);
+              }
+              part.material.emissiveIntensity = 0.5;
+            }
           }
         });
       }
@@ -1302,8 +1308,12 @@
       
       if (!gameState.shield.active) {
         boat.children.forEach(part => {
-          if (part.material) {
-            part.material.emissive.setHex(0x000000);
+          if (part.material && part.material.emissive) {
+            if (part.material.emissive.setHex) {
+              part.material.emissive.setHex(0x000000);
+            } else {
+              part.material.emissive = new THREE.Color(0x000000);
+            }
             part.material.emissiveIntensity = 0;
           }
         });
@@ -1536,8 +1546,8 @@
       
       updateAcceleration(delta);
       
-      gameState.distance += gameState.speed * 1.2;
-      gameState.baseSpeed = 0.08 + (gameState.distance * 0.000004);
+      gameState.distance += gameState.speed * 60 * delta * 1.2; // Use delta for consistent distance
+      gameState.baseSpeed = 0.12 + (gameState.distance * 0.000004); // Increased base from 0.08 to 0.12
       if (!gameState.speedBoost.active && !gameState.accelerating) {
         gameState.targetSpeed = gameState.baseSpeed;
       }
@@ -1547,8 +1557,10 @@
       camera.position.z = 10 + cameraZ;
       camera.lookAt(boat.position.x, 1, boat.position.z + cameraZ - 10);
       
+      // Move obstacles, collectibles, and powerups toward player
+      const forwardSpeed = gameState.speed * 60; // Convert to units per second
       obstacles.forEach((obstacle, index) => {
-        obstacle.position.z += gameState.speed;
+        obstacle.position.z += forwardSpeed * delta;
         obstacle.rotation.y += 0.02;
         
         if (obstacle.position.z > 15) {
@@ -1558,7 +1570,7 @@
       });
       
       collectibles.forEach((jelly, index) => {
-        jelly.position.z += gameState.speed;
+        jelly.position.z += forwardSpeed * delta;
         jelly.rotation.y += 0.04;
         
         // Bob up and down
@@ -1574,7 +1586,7 @@
       });
       
       powerups.forEach((powerup, index) => {
-        powerup.position.z += gameState.speed;
+        powerup.position.z += forwardSpeed * delta;
         powerup.rotation.y += 0.08;
         powerup.rotation.x += 0.05;
         
@@ -1634,9 +1646,9 @@
         jellies: 0,
         combo: 0,
         maxCombo: 0,
-        speed: 0.1,
-        baseSpeed: 0.1,
-        targetSpeed: 0.1,
+        speed: 0.15, // Increased from 0.1 for more visible movement
+        baseSpeed: 0.15, // Increased from 0.1
+        targetSpeed: 0.15, // Increased from 0.1
         accelerating: false,
         accelProgress: 0,
         shield: { active: false, duration: 0 },

@@ -525,6 +525,7 @@
 
         const spawnEnemy = () => {
           const game = gameRef.current;
+          const currentTime = time; // Capture current time value
           const side = Math.floor(Math.random() * 4);
           let x, y;
           const offset = 150;
@@ -534,10 +535,10 @@
           else { x = game.player.x - GAME_WIDTH/2 - offset; y = game.player.y + (Math.random() - 0.5) * GAME_HEIGHT; }
 
           let pool = ['plankton'];
-          if (time > 15) pool.push('squidward');
-          if (time > 30) pool.push('krabs');
-          if (time > 45) pool.push('sandy');
-          if (time > 60) pool.push('patrick');
+          if (currentTime > 15) pool.push('squidward');
+          if (currentTime > 30) pool.push('krabs');
+          if (currentTime > 45) pool.push('sandy');
+          if (currentTime > 60) pool.push('patrick');
           
           const typeKey = pool[Math.floor(Math.random() * pool.length)];
           const template = ENEMIES[typeKey];
@@ -671,10 +672,11 @@
           
           // Spawn enemies (easier - slower spawn rate)
           spawnTimer += delta;
-          const spawnRate = Math.max(40, 65 - time * 0.1); // Slower spawn rate, less aggressive scaling
-          if (spawnTimer > spawnRate) {
+          const currentTime = time; // Capture current time value
+          const spawnRate = Math.max(25, 45 - currentTime * 0.1); // Faster initial spawn (45 frames = ~0.75 seconds)
+          if (spawnTimer >= spawnRate) {
             spawnTimer = 0;
-            const count = Math.min(1 + Math.floor(time / 40), 2); // Fewer enemies at once, slower scaling
+            const count = Math.min(1 + Math.floor(currentTime / 45), 2); // Fewer enemies at once, slower scaling
             for (let i = 0; i < count; i++) spawnEnemy();
           }
           
