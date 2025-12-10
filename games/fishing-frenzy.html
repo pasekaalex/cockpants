@@ -1349,8 +1349,8 @@
   </div>
   
   <!-- Gallery Modal -->
-  <div class="minigame-overlay" id="galleryModal">
-    <div class="minigame-container" style="max-width: 900px; max-height: 80vh; overflow-y: auto;">
+  <div class="minigame-overlay" id="galleryModal" onclick="if(event.target.id === 'galleryModal') closeGallery()">
+    <div class="minigame-container" style="max-width: 900px; max-height: 80vh; overflow-y: auto;" onclick="event.stopPropagation()">
       <div class="minigame-title">📚 FISH COLLECTION GALLERY</div>
       <div class="gallery-grid" id="galleryGrid"></div>
       <button class="catch-close" onclick="closeGallery()" style="margin-top: 20px;">CLOSE</button>
@@ -1372,7 +1372,8 @@
       boatLevel: 1,
       collection: {},
       dailyChallenge: null,
-      dailyChallengeProgress: 0
+      dailyChallengeProgress: 0,
+      dailyChallengeCompleted: false
     };
     
     // =====================
@@ -1498,14 +1499,18 @@
       
       var today = new Date().toDateString();
       var savedChallenge = localStorage.getItem('dailyChallenge_' + today);
+      var savedCompleted = localStorage.getItem('dailyChallengeCompleted_' + today);
       
       if (savedChallenge) {
         gameState.dailyChallenge = JSON.parse(savedChallenge);
         gameState.dailyChallengeProgress = parseInt(localStorage.getItem('dailyChallengeProgress_' + today)) || 0;
+        gameState.dailyChallengeCompleted = savedCompleted === 'true';
       } else {
         gameState.dailyChallenge = challenges[Math.floor(Math.random() * challenges.length)];
         gameState.dailyChallengeProgress = 0;
+        gameState.dailyChallengeCompleted = false;
         localStorage.setItem('dailyChallenge_' + today, JSON.stringify(gameState.dailyChallenge));
+        localStorage.setItem('dailyChallengeCompleted_' + today, 'false');
       }
       
       renderDailyChallenge();
@@ -1955,15 +1960,25 @@
     }
     
     function updateDailyChallenge(type, amount) {
-      if (!gameState.dailyChallenge || gameState.dailyChallenge.type !== type) return;
+      if (!gameState.dailyChallenge || gameState.dailyChallenge.type !== type || gameState.dailyChallengeCompleted) return;
       
       gameState.dailyChallengeProgress += amount;
-      if (gameState.dailyChallengeProgress >= gameState.dailyChallenge.target) {
+      
+      // Cap progress at target
+      if (gameState.dailyChallengeProgress > gameState.dailyChallenge.target) {
         gameState.dailyChallengeProgress = gameState.dailyChallenge.target;
+      }
+      
+      // Check if challenge is completed
+      if (gameState.dailyChallengeProgress >= gameState.dailyChallenge.target && !gameState.dailyChallengeCompleted) {
+        gameState.dailyChallengeCompleted = true;
         gameState.money += gameState.dailyChallenge.reward;
         alert('Daily Challenge Complete! +$' + gameState.dailyChallenge.reward);
         updateUI();
         saveGameState();
+        
+        var today = new Date().toDateString();
+        localStorage.setItem('dailyChallengeCompleted_' + today, 'true');
       }
       
       var today = new Date().toDateString();
@@ -1979,16 +1994,23 @@
       }
       
       var progress = Math.min((gameState.dailyChallengeProgress / gameState.dailyChallenge.target) * 100, 100);
+      var isCompleted = gameState.dailyChallengeCompleted;
+      
       container.innerHTML = `
-        <div class="challenge-card">
-          <div class="challenge-title">${gameState.dailyChallenge.description}</div>
+        <div class="challenge-card" style="${isCompleted ? 'opacity: 0.7; border-color: rgba(76, 175, 80, 0.6);' : ''}">
+          <div class="challenge-title">
+            ${isCompleted ? '✅ ' : ''}${gameState.dailyChallenge.description}
+            ${isCompleted ? '<span style="color: #4CAF50; font-size: 14px; margin-left: 5px;">(COMPLETED)</span>' : ''}
+          </div>
           <div class="challenge-progress">
-            <div class="challenge-progress-bar" style="width: ${progress}%"></div>
+            <div class="challenge-progress-bar" style="width: ${progress}%; ${isCompleted ? 'background: linear-gradient(90deg, #4CAF50, #8BC34A);' : ''}"></div>
           </div>
           <div style="margin-top: 5px; font-size: 12px;">
             ${gameState.dailyChallengeProgress} / ${gameState.dailyChallenge.target}
           </div>
-          <div class="challenge-reward">Reward: $${gameState.dailyChallenge.reward}</div>
+          <div class="challenge-reward" style="${isCompleted ? 'color: #4CAF50;' : ''}">
+            ${isCompleted ? '✅ Reward Claimed: $' : 'Reward: $'}${gameState.dailyChallenge.reward}
+          </div>
         </div>
       `;
     }
@@ -2082,7 +2104,13 @@
     }
     
     function showGallery() {
-      document.getElementById('galleryModal').classList.add('active');
+      // Make sure game state is loaded
+      if (!gameState.collection) {
+        loadGameState();
+      }
+      
+      var modal = document.getElementById('galleryModal');
+      modal.classList.add('active');
       renderFullGallery();
     }
     
@@ -2092,22 +2120,46 @@
     
     function renderFullGallery() {
       var container = document.getElementById('galleryGrid');
+      if (!container) return;
+      
       container.innerHTML = '';
       
+      if (!fishTypes || Object.keys(fishTypes).length === 0) {
+        container.innerHTML = '<div style="text-align: center; color: #aaa; padding: 20px;">No fish data available</div>';
+        return;
+      }
+      
       Object.values(fishTypes).forEach(fish => {
-        var caught = gameState.collection[fish.name] || 0;
+        if (!fish || !fish.name) return;
+        
+        var caught = (gameState.collection && gameState.collection[fish.name]) ? gameState.collection[fish.name] : 0;
         var item = document.createElement('div');
         item.className = 'gallery-item' + (caught === 0 ? ' locked' : '');
         item.innerHTML = `
-          <div class="gallery-icon">${fish.icon}</div>
+          <div class="gallery-icon">${fish.icon || '🐟'}</div>
           <div class="gallery-name">${fish.name}</div>
-          <div style="font-size: 10px; color: #aaa; margin-top: 5px;">${fish.rarity.toUpperCase()}</div>
-          <div style="font-size: 10px; color: #aaa;">${fish.weight}</div>
+          <div style="font-size: 10px; color: #aaa; margin-top: 5px;">${(fish.rarity || 'common').toUpperCase()}</div>
+          <div style="font-size: 10px; color: #aaa;">${fish.weight || 'N/A'}</div>
           ${caught > 0 ? `<div class="gallery-count">${caught}</div>` : ''}
         `;
         container.appendChild(item);
       });
+      
+      // Show collection stats
+      var totalFish = Object.keys(fishTypes).length;
+      var caughtFish = gameState.collection ? Object.keys(gameState.collection).length : 0;
+      var statsEl = document.createElement('div');
+      statsEl.style.cssText = 'text-align: center; margin-bottom: 20px; padding: 15px; background: rgba(255, 215, 0, 0.1); border-radius: 10px;';
+      statsEl.innerHTML = `
+        <div style="font-size: 24px; color: #FFD700; font-weight: bold;">${caughtFish} / ${totalFish}</div>
+        <div style="font-size: 14px; color: #aaa;">Fish Collected</div>
+      `;
+      container.insertBefore(statsEl, container.firstChild);
     }
+    
+    // Make functions globally accessible
+    window.showGallery = showGallery;
+    window.closeGallery = closeGallery;
     
     function updateUI() {
       document.getElementById('moneyDisplay').textContent = '$' + gameState.money.toLocaleString();
@@ -2133,15 +2185,27 @@
     function loadGameState() {
       var saved = localStorage.getItem('fishingFrenzy_state');
       if (saved) {
-        var data = JSON.parse(saved);
-        gameState.money = data.money || 0;
-        gameState.totalCaught = data.totalCaught || 0;
-        gameState.rareFishCaught = data.rareFishCaught || 0;
-        gameState.rodLevel = data.rodLevel || 1;
-        gameState.baitLevel = data.baitLevel || 1;
-        gameState.boatLevel = data.boatLevel || 1;
-        gameState.collection = data.collection || {};
+        try {
+          var data = JSON.parse(saved);
+          gameState.money = data.money || 0;
+          gameState.totalCaught = data.totalCaught || 0;
+          gameState.rareFishCaught = data.rareFishCaught || 0;
+          gameState.rodLevel = data.rodLevel || 1;
+          gameState.baitLevel = data.baitLevel || 1;
+          gameState.boatLevel = data.boatLevel || 1;
+          gameState.collection = data.collection || {};
+        } catch (e) {
+          console.error('Error loading game state:', e);
+          gameState.collection = {};
+        }
+      } else {
+        gameState.collection = {};
       }
+    }
+    
+    // Initialize collection if it doesn't exist
+    if (!gameState.collection) {
+      gameState.collection = {};
     }
     
     function openLeaderboard() {
