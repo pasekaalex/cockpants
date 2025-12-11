@@ -62,6 +62,28 @@
       100% { transform: translateY(-100vh); }
     }
     
+    /* Caustic light effect */
+    body::after {
+      content: '';
+      position: fixed;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: 
+        radial-gradient(ellipse 800px 400px at 30% 20%, rgba(255, 255, 200, 0.15) 0%, transparent 50%),
+        radial-gradient(ellipse 600px 300px at 70% 30%, rgba(200, 255, 255, 0.1) 0%, transparent 40%);
+      animation: causticMove 12s ease-in-out infinite;
+      z-index: 0;
+      pointer-events: none;
+    }
+    
+    @keyframes causticMove {
+      0%, 100% { transform: translate(0, 0) rotate(0deg); opacity: 0.8; }
+      33% { transform: translate(5%, 8%) rotate(120deg); opacity: 1; }
+      66% { transform: translate(-5%, 5%) rotate(240deg); opacity: 0.9; }
+    }
+    
     /* Floating bubbles */
     .floating-bubble {
       position: fixed;
@@ -152,7 +174,29 @@
       border-radius: 15px;
       padding: 30px;
       margin-bottom: 30px;
-      box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.8);
+      box-shadow: 
+        inset 0 0 30px rgba(0, 0, 0, 0.8),
+        0 0 40px rgba(255, 215, 0, 0.3);
+      position: relative;
+    }
+    
+    .slots-machine::before {
+      content: '';
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      right: -2px;
+      bottom: -2px;
+      background: linear-gradient(45deg, #FFD700, #FFA500, #FFD700);
+      border-radius: 15px;
+      z-index: -1;
+      opacity: 0.5;
+      animation: borderGlow 2s ease-in-out infinite;
+    }
+    
+    @keyframes borderGlow {
+      0%, 100% { opacity: 0.5; }
+      50% { opacity: 0.8; }
     }
     
     .reels-container {
@@ -165,27 +209,35 @@
     .reel {
       width: 150px;
       height: 200px;
-      background: #000;
+      background: linear-gradient(180deg, #000 0%, #1a1a1a 50%, #000 100%);
       border: 3px solid #FFD700;
       border-radius: 10px;
       overflow: hidden;
       position: relative;
-      box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+      box-shadow: 
+        0 0 20px rgba(255, 215, 0, 0.4),
+        inset 0 0 20px rgba(0, 0, 0, 0.8);
     }
     
     .reel.spinning {
-      animation: spin 0.1s linear infinite;
-    }
-    
-    @keyframes spin {
-      0% { transform: translateY(0); }
-      100% { transform: translateY(-100px); }
+      box-shadow: 
+        0 0 30px rgba(255, 215, 0, 0.8),
+        inset 0 0 20px rgba(0, 0, 0, 0.8);
     }
     
     .reel-content {
       display: flex;
       flex-direction: column;
-      transition: transform 0.3s ease-out;
+      transition: transform 0.1s linear;
+    }
+    
+    .reel.spinning .reel-content {
+      animation: reelSpin 0.1s linear infinite;
+    }
+    
+    @keyframes reelSpin {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(-200px); }
     }
     
     .symbol {
@@ -196,19 +248,45 @@
       justify-content: center;
       font-size: 80px;
       background: linear-gradient(135deg, #1a1a2e, #2a2a3e);
+      border-bottom: 1px solid rgba(255, 215, 0, 0.1);
+      position: relative;
+      flex-shrink: 0;
+    }
+    
+    .symbol.winning {
+      animation: symbolWin 0.5s ease-in-out infinite;
+      background: linear-gradient(135deg, #2a3a2e, #3a4a3e);
+    }
+    
+    @keyframes symbolWin {
+      0%, 100% { 
+        transform: scale(1);
+        filter: brightness(1);
+      }
+      50% { 
+        transform: scale(1.1);
+        filter: brightness(1.5) drop-shadow(0 0 20px #00ff00);
+      }
     }
     
     .win-line {
       position: absolute;
       left: 0;
       right: 0;
+      top: 0;
       height: 200px;
-      border-top: 3px solid #00ff00;
-      border-bottom: 3px solid #00ff00;
-      background: rgba(0, 255, 0, 0.1);
+      border-top: 4px solid #00ff00;
+      border-bottom: 4px solid #00ff00;
+      background: linear-gradient(180deg, 
+        rgba(0, 255, 0, 0.2) 0%, 
+        rgba(0, 255, 0, 0.1) 50%, 
+        rgba(0, 255, 0, 0.2) 100%);
       z-index: 5;
       animation: winFlash 0.5s ease-in-out infinite;
       display: none;
+      box-shadow: 
+        0 0 20px rgba(0, 255, 0, 0.6),
+        inset 0 0 20px rgba(0, 255, 0, 0.3);
     }
     
     .win-line.show {
@@ -216,8 +294,37 @@
     }
     
     @keyframes winFlash {
-      0%, 100% { opacity: 0.5; }
-      50% { opacity: 1; }
+      0%, 100% { 
+        opacity: 0.7;
+        transform: scaleY(1);
+      }
+      50% { 
+        opacity: 1;
+        transform: scaleY(1.05);
+      }
+    }
+    
+    /* Win particles */
+    .win-particle {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background: #FFD700;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 20;
+      animation: particleFloat 1s ease-out forwards;
+    }
+    
+    @keyframes particleFloat {
+      0% {
+        opacity: 1;
+        transform: translate(0, 0) scale(1);
+      }
+      100% {
+        opacity: 0;
+        transform: translate(var(--tx), var(--ty)) scale(0);
+      }
     }
     
     .betting-section {
@@ -229,8 +336,18 @@
     
     .bet-input-group {
       display: flex;
+      flex-direction: column;
       gap: 15px;
       align-items: center;
+      width: 100%;
+    }
+    
+    .bet-input-wrapper {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: center;
     }
     
     .bet-input {
@@ -289,6 +406,24 @@
       transition: all 0.3s;
       box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
       text-transform: uppercase;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .spin-button::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
+      transform: scale(0);
+      transition: transform 0.5s;
+    }
+    
+    .spin-button:hover:not(:disabled)::before {
+      transform: scale(1);
     }
     
     .spin-button:hover:not(:disabled) {
@@ -296,9 +431,23 @@
       box-shadow: 0 10px 30px rgba(255, 215, 0, 0.6);
     }
     
+    .spin-button:active:not(:disabled) {
+      transform: translateY(-2px) scale(1.02);
+    }
+    
     .spin-button:disabled {
       opacity: 0.5;
       cursor: not-allowed;
+      transform: none;
+    }
+    
+    .spin-button.spinning {
+      animation: buttonPulse 0.5s ease-in-out infinite;
+    }
+    
+    @keyframes buttonPulse {
+      0%, 100% { box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4); }
+      50% { box-shadow: 0 5px 30px rgba(255, 215, 0, 0.8); }
     }
     
     .message {
@@ -360,6 +509,39 @@
     .paytable-payout {
       color: #00ff00;
       font-weight: bold;
+      text-shadow: 0 0 10px rgba(0, 255, 0, 0.6);
+    }
+    
+    .last-win {
+      text-align: center;
+      font-size: 20px;
+      color: #88ccff;
+      margin-top: 15px;
+      min-height: 30px;
+    }
+    
+    .last-win.positive {
+      color: #00ff00;
+      text-shadow: 0 0 10px rgba(0, 255, 0, 0.6);
+    }
+    
+    .max-bet-btn {
+      padding: 10px 20px;
+      font-size: 16px;
+      background: linear-gradient(135deg, rgba(255, 0, 0, 0.8), rgba(200, 0, 0, 0.8));
+      border: 2px solid #ff0000;
+      border-radius: 8px;
+      color: #fff;
+      cursor: pointer;
+      font-family: 'Krabby Patty', Arial, sans-serif;
+      font-weight: bold;
+      transition: all 0.3s;
+      box-shadow: 0 3px 10px rgba(255, 0, 0, 0.3);
+    }
+    
+    .max-bet-btn:hover {
+      transform: translateY(-2px) scale(1.05);
+      box-shadow: 0 5px 15px rgba(255, 0, 0, 0.5);
     }
     
     @media (max-width: 768px) {
@@ -423,7 +605,10 @@
     <div class="betting-section">
       <div class="bet-input-group">
         <label style="font-size: 20px; color: #FFD700;">Bet Amount:</label>
-        <input type="number" id="betAmount" class="bet-input" value="10" min="1" step="1">
+        <div class="bet-input-wrapper">
+          <input type="number" id="betAmount" class="bet-input" value="10" min="1" step="1">
+          <button class="max-bet-btn" onclick="setMaxBet()">MAX BET</button>
+        </div>
         <div class="quick-bet-buttons">
           <button class="quick-bet-btn" onclick="setBet(5)">5</button>
           <button class="quick-bet-btn" onclick="setBet(10)">10</button>
@@ -436,6 +621,7 @@
       <button class="spin-button" id="spinButton" onclick="spin()">SPIN</button>
       
       <div class="message" id="message"></div>
+      <div class="last-win" id="lastWin"></div>
     </div>
     
     <div class="paytable">
@@ -521,14 +707,15 @@
     };
     
     let isSpinning = false;
+    let lastWinAmount = 0;
     
     function initializeReels() {
       for (let i = 1; i <= 3; i++) {
         const reelContent = document.getElementById(`reelContent${i}`);
         reelContent.innerHTML = '';
         
-        // Create multiple symbols for smooth spinning
-        for (let j = 0; j < 10; j++) {
+        // Create multiple symbols for smooth spinning (need enough for continuous scroll)
+        for (let j = 0; j < 20; j++) {
           const symbol = document.createElement('div');
           symbol.className = 'symbol';
           symbol.textContent = symbols[Math.floor(Math.random() * symbols.length)];
@@ -538,7 +725,47 @@
     }
     
     function setBet(amount) {
-      document.getElementById('betAmount').value = amount;
+      const balance = getCasinoBalance();
+      const maxBet = Math.min(amount, balance);
+      document.getElementById('betAmount').value = maxBet;
+    }
+    
+    function setMaxBet() {
+      const balance = getCasinoBalance();
+      if (balance > 0) {
+        document.getElementById('betAmount').value = Math.floor(balance);
+      }
+    }
+    
+    function updateLastWin() {
+      const lastWinEl = document.getElementById('lastWin');
+      if (lastWinAmount > 0) {
+        lastWinEl.textContent = `Last Win: +${lastWinAmount.toFixed(2)} Casino Dollars`;
+        lastWinEl.className = 'last-win positive';
+      } else if (lastWinAmount < 0) {
+        lastWinEl.textContent = `Last Bet: -${Math.abs(lastWinAmount).toFixed(2)} Casino Dollars`;
+        lastWinEl.className = 'last-win';
+      } else {
+        lastWinEl.textContent = '';
+        lastWinEl.className = 'last-win';
+      }
+    }
+    
+    function createWinParticles(x, y) {
+      for (let i = 0; i < 20; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'win-particle';
+        const angle = (Math.PI * 2 * i) / 20;
+        const distance = 50 + Math.random() * 50;
+        const tx = Math.cos(angle) * distance;
+        const ty = Math.sin(angle) * distance;
+        particle.style.left = x + 'px';
+        particle.style.top = y + 'px';
+        particle.style.setProperty('--tx', tx + 'px');
+        particle.style.setProperty('--ty', ty + 'px');
+        document.body.appendChild(particle);
+        setTimeout(() => particle.remove(), 1000);
+      }
     }
     
     function spin() {
@@ -561,12 +788,18 @@
       setCasinoBalance(balance - betAmount);
       
       isSpinning = true;
-      document.getElementById('spinButton').disabled = true;
+      const spinButton = document.getElementById('spinButton');
+      spinButton.disabled = true;
+      spinButton.classList.add('spinning');
       document.getElementById('message').textContent = '';
+      lastWinAmount = -betAmount;
+      updateLastWin();
       
-      // Hide win lines
+      // Hide win lines and remove winning class from symbols
       for (let i = 1; i <= 3; i++) {
         document.getElementById(`winLine${i}`).classList.remove('show');
+        const reelContent = document.getElementById(`reelContent${i}`);
+        reelContent.querySelectorAll('.symbol').forEach(s => s.classList.remove('winning'));
       }
       
       // Start spinning animation
@@ -575,8 +808,8 @@
         reel.classList.add('spinning');
       }
       
-      // Spin each reel for different durations
-      const spinDurations = [1500, 2000, 2500];
+      // Spin each reel for different durations (more realistic timing)
+      const spinDurations = [1800, 2300, 2800];
       const results = [];
       
       for (let i = 0; i < 3; i++) {
@@ -584,27 +817,39 @@
           const reel = document.getElementById(`reel${i + 1}`);
           const reelContent = document.getElementById(`reelContent${i + 1}`);
           
-          // Stop spinning
-          reel.classList.remove('spinning');
-          
           // Select random symbol
           const randomSymbol = symbols[Math.floor(Math.random() * symbols.length)];
           results[i] = randomSymbol;
           
-          // Update reel to show result
-          reelContent.style.transform = 'translateY(0)';
-          const firstSymbol = reelContent.querySelector('.symbol');
-          if (firstSymbol) {
-            firstSymbol.textContent = randomSymbol;
-          }
+          // Stop spinning with smooth transition
+          reel.classList.remove('spinning');
+          
+          // Calculate position to show the selected symbol
+          const symbolIndex = symbols.indexOf(randomSymbol);
+          const targetPosition = -(symbolIndex * 200);
+          
+          // Update all symbols in reel to create seamless loop
+          const allSymbols = reelContent.querySelectorAll('.symbol');
+          allSymbols.forEach((symbol, idx) => {
+            if (idx < symbols.length) {
+              symbol.textContent = symbols[(symbolIndex + idx) % symbols.length];
+            } else {
+              symbol.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+            }
+          });
+          
+          // Smoothly transition to show the selected symbol
+          reelContent.style.transition = 'transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+          reelContent.style.transform = `translateY(${targetPosition}px)`;
           
           // If last reel, check for win
           if (i === 2) {
             setTimeout(() => {
               checkWin(results, betAmount);
               isSpinning = false;
-              document.getElementById('spinButton').disabled = false;
-            }, 300);
+              spinButton.disabled = false;
+              spinButton.classList.remove('spinning');
+            }, 600);
           }
         }, spinDurations[i]);
       }
@@ -619,6 +864,7 @@
         
         if (payoutMultiplier > 0) {
           const winAmount = betAmount * payoutMultiplier;
+          lastWinAmount = winAmount;
           addCasinoDollars(winAmount);
           
           // Show win lines
@@ -626,12 +872,29 @@
             document.getElementById(`winLine${i}`).classList.add('show');
           }
           
+          // Highlight winning symbols
+          for (let i = 1; i <= 3; i++) {
+            const reelContent = document.getElementById(`reelContent${i}`);
+            const firstSymbol = reelContent.querySelector('.symbol');
+            if (firstSymbol) {
+              firstSymbol.classList.add('winning');
+            }
+          }
+          
+          // Create win particles
+          const reel1 = document.getElementById('reel1');
+          const rect = reel1.getBoundingClientRect();
+          createWinParticles(rect.left + rect.width / 2, rect.top + rect.height / 2);
+          
           showMessage(`🎉 WIN! ${resultString} - You won ${winAmount.toFixed(2)} Casino Dollars!`, 'win');
+          updateLastWin();
         } else {
           showMessage('No win this time. Try again!', 'lose');
+          updateLastWin();
         }
       } else {
         showMessage('No win this time. Try again!', 'lose');
+        updateLastWin();
       }
     }
     
@@ -644,6 +907,15 @@
     // Initialize
     initializeReels();
     updateBalanceDisplay();
+    updateLastWin();
+    
+    // Keyboard support
+    document.addEventListener('keydown', (e) => {
+      if (e.code === 'Space' && !isSpinning) {
+        e.preventDefault();
+        spin();
+      }
+    });
     
     // Create floating bubbles
     function createBubbles() {
