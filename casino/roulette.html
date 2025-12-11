@@ -284,46 +284,7 @@
       margin: 0 auto;
       position: relative;
       border-radius: 50%;
-      background: conic-gradient(
-        from 0deg,
-        #0a5a0a 0deg 9.73deg,
-        #000 9.73deg 19.46deg,
-        #0a5a0a 19.46deg 29.19deg,
-        #000 29.19deg 38.92deg,
-        #0a5a0a 38.92deg 48.65deg,
-        #000 48.65deg 58.38deg,
-        #0a5a0a 58.38deg 68.11deg,
-        #000 68.11deg 77.84deg,
-        #0a5a0a 77.84deg 87.57deg,
-        #000 87.57deg 97.3deg,
-        #0a5a0a 97.3deg 107.03deg,
-        #000 107.03deg 116.76deg,
-        #0a5a0a 116.76deg 126.49deg,
-        #000 126.49deg 136.22deg,
-        #0a5a0a 136.22deg 145.95deg,
-        #000 145.95deg 155.68deg,
-        #0a5a0a 155.68deg 165.41deg,
-        #000 165.41deg 175.14deg,
-        #0a5a0a 175.14deg 184.87deg,
-        #000 184.87deg 194.6deg,
-        #0a5a0a 194.6deg 204.33deg,
-        #000 204.33deg 214.06deg,
-        #0a5a0a 214.06deg 223.79deg,
-        #000 223.79deg 233.52deg,
-        #0a5a0a 233.52deg 243.25deg,
-        #000 243.25deg 252.98deg,
-        #0a5a0a 252.98deg 262.71deg,
-        #000 262.71deg 272.44deg,
-        #0a5a0a 272.44deg 282.17deg,
-        #000 282.17deg 291.9deg,
-        #0a5a0a 291.9deg 301.63deg,
-        #000 301.63deg 311.36deg,
-        #0a5a0a 311.36deg 321.09deg,
-        #000 321.09deg 330.82deg,
-        #0a5a0a 330.82deg 340.55deg,
-        #000 340.55deg 350.28deg,
-        #0a5a0a 350.28deg 360deg
-      );
+      background: #1a1a1a;
       border: 8px solid #FFD700;
       box-shadow: 
         0 0 40px rgba(255, 215, 0, 0.8),
@@ -331,6 +292,46 @@
         0 0 20px rgba(100, 200, 255, 0.4);
       transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99);
       position: relative;
+      overflow: hidden;
+    }
+    
+    .wheel-segment {
+      position: absolute;
+      width: 50%;
+      height: 50%;
+      transform-origin: 100% 100%;
+      clip-path: polygon(0 0, 100% 0, 100% 100%);
+    }
+    
+    .wheel-number {
+      position: absolute;
+      font-size: 18px;
+      font-weight: bold;
+      color: #fff;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+    }
+    
+    .wheel-number.red {
+      background: #c00;
+      border: 2px solid #fff;
+    }
+    
+    .wheel-number.black {
+      background: #000;
+      border: 2px solid #fff;
+    }
+    
+    .wheel-number.green {
+      background: #0a5a0a;
+      border: 2px solid #fff;
+      font-size: 20px;
     }
     
     .wheel.spinning {
@@ -636,9 +637,48 @@
     const redNumbers = [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36];
     const blackNumbers = [2, 4, 6, 8, 10, 11, 13, 15, 17, 20, 22, 24, 26, 28, 29, 31, 33, 35];
     
+    // European roulette wheel order
+    const wheelOrder = [0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10, 5, 24, 16, 33, 1, 20, 14, 31, 9, 22, 18, 29, 7, 28, 12, 35, 3, 26];
+    
     let currentBet = 10;
     let selectedBet = null;
     let isSpinning = false;
+    
+    function createWheel() {
+      const wheel = document.getElementById('wheel');
+      wheel.innerHTML = '<div class="wheel-pointer"></div>';
+      
+      const segmentAngle = 360 / 37;
+      
+      wheelOrder.forEach((num, index) => {
+        const angle = index * segmentAngle;
+        const color = num === 0 ? 'green' : (redNumbers.includes(num) ? 'red' : 'black');
+        
+        // Create segment
+        const segment = document.createElement('div');
+        segment.className = 'wheel-segment';
+        segment.style.left = '50%';
+        segment.style.top = '50%';
+        segment.style.transform = `rotate(${angle}deg)`;
+        segment.style.backgroundColor = color === 'red' ? '#c00' : color === 'green' ? '#0a5a0a' : '#000';
+        wheel.appendChild(segment);
+        
+        // Create number
+        const numberEl = document.createElement('div');
+        numberEl.className = `wheel-number ${color}`;
+        numberEl.textContent = num;
+        
+        // Position number on wheel (at about 70% radius from center)
+        const radius = 140; // 70% of 200px radius
+        const radian = (angle - 90) * Math.PI / 180; // -90 to start from top
+        const x = 200 + radius * Math.cos(radian);
+        const y = 200 + radius * Math.sin(radian);
+        
+        numberEl.style.left = `${x - 15}px`;
+        numberEl.style.top = `${y - 15}px`;
+        wheel.appendChild(numberEl);
+      });
+    }
     
     function adjustBet(amount) {
       if (isSpinning) return;
