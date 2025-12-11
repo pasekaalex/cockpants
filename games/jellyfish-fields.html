@@ -871,8 +871,8 @@
     }
     
     function calculateCasinoReward(score) {
-      // Scale down rewards: 1 casino dollar per 150 points, max 50 per game
-      return Math.min(Math.floor(score / 150), 50);
+      // Scale down rewards: 1 casino dollar per 50 points, max 50 per game
+      return Math.min(Math.floor(score / 50), 50);
     }
     
     async function updateCasinoLeaderboard() {
