@@ -177,6 +177,7 @@ async function getAllLeaderboards() {
     }
 
     const games = [
+      'casino',
       'fishing-frenzy',
       'pump-clicker',
       'flappy-cock',

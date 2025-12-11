@@ -856,9 +856,48 @@
       gameLoop();
     }
     
+    // Casino currency system
+    function getCasinoBalance() {
+      const balance = localStorage.getItem('casinoBalance');
+      return balance ? parseFloat(balance) : 0;
+    }
+    
+    function addCasinoDollars(amount) {
+      const current = getCasinoBalance();
+      const newBalance = current + amount;
+      localStorage.setItem('casinoBalance', newBalance.toString());
+      updateCasinoLeaderboard();
+      return newBalance;
+    }
+    
+    function calculateCasinoReward(score) {
+      // Scale down rewards: 1 casino dollar per 150 points, max 50 per game
+      return Math.min(Math.floor(score / 150), 50);
+    }
+    
+    async function updateCasinoLeaderboard() {
+      try {
+        if (typeof submitScore === 'undefined') return;
+        const balance = getCasinoBalance();
+        const playerName = localStorage.getItem('casinoPlayerName') || 'Anonymous';
+        if (balance > 0) {
+          await submitScore('casino', playerName, Math.floor(balance * 100));
+        }
+      } catch (err) {
+        console.error('Error updating casino leaderboard:', err);
+      }
+    }
+
     function endGame() {
       gameState.isPlaying = false;
       clearInterval(gameTimer);
+      
+      // Award casino dollars
+      const casinoReward = calculateCasinoReward(gameState.score);
+      if (casinoReward > 0) {
+        addCasinoDollars(casinoReward);
+        console.log(`🎰 Earned ${casinoReward} casino dollars!`);
+      }
       
       document.getElementById('finalScore').textContent = `Jellyfish Caught: ${gameState.score}`;
       

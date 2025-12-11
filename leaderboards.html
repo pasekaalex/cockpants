@@ -172,6 +172,8 @@
       <p class="subtitle">Compete with players around the world!</p>
     </div>
     
+    <div id="casinoLeaderboardContainer"></div>
+    
     <div class="games-grid" id="leaderboardsContainer">
       <div class="loading">Loading leaderboards...</div>
     </div>
@@ -215,9 +217,40 @@
     
     async function loadAllLeaderboards() {
       const container = document.getElementById('leaderboardsContainer');
+      const casinoContainer = document.getElementById('casinoLeaderboardContainer');
       
       // Initialize Supabase
       initSupabase();
+      
+      // Load casino leaderboard first (at top)
+      const casinoResult = await getLeaderboard('casino', 10);
+      if (casinoResult.success && casinoResult.data.length > 0) {
+        let casinoHTML = '<div class="game-card" style="margin-bottom: 30px; border: 5px solid #FFD700; background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 165, 0, 0.2));">';
+        casinoHTML += '<div class="game-header"><span class="game-icon">🎰</span><span class="game-name">Bikini Bottom Casino - Total Casino Dollars</span></div>';
+        casinoHTML += '<div class="leaderboard-entries">';
+        
+        casinoResult.data.forEach((entry, index) => {
+          const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}.`;
+          const topClass = index === 0 ? 'top-1' : index === 1 ? 'top-2' : index === 2 ? 'top-3' : '';
+          const casinoDollars = (entry.score / 100).toLocaleString(undefined, {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+          });
+          
+          casinoHTML += `
+            <div class="leaderboard-entry ${topClass}">
+              <span class="entry-rank">${medal}</span>
+              <span class="entry-name">${entry.player_name}</span>
+              <span class="entry-score">${casinoDollars} 🪙</span>
+            </div>
+          `;
+        });
+        
+        casinoHTML += '</div></div>';
+        casinoContainer.innerHTML = casinoHTML;
+      } else {
+        casinoContainer.innerHTML = '';
+      }
       
       container.innerHTML = '';
       

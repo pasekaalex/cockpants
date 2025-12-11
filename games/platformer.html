@@ -149,9 +149,29 @@
         }
       };
 
+      // Casino currency system
+      const getCasinoBalance = () => {
+        const balance = localStorage.getItem('casinoBalance');
+        return balance ? parseFloat(balance) : 0;
+      };
+      const addCasinoDollars = (amount) => {
+        const current = getCasinoBalance();
+        localStorage.setItem('casinoBalance', (current + amount).toString());
+        if (typeof submitScore !== 'undefined') {
+          submitScore('casino', localStorage.getItem('casinoPlayerName') || 'Anonymous', Math.floor((current + amount) * 100)).catch(() => {});
+        }
+      };
+
       // Show leaderboard when game ends
       useEffect(() => {
         if (gameState === 'gameover' && score > 0) {
+          // Award casino dollars (1 per 200 points, max 60)
+          const casinoReward = Math.min(Math.floor(score / 200), 60);
+          if (casinoReward > 0) {
+            addCasinoDollars(casinoReward);
+            console.log(`🎰 Earned ${casinoReward} casino dollars!`);
+          }
+          
           // Play "wah wah wah" sound
           soundManager.play('wawawa');
           

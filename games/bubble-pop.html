@@ -737,9 +737,49 @@
       }
     }
     
+    // Casino currency system
+    function getCasinoBalance() {
+      const balance = localStorage.getItem('casinoBalance');
+      return balance ? parseFloat(balance) : 0;
+    }
+    
+    function addCasinoDollars(amount) {
+      const current = getCasinoBalance();
+      const newBalance = current + amount;
+      localStorage.setItem('casinoBalance', newBalance.toString());
+      updateCasinoLeaderboard();
+      return newBalance;
+    }
+    
+    function calculateCasinoReward(score) {
+      // Scale down rewards: 1 casino dollar per 250 points, max 60 per game
+      return Math.min(Math.floor(score / 250), 60);
+    }
+    
+    async function updateCasinoLeaderboard() {
+      try {
+        if (typeof submitScore === 'undefined') return;
+        const balance = getCasinoBalance();
+        const playerName = localStorage.getItem('casinoPlayerName') || 'Anonymous';
+        if (balance > 0) {
+          await submitScore('casino', playerName, Math.floor(balance * 100));
+        }
+      } catch (err) {
+        console.error('Error updating casino leaderboard:', err);
+      }
+    }
+
     function endGame() {
       gameOver = true;
       gameRunning = false;
+      
+      // Award casino dollars
+      const casinoReward = calculateCasinoReward(score);
+      if (casinoReward > 0) {
+        addCasinoDollars(casinoReward);
+        console.log(`🎰 Earned ${casinoReward} casino dollars!`);
+      }
+      
       document.getElementById('finalScore').textContent = 'Score: ' + score.toLocaleString();
       document.getElementById('gameOverScreen').classList.add('show');
       

@@ -506,6 +506,38 @@
         }
       }, [showUpgrade]);
 
+      // Casino currency system
+      const getCasinoBalance = () => {
+        const balance = localStorage.getItem('casinoBalance');
+        return balance ? parseFloat(balance) : 0;
+      };
+      
+      const addCasinoDollars = (amount) => {
+        const current = getCasinoBalance();
+        const newBalance = current + amount;
+        localStorage.setItem('casinoBalance', newBalance.toString());
+        updateCasinoLeaderboard();
+        return newBalance;
+      };
+      
+      const calculateCasinoReward = (score) => {
+        // Scale down rewards: 1 casino dollar per 500 points, max 100 per game
+        return Math.min(Math.floor(score / 500), 100);
+      };
+      
+      const updateCasinoLeaderboard = async () => {
+        try {
+          if (typeof submitScore === 'undefined') return;
+          const balance = getCasinoBalance();
+          const playerName = localStorage.getItem('casinoPlayerName') || 'Anonymous';
+          if (balance > 0) {
+            await submitScore('casino', playerName, Math.floor(balance * 100));
+          }
+        } catch (err) {
+          console.error('Error updating casino leaderboard:', err);
+        }
+      };
+
       // Show leaderboard on game over
       useEffect(() => {
         if (gameState === 'gameover' && typeof showLeaderboardModal === 'function') {
@@ -513,6 +545,12 @@
           const timer = setTimeout(() => {
             const finalScore = score || 0;
             if (finalScore > 0) {
+              // Award casino dollars
+              const casinoReward = calculateCasinoReward(finalScore);
+              if (casinoReward > 0) {
+                addCasinoDollars(casinoReward);
+                console.log(`🎰 Earned ${casinoReward} casino dollars!`);
+              }
               showLeaderboardModal('survivors', '$COCKPANTS Survivors', finalScore);
             }
           }, 800);

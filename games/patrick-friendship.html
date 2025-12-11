@@ -857,9 +857,29 @@
       achievements.push('💖 Best Friends Forever!');
       
       document.getElementById('achievementsList').innerHTML = achievements.map(a => `<div>${a}</div>`).join('');
+      // Casino currency system
+      const getCasinoBalance = () => {
+        const balance = localStorage.getItem('casinoBalance');
+        return balance ? parseFloat(balance) : 0;
+      };
+      const addCasinoDollars = (amount) => {
+        const current = getCasinoBalance();
+        localStorage.setItem('casinoBalance', (current + amount).toString());
+        if (typeof submitScore !== 'undefined') {
+          submitScore('casino', localStorage.getItem('casinoPlayerName') || 'Anonymous', Math.floor((current + amount) * 100)).catch(() => {});
+        }
+      };
+      
       document.getElementById('finalRounds').textContent = roundsPlayedCount;
       document.getElementById('finalWins').textContent = patrickWinsCount;
       document.getElementById('finalStreak').textContent = bestStreak;
+      
+      // Award casino dollars (5 dollars per Patrick win, max 40)
+      const casinoReward = Math.min(patrickWinsCount * 5, 40);
+      if (casinoReward > 0) {
+        addCasinoDollars(casinoReward);
+        console.log(`🎰 Earned ${casinoReward} casino dollars!`);
+      }
       
       // Show leaderboard with rounds played (lower is better)
       showLeaderboardModal('patrick-friendship', "Patrick's Friendship", roundsPlayedCount);

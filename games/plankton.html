@@ -1344,6 +1344,27 @@
       document.getElementById('finalStealth').textContent = Math.floor(stealthScore) + '%';
       document.getElementById('rankDisplay').textContent = rank;
       
+      // Casino currency system - award based on rank
+      const getCasinoBalance = () => {
+        const balance = localStorage.getItem('casinoBalance');
+        return balance ? parseFloat(balance) : 0;
+      };
+      const addCasinoDollars = (amount) => {
+        const current = getCasinoBalance();
+        localStorage.setItem('casinoBalance', (current + amount).toString());
+        if (typeof submitScore !== 'undefined') {
+          submitScore('casino', localStorage.getItem('casinoPlayerName') || 'Anonymous', Math.floor((current + amount) * 100)).catch(() => {});
+        }
+      };
+      
+      // Award based on rank: S=40, A=30, B=20, C=10, D=5
+      const rankRewards = { 'S': 40, 'A': 30, 'B': 20, 'C': 10, 'D': 5 };
+      const casinoReward = rankRewards[rank] || 5;
+      if (casinoReward > 0) {
+        addCasinoDollars(casinoReward);
+        console.log(`🎰 Earned ${casinoReward} casino dollars!`);
+      }
+      
       // Show leaderboard modal with time in seconds
       // INVERT time so faster times rank higher (e.g., 30s becomes 9970 points)
       const invertedScore = 10000 - Math.floor(gameTime);
