@@ -149,6 +149,26 @@
       backdrop-filter: blur(10px);
     }
     
+    .game-container::before {
+      content: '';
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      right: -2px;
+      bottom: -2px;
+      background: linear-gradient(45deg, #FFD700, #FFA500, #FFD700, #88ccff);
+      background-size: 400% 400%;
+      border-radius: 25px;
+      z-index: -1;
+      opacity: 0.3;
+      animation: borderFlow 3s ease infinite;
+    }
+    
+    @keyframes borderFlow {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+    
     .header {
       text-align: center;
       margin-bottom: 30px;
@@ -157,14 +177,110 @@
     .game-title {
       font-size: 48px;
       color: #FFD700;
-      text-shadow: 0 0 20px #FFD700, 3px 3px 0 #000;
+      text-shadow: 
+        0 0 20px #FFD700, 
+        0 0 40px rgba(255, 215, 0, 0.6),
+        3px 3px 0 #000;
       margin-bottom: 10px;
+      animation: titleGlow 2s ease-in-out infinite;
+    }
+    
+    @keyframes titleGlow {
+      0%, 100% { 
+        text-shadow: 
+          0 0 20px #FFD700, 
+          0 0 40px rgba(255, 215, 0, 0.6),
+          3px 3px 0 #000;
+      }
+      50% { 
+        text-shadow: 
+          0 0 30px #FFD700, 
+          0 0 60px rgba(255, 215, 0, 0.8),
+          3px 3px 0 #000;
+      }
     }
     
     .balance-display {
       font-size: 24px;
       color: #88ccff;
       text-shadow: 2px 2px 0 #000;
+      margin-bottom: 15px;
+    }
+    
+    .name-input-section {
+      background: rgba(255, 215, 0, 0.1);
+      border: 2px solid #FFD700;
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    
+    .name-label {
+      display: block;
+      font-size: 18px;
+      color: #FFD700;
+      margin-bottom: 10px;
+      text-shadow: 1px 1px 0 #000;
+    }
+    
+    .name-input-group {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    
+    .name-input {
+      padding: 10px 15px;
+      font-family: 'Krabby Patty', Arial, sans-serif;
+      font-size: 16px;
+      background: rgba(0, 0, 0, 0.4);
+      border: 2px solid #FFD700;
+      border-radius: 8px;
+      color: #fff;
+      text-shadow: 1px 1px 0 #000;
+      transition: all 0.3s;
+      max-width: 200px;
+    }
+    
+    .name-input:focus {
+      outline: none;
+      border-color: #FFA500;
+      box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+      background: rgba(0, 0, 0, 0.6);
+    }
+    
+    .name-save-btn {
+      padding: 10px 20px;
+      font-family: 'Krabby Patty', Arial, sans-serif;
+      font-size: 16px;
+      font-weight: bold;
+      background: linear-gradient(135deg, #FFD700, #FFA500);
+      border: 2px solid #fff;
+      border-radius: 8px;
+      color: #000;
+      cursor: pointer;
+      transition: all 0.3s;
+      white-space: nowrap;
+    }
+    
+    .name-save-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+    }
+    
+    .name-display {
+      margin-top: 10px;
+      font-size: 14px;
+      color: #88ccff;
+      min-height: 20px;
+    }
+    
+    .name-display.saved {
+      color: #00ff00;
+      text-shadow: 0 0 10px rgba(0, 255, 0, 0.6);
     }
     
     .game-area {
@@ -332,6 +448,27 @@
       box-shadow: 0 5px 20px rgba(76, 175, 80, 0.6);
     }
     
+    .game-btn::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
+      transform: scale(0);
+      transition: transform 0.5s;
+    }
+    
+    .game-btn:hover:not(:disabled)::before {
+      transform: scale(1);
+    }
+    
+    .game-btn {
+      position: relative;
+      overflow: hidden;
+    }
+    
     .game-btn:disabled {
       opacity: 0.5;
       cursor: not-allowed;
@@ -412,6 +549,21 @@
     <div class="header">
       <h1 class="game-title">🃏 BLACKJACK 🃏</h1>
       <div class="balance-display">💰 Casino Balance: <span id="balance">0</span> 🪙</div>
+      
+      <div class="name-input-section">
+        <label class="name-label" for="playerNameInput">🎯 Leaderboard Name:</label>
+        <div class="name-input-group">
+          <input 
+            type="text" 
+            id="playerNameInput" 
+            class="name-input" 
+            placeholder="Enter your name"
+            maxlength="20"
+          />
+          <button class="name-save-btn" onclick="savePlayerName()">SAVE</button>
+        </div>
+        <div class="name-display" id="nameDisplay"></div>
+      </div>
     </div>
     
     <div class="betting-area">
@@ -749,7 +901,52 @@
     
     // Initialize
     updateBalanceDisplay();
+    updateNameDisplay();
     updateButtons();
+    
+    // Name management
+    function updateNameDisplay() {
+      const playerName = localStorage.getItem('casinoPlayerName') || '';
+      const nameInput = document.getElementById('playerNameInput');
+      const nameDisplay = document.getElementById('nameDisplay');
+      
+      if (playerName) {
+        nameInput.value = playerName;
+        nameDisplay.textContent = `Current name: ${playerName}`;
+        nameDisplay.className = 'name-display saved';
+      } else {
+        nameDisplay.textContent = 'No name set - you will appear as "Anonymous" on leaderboard';
+        nameDisplay.className = 'name-display';
+      }
+    }
+    
+    function savePlayerName() {
+      const nameInput = document.getElementById('playerNameInput');
+      const playerName = nameInput.value.trim();
+      
+      if (!playerName) {
+        alert('Please enter a name!');
+        return;
+      }
+      
+      if (playerName.length > 20) {
+        alert('Name must be 20 characters or less!');
+        return;
+      }
+      
+      localStorage.setItem('casinoPlayerName', playerName);
+      updateNameDisplay();
+      updateCasinoLeaderboard();
+      
+      // Show confirmation
+      const nameDisplay = document.getElementById('nameDisplay');
+      nameDisplay.textContent = `✓ Name saved: ${playerName}`;
+      nameDisplay.className = 'name-display saved';
+      
+      setTimeout(() => {
+        updateNameDisplay();
+      }, 2000);
+    }
     
     // Update casino leaderboard
     async function updateCasinoLeaderboard() {
