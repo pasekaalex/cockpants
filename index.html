@@ -187,6 +187,27 @@
       50% { opacity: 1; }
     }
     
+    @keyframes sway {
+      0%, 100% { transform: translateX(0) rotate(0deg); }
+      25% { transform: translateX(-3px) rotate(-0.5deg); }
+      75% { transform: translateX(3px) rotate(0.5deg); }
+    }
+    
+    .menu-table {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      width: 100%;
+      max-width: 400px;
+      margin-bottom: 20px;
+    }
+    
+    .menu-table-column {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    
     /* MAIN MENU */
     .main-menu {
       position: relative;
@@ -716,27 +737,6 @@
       <div style="font-size: 18px; color: #8B4513; font-weight: bold; margin-bottom: 5px; text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.5);">💰 MARKET CAP</div>
       <div id="mcap" style="font-size: 32px; color: #fff; font-weight: bold; text-shadow: 2px 2px 0 #8B4513;">Loading...</div>
     </div>
-    
-    @keyframes sway {
-      0%, 100% { transform: translateX(0) rotate(0deg); }
-      25% { transform: translateX(-3px) rotate(-0.5deg); }
-      75% { transform: translateX(3px) rotate(0.5deg); }
-    }
-    
-    .menu-table {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 15px;
-      width: 100%;
-      max-width: 400px;
-      margin-bottom: 20px;
-    }
-    
-    .menu-table-column {
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-    }
     
     <div class="menu-table">
       <div class="menu-table-column">
