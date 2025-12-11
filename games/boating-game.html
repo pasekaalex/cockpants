@@ -30,7 +30,7 @@
       width: 100vw;
       height: 100vh;
     }
-
+    
     /* Underwater overlay effect */
     .underwater-overlay {
       position: fixed;
@@ -614,18 +614,18 @@
     <button class="start-btn" onclick="startGame()">START TEST!</button>
   </div>
 
-    <div class="game-over" id="gameOver">
-      <h1 class="game-over-title">CRASHED! 💥</h1>
-      <div class="final-stats">
-        <div class="final-stat">Distance: <span id="finalDistance">0</span>m</div>
-        <div class="final-stat">Score: <span id="finalScore">0</span></div>
-        <div class="final-stat">Jellies: <span id="finalStars">0</span> 🪼</div>
-        <div class="final-stat">Max Combo: <span id="finalCombo">0</span>x</div>
-      </div>
-      <button class="btn" onclick="restartGame()">TRY AGAIN</button>
-      <button class="btn" onclick="showBoatingLeaderboard()">🏆 LEADERBOARD</button>
-      <button class="btn" onclick="backToMenu()">MAIN MENU</button>
+  <div class="game-over" id="gameOver">
+    <h1 class="game-over-title">CRASHED! 💥</h1>
+    <div class="final-stats">
+      <div class="final-stat">Distance: <span id="finalDistance">0</span>m</div>
+      <div class="final-stat">Score: <span id="finalScore">0</span></div>
+      <div class="final-stat">Jellies: <span id="finalStars">0</span> 🪼</div>
+      <div class="final-stat">Max Combo: <span id="finalCombo">0</span>x</div>
     </div>
+    <button class="btn" onclick="restartGame()">TRY AGAIN</button>
+      <button class="btn" onclick="showBoatingLeaderboard()">🏆 LEADERBOARD</button>
+    <button class="btn" onclick="backToMenu()">MAIN MENU</button>
+  </div>
 
   <canvas id="canvas"></canvas>
 
@@ -734,7 +734,7 @@
     topLight.shadow.camera.bottom = -30;
     topLight.shadow.bias = -0.0001;
     scene.add(topLight);
-    
+
     // Caustic light effect (underwater light rays)
     const causticLight = new THREE.PointLight(0x88ccff, 0.5, 40);
     causticLight.position.set(0, 20, 0);
@@ -873,7 +873,7 @@
     bow.position.z = -1.65;
     bow.castShadow = true;
     boatGroup.add(bow);
-
+    
     // Bow stripe
     const bowStripeGeo = new THREE.TorusGeometry(0.5, 0.08, 8, 16, Math.PI);
     const bowStripeMat = new THREE.MeshPhongMaterial({ color: 0xFFD700 });
@@ -1333,11 +1333,11 @@
           if (part.material) {
             if (part.material.emissive) {
               if (part.material.emissive.setHex) {
-                part.material.emissive.setHex(0x00FFFF);
+            part.material.emissive.setHex(0x00FFFF);
               } else {
                 part.material.emissive = new THREE.Color(0x00FFFF);
               }
-              part.material.emissiveIntensity = 0.5;
+            part.material.emissiveIntensity = 0.5;
             }
           }
         });
@@ -1374,7 +1374,7 @@
         boat.children.forEach(part => {
           if (part.material && part.material.emissive) {
             if (part.material.emissive.setHex) {
-              part.material.emissive.setHex(0x000000);
+            part.material.emissive.setHex(0x000000);
             } else {
               part.material.emissive = new THREE.Color(0x000000);
             }
@@ -1811,7 +1811,7 @@
       gameState.accelerating = false;
       stopBoost();
       if (typeof soundManager !== 'undefined' && soundManager.play) {
-        soundManager.play('wawawa');
+      soundManager.play('wawawa');
       }
       
       // Award casino dollars
@@ -1833,7 +1833,7 @@
           const finalScore = gameState.score || 0;
           if (finalScore > 0) {
             showLeaderboardModal('boating-school', 'Boating School Chaos', finalScore);
-          }
+      }
         }
       }, 1000);
     }

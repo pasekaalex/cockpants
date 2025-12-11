@@ -263,7 +263,7 @@
         camera: { x: 0, y: 0 },
         lastBossSpawn: 0,
       });
-      
+
       // Particle system
       const spawnParticles = useCallback((x, y, count, color, speed = 3) => {
         const game = gameRef.current;
@@ -991,13 +991,13 @@
           for (let i = 0; i < 5; i++) {
             const rayX = ((i * 200 + now / 30) % (GAME_WIDTH + 200)) - 100;
             ctx.fillStyle = '#87CEEB';
-            ctx.beginPath();
+          ctx.beginPath();
             ctx.moveTo(rayX, 0);
             ctx.lineTo(rayX + 80, GAME_HEIGHT);
             ctx.lineTo(rayX + 120, GAME_HEIGHT);
             ctx.lineTo(rayX + 40, 0);
-            ctx.closePath();
-            ctx.fill();
+          ctx.closePath();
+          ctx.fill();
           }
           ctx.globalAlpha = 1;
           
@@ -1007,9 +1007,9 @@
             const bx = ((i * 137 + now / 60) % (GAME_WIDTH + 100)) - 50;
             const by = ((i * 89 + now / 40) % (GAME_HEIGHT + 100)) - 50;
             const size = 1.5 + (i % 4);
-            ctx.beginPath();
+          ctx.beginPath();
             ctx.arc(bx, by, size, 0, Math.PI * 2);
-            ctx.fill();
+          ctx.fill();
           }
           
           // Floating kelp/seaweed in background
@@ -1017,11 +1017,11 @@
           for (let i = 0; i < 8; i++) {
             const kelpX = (i * 120) - (game.camera.x * 0.1) % 120;
             const sway = Math.sin(now / 1000 + i) * 10;
-            ctx.beginPath();
+          ctx.beginPath();
             ctx.moveTo(kelpX, GAME_HEIGHT);
             ctx.quadraticCurveTo(kelpX + sway, GAME_HEIGHT - 80, kelpX + sway * 0.5, GAME_HEIGHT - 150);
             ctx.quadraticCurveTo(kelpX, GAME_HEIGHT - 100, kelpX, GAME_HEIGHT);
-            ctx.fill();
+          ctx.fill();
           }
           
           // Grid with gradient fade
@@ -1050,28 +1050,28 @@
             orbGlow.addColorStop(0.5, 'rgba(255, 215, 0, 0.2)');
             orbGlow.addColorStop(1, 'rgba(255, 215, 0, 0)');
             ctx.fillStyle = orbGlow;
-            ctx.beginPath();
+          ctx.beginPath();
             ctx.arc(sx, sy, 12, 0, Math.PI * 2);
-            ctx.fill();
-            
+          ctx.fill();
+          
             // Main orb with pulsing
             const pulse = 1 + Math.sin(now / 200 + orb.x) * 0.15;
             ctx.fillStyle = '#FFD700';
-            ctx.beginPath();
+          ctx.beginPath();
             ctx.ellipse(sx, sy, 5 * pulse, 7 * pulse, 0, 0, Math.PI * 2);
-            ctx.fill();
-            
+          ctx.fill();
+          
             // Highlight
             ctx.fillStyle = 'rgba(255, 255, 200, 0.8)';
-            ctx.beginPath();
+          ctx.beginPath();
             ctx.ellipse(sx - 2, sy - 3, 2, 2.5, 0, 0, Math.PI * 2);
-            ctx.fill();
-            
+          ctx.fill();
+          
             // Leaf
             ctx.fillStyle = '#32CD32';
-            ctx.beginPath();
+          ctx.beginPath();
             ctx.ellipse(sx, sy - 9 * pulse, 2, 4, 0, 0, Math.PI * 2);
-            ctx.fill();
+          ctx.fill();
           });
           
           // Chests with enhanced visuals
@@ -1110,14 +1110,14 @@
             
             // Lock
             ctx.fillStyle = '#FFD700';
-            ctx.beginPath();
+          ctx.beginPath();
             ctx.arc(sx, sy, 5, 0, Math.PI * 2);
             ctx.fill();
             ctx.fillStyle = '#8B4513';
             ctx.beginPath();
             ctx.arc(sx, sy + 1, 2, 0, Math.PI * 2);
-            ctx.fill();
-            
+          ctx.fill();
+          
             // Weapon emoji floating above
             const float = Math.sin(now / 300) * 3;
             ctx.font = '16px Arial';
@@ -1129,175 +1129,175 @@
           const drawEnemy = (ctx, e, sx, sy) => {
             const size = ENEMY_SIZE * (e.scale || 1);
             const hitFlash = e.hit > 0;
-            
-            ctx.save();
+          
+          ctx.save();
             ctx.translate(sx, sy);
             if (hitFlash) ctx.filter = 'brightness(2)';
-            
+          
             // Shadow
-            ctx.fillStyle = 'rgba(0,0,0,0.3)';
-            ctx.beginPath();
-            ctx.ellipse(0, size/2, size/2, size/4, 0, 0, Math.PI * 2);
-            ctx.fill();
-            
+          ctx.fillStyle = 'rgba(0,0,0,0.3)';
+          ctx.beginPath();
+          ctx.ellipse(0, size/2, size/2, size/4, 0, 0, Math.PI * 2);
+          ctx.fill();
+          
             switch(e.type) {
-              case 'plankton':
+            case 'plankton':
                 // Green plankton body
-                ctx.fillStyle = '#228B22';
-                ctx.beginPath();
-                ctx.ellipse(0, 0, size/3, size/2, 0, 0, Math.PI * 2);
-                ctx.fill();
+              ctx.fillStyle = '#228B22';
+              ctx.beginPath();
+              ctx.ellipse(0, 0, size/3, size/2, 0, 0, Math.PI * 2);
+              ctx.fill();
                 // Red eye
-                ctx.fillStyle = '#FF0000';
-                ctx.beginPath();
-                ctx.arc(0, -size/6, size/4, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.fillStyle = '#000';
-                ctx.beginPath();
-                ctx.arc(0, -size/6, size/8, 0, Math.PI * 2);
-                ctx.fill();
+              ctx.fillStyle = '#FF0000';
+              ctx.beginPath();
+              ctx.arc(0, -size/6, size/4, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.fillStyle = '#000';
+              ctx.beginPath();
+              ctx.arc(0, -size/6, size/8, 0, Math.PI * 2);
+              ctx.fill();
                 // Antennae
-                ctx.strokeStyle = '#228B22';
-                ctx.lineWidth = 2;
-                ctx.beginPath();
-                ctx.moveTo(-3, -size/2);
-                ctx.lineTo(-5, -size/2 - 8);
-                ctx.moveTo(3, -size/2);
-                ctx.lineTo(5, -size/2 - 8);
-                ctx.stroke();
-                break;
-                
-              case 'krabs':
+              ctx.strokeStyle = '#228B22';
+              ctx.lineWidth = 2;
+              ctx.beginPath();
+              ctx.moveTo(-3, -size/2);
+              ctx.lineTo(-5, -size/2 - 8);
+              ctx.moveTo(3, -size/2);
+              ctx.lineTo(5, -size/2 - 8);
+              ctx.stroke();
+              break;
+              
+            case 'krabs':
                 // Red crab body
-                ctx.fillStyle = '#DC143C';
-                ctx.beginPath();
-                ctx.ellipse(0, 0, size/2, size/2.5, 0, 0, Math.PI * 2);
-                ctx.fill();
+              ctx.fillStyle = '#DC143C';
+              ctx.beginPath();
+              ctx.ellipse(0, 0, size/2, size/2.5, 0, 0, Math.PI * 2);
+              ctx.fill();
                 // Claws
                 ctx.fillStyle = '#DC143C';
-                ctx.beginPath();
+              ctx.beginPath();
                 ctx.ellipse(-size/2 - 8, 0, 10, 7, -0.3, 0, Math.PI * 2);
                 ctx.ellipse(size/2 + 8, 0, 10, 7, 0.3, 0, Math.PI * 2);
                 ctx.fill();
                 // Eyes
-                ctx.fillStyle = '#FFFF00';
-                ctx.beginPath();
-                ctx.arc(-10, -size/2 - 8, 5, 0, Math.PI * 2);
-                ctx.arc(10, -size/2 - 8, 5, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.fillStyle = '#000';
-                ctx.beginPath();
-                ctx.arc(-10, -size/2 - 8, 2, 0, Math.PI * 2);
-                ctx.arc(10, -size/2 - 8, 2, 0, Math.PI * 2);
-                ctx.fill();
-                break;
-                
-              case 'squidward':
+              ctx.fillStyle = '#FFFF00';
+              ctx.beginPath();
+              ctx.arc(-10, -size/2 - 8, 5, 0, Math.PI * 2);
+              ctx.arc(10, -size/2 - 8, 5, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.fillStyle = '#000';
+              ctx.beginPath();
+              ctx.arc(-10, -size/2 - 8, 2, 0, Math.PI * 2);
+              ctx.arc(10, -size/2 - 8, 2, 0, Math.PI * 2);
+              ctx.fill();
+              break;
+              
+            case 'squidward':
                 // Teal squidward head
-                ctx.fillStyle = '#40E0D0';
-                ctx.beginPath();
-                ctx.ellipse(0, -size/4, size/3, size/2, 0, 0, Math.PI * 2);
-                ctx.fill();
+              ctx.fillStyle = '#40E0D0';
+              ctx.beginPath();
+              ctx.ellipse(0, -size/4, size/3, size/2, 0, 0, Math.PI * 2);
+              ctx.fill();
                 // Body
-                ctx.fillStyle = '#2F9F9F';
-                ctx.beginPath();
-                ctx.ellipse(0, size/6, size/5, size/3, 0, 0, Math.PI * 2);
-                ctx.fill();
+              ctx.fillStyle = '#2F9F9F';
+              ctx.beginPath();
+              ctx.ellipse(0, size/6, size/5, size/3, 0, 0, Math.PI * 2);
+              ctx.fill();
                 // Nose
-                ctx.fillStyle = '#FFFF00';
-                ctx.fillRect(-12, -size/2, 8, 6);
-                ctx.fillRect(4, -size/2, 8, 6);
-                ctx.fillStyle = '#000';
-                ctx.fillRect(-10, -size/2 + 2, 4, 4);
-                ctx.fillRect(6, -size/2 + 2, 4, 4);
+              ctx.fillStyle = '#FFFF00';
+              ctx.fillRect(-12, -size/2, 8, 6);
+              ctx.fillRect(4, -size/2, 8, 6);
+              ctx.fillStyle = '#000';
+              ctx.fillRect(-10, -size/2 + 2, 4, 4);
+              ctx.fillRect(6, -size/2 + 2, 4, 4);
                 // Mouth
-                ctx.strokeStyle = '#000';
-                ctx.lineWidth = 2;
-                ctx.beginPath();
-                ctx.arc(0, size/4, 6, 1.1 * Math.PI, 1.9 * Math.PI);
-                ctx.stroke();
-                break;
-                
-              case 'patrick':
+              ctx.strokeStyle = '#000';
+              ctx.lineWidth = 2;
+              ctx.beginPath();
+              ctx.arc(0, size/4, 6, 1.1 * Math.PI, 1.9 * Math.PI);
+              ctx.stroke();
+              break;
+              
+            case 'patrick':
                 // Pink starfish
-                ctx.fillStyle = '#FFB6C1';
-                const points = 5;
-                ctx.beginPath();
-                for (let i = 0; i < points * 2; i++) {
-                  const radius = i % 2 === 0 ? size/1.8 : size/3.5;
-                  const angle = (i * Math.PI / points) - Math.PI / 2;
-                  const px = Math.cos(angle) * radius;
-                  const py = Math.sin(angle) * radius;
-                  if (i === 0) ctx.moveTo(px, py);
-                  else ctx.lineTo(px, py);
-                }
-                ctx.closePath();
-                ctx.fill();
+              ctx.fillStyle = '#FFB6C1';
+              const points = 5;
+              ctx.beginPath();
+              for (let i = 0; i < points * 2; i++) {
+                const radius = i % 2 === 0 ? size/1.8 : size/3.5;
+                const angle = (i * Math.PI / points) - Math.PI / 2;
+                const px = Math.cos(angle) * radius;
+                const py = Math.sin(angle) * radius;
+                if (i === 0) ctx.moveTo(px, py);
+                else ctx.lineTo(px, py);
+              }
+              ctx.closePath();
+              ctx.fill();
                 // Belly
-                ctx.fillStyle = '#32CD32';
-                ctx.beginPath();
-                ctx.ellipse(0, size/4, size/3, size/5, 0, 0, Math.PI);
-                ctx.fill();
+              ctx.fillStyle = '#32CD32';
+              ctx.beginPath();
+              ctx.ellipse(0, size/4, size/3, size/5, 0, 0, Math.PI);
+              ctx.fill();
                 // Eyes
-                ctx.fillStyle = '#FFF';
-                ctx.beginPath();
-                ctx.arc(-6, -size/6, 5, 0, Math.PI * 2);
-                ctx.arc(6, -size/6, 5, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.fillStyle = '#000';
-                ctx.beginPath();
-                ctx.arc(-6, -size/6, 2, 0, Math.PI * 2);
-                ctx.arc(6, -size/6, 2, 0, Math.PI * 2);
-                ctx.fill();
+              ctx.fillStyle = '#FFF';
+              ctx.beginPath();
+              ctx.arc(-6, -size/6, 5, 0, Math.PI * 2);
+              ctx.arc(6, -size/6, 5, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.fillStyle = '#000';
+              ctx.beginPath();
+              ctx.arc(-6, -size/6, 2, 0, Math.PI * 2);
+              ctx.arc(6, -size/6, 2, 0, Math.PI * 2);
+              ctx.fill();
                 // Mouth
-                ctx.strokeStyle = '#000';
-                ctx.lineWidth = 2;
-                ctx.beginPath();
-                ctx.arc(0, size/8, 8, 0, Math.PI);
-                ctx.stroke();
-                break;
-                
-              case 'sandy':
+              ctx.strokeStyle = '#000';
+              ctx.lineWidth = 2;
+              ctx.beginPath();
+              ctx.arc(0, size/8, 8, 0, Math.PI);
+              ctx.stroke();
+              break;
+              
+            case 'sandy':
                 // Tan squirrel
-                ctx.fillStyle = '#DEB887';
-                ctx.beginPath();
-                ctx.arc(0, 0, size/2.5, 0, Math.PI * 2);
-                ctx.fill();
+              ctx.fillStyle = '#DEB887';
+              ctx.beginPath();
+              ctx.arc(0, 0, size/2.5, 0, Math.PI * 2);
+              ctx.fill();
                 // Goggles
-                ctx.strokeStyle = 'rgba(255,255,255,0.6)';
-                ctx.lineWidth = 3;
-                ctx.beginPath();
-                ctx.arc(0, 0, size/2, 0, Math.PI * 2);
-                ctx.stroke();
+              ctx.strokeStyle = 'rgba(255,255,255,0.6)';
+              ctx.lineWidth = 3;
+              ctx.beginPath();
+              ctx.arc(0, 0, size/2, 0, Math.PI * 2);
+              ctx.stroke();
                 // Eyes
-                ctx.fillStyle = '#000';
-                ctx.beginPath();
-                ctx.arc(-5, -3, 3, 0, Math.PI * 2);
-                ctx.arc(5, -3, 3, 0, Math.PI * 2);
-                ctx.fill();
+              ctx.fillStyle = '#000';
+              ctx.beginPath();
+              ctx.arc(-5, -3, 3, 0, Math.PI * 2);
+              ctx.arc(5, -3, 3, 0, Math.PI * 2);
+              ctx.fill();
                 // Cheeks
-                ctx.fillStyle = '#FF9999';
-                ctx.beginPath();
-                ctx.arc(-10, 3, 4, 0, Math.PI * 2);
-                ctx.arc(10, 3, 4, 0, Math.PI * 2);
-                ctx.fill();
-                break;
-                
-              default:
+              ctx.fillStyle = '#FF9999';
+              ctx.beginPath();
+              ctx.arc(-10, 3, 4, 0, Math.PI * 2);
+              ctx.arc(10, 3, 4, 0, Math.PI * 2);
+              ctx.fill();
+              break;
+              
+            default:
                 // Generic enemy
                 ctx.fillStyle = e.color;
-                ctx.beginPath();
-                ctx.arc(0, 0, size/2, 0, Math.PI * 2);
-                ctx.fill();
-            }
-            
-            ctx.filter = 'none';
-            ctx.restore();
-            
+              ctx.beginPath();
+              ctx.arc(0, 0, size/2, 0, Math.PI * 2);
+              ctx.fill();
+          }
+          
+          ctx.filter = 'none';
+          ctx.restore();
+          
             // HP bar
             if (e.type !== 'plankton') {
               const barW = size * 1.2;
-              ctx.fillStyle = 'rgba(0,0,0,0.7)';
+            ctx.fillStyle = 'rgba(0,0,0,0.7)';
               ctx.fillRect(sx - barW/2, sy - size/2 - 12, barW, 6);
               ctx.fillStyle = e.hp / e.maxHp > 0.5 ? '#0F0' : e.hp / e.maxHp > 0.25 ? '#FF0' : '#F00';
               ctx.fillRect(sx - barW/2 + 1, sy - size/2 - 11, (barW - 2) * (e.hp / e.maxHp), 4);
@@ -1387,7 +1387,7 @@
           ctx.fillStyle = bodyGradient;
           // Rounded rectangle
           const r = 6;
-          ctx.beginPath();
+            ctx.beginPath();
           ctx.moveTo(-20 + r, -28);
           ctx.lineTo(20 - r, -28);
           ctx.quadraticCurveTo(20, -28, 20, -28 + r);
@@ -1398,7 +1398,7 @@
           ctx.lineTo(-20, -28 + r);
           ctx.quadraticCurveTo(-20, -28, -20 + r, -28);
           ctx.closePath();
-          ctx.fill();
+            ctx.fill();
           ctx.strokeStyle = '#CC9900';
           ctx.lineWidth = 2;
           ctx.stroke();
@@ -1423,7 +1423,7 @@
           
           // Tie
           ctx.fillStyle = '#FF0000';
-          ctx.beginPath();
+            ctx.beginPath();
           ctx.moveTo(-3, 12);
           ctx.lineTo(3, 12);
           ctx.lineTo(4, 20);
@@ -1444,10 +1444,10 @@
           ctx.lineWidth = 1.5;
           ctx.beginPath();
           ctx.ellipse(-7, -10, 9, 11, 0, 0, Math.PI * 2);
-          ctx.stroke();
-          ctx.beginPath();
+            ctx.stroke();
+            ctx.beginPath();
           ctx.ellipse(7, -10, 9, 11, 0, 0, Math.PI * 2);
-          ctx.stroke();
+            ctx.stroke();
           
           // Pupils
           ctx.fillStyle = '#00BFFF';
@@ -1479,11 +1479,11 @@
           
           // Cheeks
           ctx.fillStyle = 'rgba(255, 150, 150, 0.4)';
-          ctx.beginPath();
+            ctx.beginPath();
           ctx.ellipse(-14, 0, 5, 3, 0, 0, Math.PI * 2);
           ctx.ellipse(14, 0, 5, 3, 0, 0, Math.PI * 2);
-          ctx.fill();
-          
+            ctx.fill();
+            
           // Mouth
           ctx.strokeStyle = '#000';
           ctx.lineWidth = 2;
@@ -1492,7 +1492,7 @@
           ctx.stroke();
           
           // Teeth
-          ctx.fillStyle = '#FFF';
+            ctx.fillStyle = '#FFF';
           ctx.fillRect(-5, 4, 4, 7);
           ctx.fillRect(1, 4, 4, 7);
           ctx.strokeStyle = '#000';
@@ -1573,7 +1573,7 @@
             {/* Animated background particles */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
               {Array.from({ length: 20 }).map((_, i) => (
-                <div 
+                <div
                   key={i}
                   className="absolute rounded-full opacity-20"
                   style={{
@@ -1598,31 +1598,31 @@
                 $COCKPANTS
               </div>
               <div className="text-4xl font-bold text-cyan-300 mb-6" style={{ textShadow: '0 0 20px rgba(100, 200, 255, 0.5)' }}>
-                SURVIVORS
-              </div>
-              
+              SURVIVORS
+            </div>
+            
               <div className="text-9xl mb-8 transform hover:scale-110 transition-transform" style={{ filter: 'drop-shadow(0 0 20px rgba(255, 215, 0, 0.4))' }}>
-                🧽
-              </div>
-              
-              <button 
-                onClick={startGame} 
+              🧽
+            </div>
+            
+            <button 
+              onClick={startGame}
                 className="px-12 py-5 text-2xl font-bold rounded-2xl transform hover:scale-105 transition-all relative overflow-hidden group"
-                style={{ 
+              style={{
                   background: 'linear-gradient(145deg, #FFD700, #FFA500)', 
                   color: '#000',
                   boxShadow: '0 6px 0 #CC8400, 0 10px 30px rgba(255, 165, 0, 0.4)'
-                }}
-              >
-                <span className="relative z-10">🎮 START GAME</span>
+              }}
+            >
+              <span className="relative z-10">🎮 START GAME</span>
                 <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity" />
-              </button>
-              
+            </button>
+            
               <div className="mt-10 text-cyan-200 text-center space-y-2 p-6 rounded-xl" style={{ background: 'rgba(0, 20, 40, 0.6)', backdropFilter: 'blur(10px)' }}>
                 <p className="text-lg">🎯 <span className="text-white font-bold">WASD</span> or <span className="text-white font-bold">Arrows</span> to move</p>
                 <p className="text-lg">⚔️ Auto-attack nearby enemies</p>
                 <p className="text-lg">⭐ Collect XP to level up & unlock upgrades!</p>
-              </div>
+            </div>
             </div>
           </div>
         );
@@ -1651,12 +1651,12 @@
             </div>
 
             <div className="relative z-10 flex flex-col items-center">
-              <div className="text-6xl font-black mb-4" style={{ 
+            <div className="text-6xl font-black mb-4" style={{
                 color: '#FF4444', 
                 textShadow: '4px 4px 0 #000, 0 0 30px rgba(255, 68, 68, 0.5)'
-              }}>
-                GAME OVER
-              </div>
+            }}>
+              GAME OVER
+            </div>
               <div className="text-8xl mb-8" style={{ filter: 'drop-shadow(0 0 20px rgba(255, 68, 68, 0.4))' }}>💀</div>
               
               <div className="rounded-2xl p-8 mb-8 text-white space-y-3" style={{ 
@@ -1668,7 +1668,7 @@
                 <div className="flex justify-between gap-10 text-xl">
                   <span className="text-gray-400">Score</span>
                   <span className="text-yellow-400 font-bold" style={{ textShadow: '0 0 10px rgba(255, 215, 0, 0.5)' }}>{score.toLocaleString()}</span>
-                </div>
+              </div>
                 <div className="flex justify-between gap-10 text-xl">
                   <span className="text-gray-400">Level</span>
                   <span className="text-green-400 font-bold">{level}</span>
@@ -1691,8 +1691,8 @@
                     </div>
                   </div>
                 )}
-              </div>
-              
+            </div>
+            
               <div className="flex gap-4">
                 <button 
                   onClick={() => { 
@@ -1710,17 +1710,17 @@
                 >
                   🏆 LEADERBOARD
                 </button>
-                <button 
-                  onClick={startGame} 
+            <button 
+              onClick={startGame}
                   className="px-8 py-4 text-xl font-bold rounded-xl transform hover:scale-105 transition-all"
-                  style={{ 
+              style={{
                     background: 'linear-gradient(145deg, #FFD700, #FFA500)', 
                     color: '#000',
                     boxShadow: '0 4px 0 #CC8400, 0 6px 20px rgba(255, 165, 0, 0.3)'
-                  }}
-                >
-                  🔄 TRY AGAIN
-                </button>
+              }}
+            >
+              🔄 TRY AGAIN
+            </button>
               </div>
             </div>
           </div>
@@ -1735,7 +1735,7 @@
             <div className="joystick-base" id="joystickBase">
               <div className="joystick-stick" id="joystickStick"></div>
             </div>
-          </div>
+            </div>
           
           {/* Boss Warning */}
           {bossWarning && (
@@ -1743,9 +1743,9 @@
               <div className="bg-red-900/90 border-4 border-red-500 rounded-xl px-8 py-4 text-center shadow-2xl" style={{ boxShadow: '0 0 40px rgba(255, 0, 0, 0.8)' }}>
                 <div className="text-4xl mb-2">⚠️</div>
                 <div className="text-3xl font-bold text-yellow-400" style={{ textShadow: '0 0 20px rgba(255, 215, 0, 1)' }}>BOSS INCOMING!</div>
-              </div>
             </div>
-          )}
+              </div>
+            )}
           
           {/* Combo Display */}
           {combo > 0 && (
@@ -1755,7 +1755,7 @@
                 textShadow: '0 0 20px rgba(255, 215, 0, 0.8), 0 0 40px rgba(255, 215, 0, 0.4)',
               }}>
                 {combo}x COMBO!
-              </div>
+          </div>
             </div>
           )}
           
@@ -1783,20 +1783,20 @@
                     <span className="text-gray-500">|</span>
                     <span className="text-orange-400 font-bold">🔥 {combo}x</span>
                   </>}
-                </div>
-              </div>
-              
+            </div>
+          </div>
+          
               {/* HP Bar - Enhanced */}
               <div>
                 <div className="flex items-center justify-between mb-1">
                   <span className="text-red-400 text-xs font-bold">❤️ HEALTH</span>
                   <span className="text-white text-xs">{Math.floor(playerStats.hp)}/{playerStats.maxHp}</span>
-                </div>
+            </div>
                 <div className="stat-bar w-44 h-5 bg-black/70 rounded-full border border-red-500/50 overflow-hidden relative">
                   <div className="h-full transition-all duration-200 rounded-full" style={{ 
                     width: `${(playerStats.hp / playerStats.maxHp) * 100}%`,
                     background: playerStats.hp / playerStats.maxHp > 0.5 
-                      ? 'linear-gradient(90deg, #22c55e, #4ade80)' 
+                    ? 'linear-gradient(90deg, #22c55e, #4ade80)'
                       : playerStats.hp / playerStats.maxHp > 0.25 
                         ? 'linear-gradient(90deg, #eab308, #facc15)' 
                         : 'linear-gradient(90deg, #dc2626, #ef4444)',
@@ -1806,9 +1806,9 @@
                 {playerStats.armor > 0 && (
                   <div className="text-xs text-blue-400 mt-0.5">🛡️ +{playerStats.armor} Armor</div>
                 )}
-              </div>
             </div>
-            
+          </div>
+          
             {/* Right Side - Level & Weapons */}
             <div className="flex items-center gap-5">
               {/* Level & XP - Enhanced */}
@@ -1829,22 +1829,22 @@
               <div>
                 <div className="text-xs text-gray-400 mb-1.5 text-center uppercase tracking-wider">Weapons</div>
                 <div className="flex gap-1.5">
-                  {weapons.map((w, i) => (
-                    <div 
-                      key={i} 
+              {weapons.map((w, i) => (
+                <div 
+                  key={i} 
                       className="weapon-slot w-11 h-11 rounded-lg flex flex-col items-center justify-center text-lg relative"
-                      style={{ 
+                  style={{
                         background: 'linear-gradient(145deg, rgba(0,0,0,0.8), rgba(20,30,50,0.9))', 
                         border: `2px solid ${w.color}`,
-                        boxShadow: `0 0 10px ${w.color}40`
-                      }}
-                    >
+                    boxShadow: `0 0 10px ${w.color}40`
+                  }}
+                >
                       {w.emoji}
                       <span className="absolute -bottom-0.5 text-[9px] text-white/80 font-bold bg-black/60 px-1 rounded">
                         {w.level}
                       </span>
-                    </div>
-                  ))}
+                </div>
+              ))}
                   {/* Empty weapon slots */}
                   {Array.from({ length: Math.max(0, 6 - weapons.length) }).map((_, i) => (
                     <div 
@@ -1867,9 +1867,9 @@
           <canvas 
             ref={canvasRef} 
             width={GAME_WIDTH} 
-            height={GAME_HEIGHT} 
+            height={GAME_HEIGHT}
             className="rounded-xl game-canvas" 
-            style={{ 
+            style={{
               border: '3px solid rgba(255, 215, 0, 0.7)', 
               maxWidth: '100vw', 
               maxHeight: 'calc(100vh - 140px)',
@@ -1888,7 +1888,7 @@
                 {/* PAUSED indicator */}
                 <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 px-4 py-1 rounded-full text-sm font-bold" style={{ background: '#FFD700', color: '#000' }}>
                   ⏸️ GAME PAUSED
-                </div>
+              </div>
                 
                 <div className="text-4xl font-bold text-center mb-2" style={{ 
                   color: '#FFD700', 
@@ -1908,11 +1908,11 @@
                 
                 <div className="flex gap-4">
                   {upgradeOptions.map((opt, i) => (
-                    <button 
-                      key={i} 
-                      onClick={() => selectUpgrade(opt)} 
+                    <button
+                      key={i}
+                      onClick={() => selectUpgrade(opt)}
                       className="upgrade-card p-5 rounded-xl w-40 cursor-pointer"
-                      style={{ 
+                      style={{
                         background: 'linear-gradient(145deg, #152035, #0a1525)', 
                         border: '2px solid rgba(100, 200, 255, 0.4)',
                         boxShadow: '0 4px 15px rgba(0, 0, 0, 0.3)'

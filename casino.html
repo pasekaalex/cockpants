@@ -253,6 +253,7 @@
       align-items: center;
       justify-content: center;
       gap: 10px;
+      margin-bottom: 20px;
     }
     
     .wallet-icon {
@@ -264,6 +265,73 @@
     @keyframes coinSpin {
       0% { transform: rotateY(0deg); }
       100% { transform: rotateY(360deg); }
+    }
+    
+    .name-input-section {
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 2px solid rgba(255, 215, 0, 0.3);
+    }
+    
+    .name-label {
+      font-size: 16px;
+      color: #88ccff;
+      text-shadow: 1px 1px 0 #000;
+      margin-bottom: 10px;
+      display: block;
+    }
+    
+    .name-input-group {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    
+    .name-input {
+      flex: 1;
+      padding: 12px 15px;
+      font-family: 'Krabby Patty', Arial, sans-serif;
+      font-size: 18px;
+      background: rgba(0, 0, 0, 0.4);
+      border: 2px solid #FFD700;
+      border-radius: 10px;
+      color: #fff;
+      text-shadow: 1px 1px 0 #000;
+      transition: all 0.3s;
+    }
+    
+    .name-input:focus {
+      outline: none;
+      border-color: #FFA500;
+      box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+      background: rgba(0, 0, 0, 0.6);
+    }
+    
+    .name-save-btn {
+      padding: 12px 20px;
+      font-family: 'Krabby Patty', Arial, sans-serif;
+      font-size: 16px;
+      font-weight: bold;
+      background: linear-gradient(135deg, #FFD700, #FFA500);
+      border: 2px solid #fff;
+      border-radius: 10px;
+      color: #000;
+      cursor: pointer;
+      transition: all 0.3s;
+      white-space: nowrap;
+    }
+    
+    .name-save-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+    }
+    
+    .name-display {
+      font-size: 16px;
+      color: #FFD700;
+      text-shadow: 1px 1px 0 #000;
+      margin-top: 10px;
+      text-align: center;
     }
     
     .games-grid {
@@ -466,6 +534,21 @@
           <span id="casinoBalance">0</span>
           <span style="font-size: 32px; color: #88ccff;">Casino Dollars</span>
         </div>
+        
+        <div class="name-input-section">
+          <label class="name-label" for="playerNameInput">🎯 Leaderboard Name:</label>
+          <div class="name-input-group">
+            <input 
+              type="text" 
+              id="playerNameInput" 
+              class="name-input" 
+              placeholder="Enter your name"
+              maxlength="20"
+            />
+            <button class="name-save-btn" onclick="savePlayerName()">SAVE</button>
+          </div>
+          <div class="name-display" id="nameDisplay"></div>
+        </div>
       </div>
     </div>
     
@@ -480,6 +563,12 @@
         <div class="game-icon">🎲</div>
         <div class="game-title">ROULETTE</div>
         <div class="game-desc">Spin the wheel and bet on your lucky number! The ultimate game of chance.</div>
+      </a>
+      
+      <a href="casino/slots.html" class="game-card">
+        <div class="game-icon">🎰</div>
+        <div class="game-title">SLOTS</div>
+        <div class="game-desc">Pull the lever and watch the reels spin! Match three symbols to win big prizes!</div>
       </a>
     </div>
     
@@ -519,6 +608,49 @@
       });
     }
     
+    function updateNameDisplay() {
+      const playerName = localStorage.getItem('casinoPlayerName') || '';
+      const nameInput = document.getElementById('playerNameInput');
+      const nameDisplay = document.getElementById('nameDisplay');
+      
+      if (playerName) {
+        nameInput.value = playerName;
+        nameDisplay.textContent = `Current name: ${playerName}`;
+        nameDisplay.style.display = 'block';
+      } else {
+        nameDisplay.textContent = 'No name set - you will appear as "Anonymous" on leaderboard';
+        nameDisplay.style.display = 'block';
+      }
+    }
+    
+    function savePlayerName() {
+      const nameInput = document.getElementById('playerNameInput');
+      const playerName = nameInput.value.trim();
+      
+      if (!playerName) {
+        alert('Please enter a name!');
+        return;
+      }
+      
+      if (playerName.length > 20) {
+        alert('Name must be 20 characters or less!');
+        return;
+      }
+      
+      localStorage.setItem('casinoPlayerName', playerName);
+      updateNameDisplay();
+      updateCasinoLeaderboard();
+      
+      // Show confirmation
+      const nameDisplay = document.getElementById('nameDisplay');
+      nameDisplay.textContent = `✓ Name saved: ${playerName}`;
+      nameDisplay.style.color = '#4CAF50';
+      
+      setTimeout(() => {
+        updateNameDisplay();
+      }, 2000);
+    }
+    
     // Update casino leaderboard
     async function updateCasinoLeaderboard() {
       try {
@@ -539,13 +671,21 @@
       }
     }
     
-    // Initialize wallet display
+    // Initialize wallet display and name display
     updateWalletDisplay();
+    updateNameDisplay();
     
     // Give starting bonus if new player
     if (getCasinoBalance() === 0) {
       addCasinoDollars(100); // Starting bonus of 100 casino dollars
     }
+    
+    // Allow Enter key to save name
+    document.getElementById('playerNameInput').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        savePlayerName();
+      }
+    });
     
     // Create floating bubbles
     function createBubbles() {

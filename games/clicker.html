@@ -2111,8 +2111,8 @@
       
       // Only increase combo if not in ultra stroke mode (prevents infinite combo)
       if (!ultraStrokeMode) {
-        gameState.combo++;
-        if (gameState.combo > gameState.maxCombo) gameState.maxCombo = gameState.combo;
+      gameState.combo++;
+      if (gameState.combo > gameState.maxCombo) gameState.maxCombo = gameState.combo;
       }
       
       pumpScale = Math.min(pumpScale + 0.05, 2.5);

@@ -225,7 +225,7 @@ function showLeaderboardModal(gameName, gameTitle, playerScore = null) {
         const ascensions = playerScore - ASCENSION_THRESHOLD;
         displayPlayerScore = `⭐ ${ascensions} Ascension${ascensions !== 1 ? 's' : ''}`;
       } else if (playerScore >= 1e9) {
-        displayPlayerScore = formatLargeScore(playerScore);
+      displayPlayerScore = formatLargeScore(playerScore);
       } else {
         displayPlayerScore = playerScore.toLocaleString();
       }
@@ -374,8 +374,8 @@ async function loadLeaderboardData(gameName) {
           const ascensions = entry.score - ASCENSION_THRESHOLD;
           displayScore = `⭐ ${ascensions} Ascension${ascensions !== 1 ? 's' : ''}`;
         } else if (entry.score >= 1e9) {
-          // Pump clicker with billion+ scores gets special formatting
-          displayScore = formatLargeScore(entry.score);
+        // Pump clicker with billion+ scores gets special formatting
+        displayScore = formatLargeScore(entry.score);
         } else {
           displayScore = entry.score.toLocaleString();
         }
