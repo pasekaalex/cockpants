@@ -284,11 +284,14 @@
     }
     
     .betting-area {
-      background: rgba(255, 215, 0, 0.1);
+      background: linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(255, 165, 0, 0.1));
       border: 3px solid #FFD700;
       border-radius: 15px;
       padding: 20px;
       margin-bottom: 20px;
+      box-shadow: 
+        0 0 20px rgba(255, 215, 0, 0.3),
+        inset 0 0 20px rgba(255, 215, 0, 0.05);
     }
     
     .bet-controls {
@@ -334,45 +337,92 @@
     .cards-container {
       display: flex;
       justify-content: center;
-      gap: 15px;
+      gap: 20px;
       flex-wrap: wrap;
-      margin-bottom: 30px;
-      min-height: 180px;
+      margin-bottom: 40px;
+      min-height: 200px;
+      padding: 20px;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 15px;
+      border: 2px solid rgba(255, 215, 0, 0.3);
     }
     
     .card {
-      width: 80px;
-      height: 120px;
-      background: linear-gradient(135deg, #fff, #f0f0f0);
+      width: 90px;
+      height: 130px;
+      background: linear-gradient(135deg, #fff, #f5f5f5);
       border: 3px solid #000;
-      border-radius: 10px;
+      border-radius: 12px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      padding: 8px;
+      padding: 10px;
       box-shadow: 
-        0 5px 15px rgba(0, 0, 0, 0.5),
-        0 0 10px rgba(255, 215, 0, 0.3),
-        inset 0 0 20px rgba(255, 255, 255, 0.1);
-      transition: transform 0.3s, box-shadow 0.3s;
+        0 6px 20px rgba(0, 0, 0, 0.6),
+        0 0 15px rgba(255, 215, 0, 0.4),
+        inset 0 0 25px rgba(255, 255, 255, 0.15);
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       position: relative;
       cursor: pointer;
+      overflow: hidden;
+    }
+    
+    .card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255, 215, 0, 0.2) 0%, transparent 70%);
+      transform: scale(0);
+      transition: transform 0.5s;
+    }
+    
+    .card:hover:not(.held)::before {
+      transform: scale(1);
     }
     
     .card:hover:not(.held) {
-      transform: translateY(-5px) scale(1.05);
+      transform: translateY(-8px) scale(1.08) rotate(2deg);
       box-shadow: 
-        0 8px 20px rgba(0, 0, 0, 0.6),
-        0 0 20px rgba(255, 215, 0, 0.6),
-        inset 0 0 30px rgba(255, 255, 255, 0.2);
+        0 10px 30px rgba(0, 0, 0, 0.7),
+        0 0 30px rgba(255, 215, 0, 0.8),
+        inset 0 0 40px rgba(255, 255, 255, 0.25);
+      border-color: #FFD700;
     }
     
     .card.held {
       border-color: #00ff00;
+      border-width: 4px;
       box-shadow: 
-        0 5px 15px rgba(0, 0, 0, 0.5),
-        0 0 20px rgba(0, 255, 0, 0.6),
-        inset 0 0 20px rgba(255, 255, 255, 0.1);
+        0 6px 20px rgba(0, 0, 0, 0.6),
+        0 0 30px rgba(0, 255, 0, 0.8),
+        inset 0 0 30px rgba(0, 255, 0, 0.2),
+        0 0 0 2px rgba(0, 255, 0, 0.3);
+      animation: heldPulse 1.5s ease-in-out infinite;
+      transform: translateY(-3px);
+    }
+    
+    @keyframes heldPulse {
+      0%, 100% { 
+        box-shadow: 
+          0 6px 20px rgba(0, 0, 0, 0.6),
+          0 0 30px rgba(0, 255, 0, 0.8),
+          inset 0 0 30px rgba(0, 255, 0, 0.2),
+          0 0 0 2px rgba(0, 255, 0, 0.3);
+      }
+      50% { 
+        box-shadow: 
+          0 6px 20px rgba(0, 0, 0, 0.6),
+          0 0 50px rgba(0, 255, 0, 1),
+          inset 0 0 40px rgba(0, 255, 0, 0.3),
+          0 0 0 4px rgba(0, 255, 0, 0.5);
+      }
+    }
+    
+    .card:active:not(.held) {
+      transform: translateY(-3px) scale(1.03);
     }
     
     .card.red {
@@ -395,13 +445,33 @@
     
     .card-held-label {
       position: absolute;
-      bottom: -20px;
+      bottom: -25px;
       left: 50%;
       transform: translateX(-50%);
-      font-size: 12px;
+      font-size: 14px;
       color: #00ff00;
       font-weight: bold;
-      text-shadow: 0 0 10px rgba(0, 255, 0, 0.8);
+      text-shadow: 
+        0 0 10px rgba(0, 255, 0, 0.8),
+        0 0 20px rgba(0, 255, 0, 0.6),
+        2px 2px 0 #000;
+      background: rgba(0, 255, 0, 0.2);
+      padding: 4px 12px;
+      border-radius: 10px;
+      border: 2px solid #00ff00;
+      animation: labelPulse 1.5s ease-in-out infinite;
+      white-space: nowrap;
+    }
+    
+    @keyframes labelPulse {
+      0%, 100% { 
+        transform: translateX(-50%) scale(1);
+        opacity: 1;
+      }
+      50% { 
+        transform: translateX(-50%) scale(1.1);
+        opacity: 0.9;
+      }
     }
     
     .controls {
@@ -465,34 +535,58 @@
     
     .hand-info {
       text-align: center;
-      font-size: 24px;
+      font-size: 26px;
       color: #FFD700;
-      text-shadow: 2px 2px 0 #000;
+      text-shadow: 
+        2px 2px 0 #000,
+        0 0 20px rgba(255, 215, 0, 0.6);
       margin: 20px 0;
-      min-height: 40px;
+      min-height: 50px;
       font-weight: bold;
+      padding: 15px;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 10px;
+      border: 2px solid rgba(255, 215, 0, 0.3);
     }
     
     .hand-info.win {
       color: #4CAF50;
-      animation: pulse 1s ease-in-out infinite;
+      text-shadow: 
+        2px 2px 0 #000,
+        0 0 30px rgba(76, 175, 80, 0.8);
+      border-color: rgba(76, 175, 80, 0.5);
+      background: rgba(76, 175, 80, 0.1);
+      animation: winPulse 1s ease-in-out infinite;
     }
     
     .hand-info.lose {
       color: #f44336;
+      text-shadow: 
+        2px 2px 0 #000,
+        0 0 20px rgba(244, 67, 54, 0.6);
+      border-color: rgba(244, 67, 54, 0.3);
     }
     
-    @keyframes pulse {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.1); }
+    @keyframes winPulse {
+      0%, 100% { 
+        transform: scale(1);
+        box-shadow: 0 0 20px rgba(76, 175, 80, 0.4);
+      }
+      50% { 
+        transform: scale(1.05);
+        box-shadow: 0 0 40px rgba(76, 175, 80, 0.8);
+      }
     }
     
     .payout-table {
       margin-top: 30px;
-      padding: 20px;
-      background: rgba(0, 0, 0, 0.5);
-      border: 2px solid #FFD700;
-      border-radius: 10px;
+      padding: 25px;
+      background: linear-gradient(135deg, rgba(0, 0, 0, 0.6), rgba(26, 26, 46, 0.6));
+      border: 3px solid #FFD700;
+      border-radius: 15px;
+      box-shadow: 
+        0 0 30px rgba(255, 215, 0, 0.3),
+        inset 0 0 20px rgba(255, 215, 0, 0.05);
     }
     
     .payout-title {
@@ -505,9 +599,16 @@
     .payout-item {
       display: flex;
       justify-content: space-between;
-      padding: 10px;
+      padding: 12px;
       border-bottom: 1px solid rgba(255, 215, 0, 0.3);
       font-size: 18px;
+      transition: all 0.3s;
+      border-radius: 5px;
+    }
+    
+    .payout-item:hover {
+      background: rgba(255, 215, 0, 0.1);
+      transform: translateX(5px);
     }
     
     .payout-item:last-child {
@@ -791,7 +892,6 @@
         playerCards.push(deck.pop());
       }
       
-      renderCards();
       document.getElementById('dealBtn').disabled = true;
       document.getElementById('drawBtn').disabled = false;
       document.getElementById('handInfo').textContent = 'Select cards to hold, then click DRAW';
@@ -799,6 +899,9 @@
       
       // Disable bet controls
       document.querySelectorAll('.bet-btn').forEach(btn => btn.disabled = true);
+      
+      // Render cards after enabling draw button so onclick handlers are set
+      renderCards();
     }
     
     function toggleHold(index) {
@@ -836,7 +939,9 @@
           cardEl.appendChild(label);
         }
         
-        if (gameInProgress && !document.getElementById('drawBtn').disabled) {
+        // Always allow clicking when game is in progress (toggleHold will check if drawing is allowed)
+        if (gameInProgress) {
+          cardEl.style.cursor = 'pointer';
           cardEl.onclick = () => toggleHold(index);
         }
         
