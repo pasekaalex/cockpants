@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Whack-a-Bulk | $COCKPANTS</title>
+  <meta name="x-ogp-key" content="a570f587-c883-4235-ac69-14eef9cfd6e2" id="ogp-key-meta">
+  <script src="https://sdk.play.fun"></script>
+  <style>
+    @font-face {
+      font-family: 'Krabby Patty';
+      src: url('https://cockpants.lol/Krabby%20Patty.ttf') format('truetype');
+    }
+    
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: 'Krabby Patty', Arial, sans-serif;
+      min-height: 100vh;
+      background: linear-gradient(180deg, #87CEEB 0%, #5DADE2 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      overflow: hidden;
+      touch-action: manipulation;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .header {
+      background: linear-gradient(135deg, rgba(139, 69, 19, 0.95), rgba(101, 67, 33, 0.95));
+      border: 4px solid #FFD700;
+      border-radius: 0 0 20px 20px;
+      padding: 15px 40px;
+      text-align: center;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+      z-index: 100;
+    }
+
+    .title {
+      font-size: clamp(24px, 8vw, 42px);
+      color: #FFD700;
+      text-shadow: 3px 3px 0 #8B4513, 4px 4px 10px rgba(0,0,0,0.5);
+    }
+
+    .stats {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+
+    .stat {
+      background: rgba(0,0,0,0.7);
+      border: 3px solid;
+      border-radius: 15px;
+      padding: 8px 20px;
+      color: white;
+      font-size: clamp(14px, 4vw, 20px);
+    }
+
+    .stat.score { border-color: #FF6B6B; color: #FF6B6B; }
+    .stat.time { border-color: #4ECDC4; color: #4ECDC4; }
+    .stat.high { border-color: #FFD700; color: #FFD700; }
+
+    .game-area {
+      flex: 1;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      padding: 20px;
+      max-width: 500px;
+      width: 100%;
+      align-content: start;
+    }
+
+    .hole {
+      aspect-ratio: 1;
+      background: radial-gradient(ellipse at center, #3d2817 0%, #1a0f08 100%);
+      border: 4px solid #5c3d2e;
+      border-radius: 50%;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+      box-shadow: inset 0 10px 20px rgba(0,0,0,0.8), 0 5px 15px rgba(0,0,0,0.3);
+    }
+
+    .hole::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 30%;
+      background: linear-gradient(to top, #2d1a0f, transparent);
+      border-radius: 0 0 50% 50%;
+    }
+
+    .bulk {
+      position: absolute;
+      bottom: -100%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80%;
+      height: 80%;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: bottom center;
+      transition: bottom 0.15s ease-out;
+      pointer-events: none;
+    }
+
+    .hole.up .bulk {
+      bottom: 0;
+    }
+
+    .hole.whacked {
+      animation: shake 0.2s ease-in-out;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px) rotate(-5deg); }
+      75% { transform: translateX(5px) rotate(5deg); }
+    }
+
+    .score-popup {
+      position: absolute;
+      font-size: 30px;
+      font-weight: bold;
+      color: #FFD700;
+      text-shadow: 2px 2px 0 #000;
+      animation: popUp 0.5s ease-out forwards;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    @keyframes popUp {
+      0% { transform: translateY(0) scale(1); opacity: 1; }
+      100% { transform: translateY(-50px) scale(1.5); opacity: 0; }
+    }
+
+    .start-screen, .game-over-screen {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.9);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .hidden { display: none !important; }
+
+    .screen-title {
+      font-size: clamp(32px, 10vw, 56px);
+      color: #FFD700;
+      text-shadow: 4px 4px 0 #8B4513, 6px 6px 20px rgba(0,0,0,0.8);
+      margin-bottom: 20px;
+    }
+
+    .screen-subtitle {
+      font-size: clamp(16px, 5vw, 24px);
+      color: white;
+      margin-bottom: 30px;
+    }
+
+    .btn {
+      background: linear-gradient(135deg, #FFD700, #FFA500);
+      border: 4px solid #FF8C00;
+      color: #000;
+      font-family: 'Krabby Patty', Arial, sans-serif;
+      font-size: clamp(20px, 6vw, 32px);
+      padding: 15px 50px;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 8px 20px rgba(255,165,0,0.5);
+    }
+
+    .btn:hover {
+      transform: scale(1.1);
+      box-shadow: 0 12px 30px rgba(255,165,0,0.7);
+    }
+
+    .final-score {
+      font-size: clamp(48px, 15vw, 80px);
+      color: #FF6B6B;
+      text-shadow: 4px 4px 0 #8B0000;
+      margin: 20px 0;
+    }
+
+    .new-high {
+      font-size: clamp(20px, 6vw, 32px);
+      color: #FFD700;
+      animation: pulse 0.5s ease-in-out infinite alternate;
+    }
+
+    @keyframes pulse {
+      from { transform: scale(1); }
+      to { transform: scale(1.1); }
+    }
+
+    .difficulty-select {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .diff-btn {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      border: 3px solid #fff;
+      color: white;
+      font-family: 'Krabby Patty', Arial, sans-serif;
+      font-size: clamp(14px, 4vw, 20px);
+      padding: 12px 25px;
+      border-radius: 15px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .diff-btn:hover, .diff-btn.selected {
+      transform: scale(1.1);
+      background: linear-gradient(135deg, #FFD700, #FFA500);
+      color: #000;
+    }
+
+    .mole-spawn {
+      animation: moleUp 0.15s ease-out;
+    }
+
+    @keyframes moleUp {
+      from { bottom: -100%; }
+      to { bottom: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="title">WHACK-A-BULK</div>
+    <div class="stats">
+      <div class="stat score">SCORE: <span id="score">0</span></div>
+      <div class="stat time">TIME: <span id="time">30</span></div>
+      <div class="stat high">BEST: <span id="highScore">0</span></div>
+    </div>
+  </div>
+
+  <div class="game-area" id="gameArea"></div>
+
+  <!-- Start Screen -->
+  <div class="start-screen" id="startScreen">
+    <div class="screen-title">WHACK-A-BULK!</div>
+    <div class="screen-subtitle">Tap the Bulk before it hides!</div>
+    
+    <div class="difficulty-select">
+      <button class="diff-btn selected" data-speed="1000">EASY</button>
+      <button class="diff-btn" data-speed="700">MEDIUM</button>
+      <button class="diff-btn" data-speed="400">HARD</button>
+    </div>
+    
+    <button class="btn" onclick="startGame()">PLAY!</button>
+  </div>
+
+  <!-- Game Over Screen -->
+  <div class="game-over-screen hidden" id="gameOverScreen">
+    <div class="screen-title">GAME OVER!</div>
+    <div class="final-score" id="finalScore">0</div>
+    <div class="new-high hidden" id="newHigh">NEW HIGH SCORE!</div>
+    <button class="btn" onclick="showStartScreen()">PLAY AGAIN</button>
+  </div>
+
+  <script>
+    // Game config
+    const BULK_SPRITES = [
+      'https://bulked.lol/images/gachi-s/baby-bulk.png',
+      'https://bulked.lol/images/gachi-s/adult-bulk.png',
+      'https://bulked.lol/images/gachi-s/elder-bulk.png',
+      'https://bulked.lol/images/gachi-s/baby-happy.png',
+      'https://bulked.lol/images/gachi-s/baby-sad.png',
+      'https://bulked.lol/images/gachi-s/adult-happy.png',
+      'https://bulked.lol/images/gachi-s/elder-happy.png',
+    ];
+
+    let score = 0;
+    let timeLeft = 30;
+    let highScore = parseInt(localStorage.getItem('whackABulkHigh') || '0');
+    let gameInterval = null;
+    let spawnTimeout = null;
+    let isPlaying = false;
+    let difficulty = 1000;
+    let lastHole = -1;
+
+    // Initialize
+    document.getElementById('highScore').textContent = highScore;
+    createHoles();
+    setupDifficulty();
+
+    function createHoles() {
+      const gameArea = document.getElementById('gameArea');
+      for (let i = 0; i < 9; i++) {
+        const hole = document.createElement('div');
+        hole.className = 'hole';
+        hole.dataset.index = i;
+        
+        const bulk = document.createElement('div');
+        bulk.className = 'bulk';
+        bulk.style.backgroundImage = `url(${BULK_SPRITES[Math.floor(Math.random() * BULK_SPRITES.length)]})`;
+        
+        hole.appendChild(bulk);
+        hole.addEventListener('click', () => whack(hole));
+        hole.addEventListener('touchstart', (e) => {
+          e.preventDefault();
+          whack(hole);
+        });
+        
+        gameArea.appendChild(hole);
+      }
+    }
+
+    function setupDifficulty() {
+      document.querySelectorAll('.diff-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('selected'));
+          btn.classList.add('selected');
+          difficulty = parseInt(btn.dataset.speed);
+        });
+      });
+    }
+
+    function startGame() {
+      score = 0;
+      timeLeft = 30;
+      isPlaying = true;
+      
+      document.getElementById('score').textContent = score;
+      document.getElementById('time').textContent = timeLeft;
+      document.getElementById('startScreen').classList.add('hidden');
+      document.getElementById('gameOverScreen').classList.add('hidden');
+      
+      // Start timer
+      gameInterval = setInterval(() => {
+        timeLeft--;
+        document.getElementById('time').textContent = timeLeft;
+        
+        if (timeLeft <= 0) {
+          endGame();
+        }
+      }, 1000);
+      
+      // Start spawning
+      spawnBulk();
+    }
+
+    function spawnBulk() {
+      if (!isPlaying) return;
+      
+      const holes = document.querySelectorAll('.hole');
+      let index;
+      
+      do {
+        index = Math.floor(Math.random() * holes.length);
+      } while (index === lastHole);
+      
+      lastHole = index;
+      const hole = holes[index];
+      
+      // Random sprite
+      hole.querySelector('.bulk').style.backgroundImage = 
+        `url(${BULK_SPRITES[Math.floor(Math.random() * BULK_SPRITES.length)]})`;
+      
+      hole.classList.add('up', 'mole-spawn');
+      
+      // Hide after random time
+      const hideTime = difficulty + Math.random() * 500;
+      spawnTimeout = setTimeout(() => {
+        hole.classList.remove('up', 'mole-spawn');
+        if (isPlaying) spawnBulk();
+      }, hideTime);
+    }
+
+    function whack(hole) {
+      if (!isPlaying) return;
+      if (!hole.classList.contains('up')) return;
+      
+      score++;
+      document.getElementById('score').textContent = score;
+      
+      // Show score popup
+      const popup = document.createElement('div');
+      popup.className = 'score-popup';
+      popup.textContent = '+1';
+      popup.style.left = hole.offsetLeft + hole.offsetWidth / 2 + 'px';
+      popup.style.top = hole.offsetTop + 'px';
+      hole.parentNode.appendChild(popup);
+      setTimeout(() => popup.remove(), 500);
+      
+      // Visual feedback
+      hole.classList.remove('up', 'mole-spawn');
+      hole.classList.add('whacked');
+      setTimeout(() => hole.classList.remove('whacked'), 200);
+      
+      // Speed up spawn
+      clearTimeout(spawnTimeout);
+      spawnBulk();
+    }
+
+    function endGame() {
+      isPlaying = false;
+      clearInterval(gameInterval);
+      clearTimeout(spawnTimeout);
+      
+      document.querySelectorAll('.hole').forEach(h => h.classList.remove('up'));
+      
+      document.getElementById('finalScore').textContent = score;
+      
+      if (score > highScore) {
+        highScore = score;
+        localStorage.setItem('whackABulkHigh', highScore);
+        document.getElementById('highScore').textContent = highScore;
+        document.getElementById('newHigh').classList.remove('hidden');
+      } else {
+        document.getElementById('newHigh').classList.add('hidden');
+      }
+      
+      document.getElementById('gameOverScreen').classList.remove('hidden');
+      
+      // Submit to play.fun
+      if (typeof window.sdk !== 'undefined' && window.sdk.savePoints) {
+        window.sdk.savePoints({ points: score }).then(() => {
+          console.log('✅ Score submitted:', score);
+        }).catch(err => console.error('Score submit failed:', err));
+      }
+    }
+
+    function showStartScreen() {
+      document.getElementById('gameOverScreen').classList.add('hidden');
+      document.getElementById('startScreen').classList.remove('hidden');
+    }
+
+    // Play.fun SDK
+    window.sdk = new OpenGameSDK({ ui: { usePointsWidget: true } });
+    window.sdk.init({ gameId: 'whack-a-bulk' }).then(() => {
+      console.log('Play.fun SDK ready');
+    }).catch(err => console.error('SDK init failed:', err));
+  </script>
+</body>
+</html>
