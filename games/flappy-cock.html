@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Flappy Cock | $COCKPANTS</title>
+  <meta name="x-ogp-key" content="a570f587-c883-4235-ac69-14eef9cfd6e2" id="ogp-key-meta">
+  <script src="https://sdk.play.fun"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../leaderboard.js"></script>
   <script src="../sounds.js"></script>
@@ -817,6 +819,12 @@
     }
 
     gameLoop();
+    
+    // Play.fun SDK Init
+    const sdk = new OpenGameSDK({ ui: { usePointsWidget: true } });
+    sdk.init({ gameId: 'cockpants-flappy-cock' }).then(() => {
+      console.log('Play.fun SDK ready');
+    }).catch(err => console.error('SDK init failed:', err));
   </script>
 </body>
 </html>
