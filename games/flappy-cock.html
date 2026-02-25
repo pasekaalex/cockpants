@@ -778,6 +778,13 @@
       document.getElementById('finalScore').textContent = gameState.score;
       document.getElementById('displayBest').textContent = gameState.bestScore;
       
+      // Submit score to play.fun
+      if (typeof sdk !== 'undefined' && sdk.savePoints) {
+        sdk.savePoints({ points: gameState.score }).then(() => {
+          console.log('✅ Score submitted to play.fun:', gameState.score);
+        }).catch(err => console.error('❌ Failed to submit score:', err));
+      }
+      
       setTimeout(() => {
         document.getElementById('gameOverScreen').classList.remove('hidden');
         document.getElementById('scoreDisplay').style.display = 'none';
@@ -823,8 +830,8 @@
     gameLoop();
     
     // Play.fun SDK Init
-    const sdk = new OpenGameSDK({ ui: { usePointsWidget: true } });
-    sdk.init({ gameId: 'cockpants-flappy-cock' }).then(() => {
+    window.sdk = new OpenGameSDK({ ui: { usePointsWidget: true } });
+    window.sdk.init({ gameId: 'cockpants-flappy-cock' }).then(() => {
       console.log('Play.fun SDK ready');
     }).catch(err => console.error('SDK init failed:', err));
   </script>
