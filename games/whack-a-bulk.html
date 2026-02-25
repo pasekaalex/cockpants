@@ -505,15 +505,9 @@
     <div class="screen-subtitle">🌾 FARM EDITION 🌾</div>
     
     <div class="instructions">
-      <p>👊 Whack the Bulk as fast as you can!</p>
+      <p>👊 Whack the angry Bulk as fast as you can!</p>
       <p>⏱️ You have 30 seconds</p>
       <p>🏆 Beat your high score!</p>
-    </div>
-    
-    <div class="difficulty-select">
-      <button class="diff-btn" data-speed="1800" data-label="EASY">EASY</button>
-      <button class="diff-btn selected" data-speed="1200" data-label="NORMAL">NORMAL</button>
-      <button class="diff-btn" data-speed="700" data-label="HARD">HARD</button>
     </div>
     
     <button class="btn" onclick="startGame()">PLAY!</button>
@@ -541,7 +535,7 @@
     let gameInterval = null;
     let spawnTimeout = null;
     let isPlaying = false;
-    let difficulty = 800;
+    let difficulty = 1200;
     let lastHole = -1;
     let combo = 0;
     let lastWhackTime = 0;
@@ -549,7 +543,6 @@
     // Initialize
     document.getElementById('highScore').textContent = highScore;
     createHoles();
-    setupDifficulty();
 
     function createHoles() {
       const gameArea = document.getElementById('gameArea');
