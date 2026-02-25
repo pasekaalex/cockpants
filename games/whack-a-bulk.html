@@ -23,62 +23,111 @@
       -webkit-tap-highlight-color: transparent;
     }
 
-    /* Farm Background */
+    /* Farm Background with Sky */
     .game-container {
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       background: 
-        /* Barn roof silhouette */
-        linear-gradient(180deg, transparent 0%, transparent 35%),
-        /* Sky */
-        url('https://bulked.lol/images/sky3.png'),
-        /* Grass overlay */
-        linear-gradient(180deg, #87CEEB 0%, #87CEEB 50%, #90EE90 50%, #228B22 100%);
+        url('https://bulked.lol/images/sky3.png');
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
+      position: relative;
+    }
+
+    /* Sun */
+    .sun {
+      position: fixed;
+      top: 3%;
+      right: 8%;
+      width: clamp(60px, 12vw, 100px);
+      height: clamp(60px, 12vw, 100px);
+      background: radial-gradient(circle, #FFE135 0%, #FFD700 50%, #FFA500 100%);
+      border-radius: 50%;
+      box-shadow: 
+        0 0 40px #FFD700,
+        0 0 80px rgba(255, 215, 0, 0.5);
+      z-index: 1;
+      animation: sunPulse 4s ease-in-out infinite;
+    }
+
+    @keyframes sunPulse {
+      0%, 100% { box-shadow: 0 0 40px #FFD700, 0 0 80px rgba(255, 215, 0, 0.5); }
+      50% { box-shadow: 0 0 60px #FFD700, 0 0 100px rgba(255, 215, 0, 0.7); }
     }
 
     /* Clouds */
     .cloud {
       position: fixed;
-      background: white;
+      background: linear-gradient(180deg, #fff 0%, #f0f0f0 100%);
       border-radius: 50px;
-      opacity: 0.8;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
       animation: floatCloud linear infinite;
-      z-index: 1;
+      z-index: 2;
     }
 
     .cloud::before, .cloud::after {
       content: '';
       position: absolute;
-      background: white;
+      background: inherit;
       border-radius: 50%;
     }
 
-    .cloud-1 { width: 100px; height: 40px; top: 10%; animation-duration: 25s; }
-    .cloud-1::before { width: 50px; height: 50px; top: -25px; left: 15px; }
-    .cloud-1::after { width: 35px; height: 35px; top: -15px; left: 50px; }
+    .cloud-1 { width: 120px; height: 45px; top: 8%; animation-duration: 30s; }
+    .cloud-1::before { width: 55px; height: 55px; top: -28px; left: 20px; }
+    .cloud-1::after { width: 40px; height: 40px; top: -18px; left: 60px; }
 
-    .cloud-2 { width: 80px; height: 30px; top: 20%; animation-duration: 35s; animation-delay: -10s; }
-    .cloud-2::before { width: 40px; height: 40px; top: -20px; left: 10px; }
-    .cloud-2::after { width: 25px; height: 25px; top: -10px; left: 40px; }
+    .cloud-2 { width: 90px; height: 35px; top: 18%; animation-duration: 40s; animation-delay: -15s; }
+    .cloud-2::before { width: 45px; height: 45px; top: -22px; left: 12px; }
+    .cloud-2::after { width: 30px; height: 30px; top: -12px; left: 45px; }
+
+    .cloud-3 { width: 70px; height: 28px; top: 12%; left: 25%; animation-duration: 35s; animation-delay: -5s; }
+    .cloud-3::before { width: 35px; height: 35px; top: -18px; left: 8px; }
+    .cloud-3::after { width: 25px; height: 25px; top: -10px; left: 32px; }
 
     @keyframes floatCloud {
-      from { transform: translateX(-100vw); }
-      to { transform: translateX(100vw); }
+      from { transform: translateX(-150px); }
+      to { transform: translateX(calc(100vw + 150px)); }
+    }
+
+    /* Rolling Hills */
+    .hills {
+      position: fixed;
+      bottom: 20%;
+      left: 0;
+      right: 0;
+      height: 25%;
+      z-index: 1;
+    }
+
+    .hill {
+      position: absolute;
+      border-radius: 50% 50% 0 0;
+    }
+
+    .hill-1 {
+      width: 60%;
+      height: 100%;
+      background: linear-gradient(180deg, #3CB371 0%, #228B22 100%);
+      left: -10%;
+    }
+
+    .hill-2 {
+      width: 70%;
+      height: 80%;
+      background: linear-gradient(180deg, #2E8B57 0%, #1E6B1E 100%);
+      right: -15%;
     }
 
     /* Barn */
     .barn {
       position: fixed;
-      top: 5%;
+      top: 8%;
       left: 5%;
-      width: 15%;
-      max-width: 120px;
-      z-index: 2;
-      filter: drop-shadow(3px 3px 5px rgba(0,0,0,0.5));
+      width: clamp(100px, 20vw, 180px);
+      z-index: 3;
+      filter: drop-shadow(5px 5px 8px rgba(0,0,0,0.6));
     }
 
     .barn svg {
@@ -86,16 +135,139 @@
       height: auto;
     }
 
+    /* Silo */
+    .silo {
+      position: fixed;
+      top: 12%;
+      left: calc(5% + clamp(100px, 20vw, 180px) + 10px);
+      width: clamp(40px, 8vw, 60px);
+      z-index: 3;
+    }
+
+    .silo svg {
+      width: 100%;
+      height: auto;
+      filter: drop-shadow(3px 3px 5px rgba(0,0,0,0.5));
+    }
+
+    /* Farmhouse */
+    .farmhouse {
+      position: fixed;
+      top: 10%;
+      right: 5%;
+      width: clamp(80px, 15vw, 140px);
+      z-index: 3;
+      filter: drop-shadow(4px 4px 6px rgba(0,0,0,0.5));
+    }
+
+    .farmhouse svg {
+      width: 100%;
+      height: auto;
+    }
+
+    /* Hay bales */
+    .hay {
+      position: fixed;
+      z-index: 3;
+    }
+
+    .hay-1 { bottom: 8%; left: 3%; width: clamp(50px, 10vw, 80px); }
+    .hay-2 { bottom: 6%; left: 10%; width: clamp(40px, 8vw, 60px); transform: rotate(-5deg); }
+    .hay-3 { bottom: 8%; right: 8%; width: clamp(55px, 11vw, 85px); transform: scaleX(-1); }
+    .hay-4 { bottom: 5%; right: 15%; width: clamp(35px, 7vw, 50px); transform: scaleX(-1) rotate(3deg); }
+
+    .hay svg {
+      width: 100%;
+      height: auto;
+      filter: drop-shadow(3px 3px 4px rgba(0,0,0,0.4));
+    }
+
+    /* Fence */
+    .fence {
+      position: fixed;
+      bottom: 18%;
+      left: 0;
+      right: 0;
+      height: 25px;
+      z-index: 4;
+    }
+
+    .fence::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 6px;
+      background: repeating-linear-gradient(
+        90deg,
+        #8B4513 0px,
+        #8B4513 15px,
+        #A0522D 15px,
+        #A0522D 30px
+      );
+    }
+
+    .fence::after {
+      content: '';
+      position: absolute;
+      top: 20%;
+      left: 0;
+      right: 0;
+      height: 6px;
+      background: repeating-linear-gradient(
+        90deg,
+        #8B4513 0px,
+        #8B4513 15px,
+        #A0522D 15px,
+        #A0522D 30px
+      );
+    }
+
+    .fence-post {
+      position: absolute;
+      top: 0;
+      width: 12px;
+      height: 100%;
+      background: linear-gradient(90deg, #8B4513 0%, #A0522D 50%, #8B4513 100%);
+    }
+
+    /* Ground */
+    .ground {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 20%;
+      background: linear-gradient(180deg, #228B22 0%, #145214 50%, #0d3d0d 100%);
+      z-index: 2;
+    }
+
+    /* Grass tufts */
+    .grass {
+      position: fixed;
+      bottom: 18%;
+      z-index: 3;
+    }
+
+    .grass svg {
+      width: 30px;
+      height: 20px;
+    }
+
     /* Header */
     .header {
-      background: linear-gradient(135deg, rgba(139, 69, 19, 0.95), rgba(101, 67, 33, 0.95));
-      border: 4px solid #FFD700;
-      border-radius: 0 0 25px 25px;
-      padding: 15px 30px;
+      background: linear-gradient(135deg, #8B4513 0%, #654321 50%, #4a3020 100%);
+      border: 5px solid #FFD700;
+      border-radius: 0 0 30px 30px;
+      padding: 12px 25px;
       text-align: center;
-      box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+      box-shadow: 
+        0 8px 30px rgba(0,0,0,0.6),
+        inset 0 -3px 10px rgba(0,0,0,0.3);
       z-index: 100;
       position: relative;
+      margin: 0 10%;
     }
 
     .title {
@@ -125,18 +297,7 @@
     .stat.time { border-color: #4ECDC4; color: #4ECDC4; box-shadow: 0 0 10px rgba(78,205,196,0.3); }
     .stat.high { border-color: #FFD700; color: #FFD700; box-shadow: 0 0 10px rgba(255,215,0,0.3); }
 
-    /* Grass/Fence Row */
-    .grass-row {
-      position: fixed;
-      bottom: 25%;
-      left: 0;
-      right: 0;
-      height: 15%;
-      background: linear-gradient(180deg, #32CD32 0%, #228B22 50%, #006400 100%);
-      z-index: 3;
-    }
-
-    .fence {
+    /* Fence */
       position: fixed;
       bottom: 22%;
       left: 0;
@@ -406,23 +567,6 @@
       to { text-shadow: 0 0 30px #FFD700, 0 0 50px #FFA500; }
     }
 
-    /* Hay bales decoration */
-    .hay-bale {
-      position: fixed;
-      bottom: 10%;
-      z-index: 5;
-      opacity: 0.9;
-    }
-
-    .hay-left { left: 5%; }
-    .hay-right { right: 5%; transform: scaleX(-1); }
-
-    .hay-bale svg {
-      width: 80px;
-      height: auto;
-      filter: drop-shadow(3px 3px 5px rgba(0,0,0,0.4));
-    }
-
     /* Combo indicator */
     .combo {
       position: fixed;
@@ -446,39 +590,102 @@
   </style>
 </head>
 <body>
+  <!-- Sun -->
+  <div class="sun"></div>
+
   <!-- Clouds -->
   <div class="cloud cloud-1"></div>
   <div class="cloud cloud-2"></div>
+  <div class="cloud cloud-3"></div>
 
-  <!-- Barn -->
+  <!-- Rolling Hills Background -->
+  <div class="hills">
+    <div class="hill hill-1"></div>
+    <div class="hill hill-2"></div>
+  </div>
+
+  <!-- Barn with Silo -->
   <div class="barn">
-    <svg viewBox="0 0 100 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M50 5 L95 35 L95 75 L5 75 L5 35 Z" fill="#8B0000"/>
-      <path d="M50 5 L95 35 L5 35 Z" fill="#A52A2A"/>
-      <rect x="35" y="45" width="30" height="30" fill="#4a3728" stroke="#2d1a0f" stroke-width="2"/>
-      <circle cx="42" cy="60" r="2" fill="#FFD700"/>
-      <rect x="15" y="25" width="15" height="20" fill="#4a3728" stroke="#2d1a0f" stroke-width="1"/>
-      <rect x="70" y="25" width="15" height="20" fill="#4a3728" stroke="#2d1a0f" stroke-width="1"/>
+    <svg viewBox="0 0 100 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Main barn -->
+      <path d="M50 5 L98 40 L98 85 L2 85 L2 40 Z" fill="#B22222"/>
+      <path d="M50 5 L98 40 L2 40 Z" fill="#CD5C5C"/>
+      <!-- Roof stripe -->
+      <path d="M30 40 L50 15 L70 40" fill="#8B0000"/>
+      <!-- Door -->
+      <rect x="35" y="50" width="30" height="35" rx="3" fill="#4a3728" stroke="#2d1a0f" stroke-width="2"/>
+      <circle cx="50" cy="67" r="3" fill="#FFD700"/>
+      <!-- Windows -->
+      <rect x="12" y="25" width="18" height="18" fill="#87CEEB" stroke="#4a3020" stroke-width="2"/>
+      <rect x="70" y="25" width="18" height="18" fill="#87CEEB" stroke="#4a3020" stroke-width="2"/>
+      <!-- X on windows -->
+      <line x1="12" y1="25" x2="30" y2="43" stroke="#4a3020" stroke-width="2"/>
+      <line x1="30" y1="25" x2="12" y2="43" stroke="#4a3020" stroke-width="2"/>
+      <line x1="70" y1="25" x2="88" y2="43" stroke="#4a3020" stroke-width="2"/>
+      <line x1="88" y1="25" x2="70" y2="43" stroke="#4a3020" stroke-width="2"/>
+    </svg>
+  </div>
+
+  <!-- Silo -->
+  <div class="silo">
+    <svg viewBox="0 0 40 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="20" cy="95" rx="18" ry="5" fill="#696969"/>
+      <rect x="2" y="5" width="36" height="90" fill="#A9A9A9"/>
+      <ellipse cx="20" cy="5" rx="18" ry="5" fill="#BEBEBE"/>
+      <line x1="5" y1="20" x2="35" y2="20" stroke="#808080" stroke-width="1"/>
+      <line x1="5" y1="40" x2="35" y2="40" stroke="#808080" stroke-width="1"/>
+      <line x1="5" y1="60" x2="35" y2="60" stroke="#808080" stroke-width="1"/>
+      <line x1="5" y1="80" x2="35" y2="80" stroke="#808080" stroke-width="1"/>
+    </svg>
+  </div>
+
+  <!-- Farmhouse -->
+  <div class="farmhouse">
+    <svg viewBox="0 0 80 70" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M40 5 L75 30 L75 65 L5 65 L5 30 Z" fill="#F5DEB3"/>
+      <path d="M40 5 L75 30 L5 30 Z" fill="#DEB887"/>
+      <rect x="25" y="35" width="30" height="30" fill="#8B4513" stroke="#5D3A1A" stroke-width="2"/>
+      <circle cx="40" cy="50" r="2" fill="#FFD700"/>
+      <rect x="15" y="20" width="12" height="15" fill="#87CEEB" stroke="#5D3A1A" stroke-width="1"/>
+      <rect x="53" y="20" width="12" height="15" fill="#87CEEB" stroke="#5D3A1A" stroke-width="1"/>
     </svg>
   </div>
 
   <!-- Hay bales -->
-  <div class="hay-bale hay-left">
-    <svg viewBox="0 0 50 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <ellipse cx="25" cy="25" rx="22" ry="12" fill="#DAA520"/>
-      <ellipse cx="25" cy="20" rx="20" ry="10" fill="#FFD700"/>
-      <line x1="10" y1="20" x2="10" y2="30" stroke="#8B4513" stroke-width="2"/>
-      <line x1="25" y1="15" x2="25" y2="30" stroke="#8B4513" stroke-width="2"/>
-      <line x1="40" y1="20" x2="40" y2="30" stroke="#8B4513" stroke-width="2"/>
+  <div class="hay hay-1">
+    <svg viewBox="0 0 50 35" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="25" cy="22" rx="23" ry="12" fill="#DAA520"/>
+      <ellipse cx="25" cy="18" rx="21" ry="10" fill="#FFD700"/>
+      <line x1="8" y1="18" x2="8" y2="28" stroke="#8B4513" stroke-width="2"/>
+      <line x1="25" y1="12" x2="25" y2="28" stroke="#8B4513" stroke-width="2"/>
+      <line x1="42" y1="18" x2="42" y2="28" stroke="#8B4513" stroke-width="2"/>
     </svg>
   </div>
-  <div class="hay-bale hay-right">
-    <svg viewBox="0 0 50 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <ellipse cx="25" cy="25" rx="22" ry="12" fill="#DAA520"/>
-      <ellipse cx="25" cy="20" rx="20" ry="10" fill="#FFD700"/>
-      <line x1="10" y1="20" x2="10" y2="30" stroke="#8B4513" stroke-width="2"/>
-      <line x1="25" y1="15" x2="25" y2="30" stroke="#8B4513" stroke-width="2"/>
-      <line x1="40" y1="20" x2="40" y2="30" stroke="#8B4513" stroke-width="2"/>
+  <div class="hay hay-2">
+    <svg viewBox="0 0 50 35" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="25" cy="22" rx="23" ry="12" fill="#DAA520"/>
+      <ellipse cx="25" cy="18" rx="21" ry="10" fill="#FFD700"/>
+      <line x1="8" y1="18" x2="8" y2="28" stroke="#8B4513" stroke-width="2"/>
+      <line x1="25" y1="12" x2="25" y2="28" stroke="#8B4513" stroke-width="2"/>
+      <line x1="42" y1="18" x2="42" y2="28" stroke="#8B4513" stroke-width="2"/>
+    </svg>
+  </div>
+  <div class="hay hay-3">
+    <svg viewBox="0 0 50 35" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="25" cy="22" rx="23" ry="12" fill="#DAA520"/>
+      <ellipse cx="25" cy="18" rx="21" ry="10" fill="#FFD700"/>
+      <line x1="8" y1="18" x2="8" y2="28" stroke="#8B4513" stroke-width="2"/>
+      <line x1="25" y1="12" x2="25" y2="28" stroke="#8B4513" stroke-width="2"/>
+      <line x1="42" y1="18" x2="42" y2="28" stroke="#8B4513" stroke-width="2"/>
+    </svg>
+  </div>
+  <div class="hay hay-4">
+    <svg viewBox="0 0 50 35" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="25" cy="22" rx="23" ry="12" fill="#DAA520"/>
+      <ellipse cx="25" cy="18" rx="21" ry="10" fill="#FFD700"/>
+      <line x1="8" y1="18" x2="8" y2="28" stroke="#8B4513" stroke-width="2"/>
+      <line x1="25" y1="12" x2="25" y2="28" stroke="#8B4513" stroke-width="2"/>
+      <line x1="42" y1="18" x2="42" y2="28" stroke="#8B4513" stroke-width="2"/>
     </svg>
   </div>
 
@@ -496,7 +703,6 @@
   </div>
 
   <div class="ground"></div>
-  <div class="grass-row"></div>
   <div class="fence"></div>
 
   <!-- Start Screen -->
