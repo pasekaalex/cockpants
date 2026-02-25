@@ -511,9 +511,9 @@
     </div>
     
     <div class="difficulty-select">
-      <button class="diff-btn" data-speed="1200" data-label="EASY">EASY</button>
-      <button class="diff-btn selected" data-speed="800" data-label="NORMAL">NORMAL</button>
-      <button class="diff-btn" data-speed="500" data-label="HARD">HARD</button>
+      <button class="diff-btn" data-speed="1800" data-label="EASY">EASY</button>
+      <button class="diff-btn selected" data-speed="1200" data-label="NORMAL">NORMAL</button>
+      <button class="diff-btn" data-speed="700" data-label="HARD">HARD</button>
     </div>
     
     <button class="btn" onclick="startGame()">PLAY!</button>
@@ -528,36 +528,11 @@
   </div>
 
   <script>
-    // Sprite categories
-    const BULK_SPRITES = {
-      baby: [
-        'https://bulked.lol/images/gachi-s/baby-bulk.png',
-        'https://bulked.lol/images/gachi-s/baby-happy.png',
-        'https://bulked.lol/images/gachi-s/baby-play.png',
-      ],
-      adult: [
-        'https://bulked.lol/images/gachi-s/bulk.png',
-        'https://bulked.lol/images/gachi-s/bulk-happy.png',
-        'https://bulked.lol/images/gachi-s/bulk-play.png',
-      ],
-      elder: [
-        'https://bulked.lol/images/gachi-s/elder.png',
-        'https://bulked.lol/images/gachi-s/elder-happy.png',
-        'https://bulked.lol/images/gachi-s/elder-play.png',
-      ],
-      special: [
-        'https://bulked.lol/images/gachi-s/baby-angry.png',
-        'https://bulked.lol/images/gachi-s/bulk-angry.png',
-        'https://bulked.lol/images/gachi-s/elder-angry.png',
-      ]
-    };
-
-    // All sprites flattened
+    // Only angry sprites!
     const ALL_SPRITES = [
-      ...BULK_SPRITES.baby,
-      ...BULK_SPRITES.adult,
-      ...BULK_SPRITES.elder,
-      ...BULK_SPRITES.special
+      'https://bulked.lol/images/gachi-s/baby-angry.png',
+      'https://bulked.lol/images/gachi-s/bulk-angry.png',
+      'https://bulked.lol/images/gachi-s/elder-angry.png',
     ];
 
     let score = 0;
@@ -607,16 +582,7 @@
       });
     }
 
-    function getRandomSprite() {
-      // 20% chance for special angry bulk!
-      if (Math.random() < 0.2) {
-        return BULK_SPRITES.special[Math.floor(Math.random() * BULK_SPRITES.special.length)];
-      }
-      // Otherwise random from all
-      return ALL_SPRITES[Math.floor(Math.random() * ALL_SPRITES.length)];
-    }
-
-    function startGame() {
+      // Random sprite from angry list
       score = 0;
       timeLeft = 30;
       isPlaying = true;
@@ -662,7 +628,7 @@
       const hole = holes[index];
       
       // Random sprite
-      const sprite = getRandomSprite();
+      const sprite = ALL_SPRITES[Math.floor(Math.random() * ALL_SPRITES.length)];
       hole.querySelector('.bulk').style.backgroundImage = `url(${sprite})`;
       
       // Pop up animation
